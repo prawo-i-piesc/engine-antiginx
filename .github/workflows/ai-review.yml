@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Start PR-Agent with Gemini
-        uses: qodo-ai/pr-agent@v1
+        uses: qodo-ai/pr-agent@v0.31
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }} 
         with:
