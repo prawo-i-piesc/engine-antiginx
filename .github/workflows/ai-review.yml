@@ -1,12 +1,21 @@
 name: AI Code Review
 
-on:
-  pull_request:
-    types: [opened, synchronize]
-
 permissions:
   contents: read
   pull-requests: write
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  pull_request_review_comment:
+    types: [created]
+
+concurrency:
+  group:
+    ${{ github.repository }}-${{ github.event.number || github.head_ref ||
+    github.sha }}-${{ github.workflow }}-${{ github.event_name ==
+    'pull_request_review_comment' && 'pr_comment' || 'pr' }}
+  cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
 
 jobs:
   review:
@@ -20,5 +29,3 @@ jobs:
           debug: false
           review_simple_changes: false
           review_comment_lgtm: false
-          OPENAI_API_MODEL: "gpt-4o"
-          language: "pl"
