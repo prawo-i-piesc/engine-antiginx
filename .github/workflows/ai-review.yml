@@ -16,7 +16,7 @@ jobs:
       issues: write
     steps:
       - name: Start PR-Agent with Gemini
-        uses: qodo-ai/pr-agent@0.31
+        uses: qodo-ai/pr-agent@v0.31
 
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
