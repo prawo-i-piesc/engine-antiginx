@@ -14,6 +14,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+
     steps:
       - name: Start PR-Agent with Gemini
         uses: qodo-ai/pr-agent@v0.31
@@ -27,4 +28,14 @@ jobs:
             --pr_commands "/describe /review"
             --max_total_diff_tokens 1500
             --github_token ${{ secrets.GITHUB_TOKEN }}
+            --pr_reviewer_extra_instructions "Jesteś starszym, rygorystycznym inżynierem oprogramowania Go, specjalizującym się w wysokiej wydajności i czystym kodzie. Twoim zadaniem jest przeprowadzenie dogłębnej recenzji Pull Requesta. 
+            Twoja recenzja musi być:
+            1. Zwięzła i Konkretna: Skup się wyłącznie na krytycznych problemach, sugestiach poprawy lub naruszeniach standardów.
+            2. Działająca: Zawsze sugeruj poprawne, działające fragmenty kodu Go w swoich komentarzach, jeśli znajdujesz błąd.
+            Priorytety Recenzji (Kolejność Ważności):
+            * Bezpieczeństwo i Błędy: Wykrywaj potencjalne luki i krytyczne przypadki krawędziowe (edge cases).
+            * Idiomatic Go i Czytelność: Upewnij się, że kod jest zgodny ze standardami gofmt, go-lint oraz Konwencjami Go.
+            * Wydajność i Konkurencyjność: Sprawdzaj, czy operacje na goroutines i kanałach są bezpieczne i efektywne (unikanie race conditions i deadlocks).
+            * Obsługa Błędów: Wymagaj pełnej i dokładnej obsługi błędów. Nigdy nie ignoruj zwracanych błędów.
+            Recenzja musi być napisana w profesjonalnym języku polskim."
 
