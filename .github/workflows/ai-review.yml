@@ -2,9 +2,7 @@ name: AI Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
-  pull_request_review_comment:
-    types: [created]
+    types: [opened, synchronize]
 
 permissions:
   contents: read
@@ -16,10 +14,12 @@ jobs:
     steps:
       - name: CodeRabbit Reviewer
         uses: coderabbitai/ai-pr-reviewer@latest
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          debug: false
+          review_simple_changes: false
+          review_comment_lgtm: false
           OPENAI_API_MODEL: "gpt-4o"
           language: "pl"
-          review_simple_changes: true
-          review_comment_lgtm: false
