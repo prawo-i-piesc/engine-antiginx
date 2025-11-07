@@ -1,30 +1,26 @@
-name: AI Review (Go)
+name: AI Review with Gemini
 
 on:
-  pull_request_target:
-    types: [opened, reopened, synchronize, ready_for_review]
+  pull_request:
+    types: [opened, reopened, synchronize]
   
+permissions:
+  contents: read
+  pull-requests: write
+      
 jobs:
-  gemini_pr_review:
-    if: ${{ github.event.sender.type != 'Bot' }}
+  review:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      pull-requests: write
-      issues: write
-
     steps:
-      - name: Start PR-Agent with Gemini
-        uses: qodo-ai/pr-agent@v0.31
-
-        env:
-          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
         with:
-          args: |
-            --openai_model gemini-2.5-flash
-            --pr_commands "/describe /review"
-            --max_total_diff_tokens 1500
-            --github_token ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
+      - name: Code Review by Gemini AI
+        uses: rubensflinco/gemini-code-review-action@1.0.5
+
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
