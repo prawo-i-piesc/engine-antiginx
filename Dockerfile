@@ -1,5 +1,5 @@
 # Build stage: compile the Go application
-FROM golang:latest as build
+FROM golang:latest AS build
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
 
 
 # Final stage: a minimal image to run the application
-FROM alpine:latest as run
+FROM alpine:latest AS run
 
 WORKDIR /app
 
