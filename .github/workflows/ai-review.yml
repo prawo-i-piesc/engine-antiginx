@@ -2,23 +2,22 @@ name: AI Code Review (Gemini)
 
 on:
   pull_request:
-    types: [opened, synchronize]
-
-permissions:
-  contents: read
-  pull-requests: write
+    types: [opened, reopened, synchronize]
 
 jobs:
-  review:
+  label:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Code Review by Gemini AI
-        uses: rubenslin/gemini-code-review-action@v1.0.5
+    permissions:
+      issues: write  # Write permission to add labels
+      pull-requests: write 
+      contents: read  # Read permission to analyze the content
+
+    steps:
+      - name: Label Issues and PRs
+        uses: Prachi-Jamdade/auto-labeler@main
         with:
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          label-mapping: '{"bug": "bug", "feature": "enhancement", "documentation": "docs", "question": "question"}'
+          max-issues: 30
