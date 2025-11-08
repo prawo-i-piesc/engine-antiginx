@@ -10,6 +10,7 @@
 # DevOps and Project Config
 .github/workflows/** @Kogut01
 .github/*.yaml @Kogut01
+.github/*.yml @Kogut01
 .gitignore @Kogut01
 
 # HTTP Client
