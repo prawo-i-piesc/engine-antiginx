@@ -35,8 +35,6 @@ categories:
 
 change-template: | 
   $TITLE @$AUTHOR (#$NUMBER)
-  $COMMITS
-
 change-title-escapes: '\<*_&'
 
 version-resolver:
