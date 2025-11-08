@@ -2,55 +2,36 @@ name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 
 categories:
-  - name: '➕ Adds'
-    title:
+  - title: '➕ Adds'
+    labels:
       - '/add.*/i'
-    labels:
-      - 'add'
 
-  - name: '➖ Removes'
-    title:
-      - '/del.*/i'
+  - title: '➖ Removes'
     labels:
-      - 'del'
+      - '/del.*/i'
     
-  - name: '🚀 Features'
-    title:
+  - title: '🚀 Features'
+    labels:
       - '/feat.*/i'
       - '/feature.*/i'
       - '/enhancement.*/i'
-    labels:
-      - 'feat'
-      - 'feature'
-      - 'enhancement'
 
-  - name: '🐛 Fixes'
-    title:
+  - title: '🐛 Fixes'
+    labels:
       - '/fix.*/i'
       - '/bugfix.*/i'
       - '/bug.*/i'
-    labels:
-      - 'fix'
-      - 'bugfix'
-      - 'bug'
 
-  - name: '🧪 Tests'
-    title:
+  - title: '🧪 Tests'
+    labels:
       - '/test.*/i'
-    labels:
-      - 'test'
 
-  - name: '🧰 Maintenance'
-    title: 
+  - title: '🧰 Maintenance'
+    labels: 
       - '/chore.*/i'
       - '/documentation.*/i'
       - '/doc.*/i'
       - '/dependencies.*/i'
-    labels:
-      - 'chore'
-      - 'documentation'
-      - 'doc'
-      - 'dependencies'
 
 change-template: | 
   $TITLE @$AUTHOR (#$NUMBER)
