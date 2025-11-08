@@ -1,0 +1,51 @@
+# {{{1 go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+*.test
+
+*.out
+go.work
+# }}}1
+
+## {{{1 os
+.DS_Store
+## }}}1
+
+## {{{1 ide
+.idea
+## }}}1
+
+## {{{1 archives
+*.7z
+*.bz2
+*.bzip
+*.bzip2
+*.cab
+*.gz
+*.gzip
+*.jar
+*.lzma
+*.rar
+*.tar.gz
+*.tgz
+*.xar
+*.xz
+*.zip
+
+*.iso
+*.dmg
+
+*.deb
+*.egg
+*.gem
+*.msi
+*.msm
+*.msp
+*.rpm
+*.txz
+*.xpi
+## }}}1
