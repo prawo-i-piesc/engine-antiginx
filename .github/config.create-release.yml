@@ -3,37 +3,59 @@ tag-template: 'v$RESOLVED_VERSION'
 
 categories:
   - title: '➕ Adds'
-    labels:
+    title:
       - '/add.*/i'
+    labels:
+      - 'add'
 
   - title: '➖ Removes'
-    labes:
+    title:
       - '/del.*/i'
+    labels:
+      - 'del'
     
   - title: '🚀 Features'
-    labels:
+    title:
       - '/feat.*/i'
       - '/feature.*/i'
       - '/enhancement.*/i'
+    labels:
+      - 'feat'
+      - 'feature'
+      - 'enhancement'
 
   - title: '🐛 Fixes'
-    labels:
+    title:
       - '/fix.*/i'
       - '/bugfix.*/i'
       - '/bug.*/i'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
 
   - title: '🧪 Tests'
-    labels:
+    title:
       - '/test.*/i'
+    labels:
+      - 'test'
 
   - title: '🧰 Maintenance'
-    labels: 
+    title: 
       - '/chore.*/i'
       - '/documentation.*/i'
       - '/doc.*/i'
       - '/dependencies.*/i'
+    labels:
+      - 'chore'
+      - 'documentation'
+      - 'doc'
+      - 'dependencies'
 
-change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-template: | 
+  $TITLE @$AUTHOR (#$NUMBER)
+  $COMMITS
+
 change-title-escapes: '\<*_&'
 
 version-resolver:
