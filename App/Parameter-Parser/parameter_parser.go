@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+type parameterParser struct{}
 type commandParameter struct {
 	Name      string
 	Arguments []string
@@ -21,7 +22,11 @@ type parsingError struct {
 	Error   any
 }
 
-func Parse(userParameters []string) []commandParameter {
+func CreateCommandParser() *parameterParser {
+	return &parameterParser{}
+}
+
+func (p *parameterParser) Parse(userParameters []string) []commandParameter {
 	paramLen := len(userParameters)
 	if paramLen < 2 {
 		panic(parsingError{
@@ -35,7 +40,7 @@ func Parse(userParameters []string) []commandParameter {
 	//Raise error if not
 	if userParameters[1] != "test" {
 		panic(parsingError{
-			Code: 100,
+			Code: 201,
 			Message: `Parsing error occurred. This could be due to:
 					- test keyword is not present
 					- structure of the command is invalid`,
@@ -133,7 +138,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				argMode = false
 				if len(args) == 0 {
 					panic(parsingError{
-						Code: 103,
+						Code: 403,
 						Message: `Parsing error occurred. This could be due to:
 								- too few arguments passed to arg required param`,
 						Error: nil,
@@ -150,7 +155,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 			if v.ArgRequired {
 				if userParametersLen == i+1 {
 					panic(parsingError{
-						Code: 103,
+						Code: 403,
 						Message: `Parsing error occurred. This could be due to:	
 								- too few arguments passed to arg required param`,
 						Error: nil,
@@ -191,7 +196,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					fmt.Println(token)
 					if !findElement(token, v.Arguments) {
 						panic(parsingError{
-							Code: 103,
+							Code: 404,
 							Message: `Parsing error occurred. This could be due to:
 									- invalid argument passed to the parameter`,
 							Error: nil,
@@ -204,9 +209,9 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 
 			} else {
 				panic(parsingError{
-					Code: 103,
+					Code: 404,
 					Message: `Parsing error occurred. This could be due to:
-							- Invalid parameter`,
+							- invalid argument passed to the parameter`,
 					Error: nil,
 				})
 			}
@@ -238,7 +243,7 @@ func parseJsonFile() map[string]parameter {
 	//Checking if file with built-in commands is parsed correctly
 	if err != nil {
 		panic(parsingError{
-			Code: 101,
+			Code: 302,
 			Message: `Parsing error occurred. This could be due to:
 					- internal error`,
 			Error: err,
@@ -248,7 +253,7 @@ func parseJsonFile() map[string]parameter {
 	var params map[string]parameter
 	if err := json.Unmarshal(bs, &params); err != nil {
 		panic(parsingError{
-			Code: 102,
+			Code: 302,
 			Message: `Parsing error occurred. This could be due to:
 					- internal error`,
 			Error: err,
