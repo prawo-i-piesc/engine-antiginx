@@ -1,11 +1,12 @@
 package main
 
 import (
-	parser "Engine-AntiGinx/App/Parameter-Parser"
+	ParameterParser "Engine-AntiGinx/App/Parameter-Parser"
 	"fmt"
 	"os"
 )
 
 func main() {
+	parser := ParameterParser.CreateCommandParser()
 	fmt.Println(parser.Parse(os.Args))
 }
