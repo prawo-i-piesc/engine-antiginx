@@ -317,7 +317,7 @@ Result of `Parse(...)`:
 ["scanner", "test", "--target"]
 ```
 
-- Triggers `panic(parsingError{Code:403, ...})` - too few arguments for `-target`.
+- Triggers `panic(parsingError{Code:403, ...})` - too few arguments for `--target`.
 
 3. Invalid argument (not in whitelist):
 

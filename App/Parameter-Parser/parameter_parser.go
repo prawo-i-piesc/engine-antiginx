@@ -2,7 +2,6 @@ package Parameter_Parser
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -32,7 +31,7 @@ func (p *parameterParser) Parse(userParameters []string) []commandParameter {
 		panic(parsingError{
 			Code: 100,
 			Message: `Parsing error occurred. This could be due to:
-					- insufficient number of parameters`,
+				- insufficient number of parameters`,
 			Error: nil,
 		})
 	}
@@ -42,8 +41,8 @@ func (p *parameterParser) Parse(userParameters []string) []commandParameter {
 		panic(parsingError{
 			Code: 201,
 			Message: `Parsing error occurred. This could be due to:
-					- test keyword is not present
-					- structure of the command is invalid`,
+				- test keyword is not present
+				- structure of the command is invalid`,
 			Error: nil,
 		})
 	}
@@ -140,7 +139,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					panic(parsingError{
 						Code: 403,
 						Message: `Parsing error occurred. This could be due to:
-								- too few arguments passed to arg required param`,
+							- too few arguments passed to arg required param`,
 						Error: nil,
 					})
 				}
@@ -157,7 +156,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					panic(parsingError{
 						Code: 403,
 						Message: `Parsing error occurred. This could be due to:	
-								- too few arguments passed to arg required param`,
+							- too few arguments passed to arg required param`,
 						Error: nil,
 					})
 				}
@@ -193,12 +192,11 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 			if argMode {
 				v, _ := params[currentParam]
 				if len(v.Arguments) > 0 {
-					fmt.Println(token)
 					if !findElement(token, v.Arguments) {
 						panic(parsingError{
 							Code: 404,
 							Message: `Parsing error occurred. This could be due to:
-									- invalid argument passed to the parameter`,
+								- invalid argument passed to the parameter`,
 							Error: nil,
 						})
 					}
@@ -211,7 +209,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				panic(parsingError{
 					Code: 404,
 					Message: `Parsing error occurred. This could be due to:
-							- invalid argument passed to the parameter`,
+						- invalid argument passed to the parameter`,
 					Error: nil,
 				})
 			}
@@ -224,7 +222,6 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 			Name:      currentParam,
 			Arguments: argCopy,
 		})
-		// clear args for reuse
 		args = args[:0]
 	}
 
@@ -245,7 +242,7 @@ func parseJsonFile() map[string]parameter {
 		panic(parsingError{
 			Code: 302,
 			Message: `Parsing error occurred. This could be due to:
-					- internal error`,
+				- internal error`,
 			Error: err,
 		})
 	}
@@ -255,7 +252,7 @@ func parseJsonFile() map[string]parameter {
 		panic(parsingError{
 			Code: 302,
 			Message: `Parsing error occurred. This could be due to:
-					- internal error`,
+				- internal error`,
 			Error: err,
 		})
 	}
