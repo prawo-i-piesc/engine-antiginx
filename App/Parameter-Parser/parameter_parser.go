@@ -6,33 +6,39 @@ var params = map[string]parameter{
 		Arguments:   []string{},
 		DefaultVal:  "",
 		ArgRequired: true,
+		ArgCount:    1,
 	},
 	"--userAgent": {
 		Arguments:   []string{},
 		DefaultVal:  "Scanner/1.0",
 		ArgRequired: false,
+		ArgCount:    1,
 	},
 	"--referer": {
 		Arguments:   []string{},
 		DefaultVal:  "",
 		ArgRequired: false,
+		ArgCount:    1,
 	},
 	"--tests": {
 		Arguments: []string{"https", "hsts", "csp", "xFrame",
 			"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"},
 		DefaultVal:  "",
 		ArgRequired: true,
+		ArgCount:    -1,
 	},
 	"--httpMethods": {
 		Arguments: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "TRACE",
 			"CONNECT", "HEAD"},
 		DefaultVal:  "",
 		ArgRequired: true,
+		ArgCount:    -1,
 	},
 	"--files": {
 		Arguments:   []string{},
 		DefaultVal:  "",
 		ArgRequired: true,
+		ArgCount:    -1,
 	},
 }
 
@@ -45,11 +51,11 @@ type parameter struct {
 	Arguments   []string
 	DefaultVal  string
 	ArgRequired bool
+	ArgCount    int
 }
 type parsingError struct {
 	Code    int
 	Message string
-	Error   any
 }
 
 func CreateCommandParser() *parameterParser {
@@ -63,7 +69,6 @@ func (p *parameterParser) Parse(userParameters []string) []commandParameter {
 			Code: 100,
 			Message: `Parsing error occurred. This could be due to:
 				- insufficient number of parameters`,
-			Error: nil,
 		})
 	}
 	//Checking if test keyword is present or is at its position
@@ -74,7 +79,6 @@ func (p *parameterParser) Parse(userParameters []string) []commandParameter {
 			Message: `Parsing error occurred. This could be due to:
 				- test keyword is not present
 				- structure of the command is invalid`,
-			Error: nil,
 		})
 	}
 	return transformIntoTable(params, userParameters)
@@ -169,8 +173,18 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						Code: 403,
 						Message: `Parsing error occurred. This could be due to:
 							- too few arguments passed to arg required param`,
-						Error: nil,
 					})
+				}
+				checkOccurences(args)
+				b := params[currentParam].ArgCount
+				if b == 1 {
+					if len(args) != b {
+						panic(parsingError{
+							Code: 406,
+							Message: `Parsing error occurred. This could be due to:
+								- unnecessary argument passed to the parameter`,
+						})
+					}
 				}
 				argCopy := append([]string(nil), args...)
 				parsedParams = append(parsedParams, commandParameter{
@@ -186,7 +200,6 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						Code: 403,
 						Message: `Parsing error occurred. This could be due to:	
 							- too few arguments passed to arg required param`,
-						Error: nil,
 					})
 				}
 				argMode = true
@@ -226,26 +239,24 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 							Code: 404,
 							Message: `Parsing error occurred. This could be due to:
 								- invalid argument passed to the parameter`,
-							Error: nil,
 						})
 					}
 					args = append(args, token)
 				} else {
 					args = append(args, token)
 				}
-
 			} else {
 				panic(parsingError{
 					Code: 404,
 					Message: `Parsing error occurred. This could be due to:
 						- invalid argument passed to the parameter`,
-					Error: nil,
 				})
 			}
 		}
 	}
 	if argMode {
 		argMode = false
+		checkOccurences(args)
 		argCopy := append([]string(nil), args...)
 		parsedParams = append(parsedParams, commandParameter{
 			Name:      currentParam,
@@ -263,4 +274,21 @@ func findElement(userParam string, params []string) bool {
 		}
 	}
 	return false
+}
+func checkOccurences(args []string) {
+	for i := 0; i < len(args); i++ {
+		curr := args[i]
+		for j := 0; j < len(args); j++ {
+			if i == j {
+				continue
+			}
+			if curr == args[j] {
+				panic(parsingError{
+					Code: 405,
+					Message: `Parsing error occurred. This could be due to:
+									- one of the arguments occurred more than once`,
+				})
+			}
+		}
+	}
 }
