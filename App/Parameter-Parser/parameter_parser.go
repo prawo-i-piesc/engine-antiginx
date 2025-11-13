@@ -175,7 +175,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 							- too few arguments passed to arg required param`,
 					})
 				}
-				checkOccurrences(args)
+				checkOccurences(args)
 				b := params[currentParam].ArgCount
 				if b == 1 {
 					if len(args) != b {
@@ -256,7 +256,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 	}
 	if argMode {
 		argMode = false
-		checkOccurrences(args)
+		checkOccurences(args)
 		argCopy := append([]string(nil), args...)
 		parsedParams = append(parsedParams, commandParameter{
 			Name:      currentParam,
@@ -275,7 +275,7 @@ func findElement(userParam string, params []string) bool {
 	}
 	return false
 }
-func checkOccurrences(args []string) {
+func checkOccurences(args []string) {
 	seen := make(map[string]bool)
 	for _, curr := range args {
 		if seen[curr] {
