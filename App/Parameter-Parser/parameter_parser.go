@@ -125,7 +125,7 @@ Function which transforms and validates user data into commands table
 	  - If there is a next token:
 	    · If next token is another parameter:
 
-	  - Append {Name: token, Arguments: []} (no custom value)
+	  - Append {Name: token, Arguments: [defaultVal]}
 	    · Else (next token is not a parameter):
 
 	  - Treat next token as a user-provided argument
@@ -170,7 +170,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				argMode = false
 				if len(args) == 0 {
 					panic(parsingError{
-						Code: 403,
+						Code: 303,
 						Message: `Parsing error occurred. This could be due to:
 							- too few arguments passed to arg required param`,
 					})
@@ -180,7 +180,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				if b == 1 {
 					if len(args) != b {
 						panic(parsingError{
-							Code: 406,
+							Code: 306,
 							Message: `Parsing error occurred. This could be due to:
 								- unnecessary argument passed to the parameter`,
 						})
@@ -197,7 +197,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 			if v.ArgRequired {
 				if userParametersLen == i+1 {
 					panic(parsingError{
-						Code: 403,
+						Code: 303,
 						Message: `Parsing error occurred. This could be due to:	
 							- too few arguments passed to arg required param`,
 					})
@@ -236,7 +236,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				if len(v.Arguments) > 0 {
 					if !findElement(token, v.Arguments) {
 						panic(parsingError{
-							Code: 404,
+							Code: 304,
 							Message: `Parsing error occurred. This could be due to:
 								- invalid argument passed to the parameter`,
 						})
@@ -247,7 +247,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				}
 			} else {
 				panic(parsingError{
-					Code: 404,
+					Code: 304,
 					Message: `Parsing error occurred. This could be due to:
 						- invalid argument passed to the parameter`,
 				})
@@ -276,19 +276,15 @@ func findElement(userParam string, params []string) bool {
 	return false
 }
 func checkOccurences(args []string) {
-	for i := 0; i < len(args); i++ {
-		curr := args[i]
-		for j := 0; j < len(args); j++ {
-			if i == j {
-				continue
-			}
-			if curr == args[j] {
-				panic(parsingError{
-					Code: 405,
-					Message: `Parsing error occurred. This could be due to:
-									- one of the arguments occurred more than once`,
-				})
-			}
+	seen := make(map[string]bool)
+	for _, curr := range args {
+		if seen[curr] {
+			panic(parsingError{
+				Code: 305,
+				Message: `Parsing error occurred. This could be due to:
+					- one of the arguments occurred more than once`,
+			})
 		}
+		seen[curr] = true
 	}
 }

@@ -11,7 +11,6 @@ Engine-AntiGinx/
 ├── Parameter-Parser/
 │  └── parameter-parser.go  # Parameter parser
 ├── Shared/
-   └── commands.json        # Static JSON file with parameters
 ```
 
 ### httpWrapper
@@ -141,7 +140,7 @@ func ContainsAny(s string, subs []string) bool
 
 ### Parameter_Parser
 
-`Parameter_Parser` is a package for parsing CLI command input parameters. It processes a list of tokens (program arguments) based on a built-in JSON file with parameter definitions (`App/Shared/commands.json`). Parsing is validated for required arguments, allowed values (whitelist), and default values. The package uses a panic-based error handling system with structured error information.
+`Parameter_Parser` is a package for parsing CLI command input parameters. It processes a list of tokens (program arguments) based on statically defined parameter definitions in code. Parsing is validated for required arguments, allowed values (whitelist), and default values. The package uses a panic-based error handling system with structured error information.
 
 ---
 
@@ -157,21 +156,21 @@ type commandParameter struct {
 }
 
 type parameter struct {
-	Arguments   []string `json:"arguments"`
-	DefaultVal  string   `json:"defaultVal"`
-	ArgRequired bool     `json:"argRequired"`
+	Arguments   []string
+	DefaultVal  string
+	ArgRequired bool
+	ArgCount int
 }
 
 type parsingError struct {
 	Code    int
 	Message string
-	Error   any
 }
 ```
 
 - `parameterParser` — the parser object.
 - `commandParameter` — a resulting record with the parameter name and its arguments.
-- `parameter` — structure describing a single parameter from the JSON file.
+- `parameter` — structure describing a single parameter from static Map. Arg count can be 1 (takes only one argument) or -1 (takes multiple arguments)
 - `parsingError` — structured error used in panic.
 
 ---
@@ -203,7 +202,7 @@ func (p *parameterParser) Parse(userParameters []string) []commandParameter
 - Validates input parameters:
     - Must contain at least 2 tokens.
     - Second token must be `"test"`.
-- Loads parameter definitions from JSON (`parseJsonFile`) and transforms user input via `transformIntoTable`.
+- Transforms user input via `transformIntoTable`.
 - Returns `[]commandParameter`.
 
 **Example usage:**
@@ -236,7 +235,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 
 - Core parsing algorithm.
 - Inputs:
-    - `params` — map of defined parameters (from JSON).
+    - `params` — map of defined parameters.
     - `userParameters` — tokens provided by the user.
 - Logic (summary):
     - Iterates tokens starting from index `2`.
@@ -261,19 +260,14 @@ func findElement(userParam string, params []string) bool
 
 - Simple linear search — checks if `userParam` exists in `params`.
 - Used for whitelist validation.
-
 ---
 
-##### parseJsonFile
+#### checkOccurences
 
 ```go
-func parseJsonFile() map[string]parameter
+func checkOccurences(args []string)
 ```
-
-- Reads the `App/Shared/commands.json` file and deserializes it into `map[string]parameter`.
-- On read or parse error, triggers `panic` with `parsingError` (code `302` and original error in `Error` field).
-
-**Note:** The file path is relative — ensure the program runs from the correct directory or adjust the path.
+- Iterative function which checks if there is more than one occurences of the same argument 
 
 ---
 
@@ -284,13 +278,15 @@ The package uses a panic-based system with structured `parsingError`. External c
 
 ### Error Codes Used in the Package
 
-| Code  | Meaning | Description |
-| ---- | ------- | ----------- |
+| Code    | Meaning | Description |
+|---------| ------- | ----------- |
 | **100** | General parsing error | e.g., not enough parameters. |
 | **201** | Missing `"test"` keyword / invalid structure | When `userParameters[1] != "test"`. |
-| **302** | Internal I/O / JSON error | File read or JSON parse error (`parseJsonFile`). |
-| **403** | Missing required arguments | Parameter requires arguments, but none provided. |
-| **404** | Unknown parameter / invalid argument | Token is not a parameter and no active `argMode`, or argument not in whitelist. |
+| **303** | Missing required arguments | Parameter requires arguments, but none provided. |
+| **304** | Unknown parameter / invalid argument | Token is not a parameter and no active `argMode`, or argument not in whitelist. |
+| **305** | Invalid user input | Same argument appears more than once in provided input |
+| **306** | Invalid user input | Too many arguments passed to the parameter |
+
 
 
 ## Input/Output Examples
@@ -317,14 +313,14 @@ Result of `Parse(...)`:
 ["scanner", "test", "--target"]
 ```
 
-- Triggers `panic(parsingError{Code:403, ...})` - too few arguments for `--target`.
+- Triggers `panic(parsingError{Code:303, ...})` - too few arguments for `--target`.
 
 3. Invalid argument (not in whitelist):
 
 ```
 ["app", "test", "--httpMethods", "BADMETHOD"]
 ```
- — triggers `panic(parsingError{Code:404, ...})` - invalid argument passed to the parameter.
+ — triggers `panic(parsingError{Code:304, ...})` - invalid argument passed to the parameter.
 
 ---
 
