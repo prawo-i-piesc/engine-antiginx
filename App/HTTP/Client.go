@@ -1,7 +1,7 @@
 package main
 
 import (
-	helpers "Engine-AntiGinx/Helpers"
+	helpers "Engine-AntiGinx/App/Helpers"
 	"fmt"
 	"io"
 	"net/http"
