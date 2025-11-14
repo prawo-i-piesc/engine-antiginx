@@ -1,14 +1,17 @@
-name: Release Build
-run-name: Release-${{ github.event.number }}
-
-permissions:
-    contents: read
+name: Release - draft release-notes
+run-name: release-draft-${{ github.event.number }}
 
 on:
     push:
-        branches: [ "main" ]
+        branches: 
+            - main
     pull_request:
         types: [opened, reopened, synchronize]
+    pull_request_target:
+        types: [opened, reopened, synchronize]
+
+permissions:
+    contents: read
 
 jobs:
     create_release:
@@ -24,4 +27,4 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            config-name: config.create-release.yml
+            config-name: config.release-drafter.yml

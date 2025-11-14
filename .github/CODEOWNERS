@@ -1,17 +1,19 @@
 # CodeOwners and README
 .github/CODEOWNERS @Kogut01
 
-.github/README.md @Kogut01
 .github/README.md @Mailosz0812
 .github/README.md @MichalPlatosz1
-.github/README.md @pajojeku
-.github/README.md @Obvinimus
 
 # DevOps and Project Config
 .github/workflows/** @Kogut01
 .github/*.yaml @Kogut01
 .github/*.yml @Kogut01
 .gitignore @Kogut01
+.dockerignore @Kogut01
+Dockerfile @Kogut01
 
 # HTTP Client
 App/HTTP/** @MichalPlatosz1
+
+# Parametr parser
+App/Params/** @Mailosz0812
