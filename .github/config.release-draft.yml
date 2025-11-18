@@ -19,10 +19,6 @@ categories:
       - 'documentation'
       - 'dependencies'
 
-  - title: '🧪 Tests'
-    labels:
-      - 'test'
-
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
 

@@ -1,10 +1,16 @@
-name: Release - draft release notes
-run-name: release-draft-${{ github.event.number }}
+name: Release Drafter
+run-name: >-
+    ${{ 
+        github.event_name == 'pull_request' 
+        && format('Manage Release Draft for PR #{0} -> {1}', github.event.number, github.event.pull_request.title) 
+        || 
+        github.event_name == 'push'
+        && format('Manage Release Draft for Merge -> {0}', github.event.head_commit.message) 
+    }}
 
 on:
     push:
-        branches: 
-            - main
+        branches: [ "main" ]
     pull_request:
         types: [opened, reopened, synchronize]
 
@@ -12,10 +18,10 @@ permissions:
     contents: read
 
 jobs:
-    update_release_draft:
+    release_draft:
+        name: Release Draft - autoadd
         permissions:
             contents: write
-            packages: write
             pull-requests: write
 
         runs-on: ubuntu-latest
@@ -25,5 +31,5 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            config-name: config.release-drafter.yml
-            publish: true
+            config-name: config.release-draft.yml
+            disable-autolabeler: true
