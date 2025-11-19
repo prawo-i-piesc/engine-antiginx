@@ -9,8 +9,11 @@ Engine-AntiGinx/
 │   │   └── StringHandling.go     # String utility functions
 │   ├── HTTP/
 │   │   └── HttpClient.go         # HTTP wrapper implementation
-│   └── Parameter-Parser/
-│       └── parameter_parser.go   # Parameter parser
+│   ├── Parameter-Parser/
+│   │   └── parameter_parser.go   # Parameter parser
+│   └── Tests/
+│       ├── Types.go              # Test framework types and structures
+│       └── HTTPSTest.go          # HTTPS protocol security test
 ├── main.go                       # Main application entry point
 ├── go.mod                        # Go module definition
 └── .github/                      # GitHub configuration and documentation
@@ -380,5 +383,192 @@ Result of `Parse(...)`:
 ```
 
 — triggers `panic(parsingError{Code:304, ...})` - invalid argument passed to the parameter.
+
+---
+
+## Tests Framework
+
+The Tests framework provides a structured approach for implementing security and functionality tests on HTTP responses. It includes base types, interfaces, and specific test implementations.
+
+### Types.go - Core Framework
+
+The `Types.go` file contains the fundamental structures and types that power the testing framework.
+
+#### ThreatLevel Enumeration
+
+```go
+type ThreatLevel int
+
+const (
+    None ThreatLevel = iota  // 0 - No security issues detected
+    Info                     // 1 - Informational findings
+    Low                      // 2 - Low risk security issues
+    Medium                   // 3 - Medium risk security issues
+    High                     // 4 - High risk security issues
+    Critical                 // 5 - Critical security vulnerabilities
+)
+```
+
+#### TestResult Structure
+
+```go
+type TestResult struct {
+    Name        string                // Test name
+    Certainty   int                   // Confidence percentage (0-100)
+    ThreatLevel ThreatLevel           // Security threat level
+    Metadata    any                   // Additional test-specific data
+    Description string                // Human-readable result description
+}
+```
+
+#### ResponseTest Structure
+
+```go
+type ResponseTest struct {
+    Id          string                                          // Unique test identifier
+    Name        string                                          // Human-readable test name
+    Description string                                          // Detailed test description
+    RunTest     func(params ResponseTestParams) TestResult      // Test execution function
+}
+```
+
+**Methods:**
+
+- `GetId() string` - Returns the test's unique identifier
+- `GetName() string` - Returns the test's display name
+- `GetDescription() string` - Returns the test's detailed description
+- `Run(params ResponseTestParams) TestResult` - Executes the test logic
+
+#### ResponseTestParams
+
+```go
+type ResponseTestParams struct {
+    Response *http.Response  // HTTP response to be analyzed
+}
+```
+
+Contains the HTTP response object that tests will analyze for security issues, headers, content, and other properties.
+
+### HTTPSTest.go - Protocol Security Test
+
+The `HTTPSTest.go` file implements a specific test that verifies whether HTTP communication uses the secure HTTPS protocol.
+
+#### Test Implementation
+
+```go
+func NewHTTPSTest() *ResponseTest {
+    return &ResponseTest{
+        Id:          "https-protocol-check",
+        Name:        "HTTPS Protocol Verification",
+        Description: "Verifies if the website communication is secured with HTTPS protocol",
+        RunTest: func(params ResponseTestParams) TestResult {
+            // Implementation checks params.Response.Request.URL.Scheme
+        },
+    }
+}
+```
+
+#### Test Logic
+
+The HTTPS test performs the following analysis:
+
+1. **Protocol Detection**: Examines `response.Request.URL.Scheme` to determine if HTTPS was used
+2. **Security Assessment**: Evaluates the security implications of the detected protocol
+3. **Result Generation**: Returns detailed results with appropriate threat levels
+
+#### Test Results
+
+**✅ HTTPS Detected (Secure Connection)**
+
+```json
+{
+  "name": "HTTPS Protocol Verification",
+  "certainty": 100,
+  "threatLevel": 0,
+  "metadata": {
+    "protocol": "https",
+    "secure": true,
+    "url": "https://example.com",
+    "status_code": 200
+  },
+  "description": "Connection is secured with HTTPS protocol - data transmission is encrypted"
+}
+```
+
+**⚠️ HTTP Detected (Insecure Connection)**
+
+```json
+{
+  "name": "HTTPS Protocol Verification",
+  "certainty": 100,
+  "threatLevel": 4,
+  "metadata": {
+    "protocol": "http",
+    "secure": false,
+    "url": "http://example.com",
+    "status_code": 200,
+    "vulnerability": "Unencrypted data transmission"
+  },
+  "description": "Connection uses insecure HTTP protocol - data is transmitted in plaintext and vulnerable to interception"
+}
+```
+
+### Usage Example
+
+```go
+import (
+    HttpClient "Engine-AntiGinx/App/HTTP"
+    Tests "Engine-AntiGinx/App/Tests"
+)
+
+func main() {
+    // Make HTTP request
+    httpClient := HttpClient.CreateHttpWrapper()
+    response := httpClient.Get("https://example.com")
+
+    // Create and run HTTPS test
+    httpsTest := Tests.NewHTTPSTest()
+    params := Tests.ResponseTestParams{Response: response}
+    result := httpsTest.Run(params)
+
+    // Process results
+    fmt.Printf("Test: %s (ID: %s)\n", httpsTest.GetName(), httpsTest.GetId())
+    fmt.Printf("Threat Level: %v\n", result.ThreatLevel)
+    fmt.Printf("Description: %s\n", result.Description)
+}
+```
+
+### Framework Benefits
+
+1. **🔧 Extensible Design**: Easy to add new tests by implementing the `ResponseTest` structure
+2. **📊 Structured Results**: Consistent `TestResult` format with threat levels and metadata
+3. **🛡️ Security Focus**: Built-in threat level classification for security assessment
+4. **📱 JSON Ready**: Struct tags ensure proper JSON serialization for APIs
+5. **🎯 Modular Architecture**: Each test is self-contained and independently executable
+
+### Creating Custom Tests
+
+To implement a new test:
+
+1. **Create Test Function**:
+
+```go
+func NewMyCustomTest() *ResponseTest {
+    return &ResponseTest{
+        Id:          "my-custom-test",
+        Name:        "My Custom Test",
+        Description: "Description of what this test does",
+        RunTest:     func(params ResponseTestParams) TestResult {
+            // Your test logic here
+            return TestResult{...}
+        },
+    }
+}
+```
+
+2. **Implement Test Logic**: Analyze the `params.Response` object
+3. **Return Results**: Provide appropriate `TestResult` with threat level and metadata
+
+This framework provides a solid foundation for building comprehensive security testing capabilities for web applications and APIs.
 
 ---
