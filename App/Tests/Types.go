@@ -29,6 +29,7 @@ type ResponseTestParams struct {
 	Response *http.Response
 }
 
+// ResponseTest defines a test that operates on an HTTP response and returns a TestResult.
 type ResponseTest struct {
 	Id          string
 	Name        string
