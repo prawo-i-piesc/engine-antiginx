@@ -1,11 +1,9 @@
 package main
 
 import (
-	//ParameterParser "Engine-AntiGinx/App/Parameter-Parser"
 	HttpClient "Engine-AntiGinx/App/HTTP"
-	Tests "Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/Tests"
 	"fmt"
-	//"os"
 )
 
 func main() {

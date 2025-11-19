@@ -43,7 +43,7 @@ var params = map[string]parameter{
 }
 
 type parameterParser struct{}
-type commandParameter struct {
+type CommandParameter struct {
 	Name      string
 	Arguments []string
 }
@@ -62,7 +62,7 @@ func CreateCommandParser() *parameterParser {
 	return &parameterParser{}
 }
 
-func (p *parameterParser) Parse(userParameters []string) []commandParameter {
+func (p *parameterParser) Parse(userParameters []string) []CommandParameter {
 	paramLen := len(userParameters)
 	if paramLen < 2 {
 		panic(parsingError{
@@ -156,9 +156,9 @@ After finishing the loop:
 
 Return parsedParams.
 */
-func transformIntoTable(params map[string]parameter, userParameters []string) []commandParameter {
+func transformIntoTable(params map[string]parameter, userParameters []string) []CommandParameter {
 	userParametersLen := len(userParameters)
-	var parsedParams []commandParameter
+	var parsedParams []CommandParameter
 	var currentParam string
 	var args []string
 	argMode := false
@@ -187,7 +187,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					}
 				}
 				argCopy := append([]string(nil), args...)
-				parsedParams = append(parsedParams, commandParameter{
+				parsedParams = append(parsedParams, CommandParameter{
 					Name:      currentParam,
 					Arguments: argCopy,
 				})
@@ -209,13 +209,13 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					next := userParameters[i+1]
 					_, ok := params[next]
 					if ok {
-						parsedParams = append(parsedParams, commandParameter{
+						parsedParams = append(parsedParams, CommandParameter{
 							Name:      token,
 							Arguments: []string{v.DefaultVal},
 						})
 						continue
 					} else {
-						parsedParams = append(parsedParams, commandParameter{
+						parsedParams = append(parsedParams, CommandParameter{
 							Name:      token,
 							Arguments: []string{next},
 						})
@@ -223,7 +223,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						continue
 					}
 				} else {
-					parsedParams = append(parsedParams, commandParameter{
+					parsedParams = append(parsedParams, CommandParameter{
 						Name:      token,
 						Arguments: []string{v.DefaultVal},
 					})
@@ -258,7 +258,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 		argMode = false
 		checkOccurrences(args)
 		argCopy := append([]string(nil), args...)
-		parsedParams = append(parsedParams, commandParameter{
+		parsedParams = append(parsedParams, CommandParameter{
 			Name:      currentParam,
 			Arguments: argCopy,
 		})
