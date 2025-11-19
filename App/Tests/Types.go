@@ -24,6 +24,7 @@ type TestResult struct {
 	Description string
 }
 
+// ResponseTestParams contains parameters for a response test, including the HTTP response to be tested.
 type ResponseTestParams struct {
 	Response *http.Response
 }
