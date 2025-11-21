@@ -1,0 +1,86 @@
+site_name: Dokumentacja Engine-AntiGinx
+repo_name: prawo-i-piesc/engine-antiginx
+repo_url: https://github.com/prawo-i-piesc/engine-antiginx
+
+theme:
+  name: material
+
+  icon:
+    repo: fontawesome/brands/git-alt
+
+  font:
+    text: Roboto
+    code: JetBrains Mono
+
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Dark Mode
+      primary: black
+      accent: indigo
+
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Light Mode
+      primary: blue
+      accent: indigo
+
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tooltips
+
+plugins: 
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - include-markdown
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - abbr
+  - attr_list
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+      toc_depth: 2-4
+
+nav:
+  - Home: index.md
+  - Documentation:
+    - Errors: App/Errors/index.md
+    - Helpers: App/Helpers/index.md
+    - HTTP: App/HTTP/index.md
+    - Parameter-Parser: App/Parameter-Parser/index.md
+    - Registry: App/Registry/index.md
+    - Reporter: App/Reporter/index.md
+    - Runner: App/Runner/index.md
+    - Tests: App/Tests/index.md
+
+copyright: "Copyright &copy; 2025 Antiginx Team. All rights reserved."
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/prawo-i-piesc/engine-antiginx
