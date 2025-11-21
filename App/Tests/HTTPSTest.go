@@ -3,7 +3,7 @@ package Tests
 // NewHTTPSTest creates a new test to check if communication uses HTTPS protocol
 func NewHTTPSTest() *ResponseTest {
 	return &ResponseTest{
-		Id:          "https-protocol-check",
+		Id:          "https",
 		Name:        "HTTPS Protocol Verification",
 		Description: "Verifies if the website communication is secured with HTTPS protocol",
 		RunTest: func(params ResponseTestParams) TestResult {

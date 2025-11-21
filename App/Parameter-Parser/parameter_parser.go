@@ -1,5 +1,9 @@
 package Parameter_Parser
 
+import (
+	error "Engine-AntiGinx/App/Errors"
+)
+
 // Static HashMap of commands
 var params = map[string]parameter{
 	"--target": {
@@ -43,7 +47,7 @@ var params = map[string]parameter{
 }
 
 type parameterParser struct{}
-type commandParameter struct {
+type CommandParameter struct {
 	Name      string
 	Arguments []string
 }
@@ -62,23 +66,25 @@ func CreateCommandParser() *parameterParser {
 	return &parameterParser{}
 }
 
-func (p *parameterParser) Parse(userParameters []string) []commandParameter {
+func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 	paramLen := len(userParameters)
 	if paramLen < 2 {
-		panic(parsingError{
+		panic(error.Error{
 			Code: 100,
 			Message: `Parsing error occurred. This could be due to:
 				- insufficient number of parameters`,
+			Source: "Parser",
 		})
 	}
 	//Checking if test keyword is present or is at its position
 	//Raise error if not
 	if userParameters[1] != "test" {
-		panic(parsingError{
+		panic(error.Error{
 			Code: 201,
 			Message: `Parsing error occurred. This could be due to:
 				- test keyword is not present
 				- structure of the command is invalid`,
+			Source: "Parser",
 		})
 	}
 	return transformIntoTable(params, userParameters)
@@ -156,9 +162,9 @@ After finishing the loop:
 
 Return parsedParams.
 */
-func transformIntoTable(params map[string]parameter, userParameters []string) []commandParameter {
+func transformIntoTable(params map[string]parameter, userParameters []string) []*CommandParameter {
 	userParametersLen := len(userParameters)
-	var parsedParams []commandParameter
+	parsedParams := []*CommandParameter{}
 	var currentParam string
 	var args []string
 	argMode := false
@@ -169,25 +175,27 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 			if argMode {
 				argMode = false
 				if len(args) == 0 {
-					panic(parsingError{
+					panic(error.Error{
 						Code: 303,
 						Message: `Parsing error occurred. This could be due to:
 							- too few arguments passed to arg required param`,
+						Source: "Parser",
 					})
 				}
 				checkOccurrences(args)
 				b := params[currentParam].ArgCount
 				if b == 1 {
 					if len(args) != b {
-						panic(parsingError{
+						panic(error.Error{
 							Code: 306,
 							Message: `Parsing error occurred. This could be due to:
 								- unnecessary argument passed to the parameter`,
+							Source: "Parser",
 						})
 					}
 				}
 				argCopy := append([]string(nil), args...)
-				parsedParams = append(parsedParams, commandParameter{
+				parsedParams = append(parsedParams, &CommandParameter{
 					Name:      currentParam,
 					Arguments: argCopy,
 				})
@@ -196,10 +204,11 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 			}
 			if v.ArgRequired {
 				if userParametersLen == i+1 {
-					panic(parsingError{
+					panic(error.Error{
 						Code: 303,
 						Message: `Parsing error occurred. This could be due to:	
 							- too few arguments passed to arg required param`,
+						Source: "Parser",
 					})
 				}
 				argMode = true
@@ -209,13 +218,13 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					next := userParameters[i+1]
 					_, ok := params[next]
 					if ok {
-						parsedParams = append(parsedParams, commandParameter{
+						parsedParams = append(parsedParams, &CommandParameter{
 							Name:      token,
 							Arguments: []string{v.DefaultVal},
 						})
 						continue
 					} else {
-						parsedParams = append(parsedParams, commandParameter{
+						parsedParams = append(parsedParams, &CommandParameter{
 							Name:      token,
 							Arguments: []string{next},
 						})
@@ -223,7 +232,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						continue
 					}
 				} else {
-					parsedParams = append(parsedParams, commandParameter{
+					parsedParams = append(parsedParams, &CommandParameter{
 						Name:      token,
 						Arguments: []string{v.DefaultVal},
 					})
@@ -235,10 +244,11 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				v, _ := params[currentParam]
 				if len(v.Arguments) > 0 {
 					if !findElement(token, v.Arguments) {
-						panic(parsingError{
+						panic(error.Error{
 							Code: 304,
 							Message: `Parsing error occurred. This could be due to:
 								- invalid argument passed to the parameter`,
+							Source: "Parser",
 						})
 					}
 					args = append(args, token)
@@ -246,10 +256,11 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					args = append(args, token)
 				}
 			} else {
-				panic(parsingError{
+				panic(error.Error{
 					Code: 304,
 					Message: `Parsing error occurred. This could be due to:
 						- invalid argument passed to the parameter`,
+					Source: "Parser",
 				})
 			}
 		}
@@ -258,7 +269,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 		argMode = false
 		checkOccurrences(args)
 		argCopy := append([]string(nil), args...)
-		parsedParams = append(parsedParams, commandParameter{
+		parsedParams = append(parsedParams, &CommandParameter{
 			Name:      currentParam,
 			Arguments: argCopy,
 		})
@@ -279,10 +290,11 @@ func checkOccurrences(args []string) {
 	seen := make(map[string]bool)
 	for _, curr := range args {
 		if seen[curr] {
-			panic(parsingError{
+			panic(error.Error{
 				Code: 305,
 				Message: `Parsing error occurred. This could be due to:
 					- one of the arguments occurred more than once`,
+				Source: "Parser",
 			})
 		}
 		seen[curr] = true

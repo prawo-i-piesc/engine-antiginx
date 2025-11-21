@@ -5,15 +5,24 @@
 ```
 Engine-AntiGinx/
 ├── App/
+│   ├── Errors/
+│   │   └── ErrorTypes.go         # Error structures
 │   ├── Helpers/
 │   │   └── StringHandling.go     # String utility functions
 │   ├── HTTP/
 │   │   └── HttpClient.go         # HTTP wrapper implementation
 │   ├── Parameter-Parser/
 │   │   └── parameter_parser.go   # Parameter parser
+│   ├── Registry/
+│   │   └── TestRegistry.go       # Register for available tests
+│   ├── Reporter/
+│   │   └── backend_reporter.go   # Tests reporter
+│   ├── Runner/
+│   │   └── JobRunner.go          # Tests orchestrator
 │   └── Tests/
 │       ├── Types.go              # Test framework types and structures
 │       └── HTTPSTest.go          # HTTPS protocol security test
+│
 ├── main.go                       # Main application entry point
 ├── go.mod                        # Go module definition
 └── .github/                      # GitHub configuration and documentation
@@ -570,5 +579,133 @@ func NewMyCustomTest() *ResponseTest {
 3. **Return Results**: Provide appropriate `TestResult` with threat level and metadata
 
 This framework provides a solid foundation for building comprehensive security testing capabilities for web applications and APIs.
+
+---
+
+### Test Registry
+
+The `Registry` package acts as the central, thread-safe storage for all available ResponseTests. It handles the registration and retrieval of test definitions.
+
+#### Structure and Storage
+
+The registry uses an internal map to store test pointers, indexed by their string IDs.
+
+```go
+var tests = make(map[string]*Tests.ResponseTest)
+```
+
+#### Registration
+
+Tests are registered automatically using the `init()` function and the internal `registerTest` helper.
+
+```go
+func init() {
+    registerTest(Tests.NewHTTPSTest())
+}
+```
+
+**Panic Conditions:**
+- **Code 100**: Triggers if a test with the same ID is registered more than once. This ensures unique identifiers for all tests in the system.
+
+#### Retrieval
+
+```go
+func GetTest(testId string) (*Tests.ResponseTest, bool)
+```
+
+**Purpose:** Retrieves a specific test implementation by its ID.
+
+**Parameters:**
+- `testId`: The string identifier of the test (e.g., "https-protocol-check").
+
+**Returns:**
+- `*Tests.ResponseTest`: Pointer to the test object.
+- `bool`: `true` if found, `false` otherwise.
+
+---
+
+### Backend Reporter
+
+The `Reporter` package handles the consumption of `TestResult` objects and forwards them to an external backend service. It is designed using the **Producer-Consumer** pattern with Go channels.
+
+#### Structure
+
+```go
+type backendReporter struct {
+    resultChannel <-chan Tests.TestResult // Receive-only channel
+    backendURL    string
+}
+```
+
+#### Initialization
+
+```go
+func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string) *backendReporter
+```
+
+Creates a reporter instance listening on the provided channel.
+
+#### Listening (Async)
+
+```go
+func (b *backendReporter) StartListening() <-chan bool
+```
+
+**Behavior:**
+- Spawns a **goroutine** to process results asynchronously.
+- Iterates over `resultChannel` until the channel is closed by the sender.
+- Returns a `done` channel (bool) that signals when all processing is complete.
+
+**Usage Flow:**
+1. Initialize Reporter with a channel.
+2. Call `StartListening()`.
+3. Produce test results into the channel.
+4. Close the channel.
+5. Wait on the `done` channel for graceful shutdown.
+
+---
+
+### Job Runner
+
+The `jobRunner` is the central orchestrator of the application. It connects the Parameter Parser, HTTP Wrapper, Test Registry, and Reporter to execute a scanning job.
+
+#### Creation
+
+```go
+func CreateJobRunner() *jobRunner
+```
+
+#### Orchestrate Method
+
+```go
+func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter)
+```
+
+**Workflow:**
+1. **Parsing:** Scans the `CommandParameter` list for the `--tests` flag to determine which tests to run.
+2. **Validation:** Panics if no tests are found or if a requested test ID does not exist in the `Registry`.
+3. **Execution:**
+    - Loads the target website content (once) via `loadWebsiteContent`.
+    - Initializes the `backendReporter`.
+    - Uses a `sync.WaitGroup` to spawn concurrent goroutines for each requested test.
+4. **Synchronization:** Waits for all tests to finish (`wg.Wait`), closes the results channel, and waits for the reporter to finish (`<-doneChannel`).
+
+**Error Codes:**
+
+| Code | Description |
+| --- | --- |
+| **100** | **Runner Error:** No tests were found to execute (missing `--tests` arg). |
+| **201** | **Parsing Error:** A test ID provided in arguments does not exist in the Registry. |
+
+#### Internal Concurrency Model
+
+The runner uses a fan-out pattern where one HTTP response is shared among multiple test workers:
+
+```go
+go performTest(t, &wg, channel, result)
+```
+
+- `performTest`: Executes the specific `ResponseTest` logic and sends the `TestResult` into the reporter's channel.
+- `defer wg.Done()`: Ensures the WaitGroup is decremented even if a test fails.
 
 ---
