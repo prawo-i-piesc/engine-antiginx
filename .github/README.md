@@ -1,686 +1,91 @@
-# Engine-AntiGinx Documentation
+# ⚙️ Engine-AntiGinx
+
+## About Project
+
+Engine-AntiGinx is a security scanning tool designed to analyze websites and detect potential vulnerabilities and bot protection mechanisms. Built with Go, it performs concurrent security tests on web applications and reports findings with structured threat levels.
+
+## Technologies
+
+| Technologies          | Description                                               |
+|-----------------------|-----------------------------------------------------------|
+| 🎯 **Go 1.25**        | Main programming language                                |
+| 🐳 **Docker**         | Containerization with multi-stage build                  |
+| 🔄 **GitHub Actions** | CI/CD: build, tests, release, auto-labeling              |
+| 📦 **GHCR**           | GitHub Container Registry for Docker images              |
+| 📚 **GitHub Pages**   | Documentation hosting                                    |
 
 ## Project Structure
 
 ```
 Engine-AntiGinx/
 ├── App/
-│   ├── Helpers/
-│   │   └── StringHandling.go     # String utility functions
-│   ├── HTTP/
-│   │   └── HttpClient.go         # HTTP wrapper implementation
-│   ├── Parameter-Parser/
-│   │   └── parameter_parser.go   # Parameter parser
-│   └── Tests/
-│       ├── Types.go              # Test framework types and structures
-│       ├── HTTPSTest.go          # HTTPS protocol security test
-│       └── HSTSTest.go           # HSTS header security test
-├── main.go                       # Main application entry point
-├── go.mod                        # Go module definition
-└── .github/                      # GitHub configuration and documentation
+│   ├── Errors/          # Error handling structures
+│   ├── Helpers/         # Utility functions
+│   ├── HTTP/            # HTTP client wrapper
+│   ├── Parameter-Parser/ # CLI argument parser
+│   ├── Registry/        # Test registry system
+│   ├── Reporter/        # Results reporter
+│   ├── Runner/          # Job orchestrator
+│   └── Tests/           # Security test implementations
+├── docs/                # Documentation files
+├── main.go              # Application entry point
+├── go.mod               # Go module dependencies
+└── Dockerfile           # Docker configuration
 ```
 
-### httpWrapper
+### Core Components
 
-The `httpWrapper` is the main component that wraps Go's standard `http.Client` with additional bot protection detection capabilities and configurable headers.
+- **App/Errors** - Structured error handling with panic-based system and error codes for different failure scenarios
+- **App/Helpers** - String manipulation utilities including case-insensitive substring search
+- **App/HTTP** - HTTP client wrapper with bot protection detection (Cloudflare, CAPTCHA) and configurable headers
+- **App/Parameter-Parser** - CLI argument parser with validation, whitelist support, and structured error reporting
+- **App/Registry** - Thread-safe test registry for managing and retrieving available security tests
+- **App/Reporter** - Asynchronous results reporter using Go channels (producer-consumer pattern)
+- **App/Runner** - Main job orchestrator that coordinates tests execution using goroutines and WaitGroups
+- **App/Tests** - Security test implementations with threat level classification (HTTPS verification, etc.)
 
-#### Structure
+## Quick Start
 
-```go
-type httpWrapper struct {
-    client *http.Client
-    config httpWrapperConfig
-}
+### Prerequisites
 
-type httpWrapperConfig struct {
-    headers map[string]string
-}
+- Go 1.25 or higher ([download here](https://go.dev/dl/))
+- Docker (optional)
+
+### Running Locally
+
+```bash
+# Clone the repository
+git clone https://github.com/prawo-i-piesc/Engine-AntiGinx.git
+cd Engine-AntiGinx
+
+# Run the scanner
+go run main.go test --target example.com --tests https
 ```
 
-#### Creation
+### Using Docker
 
-```go
-func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper
+```bash
+# Build the image
+docker build -t engine-antiginx .
+
+# Run the scanner
+docker run engine-antiginx test --target example.com --tests https
 ```
 
-Creates a new instance of httpWrapper with configurable options. Supports default headers and custom configurations.
+### Using Pre-built Docker Image
 
-**Examples:**
+```bash
+# Pull the latest image
+docker pull ghcr.io/prawo-i-piesc/engine-antiginx:latest
 
-```go
-// Create wrapper with default headers
-wrapper := HttpClient.CreateHttpWrapper()
-
-// Create wrapper with custom headers
-wrapper := HttpClient.CreateHttpWrapper(HttpClient.WithHeaders(map[string]string{
-    "User-Agent": "CustomBot/2.0",
-    "Authorization": "Bearer token123",
-}))
+# Run the scanner
+docker run ghcr.io/prawo-i-piesc/engine-antiginx:latest test --target example.com --tests https
 ```
 
-#### Configuration Options
-
-```go
-type WrapperOption func(*httpWrapperConfig)
-
-// WithHeaders adds or overrides headers in the wrapper configuration
-func WithHeaders(h map[string]string) WrapperOption
-```
-
-**Default Headers:**
-
-```go
-func defaultHeaders() map[string]string {
-    return map[string]string{
-        "User-Agent": "AntiGinx/1.0",
-    }
-}
-```
-
-### HTTP Methods
-
-#### Get Method
-
-```go
-func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response
-```
-
-Performs an HTTP GET request with built-in bot protection detection and error handling. This is now a **method** on the httpWrapper struct.
-
-**Parameters:**
-
-- `url`: Target URL string
-- `opts`: Optional configuration overrides for this specific request
-
-**Returns:**
-
-- `*http.Response`: HTTP response object (only if successful)
-
-**Examples:**
-
-```go
-// Import the package
-import HttpClient "Engine-AntiGinx/App/HTTP"
-
-// Create wrapper with default headers
-wrapper := HttpClient.CreateHttpWrapper()
-
-// Basic GET request
-response := wrapper.Get("https://example.com")
-
-// GET request with per-call header overrides
-response := wrapper.Get("https://example.com", HttpClient.WithHeaders(map[string]string{
-    "User-Agent": "SpecialBot/1.0",
-    "Accept": "application/json",
-}))
-
-// Complete usage example with error handling
-func main() {
-    defer func() {
-        if r := recover(); r != nil {
-            // Handle error without referencing unexported type
-            fmt.Printf("HTTP error: %v\n", r)
-        }
-    }()
-
-    wrapper := HttpClient.CreateHttpWrapper()
-    response := wrapper.Get("https://example.com")
-    fmt.Printf("Success! Status: %s\n", response.Status)
-}
-```
-
-## Error Handling
-
-The httpWrapper uses a panic-based error handling system with structured error information.
-
-### httpError Structure
-
-```go
-type httpError struct {
-    url     string  // The URL that caused the error
-    code    int     // Internal error code
-    message string  // Human-readable error description
-    error   any     // Original error object
-}
-```
-
-### Error Codes
-
-| Code | Category | Description |
-| --- | --- | --- |
-| **100** | Request Creation Error | Failed to create HTTP request |
-| **101** | Network Error | Network-related failures including DNS lookup failures, connection timeouts, network unreachable, or no response object |
-| **102** | HTTP Status Error | Non-200 HTTP status codes returned by the server |
-| **200** | Response Body Error | Errors encountered while reading the response body |
-| **300** | Bot Protection Detected | Various bot protection mechanisms detected |
-
-#### Error Code 300 - Bot Protection Detected
-
-**Triggers when:** Bot protection mechanisms are detected through:
-
-**Header-based detection:**
-
-- `Server: cloudflare`
-- `CF-RAY` header present
-- `CF-CHL-BCODE` header present (Cloudflare Challenge)
-
-**Content-based detection:** The system scans response body for these keywords:
-
-- "cloudflare"
-- "captcha"
-- "Attention Required"
-- "challenge"
-- "verify you are human"
-- "security check"
-- "DDoS protection"
-- "Access denied"
-
-**Example scenarios:**
-
-- Cloudflare challenge page
-- CAPTCHA verification page
-- DDoS protection page
-- Access denied pages
-
-## Helper Functions
-
-### StringHandling.ContainsAny
-
-Located in `Helpers/StringHandling.go`
-
-```go
-func ContainsAny(s string, subs []string) bool
-```
-
-**Purpose:** Case-insensitive search for any substring within a target string.
-
-**Parameters:**
-
-- `s`: Target string to search in
-- `subs`: Array of substrings to search for
-
-**Returns:**
-
-- `bool`: true if any substring is found, false otherwise
-
-### Parameter_Parser
-
-`Parameter_Parser` is a package for parsing CLI command input parameters. It processes a list of tokens (program arguments) based on statically defined parameter definitions in code. Parsing is validated for required arguments, allowed values (whitelist), and default values. The package uses a panic-based error handling system with structured error information.
-
----
-
-#### Structures
-
-```go
-type parameterParser struct{}
-
-type commandParameter struct {
-	Name      string
-	Arguments []string
-}
-
-type parameter struct {
-	Arguments   []string
-	DefaultVal  string
-	ArgRequired bool
-	ArgCount int
-}
-
-type parsingError struct {
-	Code    int
-	Message string
-}
-```
-
-- `parameterParser` — the parser object.
-- `commandParameter` — a resulting record with the parameter name and its arguments.
-- `parameter` — structure describing a single parameter from static Map. Arg count can be 1 (takes only one argument) or -1 (takes multiple arguments)
-- `parsingError` — structured error used in panic.
-
----
-
-#### Parser Creation
-
-```go
-func CreateCommandParser() *parameterParser {
-	return &parameterParser{}
-}
-```
-
-- Factory function to create a new parser instance.
-- Example:
-
-```go
-parser := CreateCommandParser()
-```
-
----
-
-#### Parse Method
-
-```go
-func (p *parameterParser) Parse(userParameters []string) []commandParameter
-```
-
-- Method of the `parameterParser` struct.
-- Validates input parameters:
-  - Must contain at least 2 tokens.
-  - Second token must be `"test"`.
-- Transforms user input via `transformIntoTable`.
-- Returns `[]commandParameter`.
-
-**Example usage:**
-
-```go
-parser := CreateCommandParser()
-parsed := parser.Parse(os.Args)
-fmt.Println(parsed)
-```
-
----
-
-#### Main Function Example
-
-```go
-func main() {
-	parser := CreateCommandParser()
-	fmt.Println(parser.Parse(os.Args))
-}
-```
-
----
-
-##### transformIntoTable
-
-```go
-func transformIntoTable(params map[string]parameter, userParameters []string) []commandParameter
-```
-
-- Core parsing algorithm.
-- Inputs:
-  - `params` — map of defined parameters.
-  - `userParameters` — tokens provided by the user.
-- Logic (summary):
-  - Iterates tokens starting from index `2`.
-  - If a token is a known parameter (`params[token]`):
-    - If the parameter requires arguments (`ArgRequired == true`) — turns on argument collection mode (`argMode = true`) and collects subsequent tokens as arguments (validates them if whitelist exists).
-    - If the parameter does **not** require arguments:
-      - If the next token is a parameter — use `DefaultVal`.
-      - If the next token is not a parameter — treat it as the argument (and skip it in iteration).
-  - If a token is not a known parameter:
-    - If `argMode` is off — panic (unexpected argument).
-    - If `argMode` is on — treat token as argument for the current parameter; if `Arguments` whitelist exists, validate via `findElement`.
-  - After finishing the loop, if `argMode` is still on, append the collected arguments as the last parameter.
-- Returns `[]commandParameter`.
-
----
-
-##### findElement
-
-```go
-func findElement(userParam string, params []string) bool
-```
-
-- Simple linear search — checks if `userParam` exists in `params`.
-- Used for whitelist validation.
-
----
-
-#### checkOccurences
-
-```go
-func checkOccurences(args []string)
-```
-
-- Iterative function which checks if there is more than one occurrence of the same argument
-
----
-
-## Error Handling
-
-The package uses a panic-based system with structured `parsingError`. External code should use `defer` + `recover` to catch and handle errors.
-
-### Error Codes Used in the Package
-
-| Code | Meaning | Description |
-| --- | --- | --- |
-| **100** | General parsing error | e.g., not enough parameters. |
-| **201** | Missing `"test"` keyword / invalid structure | When `userParameters[1] != "test"`. |
-| **303** | Missing required arguments | Parameter requires arguments, but none provided. |
-| **304** | Unknown parameter / invalid argument | Token is not a parameter and no active `argMode`, or argument not in whitelist. |
-| **305** | Invalid user input | Same argument appears more than once in provided input |
-| **306** | Invalid user input | Too many arguments passed to the parameter |
-
-## Input/Output Examples
-
-1. Input (assuming `os.Args`):
-
-```
-["scanner", "test", "--target", "example.com", "--httpMethods", "GET", "OPTIONS", "--tests", "https", "hsts"]
-```
-
-Result of `Parse(...)`:
-
-```go
-[]commandParameter{
-  {Name: "--target", Arguments: []string{"example.com"}},
-  {Name: "--httpMethods", Arguments: []string{"GET","OPTIONS"}},
-  {Name: "--tests", Arguments: []string{"https", "hsts"}},
-}
-```
-
-2. Input missing argument for required parameter:
-
-```
-["scanner", "test", "--target"]
-```
-
-- Triggers `panic(parsingError{Code:303, ...})` - too few arguments for `--target`.
-
-3. Invalid argument (not in whitelist):
-
-```
-["app", "test", "--httpMethods", "BADMETHOD"]
-```
-
-— triggers `panic(parsingError{Code:304, ...})` - invalid argument passed to the parameter.
-
----
-
-## Tests Framework
-
-The Tests framework provides a structured approach for implementing security and functionality tests on HTTP responses. It includes base types, interfaces, and specific test implementations.
-
-### Types.go - Core Framework
-
-The `Types.go` file contains the fundamental structures and types that power the testing framework.
-
-#### ThreatLevel Enumeration
-
-```go
-type ThreatLevel int
-
-const (
-    None ThreatLevel = iota  // 0 - No security issues detected
-    Info                     // 1 - Informational findings
-    Low                      // 2 - Low risk security issues
-    Medium                   // 3 - Medium risk security issues
-    High                     // 4 - High risk security issues
-    Critical                 // 5 - Critical security vulnerabilities
-)
-```
-
-#### TestResult Structure
-
-```go
-type TestResult struct {
-    Name        string                // Test name
-    Certainty   int                   // Confidence percentage (0-100)
-    ThreatLevel ThreatLevel           // Security threat level
-    Metadata    any                   // Additional test-specific data
-    Description string                // Human-readable result description
-}
-```
-
-#### ResponseTest Structure
-
-```go
-type ResponseTest struct {
-    Id          string                                          // Unique test identifier
-    Name        string                                          // Human-readable test name
-    Description string                                          // Detailed test description
-    RunTest     func(params ResponseTestParams) TestResult      // Test execution function
-}
-```
-
-**Methods:**
-
-- `GetId() string` - Returns the test's unique identifier
-- `GetName() string` - Returns the test's display name
-- `GetDescription() string` - Returns the test's detailed description
-- `Run(params ResponseTestParams) TestResult` - Executes the test logic
-
-#### ResponseTestParams
-
-```go
-type ResponseTestParams struct {
-    Response *http.Response  // HTTP response to be analyzed
-}
-```
-
-Contains the HTTP response object that tests will analyze for security issues, headers, content, and other properties.
-
-### HTTPSTest.go - Protocol Security Test
-
-The `HTTPSTest.go` file implements a specific test that verifies whether HTTP communication uses the secure HTTPS protocol.
-
-#### Test Implementation
-
-```go
-func NewHTTPSTest() *ResponseTest {
-    return &ResponseTest{
-        Id:          "https-protocol-check",
-        Name:        "HTTPS Protocol Verification",
-        Description: "Verifies if the website communication is secured with HTTPS protocol",
-        RunTest: func(params ResponseTestParams) TestResult {
-            // Implementation checks params.Response.Request.URL.Scheme
-        },
-    }
-}
-```
-
-#### Test Logic
-
-The HTTPS test performs the following analysis:
-
-1. **Protocol Detection**: Examines `response.Request.URL.Scheme` to determine if HTTPS was used
-2. **Security Assessment**: Evaluates the security implications of the detected protocol
-3. **Result Generation**: Returns detailed results with appropriate threat levels
-
-#### Test Results
-
-**✅ HTTPS Detected (Secure Connection)**
-
-```json
-{
-  "name": "HTTPS Protocol Verification",
-  "certainty": 100,
-  "threatLevel": 0,
-  "metadata": {
-    "protocol": "https",
-    "secure": true,
-    "url": "https://example.com",
-    "status_code": 200
-  },
-  "description": "Connection is secured with HTTPS protocol - data transmission is encrypted"
-}
-```
-
-**⚠️ HTTP Detected (Insecure Connection)**
-
-```json
-{
-  "name": "HTTPS Protocol Verification",
-  "certainty": 100,
-  "threatLevel": 4,
-  "metadata": {
-    "protocol": "http",
-    "secure": false,
-    "url": "http://example.com",
-    "status_code": 200,
-    "vulnerability": "Unencrypted data transmission"
-  },
-  "description": "Connection uses insecure HTTP protocol - data is transmitted in plaintext and vulnerable to interception"
-}
-```
-
-### HSTSTest.go - HSTS Header Security Test
-
-The `HSTSTest.go` file implements a comprehensive test that analyzes HTTP Strict Transport Security (HSTS) headers for proper security configuration.
-
-#### Test Implementation
-
-```go
-func NewHSTSTest() *ResponseTest {
-    return &ResponseTest{
-        Id:          "hsts-header-check",
-        Name:        "HSTS Header Analysis",
-        Description: "Checks for HTTP Strict Transport Security header presence and configuration",
-        RunTest:     // Comprehensive HSTS analysis logic
-    }
-}
-```
-
-#### HSTS Security Analysis
-
-The HSTS test performs sophisticated analysis of security headers:
-
-1. **Header Detection**: Checks for `Strict-Transport-Security` header presence
-2. **Directive Parsing**: Extracts and validates `max-age`, `includeSubDomains`, and `preload` directives
-3. **Security Assessment**: Evaluates configuration against security best practices
-4. **Threat Classification**: Assigns threat levels based on HSTS strength
-
-#### Time Calculation Standards
-
-The test uses readable time calculations with `60 * 60 * ...` notation:
-
-```go
-// Time constants for security evaluation
-oneYear := 60 * 60 * 24 * 365        // 31,536,000 seconds
-sixMonths := 60 * 60 * 24 * 30 * 6   // 15,552,000 seconds
-oneMonth := 60 * 60 * 24 * 30         // 2,592,000 seconds
-oneDay := 60 * 60 * 24                // 86,400 seconds
-oneHour := 60 * 60                    // 3,600 seconds
-```
-
-#### Threat Level Classification
-
-- **None (0)**: Excellent configuration (1+ year, includeSubDomains, preload)
-- **Info (1)**: Good configuration (1+ year, includeSubDomains)
-- **Low (2)**: Acceptable configuration (6+ months max-age)
-- **Medium (3)**: Weak configuration (some max-age present)
-- **High (4)**: Missing or invalid HSTS header
-
-#### Test Results Examples
-
-**✅ Excellent HSTS Configuration**
-```json
-{
-    "name": "HSTS Header Analysis",
-    "certainty": 95,
-    "threatLevel": 0,
-    "metadata": {
-        "hsts_present": true,
-        "header_value": "max-age=31536000; includeSubDomains; preload",
-        "max_age": 31536000,
-        "include_subdomains": true,
-        "preload": true,
-        "directives": ["includeSubDomains", "preload"]
-    },
-    "description": "HSTS header configured with 1 year max-age and includes: includeSubDomains, preload - Excellent security configuration"
-}
-```
-
-**⚠️ Missing HSTS Header**
-```json
-{
-    "name": "HSTS Header Analysis",
-    "certainty": 100,
-    "threatLevel": 3,
-    "metadata": {
-        "hsts_present": false,
-        "header_value": "",
-        "max_age": 0,
-        "include_subdomains": false,
-        "preload": false,
-        "vulnerability": "Missing HSTS protection"
-    },
-    "description": "Missing HSTS header - site vulnerable to protocol downgrade attacks and man-in-the-middle attacks"
-}
-```
-
-**⚡ Weak HSTS Configuration**
-```json
-{
-    "name": "HSTS Header Analysis",
-    "certainty": 95,
-    "threatLevel": 2,
-    "metadata": {
-        "hsts_present": true,
-        "header_value": "max-age=2592000",
-        "max_age": 2592000,
-        "include_subdomains": false,
-        "preload": false,
-        "directives": []
-    },
-    "description": "HSTS header configured with 1 month max-age - Weak security configuration, consider increasing max-age"
-}
-```
-
-#### Security Insights
-
-1. **🏆 Best Practice**: Minimum 1 year max-age with includeSubDomains and preload directives
-2. **⚠️ Acceptable**: At least 6 months max-age for basic protection
-3. **❌ Vulnerability**: Missing HSTS leaves sites vulnerable to protocol downgrade attacks
-4. **🌐 Subdomain Protection**: includeSubDomains directive prevents subdomain-based attacks
-5. **🚀 Browser Preload**: preload directive enables inclusion in browser HSTS preload lists
-
-### Usage Example
-
-```go
-import (
-    HttpClient "Engine-AntiGinx/App/HTTP"
-    Tests "Engine-AntiGinx/App/Tests"
-)
-
-func main() {
-    // Make HTTP request
-    httpClient := HttpClient.CreateHttpWrapper()
-    response := httpClient.Get("https://example.com")
-
-    // Create and run HTTPS test
-    httpsTest := Tests.NewHTTPSTest()
-    params := Tests.ResponseTestParams{Response: response}
-    result := httpsTest.Run(params)
-
-    // Process results
-    fmt.Printf("Test: %s (ID: %s)\n", httpsTest.GetName(), httpsTest.GetId())
-    fmt.Printf("Threat Level: %v\n", result.ThreatLevel)
-    fmt.Printf("Description: %s\n", result.Description)
-}
-```
-
-### Framework Benefits
-
-1. **🔧 Extensible Design**: Easy to add new tests by implementing the `ResponseTest` structure
-2. **📊 Structured Results**: Consistent `TestResult` format with threat levels and metadata
-3. **🛡️ Security Focus**: Built-in threat level classification for security assessment
-4. **📱 JSON Ready**: Struct tags ensure proper JSON serialization for APIs
-5. **🎯 Modular Architecture**: Each test is self-contained and independently executable
-
-### Creating Custom Tests
-
-To implement a new test:
-
-1. **Create Test Function**:
-
-```go
-func NewMyCustomTest() *ResponseTest {
-    return &ResponseTest{
-        Id:          "my-custom-test",
-        Name:        "My Custom Test",
-        Description: "Description of what this test does",
-        RunTest:     func(params ResponseTestParams) TestResult {
-            // Your test logic here
-            return TestResult{...}
-        },
-    }
-}
-```
-
-2. **Implement Test Logic**: Analyze the `params.Response` object
-3. **Return Results**: Provide appropriate `TestResult` with threat level and metadata
-
-This framework provides a solid foundation for building comprehensive security testing capabilities for web applications and APIs.
-
----
+## Links
+
+- 📦 [GitHub Repository](https://github.com/prawo-i-piesc/engine-antiginx)
+- 🐳 [Container Images (GHCR)](https://github.com/prawo-i-piesc/engine-antiginx/pkgs/container/engine-antiginx)
+- 📚 [Documentation (GitHub Pages)](https://prawo-i-piesc.github.io/engine-antiginx/)
+- 🚀 [GitHub Actions](https://github.com/prawo-i-piesc/engine-antiginx/actions)
+- 📝 [License](../LICENSE)
