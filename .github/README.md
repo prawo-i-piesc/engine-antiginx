@@ -83,9 +83,8 @@ docker run ghcr.io/prawo-i-piesc/engine-antiginx:latest test --target example.co
 ```
 
 ## Links
-
 - 📦 [GitHub Repository](https://github.com/prawo-i-piesc/engine-antiginx)
 - 🐳 [Container Images (GHCR)](https://github.com/prawo-i-piesc/engine-antiginx/pkgs/container/engine-antiginx)
-- 📚 [Dokumentacja (GitHub Pages)](https://prawo-i-piesc.github.io/engine-antiginx/)
+- 📚 [Documentation (GitHub Pages)](https://prawo-i-piesc.github.io/engine-antiginx/)
 - 🚀 [GitHub Actions](https://github.com/prawo-i-piesc/engine-antiginx/actions)
-- 📝 [Licencja](../LICENSE)
+- 📝 [License](../LICENSE)
