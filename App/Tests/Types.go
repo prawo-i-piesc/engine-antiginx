@@ -1,6 +1,9 @@
 package Tests
 
 import (
+	"Engine-AntiGinx/App/Errors"
+	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -17,11 +20,11 @@ const (
 
 // TestResult represents the result of a test, including its name, certainty, threat level, metadata, and description.
 type TestResult struct {
-	Name        string
-	Certainty   int // percentage certainty of the result
-	ThreatLevel ThreatLevel
-	Metadata    any
-	Description string
+	Name        string      `json:"Name"`
+	Certainty   int         `json:"Certainty"` // percentage certainty of the result
+	ThreatLevel ThreatLevel `json:"ThreatLevel"`
+	Metadata    any         `json:"Metadata"`
+	Description string      `json:"Description"`
 }
 
 // ResponseTestParams contains parameters for a response test, including the HTTP response to be tested.
@@ -47,4 +50,31 @@ func (rt *ResponseTest) Run(params ResponseTestParams) TestResult {
 		panic("Run method not implemented")
 	}
 	return rt.RunTest(params)
+}
+
+// String() method to print out text representation o ThreadLevel
+func (t ThreatLevel) String() string {
+	switch t {
+	case None:
+		return "None"
+	case Info:
+		return "Info"
+	case Low:
+		return "Low"
+	case Medium:
+		return "Medium"
+	case High:
+		return "High"
+	case Critical:
+		return "Critical"
+	default:
+		panic(Errors.Error{
+			Message: fmt.Sprintf("Unknown Threat Level %d", t),
+		})
+	}
+}
+
+// MarshalJSON method is a helper method to properly serialize ThreatLevel into json
+func (t ThreatLevel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.String())
 }
