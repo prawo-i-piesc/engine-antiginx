@@ -10,3 +10,18 @@ func ContainsAny(s string, subs []string) bool {
 	}
 	return false
 }
+
+// RemoveDuplicates removes duplicate strings from a slice
+func RemoveDuplicates(slice []string) []string {
+	seen := make(map[string]bool)
+	var result []string
+
+	for _, item := range slice {
+		if !seen[item] {
+			seen[item] = true
+			result = append(result, item)
+		}
+	}
+
+	return result
+}

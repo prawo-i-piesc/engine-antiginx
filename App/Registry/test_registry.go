@@ -15,6 +15,7 @@ var tests = make(map[string]*Tests.ResponseTest)
 func init() {
 	registerTest(Tests.NewHTTPSTest())
 	registerTest(Tests.NewHSTSTest())
+	registerTest(Tests.NewServerHeaderTest())
 }
 
 // registerTest adds a new test instance to the internal registry.

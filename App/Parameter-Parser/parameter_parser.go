@@ -25,7 +25,7 @@ var params = map[string]parameter{
 		ArgCount:    1,
 	},
 	"--tests": {
-		Arguments: []string{"https", "hsts", "csp", "xFrame",
+		Arguments: []string{"https", "hsts", "server-header-analysis", "csp", "xFrame",
 			"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"},
 		DefaultVal:  "",
 		ArgRequired: true,
