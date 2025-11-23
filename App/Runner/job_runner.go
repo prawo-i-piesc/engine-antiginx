@@ -38,8 +38,8 @@ func CreateJobRunner() *jobRunner {
 //   - A test ID provided in arguments does not exist in the Registry.
 func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 
-	testWebsite := "http://startrinity.com/HttpTester/HttpRestApiClientTester.aspx"
 	var testsToExecute []string
+	target := &params[0].Arguments[0]
 
 	// Skip the first parameter and look for "--tests"
 	for i := 1; i < len(params); i++ {
@@ -59,8 +59,12 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 		})
 	}
 
+	// Using target formatter to properly build target URL
+	targetFormatter := InitializeTargetFormatter()
+	target = targetFormatter.Format(*target, testsToExecute)
+
 	// Preload content required for the tests.
-	result := loadWebsiteContent(testWebsite)
+	result := loadWebsiteContent(*target)
 	var wg sync.WaitGroup
 
 	// Create a buffered channel to prevent blocking test execution if the reporter is slow.

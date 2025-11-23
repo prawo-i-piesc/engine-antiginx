@@ -17,7 +17,7 @@ type ServerHeaderAnalysis struct {
 // NewServerHeaderTest creates a new test to check for server technology information disclosure
 func NewServerHeaderTest() *ResponseTest {
 	return &ResponseTest{
-		Id:          "server-header-analysis",
+		Id:          "serv-h-a",
 		Name:        "Server Technology Disclosure Analysis",
 		Description: "Analyzes HTTP headers for information disclosure about server technology, frameworks, and hosting services",
 		RunTest: func(params ResponseTestParams) TestResult {
