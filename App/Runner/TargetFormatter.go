@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// targetFormatter structure
+// targetFormatter is responsible for formatting target URLs by adding appropriate protocol prefixes.
 type targetFormatter struct{}
 
 // InitializeTargetFormatter creates new instance of targetFormatter and returns pointer to it
