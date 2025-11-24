@@ -18,9 +18,9 @@ func (t *targetFormatter) Format(target string, params []string) *string {
 	if strings.HasPrefix(target, "http") || strings.HasPrefix(target, "https") {
 		panic(Errors.Error{
 			Code: 100,
-			Message: `Target Validator error occurred. This could be due to:
+			Message: `Target Formatter error occurred. This could be due to:
 				- invalid target passed to the parameter`,
-			Source:      "Target Validator",
+			Source:      "Target Formatter",
 			IsRetryable: false,
 		})
 	}
