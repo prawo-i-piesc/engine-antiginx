@@ -8,7 +8,7 @@ import (
 // NewHSTSTest creates a new test to check for HTTP Strict Transport Security header
 func NewHSTSTest() *ResponseTest {
 	return &ResponseTest{
-		Id:          "hsts-header-check",
+		Id:          "hsts",
 		Name:        "HSTS Header Analysis",
 		Description: "Checks for HTTP Strict Transport Security header presence and configuration",
 		RunTest: func(params ResponseTestParams) TestResult {
