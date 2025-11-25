@@ -13,7 +13,7 @@ RUN go mod download
 COPY . .
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /engine-antigingx
+RUN CGO_ENABLED=0 GOOS=linux go build -o /engine-antiginx
 
 
 # Final stage: a minimal image to run the application
@@ -22,7 +22,7 @@ FROM alpine:latest AS run
 WORKDIR /app
 
 # Copy the application executable from the build image
-COPY --from=build /engine-antigingx ./
+COPY --from=build /engine-antiginx ./
 
 EXPOSE 8080
-CMD ["./engine-antigingx"]
+CMD ["./engine-antiginx"]
