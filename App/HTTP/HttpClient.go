@@ -1,3 +1,9 @@
+// Package HttpClient provides an advanced HTTP client wrapper with bot protection detection
+// and anti-detection capabilities. It wraps Go's standard http.Client with additional features
+// including Cloudflare detection, stealth headers, TLS fingerprint masking, and human-like behavior simulation.
+//
+// The package supports multiple protection levels and can be configured to bypass common bot
+// detection mechanisms while maintaining legitimate scanning capabilities.
 package HttpClient
 
 import (
@@ -12,28 +18,53 @@ import (
 	"time"
 )
 
+// httpError represents an HTTP-related error with structured information for debugging.
+// It is used internally for panic-based error handling throughout the HTTP client operations.
+//
+// Error codes:
+//   - 100: Request creation error
+//   - 101: Network error (DNS, timeout, connection issues)
+//   - 102: HTTP status error (non-200 responses)
+//   - 200: Response body reading error
+//   - 300: Bot protection detected
 type httpError struct {
-	url     string
-	code    int
-	message string
-	error   any
+	url     string // The URL that caused the error
+	code    int    // Error code for categorization
+	message string // Human-readable error description
+	error   any    // Original error object or response
 }
 
-// Customizable HTTP wrapper configuration
+// httpWrapperConfig holds the configuration for the HTTP wrapper including custom headers
+// and anti-bot detection settings. This structure is modified by WrapperOption functions
+// to customize client behavior.
 type httpWrapperConfig struct {
-	headers          map[string]string
-	antiBotDetection bool
+	headers          map[string]string // Custom HTTP headers to be sent with requests
+	antiBotDetection bool              // Enable anti-bot detection bypass features
 }
 
+// WrapperOption is a functional option type for configuring the HTTP wrapper.
+// It allows flexible, composable configuration through functions like WithHeaders and WithAntiBotDetection.
 type WrapperOption func(*httpWrapperConfig)
 
+// defaultHeaders returns the default HTTP headers used by the AntiGinx scanner.
+// These headers identify the client as AntiGinx/1.0 for legitimate scanning purposes.
+//
+// Returns:
+//   - map[string]string: Default headers with User-Agent set to "AntiGinx/1.0"
 func defaultHeaders() map[string]string {
 	return map[string]string{
 		"User-Agent": "AntiGinx/1.0",
 	}
 }
 
-// getAntiDetectionHeaders returns realistic browser headers to avoid bot detection
+// getAntiDetectionHeaders returns a set of realistic browser headers that mimic Chrome 120
+// on Windows 10. These headers help avoid basic bot detection by appearing as a legitimate browser.
+//
+// The headers include User-Agent, Accept, Accept-Language, security fetch metadata,
+// and client hints that match a real Chrome browser's fingerprint.
+//
+// Returns:
+//   - map[string]string: Headers mimicking Chrome 120 browser on Windows
 func getAntiDetectionHeaders() map[string]string {
 	return map[string]string{
 		"User-Agent":                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -56,7 +87,18 @@ func getAntiDetectionHeaders() map[string]string {
 	}
 }
 
-// getAdvancedStealthHeaders provides maximum stealth with all browser characteristics
+// getAdvancedStealthHeaders provides maximum stealth by including comprehensive browser
+// characteristics including viewport dimensions, device memory, client hints, and network
+// information. This is the most complete browser fingerprint simulation available.
+//
+// Includes enhanced features:
+//   - Full Chrome client hints (viewport, DPR, device memory, architecture)
+//   - Browser feature detection headers (Save-Data, RTT, ECT, Downlink)
+//   - Color scheme and motion preferences
+//   - Complete platform and architecture information
+//
+// Returns:
+//   - map[string]string: Comprehensive headers for maximum stealth
 func getAdvancedStealthHeaders() map[string]string {
 	headers := getAntiDetectionHeaders()
 
@@ -88,7 +130,18 @@ func getAdvancedStealthHeaders() map[string]string {
 	return headers
 }
 
-// getRandomUserAgent returns a random realistic user agent
+// getRandomUserAgent returns a random realistic user agent from a pool of current browser versions.
+// This helps avoid fingerprinting by varying the user agent across requests, simulating
+// traffic from different browsers and operating systems.
+//
+// Includes user agents for:
+//   - Chrome on Windows, macOS, and Linux
+//   - Firefox on Windows, macOS, and Linux
+//   - Safari on macOS
+//   - Edge on Windows
+//
+// Returns:
+//   - string: A randomly selected user agent string
 func getRandomUserAgent() string {
 	userAgents := []string{
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -103,7 +156,18 @@ func getRandomUserAgent() string {
 	return userAgents[rand.Intn(len(userAgents))]
 }
 
-// getBrowserTLSConfig returns TLS configuration that mimics real browsers
+// getBrowserTLSConfig returns a TLS configuration that mimics real browser behavior
+// including cipher suites, curve preferences, and protocol versions that match Chrome/Firefox.
+// This helps avoid TLS fingerprinting which is used by advanced bot detection systems.
+//
+// Configuration includes:
+//   - TLS 1.2 and 1.3 support
+//   - Modern cipher suites (AES-GCM, ChaCha20-Poly1305)
+//   - Realistic curve preferences (X25519, P-256, P-384)
+//   - HTTP/2 and HTTP/1.1 ALPN support
+//
+// Returns:
+//   - *tls.Config: Browser-like TLS configuration
 func getBrowserTLSConfig() *tls.Config {
 	return &tls.Config{
 		MinVersion:         tls.VersionTLS12,
@@ -129,6 +193,24 @@ func getBrowserTLSConfig() *tls.Config {
 	}
 }
 
+// WithHeaders creates a WrapperOption that adds or overrides HTTP headers in the client configuration.
+// This option can be used both when creating the wrapper and on individual requests.
+//
+// Headers provided through this option will merge with existing headers, with new values
+// overriding existing ones for the same header name.
+//
+// Parameters:
+//   - h: Map of header names to values
+//
+// Returns:
+//   - WrapperOption: Configuration function that applies the headers
+//
+// Example:
+//
+//	wrapper := CreateHttpWrapper(WithHeaders(map[string]string{
+//	    "Authorization": "Bearer token123",
+//	    "Custom-Header": "value",
+//	}))
 func WithHeaders(h map[string]string) WrapperOption {
 	return func(cfg *httpWrapperConfig) {
 		for k, v := range h {
@@ -137,7 +219,31 @@ func WithHeaders(h map[string]string) WrapperOption {
 	}
 }
 
-// WithAntiBotDetection enables comprehensive anti-bot detection bypass with all available techniques
+// WithAntiBotDetection enables comprehensive anti-bot detection bypass with multiple protection levels.
+// This option activates various techniques including realistic headers, TLS fingerprint masking,
+// cookie handling, random delays, and header ordering.
+//
+// Protection levels:
+//   - "basic": Standard anti-detection headers mimicking Chrome browser
+//   - "advanced", "maximum", "stealth": Full stealth mode with all client hints and browser characteristics
+//
+// When enabled, the client will:
+//   - Use browser-like TLS configuration
+//   - Maintain cookie jar for session handling
+//   - Add realistic delays between requests (1-3 seconds)
+//   - Randomize user agents
+//   - Order headers like real browsers
+//   - Support HTTP/2
+//
+// Parameters:
+//   - level: Protection level ("basic", "advanced", "maximum", or "stealth")
+//
+// Returns:
+//   - WrapperOption: Configuration function that enables anti-bot detection features
+//
+// Example:
+//
+//	wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced"))
 func WithAntiBotDetection(level string) WrapperOption {
 	return func(cfg *httpWrapperConfig) {
 		cfg.antiBotDetection = true
@@ -162,13 +268,47 @@ func WithAntiBotDetection(level string) WrapperOption {
 	}
 }
 
-// HTTP wrapper struct
-
+// httpWrapper wraps Go's standard http.Client with additional bot protection detection
+// and anti-detection capabilities. It provides a higher-level interface for making
+// HTTP requests while handling common security scanning challenges.
 type httpWrapper struct {
-	client *http.Client
-	config httpWrapperConfig
+	client *http.Client      // Underlying HTTP client
+	config httpWrapperConfig // Wrapper configuration including headers and settings
 }
 
+// CreateHttpWrapper creates a new HTTP wrapper instance with optional configuration.
+// The wrapper can be configured with custom headers, anti-bot detection features,
+// and other options through functional options.
+//
+// By default, the wrapper uses:
+//   - Default AntiGinx user agent
+//   - 30-second timeout
+//   - Standard HTTP transport
+//
+// When anti-bot detection is enabled, it additionally configures:
+//   - Browser-like TLS configuration
+//   - HTTP/2 support
+//   - Cookie jar for session management
+//   - Connection pooling
+//
+// Parameters:
+//   - opts: Variable number of WrapperOption functions for configuration
+//
+// Returns:
+//   - *httpWrapper: Configured HTTP wrapper ready for use
+//
+// Example:
+//
+//	// Basic wrapper
+//	wrapper := CreateHttpWrapper()
+//
+//	// Wrapper with custom headers
+//	wrapper := CreateHttpWrapper(WithHeaders(map[string]string{
+//	    "Authorization": "Bearer token",
+//	}))
+//
+//	// Wrapper with stealth mode
+//	wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced"))
 func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 	cfg := httpWrapperConfig{
 		headers:          defaultHeaders(),
@@ -212,6 +352,49 @@ func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 	}
 }
 
+// Get performs an HTTP GET request with built-in bot protection detection and error handling.
+// This method implements comprehensive security scanning capabilities including detection of
+// Cloudflare, CAPTCHA, and various bot protection mechanisms.
+//
+// The method supports per-request configuration overrides and includes:
+//   - Automatic bot protection detection (Cloudflare, Incapsula, DataDome, etc.)
+//   - Human-like behavior simulation when anti-bot detection is enabled
+//   - Structured error handling with panic-based error reporting
+//   - Response body validation
+//
+// Error handling:
+// The method panics with httpError containing structured error information:
+//   - Code 100: Request creation failed
+//   - Code 101: Network error (DNS, timeout, connection)
+//   - Code 102: Non-200 HTTP status code
+//   - Code 200: Response body reading error
+//   - Code 300: Bot protection detected (only in strict mode)
+//
+// Bot protection detection includes:
+//   - Header-based: Cloudflare Server, CF-RAY, CF-Cache-Status, CF-CHL-BCODE
+//   - Service detection: Incapsula, Distil Networks, PerimeterX, DataDome, Reblaze, Radware
+//   - Content-based: CAPTCHA, challenge pages, access denied messages, JavaScript requirements
+//
+// Parameters:
+//   - url: Target URL to request
+//   - opts: Optional per-request configuration overrides
+//
+// Returns:
+//   - *http.Response: HTTP response object (only if successful and no bot protection detected)
+//
+// Panics:
+//   - httpError: On any error condition with detailed error information
+//
+// Example:
+//
+//	wrapper := CreateHttpWrapper()
+//	response := wrapper.Get("https://example.com")
+//	fmt.Printf("Status: %s\n", response.Status)
+//
+//	// With per-request options
+//	response := wrapper.Get("https://api.example.com", WithHeaders(map[string]string{
+//	    "Accept": "application/json",
+//	}))
 func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 	// Start with wrapper's base config
 	cfg := hw.config

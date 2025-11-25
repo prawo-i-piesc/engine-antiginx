@@ -1,3 +1,6 @@
+// Package CVE provides functionality for querying and analyzing Common Vulnerabilities and Exposures (CVE)
+// from the NIST National Vulnerability Database (NVD). It enables security assessment of detected technologies
+// by checking for known vulnerabilities and calculating risk levels based on CVSS scores.
 package CVE
 
 import (
@@ -10,41 +13,47 @@ import (
 	"time"
 )
 
-// CVEClient handles communication with CVE databases
+// CVEClient handles communication with CVE databases, specifically the NIST NVD API.
+// It provides methods for searching vulnerabilities and assessing security risks
+// for specific technologies and versions.
 type CVEClient struct {
 	httpClient *http.Client
 	baseURL    string
 }
 
-// CVEResult represents a CVE vulnerability entry
+// CVEResult represents a single CVE vulnerability entry with essential information
+// including severity rating, CVSS score, and publication dates.
 type CVEResult struct {
-	ID          string    `json:"id"`
-	Description string    `json:"description"`
-	Severity    string    `json:"severity"`
-	Score       float64   `json:"score"`
-	Published   time.Time `json:"published"`
-	Modified    time.Time `json:"modified"`
-	References  []string  `json:"references"`
+	ID          string    `json:"id"`          // CVE identifier (e.g., "CVE-2024-1234")
+	Description string    `json:"description"` // Human-readable vulnerability description
+	Severity    string    `json:"severity"`    // Severity level: LOW, MEDIUM, HIGH, or CRITICAL
+	Score       float64   `json:"score"`       // CVSS base score (0.0-10.0)
+	Published   time.Time `json:"published"`   // Original publication date
+	Modified    time.Time `json:"modified"`    // Last modification date
+	References  []string  `json:"references"`  // External reference URLs
 }
 
-// VulnerabilityAssessment contains the analysis results
+// VulnerabilityAssessment contains comprehensive analysis results for a specific technology and version.
+// It aggregates CVE data, categorizes vulnerabilities by severity, and provides an overall risk assessment.
 type VulnerabilityAssessment struct {
-	Technology     string      `json:"technology"`
-	Version        string      `json:"version"`
-	CVECount       int         `json:"cve_count"`
-	HighSeverity   int         `json:"high_severity"`
-	MediumSeverity int         `json:"medium_severity"`
-	LowSeverity    int         `json:"low_severity"`
-	MaxScore       float64     `json:"max_score"`
-	CVEs           []CVEResult `json:"cves"`
-	RiskLevel      string      `json:"risk_level"`
+	Technology     string      `json:"technology"`      // Technology name (e.g., "nginx", "Apache")
+	Version        string      `json:"version"`         // Technology version (e.g., "1.21.0")
+	CVECount       int         `json:"cve_count"`       // Total number of CVEs found
+	HighSeverity   int         `json:"high_severity"`   // Count of HIGH/CRITICAL severity CVEs
+	MediumSeverity int         `json:"medium_severity"` // Count of MEDIUM severity CVEs
+	LowSeverity    int         `json:"low_severity"`    // Count of LOW severity CVEs
+	MaxScore       float64     `json:"max_score"`       // Highest CVSS score among all CVEs
+	CVEs           []CVEResult `json:"cves"`            // Complete list of CVE entries
+	RiskLevel      string      `json:"risk_level"`      // Overall risk: NONE, LOW, MEDIUM, HIGH, or CRITICAL
 }
 
-// NVDResponse represents the structure of NIST NVD API response
+// NVDResponse represents the structure of NIST NVD API response (CVE API 2.0).
+// This structure maps the JSON response from the National Vulnerability Database,
+// including pagination information and vulnerability details with CVSS metrics.
 type NVDResponse struct {
-	ResultsPerPage  int `json:"resultsPerPage"`
-	StartIndex      int `json:"startIndex"`
-	TotalResults    int `json:"totalResults"`
+	ResultsPerPage  int `json:"resultsPerPage"` // Number of results in current page
+	StartIndex      int `json:"startIndex"`     // Starting index for pagination
+	TotalResults    int `json:"totalResults"`   // Total number of matching results
 	Vulnerabilities []struct {
 		CVE struct {
 			ID          string `json:"id"`
@@ -73,7 +82,17 @@ type NVDResponse struct {
 	} `json:"vulnerabilities"`
 }
 
-// NewCVEClient creates a new CVE client instance
+// NewCVEClient creates a new CVE client instance configured to communicate with the NIST NVD API.
+// The client is initialized with a 30-second timeout for HTTP requests and uses the official
+// NVD CVE API 2.0 endpoint.
+//
+// Returns:
+//   - *CVEClient: A ready-to-use CVE client instance
+//
+// Example:
+//
+//	client := NewCVEClient()
+//	assessment, err := client.AssessTechnologyVulnerabilities("nginx", "1.21.0")
 func NewCVEClient() *CVEClient {
 	return &CVEClient{
 		httpClient: &http.Client{
@@ -83,7 +102,29 @@ func NewCVEClient() *CVEClient {
 	}
 }
 
-// AssessTechnologyVulnerabilities checks for CVEs affecting a specific technology and version
+// AssessTechnologyVulnerabilities checks for CVEs affecting a specific technology and version.
+// It performs a comprehensive vulnerability assessment by querying the NVD database,
+// analyzing the results, and calculating an overall risk level.
+//
+// The method normalizes technology names for better search accuracy and aggregates
+// vulnerability data including severity counts and CVSS scores.
+//
+// Parameters:
+//   - technology: Technology name (e.g., "nginx", "Apache", "PHP")
+//   - version: Technology version string (e.g., "1.21.0", "2.4.41")
+//
+// Returns:
+//   - *VulnerabilityAssessment: Complete assessment with CVEs and risk analysis
+//   - error: Error if the search or analysis fails
+//
+// Example:
+//
+//	client := NewCVEClient()
+//	assessment, err := client.AssessTechnologyVulnerabilities("nginx", "1.21.0")
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	fmt.Printf("Found %d CVEs with risk level: %s\n", assessment.CVECount, assessment.RiskLevel)
 func (c *CVEClient) AssessTechnologyVulnerabilities(technology, version string) (*VulnerabilityAssessment, error) {
 	// Normalize technology name for search
 	normalizedTech := normalizeTechnologyName(technology)
@@ -95,14 +136,22 @@ func (c *CVEClient) AssessTechnologyVulnerabilities(technology, version string) 
 	}
 
 	// Analyze the results
-	assessment := c. // The `analyzeCVEs` function is responsible for performing analysis on the CVE
-		// results. Here is a breakdown of what it does:
-		analyzeCVEs(technology, version, cves)
+	assessment := c.analyzeCVEs(technology, version, cves)
 
 	return assessment, nil
 }
 
-// searchCVEs performs the actual search against the NVD database
+// searchCVEs performs the actual search against the NVD database using the CVE API 2.0.
+// It constructs an HTTP request with appropriate headers, executes the search,
+// and parses the JSON response into CVEResult structures.
+//
+// Parameters:
+//   - technology: Normalized technology name
+//   - version: Technology version string
+//
+// Returns:
+//   - []CVEResult: List of matching CVE entries
+//   - error: Error if the request fails or response cannot be parsed
 func (c *CVEClient) searchCVEs(technology, version string) ([]CVEResult, error) {
 	// Build search query
 	query := buildSearchQuery(technology, version)
@@ -148,7 +197,16 @@ func (c *CVEClient) searchCVEs(technology, version string) ([]CVEResult, error) 
 	return cves, nil
 }
 
-// buildSearchQuery creates an optimized search query for the NVD API
+// buildSearchQuery creates an optimized search query for the NVD API by combining
+// technology name and version. If version is not available or set to "detected",
+// it searches only by technology name.
+//
+// Parameters:
+//   - technology: Technology name to search for
+//   - version: Technology version (optional, can be empty or "detected")
+//
+// Returns:
+//   - string: Formatted search query for the NVD API
 func buildSearchQuery(technology, version string) string {
 	query := technology
 
@@ -160,7 +218,18 @@ func buildSearchQuery(technology, version string) string {
 	return query
 }
 
-// normalizeTechnologyName standardizes technology names for better search results
+// normalizeTechnologyName standardizes technology names to match how they appear
+// in the NVD database. This improves search accuracy by mapping common technology
+// names to their official NVD identifiers.
+//
+// Parameters:
+//   - technology: Original technology name (e.g., "Apache", "Nginx")
+//
+// Returns:
+//   - string: Normalized technology name for NVD search (e.g., "apache http server", "nginx")
+//
+// Supported technologies include web servers (Apache, Nginx, IIS), frameworks
+// (Django, Laravel, Spring), and content management systems (WordPress, Drupal).
 func normalizeTechnologyName(technology string) string {
 	techMap := map[string]string{
 		"Apache":           "apache http server",
@@ -188,7 +257,15 @@ func normalizeTechnologyName(technology string) string {
 	return strings.ToLower(technology)
 }
 
-// convertNVDToCVEResults converts NVD API response to our CVEResult format
+// convertNVDToCVEResults converts NVD API response to our internal CVEResult format.
+// It extracts essential information including CVE ID, description, CVSS scores,
+// and severity ratings. Prefers CVSS v3.1 metrics over v2 when available.
+//
+// Parameters:
+//   - nvdResp: Raw NVD API response structure
+//
+// Returns:
+//   - []CVEResult: Converted list of CVE entries in simplified format
 func (c *CVEClient) convertNVDToCVEResults(nvdResp NVDResponse) []CVEResult {
 	var cves []CVEResult
 
@@ -223,7 +300,17 @@ func (c *CVEClient) convertNVDToCVEResults(nvdResp NVDResponse) []CVEResult {
 	return cves
 }
 
-// analyzeCVEs performs analysis on the CVE results
+// analyzeCVEs performs comprehensive analysis on the CVE results to create a
+// VulnerabilityAssessment. It categorizes CVEs by severity, finds the maximum
+// CVSS score, and determines an overall risk level.
+//
+// Parameters:
+//   - technology: Technology name being assessed
+//   - version: Technology version being assessed
+//   - cves: List of CVE entries to analyze
+//
+// Returns:
+//   - *VulnerabilityAssessment: Complete assessment with aggregated statistics and risk level
 func (c *CVEClient) analyzeCVEs(technology, version string, cves []CVEResult) *VulnerabilityAssessment {
 	assessment := &VulnerabilityAssessment{
 		Technology: technology,
@@ -257,7 +344,21 @@ func (c *CVEClient) analyzeCVEs(technology, version string, cves []CVEResult) *V
 	return assessment
 }
 
-// determineRiskLevel calculates overall risk based on CVE analysis
+// determineRiskLevel calculates overall risk based on CVE analysis using a weighted
+// approach that considers both the number and severity of vulnerabilities.
+//
+// Risk levels are determined as follows:
+//   - CRITICAL: Any HIGH/CRITICAL severity CVE present
+//   - HIGH: 3 or more MEDIUM severity CVEs
+//   - MEDIUM: Any MEDIUM severity CVE or 5+ LOW severity CVEs
+//   - LOW: Any CVEs present that don't meet higher thresholds
+//   - NONE: No CVEs found
+//
+// Parameters:
+//   - assessment: VulnerabilityAssessment with severity counts
+//
+// Returns:
+//   - string: Risk level classification (NONE, LOW, MEDIUM, HIGH, or CRITICAL)
 func (c *CVEClient) determineRiskLevel(assessment *VulnerabilityAssessment) string {
 	if assessment.HighSeverity > 0 {
 		return "CRITICAL"
@@ -271,7 +372,23 @@ func (c *CVEClient) determineRiskLevel(assessment *VulnerabilityAssessment) stri
 	return "NONE"
 }
 
-// GetThreatLevelFromAssessment converts CVE risk level to our ThreatLevel enum
+// GetThreatLevelFromAssessment converts CVE risk level to the Tests package ThreatLevel enum.
+// This function provides integration between CVE assessment results and the test framework's
+// threat classification system.
+//
+// Mapping:
+//   - CRITICAL → 5 (Critical threat)
+//   - HIGH → 4 (High threat)
+//   - MEDIUM → 3 (Medium threat)
+//   - LOW → 2 (Low threat)
+//   - NONE → 0 (No threat)
+//   - default → 1 (Info level)
+//
+// Parameters:
+//   - assessment: VulnerabilityAssessment containing the risk level
+//
+// Returns:
+//   - int: ThreatLevel value compatible with Tests.ThreatLevel enum
 func GetThreatLevelFromAssessment(assessment *VulnerabilityAssessment) int {
 	switch assessment.RiskLevel {
 	case "CRITICAL":

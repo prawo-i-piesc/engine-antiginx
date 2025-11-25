@@ -1,10 +1,33 @@
+// Package Parameter_Parser provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
+// It processes command-line tokens based on statically defined parameter definitions, validates required
+// arguments, enforces whitelists, and provides structured error reporting through panic-based error handling.
+//
+// The parser supports various parameter types including:
+//   - Single-value parameters (--target, --userAgent)
+//   - Multi-value parameters (--tests, --httpMethods)
+//   - Optional parameters with defaults (--userAgent, --referer)
+//   - Required parameters (--target, --tests, --httpMethods)
+//   - Whitelist validation for specific parameters
+//
+// Error codes:
+//   - 100: Insufficient parameters
+//   - 201: Missing "test" keyword or invalid command structure
+//   - 303: Missing required arguments
+//   - 304: Invalid argument or unexpected parameter
+//   - 305: Duplicate argument detected
+//   - 306: Too many arguments for single-value parameter
 package Parameter_Parser
 
 import (
 	error "Engine-AntiGinx/App/Errors"
 )
 
-// Static HashMap of commands
+// params is the static registry of all supported command-line parameters with their configurations.
+// Each parameter defines:
+//   - Arguments: Whitelist of allowed values (empty means any value accepted)
+//   - DefaultVal: Default value when parameter is provided without arguments
+//   - ArgRequired: Whether arguments are mandatory
+//   - ArgCount: Number of arguments (1 for single, -1 for multiple)
 var params = map[string]parameter{
 	"--target": {
 		Arguments:   []string{},
@@ -46,26 +69,79 @@ var params = map[string]parameter{
 	},
 }
 
+// parameterParser is the main parser structure that processes command-line arguments.
+// It uses the static params map for parameter definitions and validation rules.
 type parameterParser struct{}
+
+// CommandParameter represents a parsed command-line parameter with its associated arguments.
+// This is the output structure returned by the parser after successful validation.
 type CommandParameter struct {
-	Name      string
-	Arguments []string
-}
-type parameter struct {
-	Arguments   []string
-	DefaultVal  string
-	ArgRequired bool
-	ArgCount    int
-}
-type parsingError struct {
-	Code    int
-	Message string
+	Name      string   // Parameter name (e.g., "--target", "--tests")
+	Arguments []string // List of validated arguments for this parameter
 }
 
+// parameter defines the specification for a command-line parameter including validation rules.
+// It is used internally by the parser to validate user input against expected parameter definitions.
+type parameter struct {
+	Arguments   []string // Whitelist of allowed argument values (empty = no restriction)
+	DefaultVal  string   // Default value when parameter provided without arguments
+	ArgRequired bool     // Whether the parameter must have arguments
+	ArgCount    int      // Expected argument count: 1 for single, -1 for multiple
+}
+
+// parsingError represents a structured parsing error with categorized error codes.
+// Used internally for panic-based error handling during the parsing process.
+type parsingError struct {
+	Code    int    // Error code for categorization
+	Message string // Human-readable error description
+}
+
+// CreateCommandParser creates a new instance of the parameter parser.
+// This factory function returns a parser ready to process command-line arguments.
+//
+// Returns:
+//   - *parameterParser: A new parser instance
+//
+// Example:
+//
+//	parser := CreateCommandParser()
+//	params := parser.Parse(os.Args)
 func CreateCommandParser() *parameterParser {
 	return &parameterParser{}
 }
 
+// Parse processes command-line arguments and returns validated parameter structures.
+// It enforces the command structure: [program] test [parameters...] and validates all
+// arguments against the static parameter definitions.
+//
+// The parser performs the following validations:
+//   - Minimum argument count (at least 2 tokens required)
+//   - Second token must be "test" keyword
+//   - All parameters must be recognized
+//   - Required arguments must be provided
+//   - Arguments must pass whitelist validation if defined
+//   - No duplicate arguments allowed
+//   - Argument count must match parameter specification
+//
+// Parameters:
+//   - userParameters: Command-line arguments slice (typically os.Args)
+//
+// Returns:
+//   - []*CommandParameter: List of parsed and validated parameters with their arguments
+//
+// Panics:
+//   - error.Error with code 100: Insufficient parameters (less than 2 tokens)
+//   - error.Error with code 201: Missing "test" keyword or invalid structure
+//   - Additional errors may be raised by transformIntoTable
+//
+// Example:
+//
+//	parser := CreateCommandParser()
+//	params := parser.Parse([]string{"scanner", "test", "--target", "example.com", "--tests", "https"})
+//	// Returns: []*CommandParameter{
+//	//   {Name: "--target", Arguments: []string{"example.com"}},
+//	//   {Name: "--tests", Arguments: []string{"https"}},
+//	// }
 func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 	paramLen := len(userParameters)
 	if paramLen < 2 {
@@ -90,78 +166,47 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 	return transformIntoTable(params, userParameters)
 }
 
-/*
-Function which transforms and validates user data into commands table
-
-		variables:
-			parsedParams: table with parsed and validated parameters and its arguments
-			currentParam: variable that stores current param if argMode is on
-			args: buffer for the arguments
-		modes:
-			argMode - variable which helps to track if current userParam is parameter
-				or one of arguments to the parameter
-		Explanation:
-			For each token:
-
-	  - Check if the token is a known parameter (params[token]):
-	    -> If YES:
-
-	  - If argMode is ON (collecting arguments for a previous parameter):
-
-	  - Turn argMode OFF
-
-	  - If args is empty -> panic (missing required arguments)
-
-	  - Copy args into a new slice (argCopy)
-
-	  - Append {Name: currentParam, Arguments: argCopy} to parsedParams
-
-	  - Clear args for reuse
-
-	  - Handle the current parameter:
-
-	  - If the parameter REQUIRES arguments (ArgRequired == true):
-
-	  - If this is the last token -> panic (missing required argument)
-
-	  - Turn argMode ON and set currentParam = token (start collecting arguments)
-
-	  - If the parameter does NOT require arguments (ArgRequired == false):
-
-	  - If there is a next token:
-	    · If next token is another parameter:
-
-	  - Append {Name: token, Arguments: [defaultVal]}
-	    · Else (next token is not a parameter):
-
-	  - Treat next token as a user-provided argument
-
-	  - Append {Name: token, Arguments: [next]}
-
-	  - Increment i (consume the argument)
-
-	  - If no next token exists:
-
-	  - Append {Name: token, Arguments: [defaultVal]} (use default)
-
-	    -> If NO (token is not a parameter name):
-
-	  - If argMode is OFF -> panic (unexpected argument with no active parameter)
-
-	  - If argMode is ON:
-
-	  - If the parameter has a whitelist of allowed arguments,
-	    check using findElement; if invalid -> panic
-
-	  - Append token to args (it is an argument)
-
-After finishing the loop:
-  - If argMode is still ON (unfinished argument collection):
-    -> If args is empty -> panic
-    -> Copy args and append the final {Name: currentParam, Arguments: argCopy}
-
-Return parsedParams.
-*/
+// transformIntoTable is the core parsing algorithm that transforms and validates user input
+// into a structured list of CommandParameter objects. It implements a state machine that
+// distinguishes between parameter names and their arguments.
+//
+// Algorithm overview:
+//
+// The parser uses an "argMode" flag to track whether it's currently collecting arguments:
+//
+// For each token (starting from index 2):
+//
+//  1. If token is a known parameter:
+//     - If argMode is ON: finalize the previous parameter's arguments
+//     - Validate argument count and check for duplicates
+//     - If current parameter requires arguments: enter argMode
+//     - If optional: check next token and use default or provided value
+//
+//  2. If token is NOT a parameter:
+//     - If argMode is OFF: panic (unexpected argument)
+//     - If argMode is ON: validate against whitelist and collect argument
+//
+// After processing all tokens:
+//   - If argMode is still ON: finalize the last parameter
+//
+// Variables:
+//   - parsedParams: Output list of parsed parameters
+//   - currentParam: Name of parameter currently collecting arguments
+//   - args: Buffer for collecting argument values
+//   - argMode: State flag indicating argument collection mode
+//
+// Parameters:
+//   - params: Map of parameter definitions for validation
+//   - userParameters: Raw command-line tokens to parse
+//
+// Returns:
+//   - []*CommandParameter: Validated list of parameters with arguments
+//
+// Panics:
+//   - error.Error with code 303: Missing required arguments or empty argument list
+//   - error.Error with code 304: Invalid argument or unexpected token
+//   - error.Error with code 305: Duplicate arguments detected
+//   - error.Error with code 306: Too many arguments for single-value parameter
 func transformIntoTable(params map[string]parameter, userParameters []string) []*CommandParameter {
 	userParametersLen := len(userParameters)
 	parsedParams := []*CommandParameter{}
@@ -278,6 +323,23 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 
 	return parsedParams
 }
+
+// findElement performs a linear search to check if a user-provided argument exists in the
+// parameter's whitelist of allowed values. This is used for validating arguments against
+// parameter definitions that specify allowed values.
+//
+// Parameters:
+//   - userParam: The argument value provided by the user
+//   - params: Whitelist of allowed values for the parameter
+//
+// Returns:
+//   - bool: true if userParam is found in the whitelist, false otherwise
+//
+// Example:
+//
+//	allowed := []string{"GET", "POST", "PUT"}
+//	isValid := findElement("GET", allowed)  // returns true
+//	isValid := findElement("INVALID", allowed)  // returns false
 func findElement(userParam string, params []string) bool {
 	for i := 0; i < len(params); i++ {
 		if params[i] == userParam {
@@ -286,6 +348,22 @@ func findElement(userParam string, params []string) bool {
 	}
 	return false
 }
+
+// checkOccurrences validates that no argument appears more than once in the argument list.
+// This prevents duplicate values which could indicate user error or misconfiguration.
+//
+// The function uses a map to track seen arguments with O(n) time complexity.
+//
+// Parameters:
+//   - args: List of arguments to check for duplicates
+//
+// Panics:
+//   - error.Error with code 305: If any argument appears more than once
+//
+// Example:
+//
+//	args := []string{"https", "hsts", "https"}  // panics - "https" appears twice
+//	args := []string{"GET", "POST", "PUT"}      // passes - all unique
 func checkOccurrences(args []string) {
 	seen := make(map[string]bool)
 	for _, curr := range args {

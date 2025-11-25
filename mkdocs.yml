@@ -69,6 +69,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Documentation:
+    - CVE: App/CVE/index.md
     - Errors: App/Errors/index.md
     - Helpers: App/Helpers/index.md
     - HTTP: App/HTTP/index.md
