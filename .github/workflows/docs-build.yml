@@ -38,7 +38,7 @@ jobs:
 
         - name: Generate documentation
           run: |
-            gomarkdoc --output 'docs/{{.Dir}}/index.md' ./App/...
+            gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./App/...
 
         - name: Deploy to GitHub Pages
           run: |
