@@ -207,6 +207,10 @@ func WithHeaders(h map[string]string) WrapperOption {
 // This option activates all available techniques including realistic headers, TLS fingerprint masking,
 // cookie handling, random delays, and header ordering.
 //
+// The level parameter is optional and maintained for backward compatibility. All protection levels
+// now use the same comprehensive anti-detection headers. Accepted values include "basic", "advanced",
+// "maximum", and "stealth", but they all provide the same maximum protection.
+//
 // When enabled, the client will:
 //   - Use browser-like TLS configuration
 //   - Maintain cookie jar for session handling
@@ -216,17 +220,25 @@ func WithHeaders(h map[string]string) WrapperOption {
 //   - Support HTTP/2
 //   - Use advanced stealth headers with all client hints and browser characteristics
 //
+// Parameters:
+//   - level: Optional protection level for backward compatibility (ignored, all levels use maximum protection)
+//
 // Returns:
 //   - WrapperOption: Configuration function that enables anti-bot detection features
 //
 // Example:
 //
 //	wrapper := CreateHttpWrapper(WithAntiBotDetection())
-func WithAntiBotDetection() WrapperOption {
+//	wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced")) // backward compatible
+func WithAntiBotDetection(level ...string) WrapperOption {
 	return func(cfg *httpWrapperConfig) {
 		cfg.antiBotDetection = true
 
-		// Always use maximum protection with comprehensive anti-detection headers
+		// Always use maximum protection with comprehensive anti-detection headers.
+		// The level parameter is accepted for backward compatibility but all protection
+		// levels now provide the same comprehensive headers. Only the first value is
+		// considered if multiple are provided, but it has no effect on behavior.
+		_ = level
 		headers := getAntiDetectionHeaders()
 
 		// Apply headers
@@ -277,7 +289,8 @@ type httpWrapper struct {
 //	    "Authorization": "Bearer token",
 //	}))
 //
-//	// Wrapper with stealth mode
+//	// Wrapper with stealth mode (both forms supported for backward compatibility)
+//	wrapper := CreateHttpWrapper(WithAntiBotDetection())
 //	wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced"))
 func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 	cfg := httpWrapperConfig{
