@@ -57,14 +57,19 @@ func defaultHeaders() map[string]string {
 	}
 }
 
-// getAntiDetectionHeaders returns a set of realistic browser headers that mimic Chrome 120
-// on Windows 10. These headers help avoid basic bot detection by appearing as a legitimate browser.
+// getAntiDetectionHeaders returns comprehensive browser headers with maximum stealth capabilities.
+// This function provides the best security by including all browser characteristics, client hints,
+// viewport information, device capabilities, and network conditions that match a real Chrome browser.
 //
-// The headers include User-Agent, Accept, Accept-Language, security fetch metadata,
-// and client hints that match a real Chrome browser's fingerprint.
+// Includes enhanced features for maximum protection:
+//   - Full Chrome client hints (viewport, DPR, device memory, architecture)
+//   - Browser feature detection headers (Save-Data, RTT, ECT, Downlink)
+//   - Color scheme and motion preferences
+//   - Complete platform and architecture information
+//   - Security fetch metadata and all standard browser headers
 //
 // Returns:
-//   - map[string]string: Headers mimicking Chrome 120 browser on Windows
+//   - map[string]string: Comprehensive headers for maximum anti-detection protection
 func getAntiDetectionHeaders() map[string]string {
 	return map[string]string{
 		"User-Agent":                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -84,50 +89,29 @@ func getAntiDetectionHeaders() map[string]string {
 		"Cache-Control":             "max-age=0",
 		"Pragma":                    "no-cache",
 		"Sec-GPC":                   "1",
+		// Enhanced client hints (matching real Chrome browser)
+		"sec-ch-viewport-width":      "1920",
+		"sec-ch-viewport-height":     "1080",
+		"sec-ch-dpr":                 "1",
+		"sec-ch-device-memory":       "8",
+		"sec-ch-ua-arch":             `"x86"`,
+		"sec-ch-ua-bitness":          `"64"`,
+		"sec-ch-ua-full-version":     `"120.0.6099.109"`,
+		"sec-ch-ua-model":            `""`,
+		"sec-ch-ua-platform-version": `"15.0.0"`,
+		"sec-ch-ua-wow64":            "?0",
+		// Additional stealth headers
+		"sec-ch-prefers-color-scheme":   "light",
+		"sec-ch-prefers-reduced-motion": "no-preference",
+		"Viewport-Width":                "1920",
+		"Width":                         "1920",
+		// Browser feature detection headers
+		"Save-Data":     "0",
+		"Device-Memory": "8",
+		"RTT":           "100",
+		"Downlink":      "10",
+		"ECT":           "4g",
 	}
-}
-
-// getAdvancedStealthHeaders provides maximum stealth by including comprehensive browser
-// characteristics including viewport dimensions, device memory, client hints, and network
-// information. This is the most complete browser fingerprint simulation available.
-//
-// Includes enhanced features:
-//   - Full Chrome client hints (viewport, DPR, device memory, architecture)
-//   - Browser feature detection headers (Save-Data, RTT, ECT, Downlink)
-//   - Color scheme and motion preferences
-//   - Complete platform and architecture information
-//
-// Returns:
-//   - map[string]string: Comprehensive headers for maximum stealth
-func getAdvancedStealthHeaders() map[string]string {
-	headers := getAntiDetectionHeaders()
-
-	// Enhanced client hints (matching real Chrome browser)
-	headers["sec-ch-viewport-width"] = "1920"
-	headers["sec-ch-viewport-height"] = "1080"
-	headers["sec-ch-dpr"] = "1"
-	headers["sec-ch-device-memory"] = "8"
-	headers["sec-ch-ua-arch"] = `"x86"`
-	headers["sec-ch-ua-bitness"] = `"64"`
-	headers["sec-ch-ua-full-version"] = `"120.0.6099.109"`
-	headers["sec-ch-ua-model"] = `""`
-	headers["sec-ch-ua-platform-version"] = `"15.0.0"`
-	headers["sec-ch-ua-wow64"] = "?0"
-
-	// Additional stealth headers
-	headers["sec-ch-prefers-color-scheme"] = "light"
-	headers["sec-ch-prefers-reduced-motion"] = "no-preference"
-	headers["Viewport-Width"] = "1920"
-	headers["Width"] = "1920"
-
-	// Browser feature detection headers
-	headers["Save-Data"] = "0"
-	headers["Device-Memory"] = "8"
-	headers["RTT"] = "100"
-	headers["Downlink"] = "10"
-	headers["ECT"] = "4g"
-
-	return headers
 }
 
 // getRandomUserAgent returns a random realistic user agent from a pool of current browser versions.
@@ -219,13 +203,9 @@ func WithHeaders(h map[string]string) WrapperOption {
 	}
 }
 
-// WithAntiBotDetection enables comprehensive anti-bot detection bypass with multiple protection levels.
-// This option activates various techniques including realistic headers, TLS fingerprint masking,
+// WithAntiBotDetection enables comprehensive anti-bot detection bypass with maximum protection.
+// This option activates all available techniques including realistic headers, TLS fingerprint masking,
 // cookie handling, random delays, and header ordering.
-//
-// Protection levels:
-//   - "basic": Standard anti-detection headers mimicking Chrome browser
-//   - "advanced", "maximum", "stealth": Full stealth mode with all client hints and browser characteristics
 //
 // When enabled, the client will:
 //   - Use browser-like TLS configuration
@@ -234,30 +214,20 @@ func WithHeaders(h map[string]string) WrapperOption {
 //   - Randomize user agents
 //   - Order headers like real browsers
 //   - Support HTTP/2
-//
-// Parameters:
-//   - level: Protection level ("basic", "advanced", "maximum", or "stealth")
+//   - Use advanced stealth headers with all client hints and browser characteristics
 //
 // Returns:
 //   - WrapperOption: Configuration function that enables anti-bot detection features
 //
 // Example:
 //
-//	wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced"))
-func WithAntiBotDetection(level string) WrapperOption {
+//	wrapper := CreateHttpWrapper(WithAntiBotDetection())
+func WithAntiBotDetection() WrapperOption {
 	return func(cfg *httpWrapperConfig) {
 		cfg.antiBotDetection = true
 
-		// Set appropriate headers based on protection level
-		var headers map[string]string
-		switch level {
-		case "basic":
-			headers = getAntiDetectionHeaders()
-		case "advanced", "maximum", "stealth":
-			headers = getAdvancedStealthHeaders()
-		default:
-			headers = getAntiDetectionHeaders()
-		}
+		// Always use maximum protection with comprehensive anti-detection headers
+		headers := getAntiDetectionHeaders()
 
 		// Apply headers
 		for k, v := range headers {
