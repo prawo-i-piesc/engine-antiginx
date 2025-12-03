@@ -29,4 +29,4 @@ COPY --from=build /engine-antiginx/Engined /engine-antiginx/Engined
 # Document the ports used by the applications
 # App uses 8080, Engined uses 9090
 EXPOSE 8080 9090
-CMD ["/engine-antiginx/App"]
+CMD ["/engine-antiginx/Engined"]
