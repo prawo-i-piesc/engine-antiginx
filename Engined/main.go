@@ -26,7 +26,12 @@ func main() {
 	isShuttingDown := false
 
 	//	RabbitMQ connection
-	conn, err := amqp.Dial("amqp://guest:guest@192.168.0.54:5672/")
+	rabbitmqURL := os.Getenv("RABBITMQ_URL")
+	if rabbitmqURL == "" {
+		fmt.Println("Error: RABBITMQ_URL environment variable is not set")
+		return
+	}
+	conn, err := amqp.Dial(rabbitmqURL)
 	if err != nil {
 		fmt.Println(err)
 		return
