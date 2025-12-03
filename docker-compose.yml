@@ -1,0 +1,46 @@
+services:
+  engine-antiginx-engined:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: /engine-antiginx/Engined
+
+    container_name: engine-antiginx-engined
+    restart: unless-stopped
+
+    ports:
+      - "${ENGINE_ANTIGINX_DAEMON_PORT}:9090"
+
+    env_file:
+      - .env
+
+    mem_limit: 1024m
+
+    networks:
+      - engine-antiginx-network
+
+  engine-antiginx-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: /engine-antiginx/App
+
+    depends_on:
+      - engine-antiginx-engined
+
+    container_name: engine-antiginx-app
+    restart: unless-stopped
+
+    ports:
+      - "${ENGINE_ANTIGINX_APP_PORT}:8080"
+
+    env_file:
+      - .env
+
+    mem_limit: 1024m
+
+    networks:
+      - engine-antiginx-network
+
+networks:
+  engine-antiginx-network:
