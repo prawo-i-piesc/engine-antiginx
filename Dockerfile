@@ -20,6 +20,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /engine-antiginx/E
 # Final stage: a minimal image to run the application
 FROM alpine:latest AS run
 
+# Install ca-certificates
+RUN apk --no-cache add ca-certificates
+
 WORKDIR /root/
 
 # Copy the application executable from the build image
