@@ -29,6 +29,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	//"os"
 	"sync"
 )
 
@@ -135,12 +137,15 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 	target := &params[0].Arguments[0]
 
 	// Skip the first parameter and look for "--tests"
-	for i := 1; i < len(params); i++ {
-		currPtr := params[i]
-		if currPtr != nil && currPtr.Name == "--tests" {
-			testsToExecute = currPtr.Arguments
-		}
+	testParam := findParam(params, "--tests")
+	if testParam == -1 {
+		panic(error.Error{
+			Code: 100,
+			Message: `Runner error occurred. This could be due to:
+				- tests keyword not present in params`,
+		})
 	}
+	testsToExecute = params[testParam].Arguments
 
 	// Validate that we actually have tests to run.
 	if testsToExecute == nil {
@@ -166,7 +171,15 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 	// Determine which reporter to use based on environment configuration.
 	var reporter Reporter.Reporter
 	if v, exists := os.LookupEnv("BACK_URL"); exists {
-		reporter = Reporter.InitializeBackendReporter(channel, v)
+		taskIdParam := findParam(params, "--taskId")
+		if taskIdParam == -1 {
+			panic(error.Error{
+				Code: 101,
+				Message: `Runner error occurred. This could be due to:
+					- Misconfiguration of testId param`,
+			})
+		}
+		reporter = Reporter.InitializeBackendReporter(channel, v, params[taskIdParam].Arguments[0], *target)
 	} else {
 		reporter = Reporter.InitializeCliReporter(channel)
 	}
@@ -278,4 +291,14 @@ func performTest(test *Tests.ResponseTest, wg *sync.WaitGroup, results chan<- Te
 	testParams := Tests.ResponseTestParams{Response: response}
 	testResult := test.Run(testParams)
 	results <- testResult
+}
+
+func findParam(params []*parameterparser.CommandParameter, paramToFind string) int {
+	for i := 1; i < len(params); i++ {
+		currPtr := params[i]
+		if paramToFind == currPtr.Name {
+			return i
+		}
+	}
+	return -1
 }

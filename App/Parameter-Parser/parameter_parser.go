@@ -35,6 +35,12 @@ var params = map[string]parameter{
 		ArgRequired: true,
 		ArgCount:    1,
 	},
+	"--taskId": {
+		Arguments:   []string{},
+		DefaultVal:  "",
+		ArgRequired: true,
+		ArgCount:    1,
+	},
 	"--userAgent": {
 		Arguments:   []string{},
 		DefaultVal:  "Scanner/1.0",
@@ -189,23 +195,27 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 // After processing all tokens, if argMode is still on, the last parameter is finalized.
 //
 // Variables:
-//   parsedParams   Output list of parsed parameters.
-//   currentParam   Name of the parameter currently collecting arguments.
-//   args           Buffer for collecting argument values.
-//   argMode        State flag indicating argument collection mode.
+//
+//	parsedParams   Output list of parsed parameters.
+//	currentParam   Name of the parameter currently collecting arguments.
+//	args           Buffer for collecting argument values.
+//	argMode        State flag indicating argument collection mode.
 //
 // Parameters:
-//   params         Map of parameter definitions for validation.
-//   userParameters Raw command-line tokens to parse.
+//
+//	params         Map of parameter definitions for validation.
+//	userParameters Raw command-line tokens to parse.
 //
 // Returns:
-//   []*CommandParameter: Validated list of parameters with arguments.
+//
+//	[]*CommandParameter: Validated list of parameters with arguments.
 //
 // Panics:
-//   error.Error with code 303: Missing required arguments or empty argument list.
-//   error.Error with code 304: Invalid argument or unexpected token.
-//   error.Error with code 305: Duplicate arguments detected.
-//   error.Error with code 306: Too many arguments for single-value parameter.
+//
+//	error.Error with code 303: Missing required arguments or empty argument list.
+//	error.Error with code 304: Invalid argument or unexpected token.
+//	error.Error with code 305: Duplicate arguments detected.
+//	error.Error with code 306: Too many arguments for single-value parameter.
 func transformIntoTable(params map[string]parameter, userParameters []string) []*CommandParameter {
 	userParametersLen := len(userParameters)
 	parsedParams := []*CommandParameter{}

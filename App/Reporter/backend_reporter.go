@@ -44,11 +44,14 @@ import (
 // Fields:
 //   - resultChannel: Input channel for test results from the Runner
 //   - backendURL: Target HTTP endpoint for result submission
+//   - testId: ID of test from RabbitMQ
 //   - maxRetries: Maximum retry attempts for failed submissions (default: 2)
 //   - httpClient: HTTP client with configured timeout (default: 5 seconds)
 type backendReporter struct {
 	resultChannel chan Tests.TestResult
 	backendURL    string
+	testId        string
+	target        string
 	maxRetries    int
 	httpClient    *http.Client
 }
@@ -92,8 +95,8 @@ type retryResult struct {
 //	close(resultChan)
 //	failedCount := <-doneChan
 //	fmt.Printf("Processing complete. Failed uploads: %d\n", failedCount)
-func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string) *backendReporter {
-	return &backendReporter{channel, backendURL, 2, &http.Client{
+func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string, testId string, target string) *backendReporter {
+	return &backendReporter{channel, backendURL, testId, target, 2, &http.Client{
 		Timeout: 5 * time.Second,
 	}}
 }
@@ -219,7 +222,12 @@ func (b *backendReporter) StartListening() <-chan int {
 //   - retryWg: WaitGroup for tracking sleeping retry goroutines
 //   - failedUploads: Pointer to counter for permanent failures
 func (b *backendReporter) tryToSendOrEnqueue(result Tests.TestResult, attNumber int, retryChan chan retryResult, retryWg *sync.WaitGroup, failedUploads *int) {
-	err := b.sendToBackend(result)
+	resultWrapper := Tests.TestResultWrapper{
+		Target: b.target,
+		TestId: b.testId,
+		Result: result,
+	}
+	err := b.sendToBackend(resultWrapper)
 	if err == nil {
 		return
 	}
@@ -289,7 +297,7 @@ func (b *backendReporter) tryToSendOrEnqueue(result Tests.TestResult, attNumber 
 //	        // Permanent failure
 //	    }
 //	}
-func (b *backendReporter) sendToBackend(result Tests.TestResult) error {
+func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error {
 	marshalled, err := json.Marshal(result)
 	if err != nil {
 		return &Errors.Error{

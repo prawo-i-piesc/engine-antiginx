@@ -70,6 +70,12 @@ type TestResult struct {
 	Description string      `json:"Description"` // Human-readable findings explanation
 }
 
+type TestResultWrapper struct {
+	Target string     `json:"target"`
+	TestId string     `json:"testId"`
+	Result TestResult `json:"result" json:"result"`
+}
+
 // ResponseTestParams encapsulates the parameters passed to a ResponseTest for execution.
 // It provides the HTTP response object that tests analyze to detect security issues,
 // misconfigurations, and vulnerabilities.
