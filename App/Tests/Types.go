@@ -73,7 +73,7 @@ type TestResult struct {
 type TestResultWrapper struct {
 	Target string     `json:"target"`
 	TestId string     `json:"testId"`
-	Result TestResult `json:"result" json:"result"`
+	Result TestResult `json:"result"`
 }
 
 // ResponseTestParams encapsulates the parameters passed to a ResponseTest for execution.
