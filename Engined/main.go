@@ -27,18 +27,16 @@ func main() {
 
 	//	RabbitMQ connection
 	conn, err := amqp.Dial("amqp://guest:guest@192.168.0.54:5672/")
-
 	if err != nil {
 		fmt.Println(err)
-		isShuttingDown = true
+		return
 	}
 	defer conn.Close()
 
 	taskChannel, err := conn.Channel()
-
 	if err != nil {
 		fmt.Println(err)
-		isShuttingDown = true
+		return
 	}
 	defer taskChannel.Close()
 
