@@ -79,7 +79,7 @@ OUTER:
 			cmdErr := cmd.Run()
 			if cmdErr != nil {
 				// Error handling logic will be implemented here
-				fmt.Printf("Error during processing %s\n", err)
+				fmt.Printf("Error during processing %s\n", cmdErr)
 				msg.Nack(false, false)
 				continue
 			}
