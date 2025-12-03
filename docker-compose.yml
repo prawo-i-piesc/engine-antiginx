@@ -16,6 +16,9 @@ services:
 
     mem_limit: 1024m
 
+    networks:
+      - engine-antiginx-network
+
   engine-antiginx-app:
     build: 
       context: .
@@ -35,3 +38,9 @@ services:
       - .env
 
     mem_limit: 1024m
+
+    networks:
+      - engine-antiginx-network
+
+networks:
+  engine-antiginx-network:
