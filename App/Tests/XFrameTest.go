@@ -278,12 +278,18 @@ func generateDescription(protectionLevel string, hasXFrame, hasCSP bool, canBeEm
 	return description.String()
 }
 
-// cspKeywords contains CSP keywords and broad sources that don't represent
+// cspBroadSources contains CSP sources that allow broad access and don't represent
 // specific domain restrictions.
 var cspBroadSources = map[string]bool{
 	"https:": true, // Allows ALL HTTPS sources
 	"http:":  true, // Allows ALL HTTP sources
 	"*":      true, // Allows ALL sources
+}
+
+// cspKeywords contains CSP keywords that are not domain restrictions.
+var cspKeywords = map[string]bool{
+	"'self'": true,
+	"'none'": true,
 }
 
 // hasOnlyBroadSources checks if the CSP frame-ancestors value contains only broad
@@ -318,16 +324,10 @@ func hasOnlyBroadSources(cspLower string) bool {
 // Returns:
 //   - bool: true if value contains at least one specific domain
 func hasSpecificDomains(cspLower string) bool {
-	// Keywords that are not specific domain restrictions
-	keywords := map[string]bool{
-		"'self'": true,
-		"'none'": true,
-	}
-
 	parts := strings.Fields(cspLower)
 	for _, part := range parts {
 		// If not a broad source and not a keyword, it's a specific domain
-		if !cspBroadSources[part] && !keywords[part] {
+		if !cspBroadSources[part] && !cspKeywords[part] {
 			return true
 		}
 	}
