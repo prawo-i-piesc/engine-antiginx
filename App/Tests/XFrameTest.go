@@ -159,7 +159,11 @@ func determineProtectionLevel(xframeDirective, cspFrameValue string, xframeValid
 			return "excellent"
 		case cspLower == "'self'":
 			return "good"
-		case strings.Contains(cspLower, "'self'") || strings.Contains(cspLower, "https:") || strings.Contains(cspLower, "http:"):
+		case hasOnlyBroadSources(cspLower):
+			// Values like "https:" or "http:" alone allow all sources with that scheme - weak protection
+			return "weak"
+		case strings.Contains(cspLower, "'self'") || hasSpecificDomains(cspLower):
+			// 'self' with specific domains, or specific domains only - limited protection
 			return "limited"
 		default:
 			return "weak"
@@ -272,4 +276,60 @@ func generateDescription(protectionLevel string, hasXFrame, hasCSP bool, canBeEm
 	}
 
 	return description.String()
+}
+
+// hasOnlyBroadSources checks if the CSP frame-ancestors value contains only broad
+// scheme sources (https:, http:, *) without specific domains. Values like "https:"
+// alone allow all HTTPS sources, providing minimal real protection.
+//
+// Parameters:
+//   - cspLower: Lowercase CSP frame-ancestors value
+//
+// Returns:
+//   - bool: true if value only contains broad sources without specific domains
+func hasOnlyBroadSources(cspLower string) bool {
+	parts := strings.Fields(cspLower)
+	if len(parts) == 0 {
+		return false
+	}
+
+	broadSources := map[string]bool{
+		"https:": true,
+		"http:":  true,
+		"*":      true,
+	}
+
+	for _, part := range parts {
+		if !broadSources[part] {
+			return false
+		}
+	}
+	return true
+}
+
+// hasSpecificDomains checks if the CSP frame-ancestors value contains specific
+// domain restrictions (not just scheme sources or wildcards).
+//
+// Parameters:
+//   - cspLower: Lowercase CSP frame-ancestors value
+//
+// Returns:
+//   - bool: true if value contains at least one specific domain
+func hasSpecificDomains(cspLower string) bool {
+	parts := strings.Fields(cspLower)
+	broadSources := map[string]bool{
+		"https:":  true,
+		"http:":   true,
+		"*":       true,
+		"'self'":  true,
+		"'none'":  true,
+	}
+
+	for _, part := range parts {
+		if !broadSources[part] {
+			// This part is not a broad source or keyword, likely a specific domain
+			return true
+		}
+	}
+	return false
 }
