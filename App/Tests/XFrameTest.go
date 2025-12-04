@@ -45,7 +45,7 @@ import (
 //	// Result includes threat level and detailed iframe embedding analysis
 func NewXFrameTest() *ResponseTest {
 	return &ResponseTest{
-		Id:          "xFrame",
+		Id:          "xframe",
 		Name:        "X-Frame-Options & CSP Frame Protection Analysis",
 		Description: "Analyzes X-Frame-Options header and CSP frame-ancestors directive to assess clickjacking protection and iframe embedding policies",
 		RunTest: func(params ResponseTestParams) TestResult {
