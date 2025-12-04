@@ -32,12 +32,14 @@ var tests = make(map[string]*Tests.ResponseTest)
 //   - HTTPSTest: Verifies HTTPS protocol usage
 //   - HSTSTest: Checks HTTP Strict Transport Security headers
 //   - ServerHeaderTest: Analyzes server header information
+//   - XFrameTest: Analyzes X-Frame-Options and CSP frame-ancestors for clickjacking protection
 //
 // Additional tests can be registered by adding registerTest calls in this function.
 func init() {
 	registerTest(Tests.NewHTTPSTest())
 	registerTest(Tests.NewHSTSTest())
 	registerTest(Tests.NewServerHeaderTest())
+	registerTest(Tests.NewXFrameTest())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.
