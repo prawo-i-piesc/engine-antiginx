@@ -162,7 +162,10 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 	target = targetFormatter.Format(*target, testsToExecute)
 
 	// Preload content required for the tests.
-	result := loadWebsiteContent(*target)
+	// Check if anti-bot detection is enabled
+	antiBotParam := findParam(params, "--antiBotDetection")
+	useAntiBotDetection := antiBotParam != -1
+	result := loadWebsiteContent(*target, useAntiBotDetection)
 	var wg sync.WaitGroup
 
 	// Create a buffered channel to prevent blocking test execution if the reporter is slow.
@@ -243,16 +246,26 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 //
 // Example:
 //
-//	response := loadWebsiteContent("https://example.com")
+//	response := loadWebsiteContent("https://example.com", true)
 //	// Response contains headers, body, status code, etc.
 //	// This single response is analyzed by all tests
-func loadWebsiteContent(target string) *http.Response {
-	httpClient := HttpClient.CreateHttpWrapper(HttpClient.WithHeaders(map[string]string{
-		"User-Agent": "CustomAgent/1.0",
-	}))
-	return httpClient.Get(target, HttpClient.WithHeaders(map[string]string{
-		"User-Agent": "AntiGinx-TestClient/1.0",
-	}))
+func loadWebsiteContent(target string, useAntiBotDetection bool) *http.Response {
+	if useAntiBotDetection {
+		// Create HTTP client with anti-bot detection enabled
+		httpClient := HttpClient.CreateHttpWrapper(
+			HttpClient.WithAntiBotDetection(),
+			HttpClient.WithHeaders(map[string]string{
+				"User-Agent": "AntiGinx-TestClient/1.0",
+			}),
+		)
+		return httpClient.Get(target)
+	} else {
+		// Create standard HTTP client
+		httpClient := HttpClient.CreateHttpWrapper(HttpClient.WithHeaders(map[string]string{
+			"User-Agent": "AntiGinx-TestClient/1.0",
+		}))
+		return httpClient.Get(target)
+	}
 }
 
 // performTest executes a single security test in a separate goroutine and publishes
