@@ -46,20 +46,20 @@ var params = map[string]parameter{
 		DefaultVal:  "Scanner/1.0",
 		ArgRequired: false,
 		ArgCount:    1,
-	},
+	},/*
 	"--referer": {
 		Arguments:   []string{},
 		DefaultVal:  "",
 		ArgRequired: false,
 		ArgCount:    1,
-	},
+	},*/
 	"--tests": {
-		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "xFrame",
-			"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"},
+		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "xframe",
+			/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/},
 		DefaultVal:  "",
 		ArgRequired: true,
 		ArgCount:    -1,
-	},
+	},/*
 	"--httpMethods": {
 		Arguments: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "TRACE",
 			"CONNECT", "HEAD"},
@@ -72,6 +72,12 @@ var params = map[string]parameter{
 		DefaultVal:  "",
 		ArgRequired: true,
 		ArgCount:    -1,
+	},*/
+	"--antiBotDetection": {
+		Arguments:   []string{},
+		DefaultVal:  "", // DefaultVal is not used for flag parameters (ArgCount: 0)
+		ArgRequired: false,
+		ArgCount:    0,
 	},
 }
 
