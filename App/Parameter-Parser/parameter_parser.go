@@ -75,7 +75,7 @@ var params = map[string]parameter{
 	},*/
 	"--antiBotDetection": {
 		Arguments:   []string{},
-		DefaultVal:  "false",
+		DefaultVal:  "", // DefaultVal is not used for flag parameters (ArgCount: 0)
 		ArgRequired: false,
 		ArgCount:    0,
 	},
