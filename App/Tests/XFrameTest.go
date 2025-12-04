@@ -278,6 +278,14 @@ func generateDescription(protectionLevel string, hasXFrame, hasCSP bool, canBeEm
 	return description.String()
 }
 
+// cspKeywords contains CSP keywords and broad sources that don't represent
+// specific domain restrictions.
+var cspBroadSources = map[string]bool{
+	"https:": true, // Allows ALL HTTPS sources
+	"http:":  true, // Allows ALL HTTP sources
+	"*":      true, // Allows ALL sources
+}
+
 // hasOnlyBroadSources checks if the CSP frame-ancestors value contains only broad
 // scheme sources (https:, http:, *) without specific domains. Values like "https:"
 // alone allow all HTTPS sources, providing minimal real protection.
@@ -293,14 +301,8 @@ func hasOnlyBroadSources(cspLower string) bool {
 		return false
 	}
 
-	broadSources := map[string]bool{
-		"https:": true,
-		"http:":  true,
-		"*":      true,
-	}
-
 	for _, part := range parts {
-		if !broadSources[part] {
+		if !cspBroadSources[part] {
 			return false
 		}
 	}
@@ -308,7 +310,7 @@ func hasOnlyBroadSources(cspLower string) bool {
 }
 
 // hasSpecificDomains checks if the CSP frame-ancestors value contains specific
-// domain restrictions (not just scheme sources or wildcards).
+// domain restrictions (not just scheme sources, wildcards, or CSP keywords).
 //
 // Parameters:
 //   - cspLower: Lowercase CSP frame-ancestors value
@@ -316,18 +318,16 @@ func hasOnlyBroadSources(cspLower string) bool {
 // Returns:
 //   - bool: true if value contains at least one specific domain
 func hasSpecificDomains(cspLower string) bool {
-	parts := strings.Fields(cspLower)
-	broadSources := map[string]bool{
-		"https:":  true,
-		"http:":   true,
-		"*":       true,
-		"'self'":  true,
-		"'none'":  true,
+	// Keywords that are not specific domain restrictions
+	keywords := map[string]bool{
+		"'self'": true,
+		"'none'": true,
 	}
 
+	parts := strings.Fields(cspLower)
 	for _, part := range parts {
-		if !broadSources[part] {
-			// This part is not a broad source or keyword, likely a specific domain
+		// If not a broad source and not a keyword, it's a specific domain
+		if !cspBroadSources[part] && !keywords[part] {
 			return true
 		}
 	}
