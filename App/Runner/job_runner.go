@@ -250,22 +250,16 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 //	// Response contains headers, body, status code, etc.
 //	// This single response is analyzed by all tests
 func loadWebsiteContent(target string, useAntiBotDetection bool) *http.Response {
-	if useAntiBotDetection {
-		// Create HTTP client with anti-bot detection enabled
-		httpClient := HttpClient.CreateHttpWrapper(
-			HttpClient.WithAntiBotDetection(),
-			HttpClient.WithHeaders(map[string]string{
-				"User-Agent": "AntiGinx-TestClient/1.0",
-			}),
-		)
-		return httpClient.Get(target)
-	} else {
-		// Create standard HTTP client
-		httpClient := HttpClient.CreateHttpWrapper(HttpClient.WithHeaders(map[string]string{
+	opts := []HttpClient.WrapperOption{
+		HttpClient.WithHeaders(map[string]string{
 			"User-Agent": "AntiGinx-TestClient/1.0",
-		}))
-		return httpClient.Get(target)
+		}),
 	}
+	if useAntiBotDetection {
+		opts = append(opts, HttpClient.WithAntiBotDetection())
+	}
+	httpClient := HttpClient.CreateHttpWrapper(opts...)
+	return httpClient.Get(target)
 }
 
 // performTest executes a single security test in a separate goroutine and publishes
