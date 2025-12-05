@@ -1,6 +1,6 @@
 # ⚙️ Engine-AntiGinx
 
-## About Project
+## About the Project
 
 Engine-AntiGinx is a security scanning tool designed to analyze websites and detect potential vulnerabilities and security misconfigurations. Built with Go, it performs concurrent security tests on web applications and reports findings with structured threat levels aligned with CVSS severity ratings.
 
