@@ -68,7 +68,8 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Documentation:
+  - App Documentation:
+    - App: App/index.md
     - CVE: App/CVE/index.md
     - Errors: App/Errors/index.md
     - Helpers: App/Helpers/index.md
@@ -78,6 +79,8 @@ nav:
     - Reporter: App/Reporter/index.md
     - Runner: App/Runner/index.md
     - Tests: App/Tests/index.md
+  - Engined Documentation:
+    - Daemon: Engined/index.md
 
 copyright: "Copyright &copy; 2025 Antiginx Team. All rights reserved."
 
