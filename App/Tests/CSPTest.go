@@ -134,6 +134,7 @@ func analyzeCSPHeader(cspHeader string) CSPAnalysis {
 		if _, exists := analysis.Directives[directiveName]; !exists {
 			analysis.Directives[directiveName] = directiveValues
 		}
+	}
 
 	// Analyze security implications
 	analyzeDirectiveSecurity(&analysis)
