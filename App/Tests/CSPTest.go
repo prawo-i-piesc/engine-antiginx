@@ -377,7 +377,7 @@ func containsNonce(values []string) bool {
 }
 
 func containsHash(values []string) bool {
-	hashRegex := regexp.MustCompile(`'sha(256|384|512)-[A-Za-z0-9+/]+='`)
+	hashRegex := regexp.MustCompile(`'sha(256|384|512)-[A-Za-z0-9+/]+=*'`)
 	for _, value := range values {
 		if hashRegex.MatchString(value) {
 			return true
