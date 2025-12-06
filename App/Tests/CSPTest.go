@@ -367,7 +367,7 @@ func generateCSPDescription(analysis CSPAnalysis) string {
 
 // CSP-specific utility functions
 func containsNonce(values []string) bool {
-	nonceRegex := regexp.MustCompile(`'nonce-[A-Za-z0-9+/]+'`)
+	nonceRegex := regexp.MustCompile(`'nonce-[A-Za-z0-9+/=]+'`)
 	for _, value := range values {
 		if nonceRegex.MatchString(value) {
 			return true
