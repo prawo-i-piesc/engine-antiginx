@@ -517,7 +517,7 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 	}
 
 	for indicator, service := range protectionIndicators {
-		if helpers.ContainsAny(bodyStr, []string{indicator}) {
+		if helpers.ContainsAnySubstring(bodyStr, []string{indicator}) {
 			detectedProtections = append(detectedProtections, service+" detected")
 		}
 	}
@@ -532,7 +532,7 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 	}
 
 	for _, keyword := range challengeKeywords {
-		if helpers.ContainsAny(bodyStr, []string{keyword}) {
+		if helpers.ContainsAnySubstring(bodyStr, []string{keyword}) {
 			detectedProtections = append(detectedProtections, "Content contains: "+keyword)
 		}
 	}

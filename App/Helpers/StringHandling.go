@@ -5,7 +5,7 @@ package helpers
 
 import "strings"
 
-// ContainsAny performs a case-insensitive search to determine if any of the provided
+// ContainsAnySubstring performs a case-insensitive search to determine if any of the provided
 // substrings exist within the target string. This is particularly useful for detecting
 // keywords or patterns in HTTP responses, such as bot protection indicators or security challenges.
 //
@@ -23,10 +23,10 @@ import "strings"
 //
 //	keywords := []string{"cloudflare", "captcha", "challenge"}
 //	body := "Please complete the Cloudflare Challenge to continue"
-//	if ContainsAny(body, keywords) {
+//	if ContainsAnySubstring(body, keywords) {
 //	    fmt.Println("Bot protection detected")
 //	}
-func ContainsAny(s string, subs []string) bool {
+func ContainsAnySubstring(s string, subs []string) bool {
 	for _, sub := range subs {
 		if strings.Contains(strings.ToLower(s), strings.ToLower(sub)) {
 			return true
@@ -65,3 +65,52 @@ func RemoveDuplicates(slice []string) []string {
 
 	return result
 }
+
+// StringInSlice checks if a string slice contains a specific item.
+// This is a basic utility function for slice membership testing.
+//
+// Parameters:
+//   - slice: The slice of strings to search in
+//   - item: The string to search for
+//
+// Returns:
+//   - bool: true if item is found in the slice, false otherwise
+//
+// Example:
+//
+//	allowed := []string{"GET", "POST", "PUT"}
+//	isValid := StringInSlice(allowed, "GET")  // returns true
+//	isValid := StringInSlice(allowed, "INVALID")  // returns false
+func StringInSlice(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
+// AnyStringInSlice checks if a string slice contains any of the specified items.
+// This extends the StringInSlice function to check for multiple potential matches.
+//
+// Parameters:
+//   - slice: The slice of strings to search in
+//   - items: The slice of strings to search for
+//
+// Returns:
+//   - bool: true if any item is found in the slice, false otherwise
+//
+// Example:
+//
+//	allowed := []string{"GET", "POST", "PUT"}
+//	methods := []string{"GET", "DELETE"}
+//	hasValid := AnyStringInSlice(allowed, methods)  // returns true (GET is found)
+func AnyStringInSlice(slice []string, items []string) bool {
+	for _, item := range items {
+		if StringInSlice(slice, item) {
+			return true
+		}
+	}
+	return false
+}
+
