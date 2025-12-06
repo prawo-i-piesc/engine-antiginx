@@ -351,7 +351,7 @@ func generateCSPDescription(analysis CSPAnalysis) string {
 	}
 
 	// Recommendations
-	if len(analysis.RecommendedActions) > 0 && len(analysis.RecommendedActions) <= 3 {
+	if len(analysis.RecommendedActions) > 0 {
 		description.WriteString("Recommendations: ")
 		description.WriteString(strings.Join(analysis.RecommendedActions[:helpers.MinInt(3, len(analysis.RecommendedActions))], "; "))
 		description.WriteString(".")
