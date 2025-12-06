@@ -131,8 +131,9 @@ func analyzeCSPHeader(cspHeader string) CSPAnalysis {
 
 		directiveName := strings.ToLower(parts[0])
 		directiveValues := parts[1:]
-		analysis.Directives[directiveName] = directiveValues
-	}
+		if _, exists := analysis.Directives[directiveName]; !exists {
+			analysis.Directives[directiveName] = directiveValues
+		}
 
 	// Analyze security implications
 	analyzeDirectiveSecurity(&analysis)
