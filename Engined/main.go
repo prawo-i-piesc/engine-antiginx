@@ -156,7 +156,7 @@ OUTER:
 			}
 			fmt.Printf("Consumer received a task with id: %s\n", task.Id)
 			fmt.Printf("Target url %s\n", task.Target)
-			cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--tests", "https", "hsts", "serv-h-a", "--taskId", task.Id)
+			cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			cmdErr := cmd.Run()
