@@ -167,6 +167,13 @@ func (b *backendReporter) StartListening() <-chan int {
 
 				// ...and double-check if they added anything new to the queue.
 				if len(retryChan) == 0 {
+					b.sendLastWithFlag(
+						Tests.TestResultWrapper{
+							Target:  b.target,
+							TestId:  b.testId,
+							Result:  Tests.TestResult{},
+							EndFlag: true,
+						}, &failedUploads)
 					break
 				}
 			}
@@ -223,16 +230,17 @@ func (b *backendReporter) StartListening() <-chan int {
 //   - failedUploads: Pointer to counter for permanent failures
 func (b *backendReporter) tryToSendOrEnqueue(result Tests.TestResult, attNumber int, retryChan chan retryResult, retryWg *sync.WaitGroup, failedUploads *int) {
 	resultWrapper := Tests.TestResultWrapper{
-		Target: b.target,
-		TestId: b.testId,
-		Result: result,
+		Target:  b.target,
+		TestId:  b.testId,
+		Result:  result,
+		EndFlag: false,
 	}
 	err := b.sendToBackend(resultWrapper)
 	if err == nil {
 		return
 	}
 
-	shouldRetry := true
+	shouldRetry := false
 	var customErr *Errors.Error
 	// Check if the error provides specific retry instructions
 	if errors.As(err, &customErr) {
@@ -298,29 +306,13 @@ func (b *backendReporter) tryToSendOrEnqueue(result Tests.TestResult, attNumber 
 //	    }
 //	}
 func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error {
-	marshalled, err := json.Marshal(result)
+	req, err := b.prepareReqWithErrHandling(result)
 	if err != nil {
-		return &Errors.Error{
-			Code: 100,
-			Message: `Reporter error occurred. This could be due to:
-				- JSON Marshall error`,
-			Source:      "Reporter",
-			IsRetryable: false,
-		}
+		return err
 	}
-	req, err := http.NewRequest("POST", b.backendURL, bytes.NewReader(marshalled))
-	if err != nil {
-		return &Errors.Error{
-			Code: 101,
-			Message: `Reporter error occurred. This could be due to:
-				- invalid method passed to NewRequest method`,
-			Source:      "Reporter",
-			IsRetryable: false,
-		}
-	}
-	req.Header.Set("Content-Type", "application/json")
-	res, err := b.httpClient.Do(req)
-	if err != nil {
+
+	res, err2 := b.httpClient.Do(req)
+	if err2 != nil {
 		return &Errors.Error{
 			Code: 102,
 			Message: `Reporter error occurred. This could be due to:
@@ -331,19 +323,73 @@ func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode >= 200 && res.StatusCode < 300 {
+	err3 := b.handleRetryLogic(res)
+	return err3
+}
+func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Error {
+	if response.StatusCode >= 200 && response.StatusCode < 300 {
 		return nil
 	}
-
 	retryable := true
-	if res.StatusCode == 400 || res.StatusCode == 401 || res.StatusCode == 403 {
+	if response.StatusCode == 400 || response.StatusCode == 401 || response.StatusCode == 403 {
 		retryable = false
 	}
 	return &Errors.Error{
 		Code: 103,
 		Message: fmt.Sprintf(`Reporter error occurred. This could be due to:
-				- server rejected request with status code %d`, res.StatusCode),
+				- server rejected request with status code %d`, response.StatusCode),
 		Source:      "Reporter",
 		IsRetryable: retryable,
+	}
+}
+func (b *backendReporter) prepareReqWithErrHandling(result Tests.TestResultWrapper) (*http.Request, *Errors.Error) {
+	marshalled, err := json.Marshal(result)
+	if err != nil {
+		return nil, &Errors.Error{
+			Code: 100,
+			Message: `Reporter error occurred. This could be due to:
+				- JSON Marshall error`,
+			Source:      "Reporter",
+			IsRetryable: false,
+		}
+	}
+	req, err := http.NewRequest("POST", b.backendURL, bytes.NewReader(marshalled))
+
+	if err != nil {
+		return nil, &Errors.Error{
+			Code: 101,
+			Message: `Reporter error occurred. This could be due to:
+				- invalid method passed to NewRequest method`,
+			Source:      "Reporter",
+			IsRetryable: false,
+		}
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return req, nil
+}
+
+// sendLastWithFlag performs last request to the backend with information that engine finished its work.
+// Method handles retryable and non-retryable cases. If the error is retryable, method waits 2 seconds and try one more time.
+// Otherwise, increments failedUploads counter.
+func (b *backendReporter) sendLastWithFlag(result Tests.TestResultWrapper, failedUploads *int) {
+	err := b.sendToBackend(result)
+	if err == nil {
+		return
+	}
+
+	shouldRetry := false
+	var customErr *Errors.Error
+
+	if errors.As(err, &customErr) {
+		shouldRetry = customErr.IsRetryable
+	}
+	if shouldRetry {
+		time.Sleep(2 * time.Second)
+		err := b.sendToBackend(result)
+		if err != nil {
+			*failedUploads++
+		}
+	} else {
+		*failedUploads++
 	}
 }
