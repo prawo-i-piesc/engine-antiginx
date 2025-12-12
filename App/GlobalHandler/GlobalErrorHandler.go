@@ -123,7 +123,7 @@ RETRYABLE:    %t
 `, err.Source, err.Code, err.Message, err.IsRetryable)
 	} else {
 		encoder := json.NewEncoder(os.Stderr)
-		encoder.SetIndent("", " ")
+		encoder.SetIndent("", "  ")
 		encoder.Encode(err)
 	}
 }
