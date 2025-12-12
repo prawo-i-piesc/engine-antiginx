@@ -18,20 +18,21 @@ import (
 	"time"
 )
 
-// httpError represents an HTTP-related error with structured information for debugging.
-// It is used internally for panic-based error handling throughout the HTTP client operations.
+// HttpError represents an HTTP-related Error with structured information for debugging.
+// It is used internally for panic-based Error handling throughout the HTTP client operations.
 //
 // Error codes:
-//   - 100: Request creation error
-//   - 101: Network error (DNS, timeout, connection issues)
-//   - 102: HTTP status error (non-200 responses)
-//   - 200: Response body reading error
+//   - 100: Request creation Error
+//   - 101: Network Error (DNS, timeout, connection issues)
+//   - 102: HTTP status Error (non-200 responses)
+//   - 200: Response body reading Error
 //   - 300: Bot protection detected
-type httpError struct {
-	url     string // The URL that caused the error
-	code    int    // Error code for categorization
-	message string // Human-readable error description
-	error   any    // Original error object or response
+type HttpError struct {
+	Url         string // The URL that caused the Error
+	Code        int    // Error Code for categorization
+	Message     string // Human-readable Error description
+	Error       any    // Original Error object or response
+	IsRetryable bool   // Check if error is retryable
 }
 
 // httpWrapperConfig holds the configuration for the HTTP wrapper including custom headers
@@ -322,22 +323,22 @@ func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 	}
 }
 
-// Get performs an HTTP GET request with built-in bot protection detection and error handling.
+// Get performs an HTTP GET request with built-in bot protection detection and Error handling.
 // This method implements comprehensive security scanning capabilities including detection of
 // Cloudflare, CAPTCHA, and various bot protection mechanisms.
 //
 // The method supports per-request configuration overrides and includes:
 //   - Automatic bot protection detection (Cloudflare, Incapsula, DataDome, etc.)
 //   - Human-like behavior simulation when anti-bot detection is enabled
-//   - Structured error handling with panic-based error reporting
+//   - Structured Error handling with panic-based Error reporting
 //   - Response body validation
 //
 // Error handling:
-// The method panics with httpError containing structured error information:
+// The method panics with HttpError containing structured Error information:
 //   - Code 100: Request creation failed
-//   - Code 101: Network error (DNS, timeout, connection)
-//   - Code 102: Non-200 HTTP status code
-//   - Code 200: Response body reading error
+//   - Code 101: Network Error (DNS, timeout, connection)
+//   - Code 102: Non-200 HTTP status Code
+//   - Code 200: Response body reading Error
 //   - Code 300: Bot protection detected (only in strict mode)
 //
 // Bot protection detection includes:
@@ -346,14 +347,14 @@ func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 //   - Content-based: CAPTCHA, challenge pages, access denied messages, JavaScript requirements
 //
 // Parameters:
-//   - url: Target URL to request
+//   - Url: Target URL to request
 //   - opts: Optional per-request configuration overrides
 //
 // Returns:
 //   - *http.Response: HTTP response object (only if successful and no bot protection detected)
 //
 // Panics:
-//   - httpError: On any error condition with detailed error information
+//   - HttpError: On any Error condition with detailed Error information
 //
 // Example:
 //
@@ -383,11 +384,12 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 	// Create a new request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		panic(httpError{
-			url:     url,
-			code:    100,
-			message: "Failed to create HTTP request: " + err.Error(),
-			error:   err,
+		panic(HttpError{
+			Url:         url,
+			Code:        100,
+			Message:     "Failed to create HTTP request: " + err.Error(),
+			Error:       err,
+			IsRetryable: false,
 		})
 	}
 
@@ -449,40 +451,43 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 	// Execute the request
 	resp, err := hw.client.Do(req)
 
-	// Network error
+	// Network Error
 	if err != nil {
-		panic(httpError{
-			url:  url,
-			code: 101,
-			message: `Network error occurred. This could be due to:
+		panic(HttpError{
+			Url:  url,
+			Code: 101,
+			Message: `Network Error occurred. This could be due to:
 				- DNS lookup failures
 				- Connection timeouts
 				- Network unreachable
 				- No response object exists (resp == nil)`,
-			error: err,
+			Error:       err,
+			IsRetryable: true,
 		})
 	}
 
 	defer resp.Body.Close()
 
-	// Handle HTTP error status codes
+	// Handle HTTP Error status codes
 	if resp.StatusCode != 200 {
-		panic(httpError{
-			url:     url,
-			code:    102,
-			message: "HTTP Status code not 200 (OK): " + strconv.Itoa(resp.StatusCode),
-			error:   resp,
+		panic(HttpError{
+			Url:         url,
+			Code:        102,
+			Message:     "HTTP Status Code not 200 (OK): " + strconv.Itoa(resp.StatusCode),
+			Error:       resp,
+			IsRetryable: false,
 		})
 	}
 
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(httpError{
-			url:     url,
-			code:    200,
-			message: "Error reading response body: " + err.Error(),
-			error:   err,
+		panic(HttpError{
+			Url:         url,
+			Code:        200,
+			Message:     "Error reading response body: " + err.Error(),
+			Error:       err,
+			IsRetryable: false,
 		})
 	}
 
@@ -544,11 +549,12 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 			detectionMsg += fmt.Sprintf("  %d. %s\n", i+1, detection)
 		}
 
-		panic(httpError{
-			url:     url,
-			code:    300,
-			message: detectionMsg,
-			error:   resp,
+		panic(HttpError{
+			Url:         url,
+			Code:        300,
+			Message:     detectionMsg,
+			Error:       resp,
+			IsRetryable: false,
 		})
 	}
 

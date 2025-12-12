@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	//"os"
 	"sync"
@@ -143,6 +144,8 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 			Code: 100,
 			Message: `Runner error occurred. This could be due to:
 				- tests keyword not present in params`,
+			Source:      "Runner",
+			IsRetryable: false,
 		})
 	}
 	testsToExecute = params[testParam].Arguments
@@ -153,7 +156,8 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 			Code: 100,
 			Message: `Runner error occurred. This could be due to:
 				-  Not found any tests to execute`,
-			Source: "Runner",
+			Source:      "Runner",
+			IsRetryable: false,
 		})
 	}
 
@@ -180,6 +184,8 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 				Code: 101,
 				Message: `Runner error occurred. This could be due to:
 					- Misconfiguration of testId param`,
+				Source:      "Runner",
+				IsRetryable: false,
 			})
 		}
 		reporter = Reporter.InitializeBackendReporter(channel, v, params[taskIdParam].Arguments[0], *target)
@@ -196,9 +202,10 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 		t, ok := Registry.GetTest(val)
 		if !ok {
 			panic(error.Error{
-				Code:    201,
-				Message: fmt.Sprintf("Parsing error occurred. This could be due to:\n- test with Id %s does not exists", val),
-				Source:  "Runner",
+				Code:        201,
+				Message:     fmt.Sprintf("Parsing error occurred. This could be due to:\n- test with Id %s does not exists", val),
+				Source:      "Runner",
+				IsRetryable: false,
 			})
 		}
 		wg.Add(1)
@@ -259,7 +266,36 @@ func loadWebsiteContent(target string, useAntiBotDetection bool) *http.Response 
 		opts = append(opts, HttpClient.WithAntiBotDetection())
 	}
 	httpClient := HttpClient.CreateHttpWrapper(opts...)
-	return httpClient.Get(target)
+	var content *http.Response
+	var lastErr HttpClient.HttpError
+
+	for i := 0; i < 2; i++ {
+		panicTriggerred := false
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					panicTriggerred = true
+					switch val := r.(type) {
+					case HttpClient.HttpError:
+						if !val.IsRetryable {
+							panic(val)
+						}
+						lastErr = val
+					default:
+						panic(r)
+					}
+				}
+			}()
+			content = httpClient.Get(target)
+		}()
+		if !panicTriggerred {
+			return content
+		}
+		if i < 1 {
+			time.Sleep(time.Second * 2)
+		}
+	}
+	panic(lastErr)
 }
 
 // performTest executes a single security test in a separate goroutine and publishes

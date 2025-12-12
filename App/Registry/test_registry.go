@@ -67,9 +67,10 @@ func init() {
 func registerTest(t *Tests.ResponseTest) {
 	if _, exists := tests[t.Id]; exists {
 		panic(error.Error{
-			Code:    100,
-			Message: fmt.Sprintf("Registry error occurred. This could be due to:\n- test with Id %s already exists", t.Id),
-			Source:  "Registry",
+			Code:        100,
+			Message:     fmt.Sprintf("Registry error occurred. This could be due to:\n- test with Id %s already exists", t.Id),
+			Source:      "Registry",
+			IsRetryable: false,
 		})
 	}
 	tests[t.Id] = t

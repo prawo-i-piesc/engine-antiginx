@@ -46,33 +46,33 @@ var params = map[string]parameter{
 		DefaultVal:  "Scanner/1.0",
 		ArgRequired: false,
 		ArgCount:    1,
-	},/*
-	"--referer": {
-		Arguments:   []string{},
-		DefaultVal:  "",
-		ArgRequired: false,
-		ArgCount:    1,
-	},*/
+	}, /*
+		"--referer": {
+			Arguments:   []string{},
+			DefaultVal:  "",
+			ArgRequired: false,
+			ArgCount:    1,
+		},*/
 	"--tests": {
 		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "cookie-sec", "xframe",
-			/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/},
+				/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/},
 		DefaultVal:  "",
 		ArgRequired: true,
 		ArgCount:    -1,
-	},/*
-	"--httpMethods": {
-		Arguments: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "TRACE",
-			"CONNECT", "HEAD"},
-		DefaultVal:  "",
-		ArgRequired: true,
-		ArgCount:    -1,
-	},
-	"--files": {
-		Arguments:   []string{},
-		DefaultVal:  "",
-		ArgRequired: true,
-		ArgCount:    -1,
-	},*/
+	}, /*
+		"--httpMethods": {
+			Arguments: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "TRACE",
+				"CONNECT", "HEAD"},
+			DefaultVal:  "",
+			ArgRequired: true,
+			ArgCount:    -1,
+		},
+		"--files": {
+			Arguments:   []string{},
+			DefaultVal:  "",
+			ArgRequired: true,
+			ArgCount:    -1,
+		},*/
 	"--antiBotDetection": {
 		Arguments:   []string{},
 		DefaultVal:  "", // DefaultVal is not used for flag parameters (ArgCount: 0)
@@ -99,13 +99,6 @@ type parameter struct {
 	DefaultVal  string   // Default value when parameter provided without arguments
 	ArgRequired bool     // Whether the parameter must have arguments
 	ArgCount    int      // Expected argument count: 1 for single, -1 for multiple
-}
-
-// parsingError represents a structured parsing error with categorized error codes.
-// Used internally for panic-based error handling during the parsing process.
-type parsingError struct {
-	Code    int    // Error code for categorization
-	Message string // Human-readable error description
 }
 
 // CreateCommandParser creates a new instance of the parameter parser.
@@ -161,7 +154,8 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 			Code: 100,
 			Message: `Parsing error occurred. This could be due to:
 				- insufficient number of parameters`,
-			Source: "Parser",
+			Source:      "Parser",
+			IsRetryable: false,
 		})
 	}
 	//Checking if test keyword is present or is at its position
@@ -172,7 +166,8 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 			Message: `Parsing error occurred. This could be due to:
 				- test keyword is not present
 				- structure of the command is invalid`,
-			Source: "Parser",
+			Source:      "Parser",
+			IsRetryable: false,
 		})
 	}
 	return transformIntoTable(params, userParameters)
@@ -239,7 +234,8 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						Code: 303,
 						Message: `Parsing error occurred. This could be due to:
 							- too few arguments passed to arg required param`,
-						Source: "Parser",
+						Source:      "Parser",
+						IsRetryable: false,
 					})
 				}
 				checkOccurrences(args)
@@ -250,7 +246,8 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 							Code: 306,
 							Message: `Parsing error occurred. This could be due to:
 								- unnecessary argument passed to the parameter`,
-							Source: "Parser",
+							Source:      "Parser",
+							IsRetryable: false,
 						})
 					}
 				}
@@ -268,7 +265,8 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						Code: 303,
 						Message: `Parsing error occurred. This could be due to:	
 							- too few arguments passed to arg required param`,
-						Source: "Parser",
+						Source:      "Parser",
+						IsRetryable: false,
 					})
 				}
 				argMode = true
@@ -308,7 +306,8 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 							Code: 304,
 							Message: `Parsing error occurred. This could be due to:
 								- invalid argument passed to the parameter`,
-							Source: "Parser",
+							Source:      "Parser",
+							IsRetryable: false,
 						})
 					}
 					args = append(args, token)
@@ -320,7 +319,8 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					Code: 304,
 					Message: `Parsing error occurred. This could be due to:
 						- invalid argument passed to the parameter`,
-					Source: "Parser",
+					Source:      "Parser",
+					IsRetryable: false,
 				})
 			}
 		}
@@ -387,7 +387,8 @@ func checkOccurrences(args []string) {
 				Code: 305,
 				Message: `Parsing error occurred. This could be due to:
 					- one of the arguments occurred more than once`,
-				Source: "Parser",
+				Source:      "Parser",
+				IsRetryable: false,
 			})
 		}
 		seen[curr] = true
