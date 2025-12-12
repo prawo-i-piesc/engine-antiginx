@@ -368,9 +368,15 @@ func (b *backendReporter) prepareReqWithErrHandling(result Tests.TestResultWrapp
 	return req, nil
 }
 
-// sendLastWithFlag performs last request to the backend with information that engine finished its work.
-// Method handles retryable and non-retryable cases. If the error is retryable, method waits 2 seconds and try one more time.
-// Otherwise, increments failedUploads counter.
+// sendLastWithFlag sends a final request to the backend to signal that the engine has completed its work.
+//
+// This method sends an empty TestResult with EndFlag=true to the backend, indicating completion of all test processing.
+// It handles both retryable and non-retryable errors: if the error is retryable, it waits 2 seconds and retries once more;
+// otherwise, it increments the failedUploads counter.
+//
+// Parameters:
+//   - result:        The TestResultWrapper to send. Typically, this should be an empty result with EndFlag set to true.
+//   - failedUploads: Pointer to an integer counter tracking the number of failed uploads. This will be incremented if the final request fails.
 func (b *backendReporter) sendLastWithFlag(result Tests.TestResultWrapper, failedUploads *int) {
 	err := b.sendToBackend(result)
 	if err == nil {
