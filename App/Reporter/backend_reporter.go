@@ -331,7 +331,7 @@ func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Erro
 		return nil
 	}
 	retryable := true
-	if response.StatusCode == 400 || response.StatusCode == 401 || response.StatusCode == 403 {
+	if response.StatusCode >= 400 && response.StatusCode < 500 {
 		retryable = false
 	}
 	return &Errors.Error{
