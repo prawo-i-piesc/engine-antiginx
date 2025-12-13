@@ -324,7 +324,11 @@ func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error {
 	defer res.Body.Close()
 
 	err3 := b.handleRetryLogic(res)
-	return err3
+
+	if err3 != nil {
+		return err3
+	}
+	return nil
 }
 func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Error {
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
