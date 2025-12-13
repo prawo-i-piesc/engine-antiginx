@@ -46,6 +46,8 @@
 package main
 
 import (
+	"Engine-AntiGinx/App/Errors"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -156,14 +158,30 @@ OUTER:
 			}
 			fmt.Printf("Consumer received a task with id: %s\n", task.Id)
 			fmt.Printf("Target url %s\n", task.Target)
+
+			var stderrBuff bytes.Buffer
 			cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
 			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
+			cmd.Stderr = &stderrBuff
 			cmdErr := cmd.Run()
 			if cmdErr != nil {
-				// Error handling logic will be implemented here
-				fmt.Printf("Error during processing %s\n", cmdErr)
-				msg.Nack(false, false)
+				errBytes := stderrBuff.Bytes()
+
+				var errJSON Errors.Error
+				if jsonErr := json.Unmarshal(errBytes, &errJSON); jsonErr != nil {
+					fmt.Printf("General error from Engine: %v\n", jsonErr)
+					if errJSON.IsRetryable {
+						fmt.Println("Error is retryable. Requeuing")
+						msg.Nack(false, true)
+					} else {
+						fmt.Println("Error is fatal. Discarding")
+						msg.Nack(false, false)
+					}
+				} else {
+					fmt.Printf("Fatal error %v\n", stderrBuff)
+					msg.Nack(false, false)
+				}
+
 				continue
 			}
 			msg.Ack(false)

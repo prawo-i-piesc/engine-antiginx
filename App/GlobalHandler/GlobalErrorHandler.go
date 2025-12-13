@@ -113,6 +113,7 @@ func (e *ErrorHandler) RunSafe() {
 //   - err: The standardized Errors.Error object to display.
 func (e *ErrorHandler) printError(err Errors.Error) {
 	if e.cliMode {
+		fmt.Println("CLI")
 		fmt.Fprintf(os.Stderr, `
 --------------------------------------------------
 ERROR SOURCE: %s
