@@ -27,30 +27,34 @@
 //  2. Job Runner: Orchestrates test execution
 //  3. Test Registry: Provides access to available security tests
 //  4. Reporter: Outputs results to CLI or backend API
+//  5. GlobalHandler: Reports errors to CLI or Queue Consumer
 package main
 
 import (
-	Parameter_Parser "Engine-AntiGinx/App/Parameter-Parser"
-	"Engine-AntiGinx/App/Runner"
+	"Engine-AntiGinx/App/GlobalHandler"
 	"os"
 )
 
 // main is the entry point of the Engine-AntiGinx security scanner.
-// It initializes the parameter parser, processes command-line arguments,
-// and delegates test execution to the job runner.
+// It bootstraps the application by determining the execution mode (CLI vs. Backend)
+// and initializing the global error handling mechanism.
 //
-// The execution flow:
-//  1. Create a command parser instance
-//  2. Parse os.Args to extract target URL and test IDs
-//  3. Create a job runner instance
-//  4. Orchestrate the security tests based on parsed parameters
+// Mode Selection:
+// The function checks for the existence of the "BACK_URL" environment variable:
+//   - If PRESENT: Treats execution as a Backend Worker (cliMode = false).
+//     Errors will be formatted as JSON for machine consumption.
+//   - If ABSENT: Treats execution as a standalone CLI tool (cliMode = true).
+//     Errors will be formatted as human-readable text blocks.
 //
-// Exit behavior:
-//   - Exits with code 0 on successful completion
-//   - Panics with structured error on invalid parameters or test failures
+// Execution Flow:
+//  1. Detect execution mode via os.LookupEnv("BACK_URL").
+//  2. Initialize GlobalHandler with the calculated mode.
+//  3. Delegate full control to errorHandler.RunSafe(), which encapsulates
+//     argument parsing, job orchestration, and panic recovery.
 func main() {
-	parser := Parameter_Parser.CreateCommandParser()
-	parsedParams := parser.Parse(os.Args)
-	runner := Runner.CreateJobRunner()
-	runner.Orchestrate(parsedParams)
+	_, f := os.LookupEnv("BACK_URL")
+	// If BACK_URL exists (f=true), we are in Backend mode (!f=false).
+	// If BACK_URL is missing (f=false), we are in CLI mode (!f=true).
+	errorHandler := GlobalHandler.InitializeErrorHandler(!f)
+	errorHandler.RunSafe()
 }

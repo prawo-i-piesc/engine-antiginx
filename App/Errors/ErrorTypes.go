@@ -23,10 +23,10 @@ import "fmt"
 //   - Source: Component or package name where the error originated
 //   - IsRetryable: Indicates whether the operation can be safely retried
 type Error struct {
-	Code        int
-	Message     string
-	Source      string
-	IsRetryable bool
+	Code        int    `json:"Code"`
+	Message     string `json:"Message"`
+	Source      string `json:"Source"`
+	IsRetryable bool   `json:"IsRetryable"`
 }
 
 // Error returns a formatted string representation of the error, implementing the error interface.
