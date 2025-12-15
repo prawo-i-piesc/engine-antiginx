@@ -1,17 +1,23 @@
 services:
-  engine-antiginx-engined:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+  engine-antiginx:
+    image: ghcr.io/prawo-i-piesc/engine-antiginx:latest
     command: /engine-antiginx/Engined
 
-    container_name: engine-antiginx-daemon
+    container_name: engine
     restart: unless-stopped
 
     ports:
-      - "${ENGINE_ANTIGINX_DAEMON_PORT}:9090"
+      - "${ENGINE_PORT}:5000"
 
-    env_file:
-      - .env
+    environment:
+      - BACK_URL=${BACK_URL}
+      - RABBITMQ_URL=${RABBITMQ_URL}
 
     mem_limit: 1024m
+
+    networks:
+      - vpn-net
+
+networks:
+  vpn-net:
+    external: true
