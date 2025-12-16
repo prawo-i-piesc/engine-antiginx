@@ -7,6 +7,7 @@
 package HttpClient
 
 import (
+	"bytes"
 	helpers "Engine-AntiGinx/App/Helpers"
 	"crypto/tls"
 	"fmt"
@@ -466,8 +467,6 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 		})
 	}
 
-	defer resp.Body.Close()
-
 	// Handle HTTP Error status codes
 	if resp.StatusCode != 200 {
 		panic(HttpError{
@@ -479,8 +478,9 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 		})
 	}
 
-	// Read response body
+	// Read response body and reset it so downstream tests can read it
 	body, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
 	if err != nil {
 		panic(HttpError{
 			Url:         url,
@@ -490,6 +490,7 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 			IsRetryable: false,
 		})
 	}
+	resp.Body = io.NopCloser(bytes.NewReader(body))
 
 	// Enhanced bot protection detection
 	bodyStr := string(body)
