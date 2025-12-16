@@ -7,8 +7,8 @@
 package HttpClient
 
 import (
-	"bytes"
 	helpers "Engine-AntiGinx/App/Helpers"
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"io"
