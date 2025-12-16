@@ -34,6 +34,7 @@ var tests = make(map[string]*Tests.ResponseTest)
 //   - ServerHeaderTest: Analyzes server header information
 //   - CSPTest: Analyzes Content Security Policy configuration for XSS and injection protection
 //   - CookieSecurityTest: Analyzes cookie security attributes and session management
+//   - JSObfuscationTest: Detects obfuscated JavaScript code indicating potential security threats
 //   - XFrameTest: Analyzes X-Frame-Options and CSP frame-ancestors for clickjacking protection
 //
 // Additional tests can be registered by adding registerTest calls in this function.
@@ -43,6 +44,7 @@ func init() {
 	registerTest(Tests.NewServerHeaderTest())
 	registerTest(Tests.NewCSPTest())
 	registerTest(Tests.NewCookieSecurityTest())
+	registerTest(Tests.NewJSObfuscationTest())
 	registerTest(Tests.NewXFrameTest())
 }
 
