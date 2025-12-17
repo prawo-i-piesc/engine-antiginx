@@ -147,7 +147,7 @@ OUTER:
 		select {
 
 		case closeMidConn := <-errMidConn:
-			fmt.Printf("Connection with RabbitMQ crashed. %s. Engine Daemon is going down... \n", closeMidConn)
+			fmt.Printf("Connection to RabbitMQ crashed. %s. Engine Daemon is going down... \n", closeMidConn)
 			isShuttingDown = true
 			closeChannel = nil
 			errMidConn = nil
