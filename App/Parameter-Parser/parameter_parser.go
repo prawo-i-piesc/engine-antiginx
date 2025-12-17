@@ -54,8 +54,8 @@ var params = map[string]parameter{
 			ArgCount:    1,
 		},*/
 	"--tests": {
-		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "cookie-sec", "xframe",
-				/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/},
+		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "cookie-sec", "js-obf", "xframe",
+			/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/},
 		DefaultVal:  "",
 		ArgRequired: true,
 		ArgCount:    -1,
