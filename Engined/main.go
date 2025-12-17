@@ -173,7 +173,7 @@ OUTER:
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
-			cmd := exec.Command("go", "run", "App/main.go", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
+			cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
 			cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuff)
 			cmdErr := cmd.Run()
 			if cmdErr != nil {
