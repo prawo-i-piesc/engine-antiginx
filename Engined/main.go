@@ -50,10 +50,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
 
+	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 )
 
@@ -98,6 +100,10 @@ type EngineTask struct {
 //   - RabbitMQ server must be accessible
 //   - "scan_queue" must exist in RabbitMQ
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Cannot read .env file")
+	}
 	fmt.Println("Engine Daemon starting....")
 
 	// Channel that notifies if any interruption occurred
@@ -118,6 +124,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	errMidConn := conn.NotifyClose(make(chan *amqp.Error))
 	defer conn.Close()
 
 	taskChannel, err := conn.Channel()
@@ -134,18 +141,24 @@ func main() {
 	}
 OUTER:
 	for {
-
 		if isShuttingDown {
 			break
 		}
-
 		select {
+
+		case closeMidConn := <-errMidConn:
+			fmt.Printf("Connection to RabbitMQ crashed. %s. Engine Daemon is going down... \n", closeMidConn)
+			isShuttingDown = true
+			closeChannel = nil
+			errMidConn = nil
+			os.Exit(1)
 
 		case s := <-closeChannel:
 			fmt.Println("Engine Daemon is going down...")
 			fmt.Println(fmt.Sprintf("Received a signal %x", s))
 			isShuttingDown = true
 			closeChannel = nil
+			errMidConn = nil
 			continue OUTER
 
 		case msg := <-msgs:
@@ -161,12 +174,10 @@ OUTER:
 
 			var stderrBuff bytes.Buffer
 			cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = &stderrBuff
+			cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuff)
 			cmdErr := cmd.Run()
 			if cmdErr != nil {
 				errBytes := stderrBuff.Bytes()
-
 				var errJSON Errors.Error
 				if jsonErr := json.Unmarshal(errBytes, &errJSON); jsonErr != nil {
 					fmt.Printf("General error from Engine: %v\n", jsonErr)
@@ -181,12 +192,12 @@ OUTER:
 					fmt.Printf("Fatal error %v\n", stderrBuff)
 					msg.Nack(false, false)
 				}
-
 				continue
+			} else {
+				fmt.Printf("Scan performed successfully: %s\n", task.Id)
+				msg.Ack(false)
 			}
-			msg.Ack(false)
 
 		}
-
 	}
 }

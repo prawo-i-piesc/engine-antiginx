@@ -32,7 +32,10 @@ package main
 
 import (
 	"Engine-AntiGinx/App/GlobalHandler"
+	"fmt"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 // main is the entry point of the Engine-AntiGinx security scanner.
@@ -52,6 +55,10 @@ import (
 //  3. Delegate full control to errorHandler.RunSafe(), which encapsulates
 //     argument parsing, job orchestration, and panic recovery.
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Cannot read .env file")
+	}
 	_, f := os.LookupEnv("BACK_URL")
 	// If BACK_URL exists (f=true), we are in Backend mode (!f=false).
 	// If BACK_URL is missing (f=false), we are in CLI mode (!f=true).
