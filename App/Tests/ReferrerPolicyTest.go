@@ -270,7 +270,7 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) ThreatLe
 	}
 
 	// Weak policies or configurations
-	if effectivePolicy == "no-referrer-when-downgrade" || hasDeprecated {
+	if effectivePolicy == "no-referrer-when-downgrade" {
 		return Medium
 	}
 
