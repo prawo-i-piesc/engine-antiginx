@@ -274,10 +274,9 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) ThreatLe
 		return Medium
 	}
 
-	// Multiple conflicting policies
-	if policyCount > 2 {
-		return Medium
-	}
+	// Note: Multiple Referrer-Policy directives are allowed for browser fallback and
+	// do not, by themselves, imply higher risk. Threat level is based on the
+	// evaluated effective policy and other concrete risk indicators above.
 
 	// Fallback for unhandled cases
 	return Medium
