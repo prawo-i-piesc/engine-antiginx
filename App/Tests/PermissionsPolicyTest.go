@@ -110,6 +110,9 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 			wildcardFeatures = append(wildcardFeatures, feature)
 		}
 
+		// Track if feature has been categorized as dangerous or suspicious
+		categorized := false
+
 		// Check if dangerous feature is allowed
 		for _, dangerous := range dangerousFeatures {
 			if feature == dangerous {
@@ -118,6 +121,7 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 				} else {
 					restrictedFeatures = append(restrictedFeatures, feature)
 				}
+				categorized = true
 				break
 			}
 		}
@@ -130,11 +134,13 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 				} else {
 					restrictedFeatures = append(restrictedFeatures, feature)
 				}
+				categorized = true
 				break
 			}
 		}
 
-		if allowlist != "()" && allowlist != "" {
+		// Only add to allowedFeatures if not already categorized
+		if !categorized && allowlist != "()" && allowlist != "" {
 			allowedFeatures = append(allowedFeatures, feature)
 		}
 	}
