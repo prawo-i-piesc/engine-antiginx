@@ -70,6 +70,40 @@ func NewPermissionsPolicyTest() *ResponseTest {
 	}
 }
 
+// isAllowlistRestricted determines if an allowlist value represents a restricted/safe configuration.
+// According to the Permissions-Policy specification:
+//   - "()" means disabled for all origins (restricted)
+//   - "(self)" means allowed only for same-origin (restricted/safe)
+//   - "" empty value means disabled (restricted)
+//   - "(self origin1 origin2...)" means allowed for self and specific origins (potentially dangerous)
+//   - "(*)" or "*" means allowed for all origins (dangerous)
+func isAllowlistRestricted(allowlist string) bool {
+	// Empty or () means fully restricted
+	if allowlist == "" || allowlist == "()" {
+		return true
+	}
+
+	// Strip parentheses if present
+	innerValue := strings.TrimSpace(allowlist)
+	if strings.HasPrefix(innerValue, "(") && strings.HasSuffix(innerValue, ")") {
+		innerValue = strings.TrimSpace(innerValue[1 : len(innerValue)-1])
+	}
+
+	// Empty after stripping parentheses means restricted
+	if innerValue == "" {
+		return true
+	}
+
+	// Only "self" (without additional origins) is considered restricted/safe
+	// This handles both (self) and self formats
+	if innerValue == "self" {
+		return true
+	}
+
+	// Anything else (wildcards, origins, self + origins) is not restricted
+	return false
+}
+
 // analyzePermissionsPolicyHeader parses the Permissions-Policy header value and extracts
 // feature directives into a structured metadata map.
 func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]interface{} {
@@ -113,10 +147,10 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 		// Check if dangerous feature is allowed
 		for _, dangerous := range dangerousFeatures {
 			if feature == dangerous {
-				if allowlist != "()" && allowlist != "" {
-					dangerousAllowed = append(dangerousAllowed, feature)
-				} else {
+				if isAllowlistRestricted(allowlist) {
 					restrictedFeatures = append(restrictedFeatures, feature)
+				} else {
+					dangerousAllowed = append(dangerousAllowed, feature)
 				}
 				break
 			}
@@ -125,16 +159,16 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 		// Check if suspicious feature is allowed
 		for _, suspicious := range suspiciousFeatures {
 			if feature == suspicious {
-				if allowlist != "()" && allowlist != "" {
-					suspiciousAllowed = append(suspiciousAllowed, feature)
-				} else {
+				if isAllowlistRestricted(allowlist) {
 					restrictedFeatures = append(restrictedFeatures, feature)
+				} else {
+					suspiciousAllowed = append(suspiciousAllowed, feature)
 				}
 				break
 			}
 		}
 
-		if allowlist != "()" && allowlist != "" {
+		if !isAllowlistRestricted(allowlist) {
 			allowedFeatures = append(allowedFeatures, feature)
 		}
 	}
