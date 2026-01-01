@@ -155,11 +155,6 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 			policies = append(policies, policy)
 			effectivePolicy = policy // Last valid policy takes precedence
 
-			// Check for deprecated policies
-			if policy == "no-referrer-when-downgrade" {
-				hasDeprecated = true
-			}
-
 			// Check for unsafe policies
 			if policy == "unsafe-url" {
 				hasUnsafe = true
