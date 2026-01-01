@@ -78,18 +78,14 @@ func NewPermissionsPolicyTest() *ResponseTest {
 //   - "(self origin1 origin2...)" means allowed for self and specific origins (potentially dangerous)
 //   - "(*)" or "*" means allowed for all origins (dangerous)
 func isAllowlistRestricted(allowlist string) bool {
-	// Empty or () means fully restricted
-	if allowlist == "" || allowlist == "()" {
-		return true
-	}
-
-	// Strip parentheses if present
-	innerValue := strings.TrimSpace(allowlist)
+	// Strip parentheses if present and get inner value
+	innerValue := allowlist
 	if strings.HasPrefix(innerValue, "(") && strings.HasSuffix(innerValue, ")") {
-		innerValue = strings.TrimSpace(innerValue[1 : len(innerValue)-1])
+		innerValue = innerValue[1 : len(innerValue)-1]
 	}
+	innerValue = strings.TrimSpace(innerValue)
 
-	// Empty after stripping parentheses means restricted
+	// Empty inner value means restricted (handles "", "()", "( )", etc.)
 	if innerValue == "" {
 		return true
 	}
