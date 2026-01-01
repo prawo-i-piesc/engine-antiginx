@@ -76,8 +76,8 @@ func NewPermissionsPolicyTest() *ResponseTest {
 //   - "()" means disabled for all origins (restricted)
 //   - "(self)" means allowed only for same-origin (restricted/safe)
 //   - "" empty value means disabled (restricted)
-//   - "(self origin1 origin2...)" means allowed for self and specific origins (potentially dangerous)
-//   - "(*)" or "*" means allowed for all origins (dangerous)
+//   - `(self "https://example.com" "https://other.com")` means allowed for self and specific origins (potentially dangerous),
+//     where additional origins must be quoted strings with full URLs
 func isAllowlistRestricted(allowlist string) bool {
 	// Strip parentheses if present and get inner value
 	innerValue := allowlist
