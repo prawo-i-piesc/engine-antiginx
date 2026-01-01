@@ -376,7 +376,7 @@ func generateReferrerPolicyDescription(metadata map[string]interface{}) string {
 	}
 
 	if hasDeprecated {
-		description.WriteString(" Note: Contains deprecated policy configurations.")
+		description.WriteString(" Note: Contains legacy or non-recommended policy configurations; review them against current Referrer Policy best practices.")
 	}
 
 	if policyCount > 2 {
