@@ -196,7 +196,7 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 //   - Medium (3): Weak configuration
 //     * no-referrer-when-downgrade (browser default)
 //     * Multiple conflicting policies
-//     * Contains deprecated policies
+//     * Configurations relying solely on browser default behavior
 //
 //   - High (4): Vulnerable configuration
 //     * unsafe-url (always sends full URL)
