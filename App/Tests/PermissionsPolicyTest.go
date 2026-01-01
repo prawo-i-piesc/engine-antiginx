@@ -4,6 +4,7 @@
 package Tests
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -141,6 +142,9 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 			wildcardFeatures = append(wildcardFeatures, feature)
 		}
 
+		// Track if feature has been categorized as dangerous or suspicious
+		categorized := false
+
 		// Check if dangerous feature is allowed
 		for _, dangerous := range dangerousFeatures {
 			if feature == dangerous {
@@ -149,6 +153,7 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 				} else {
 					dangerousAllowed = append(dangerousAllowed, feature)
 				}
+				categorized = true
 				break
 			}
 		}
@@ -161,11 +166,14 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 				} else {
 					suspiciousAllowed = append(suspiciousAllowed, feature)
 				}
+				categorized = true
 				break
 			}
 		}
 
 		if !isAllowlistRestricted(allowlist) {
+		// Only add to allowedFeatures if not already categorized
+		if !categorized && allowlist != "()" && allowlist != "" {
 			allowedFeatures = append(allowedFeatures, feature)
 		}
 	}
@@ -229,7 +237,7 @@ func generatePermissionsPolicyDescription(metadata map[string]interface{}) strin
 	var description strings.Builder
 
 	description.WriteString("Permissions-Policy header configured with ")
-	description.WriteString(string(rune(totalDirectives + 48))) // Convert int to string
+	description.WriteString(strconv.Itoa(totalDirectives))
 	description.WriteString(" directives")
 
 	if len(restrictedFeatures) > 0 {
