@@ -94,7 +94,10 @@ func isAllowlistRestricted(allowlist string) bool {
 	// Only "self" (without additional origins) is considered restricted/safe
 	// This handles both (self) and self formats
 	// Case-insensitive comparison per web standards
-	if strings.EqualFold(innerValue, "self") {
+	// Per the Permissions-Policy specification, quoted "self" (i.e. `"self"`) is treated as
+	// an origin string, not as the self keyword, so ensure the value is not quoted.
+	isQuotedString := len(innerValue) >= 2 && strings.HasPrefix(innerValue, "\"") && strings.HasSuffix(innerValue, "\"")
+	if !isQuotedString && strings.EqualFold(innerValue, "self") {
 		return true
 	}
 
