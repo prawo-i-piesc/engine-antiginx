@@ -4,6 +4,7 @@
 package Tests
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -198,7 +199,7 @@ func generatePermissionsPolicyDescription(metadata map[string]interface{}) strin
 	var description strings.Builder
 
 	description.WriteString("Permissions-Policy header configured with ")
-	description.WriteString(string(rune(totalDirectives + 48))) // Convert int to string
+	description.WriteString(strconv.Itoa(totalDirectives))
 	description.WriteString(" directives")
 
 	if len(restrictedFeatures) > 0 {
