@@ -16,7 +16,7 @@ import (
 //   - Presence of Referrer-Policy header
 //   - Policy directive values and their security implications
 //   - Multiple policy values and their precedence
-//   - Deprecated or insecure policy configurations
+//   - Insecure policy configurations
 //
 // Threat level assessment:
 //   - None (0): Excellent - strict-origin-when-cross-origin, strict-origin, or no-referrer
@@ -97,7 +97,6 @@ func NewReferrerPolicyTest() *ResponseTest {
 //   - policies: List of referrer policy directives from the header
 //   - effective_policy: The policy that will be applied (last valid one)
 //   - policy_count: Number of policies specified
-//   - has_deprecated: Whether deprecated policies are present
 //   - has_unsafe: Whether unsafe policies are present
 //
 // The function handles various header formats including:
@@ -114,7 +113,6 @@ func NewReferrerPolicyTest() *ResponseTest {
 //     * policies: []string - List of policy directives
 //     * effective_policy: string - The effective policy (last valid one)
 //     * policy_count: int - Number of policies specified
-//     * has_deprecated: bool - Whether deprecated policies are present
 //     * has_unsafe: bool - Whether unsafe policies (unsafe-url) are present
 //     * invalid_policies: []string - List of unrecognized policy values
 //
@@ -142,7 +140,6 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 	var policies []string
 	var invalidPolicies []string
 	var effectivePolicy string
-	hasDeprecated := false
 	hasUnsafe := false
 
 	for _, part := range policyParts {
@@ -168,7 +165,6 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 		"policies":         policies,
 		"effective_policy": effectivePolicy,
 		"policy_count":     len(policies),
-		"has_deprecated":   hasDeprecated,
 		"has_unsafe":       hasUnsafe,
 		"invalid_policies": invalidPolicies,
 		"raw_header":       referrerPolicyHeader,
@@ -227,7 +223,6 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) ThreatLevel {
 	effectivePolicy, _ := metadata["effective_policy"].(string)
 	hasUnsafe, _ := metadata["has_unsafe"].(bool)
-	hasDeprecated, _ := metadata["has_deprecated"].(bool)
 	policyCount, _ := metadata["policy_count"].(int)
 	invalidPolicies, _ := metadata["invalid_policies"].([]string)
 
@@ -290,7 +285,7 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) ThreatLe
 //   - Privacy and security implications
 //   - Information leakage risks
 //   - Specific recommendations for improvement
-//   - Policy conflicts or deprecated usage warnings
+//   - Policy conflicts or configuration warnings
 //
 // Parameters:
 //   - metadata: Parsed referrer policy metadata from analyzeReferrerPolicyHeader
@@ -305,7 +300,6 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) ThreatLe
 func generateReferrerPolicyDescription(metadata map[string]interface{}) string {
 	effectivePolicy, _ := metadata["effective_policy"].(string)
 	hasUnsafe, _ := metadata["has_unsafe"].(bool)
-	hasDeprecated, _ := metadata["has_deprecated"].(bool)
 	policyCount, _ := metadata["policy_count"].(int)
 	policies, _ := metadata["policies"].([]string)
 	invalidPolicies, _ := metadata["invalid_policies"].([]string)
@@ -372,10 +366,6 @@ func generateReferrerPolicyDescription(metadata map[string]interface{}) string {
 	// Add warnings for specific issues
 	if hasUnsafe {
 		description.WriteString(" WARNING: Contains 'unsafe-url' policy which poses significant privacy and security risks.")
-	}
-
-	if hasDeprecated {
-		description.WriteString(" Note: Contains legacy or non-recommended policy configurations; review them against current Referrer Policy best practices.")
 	}
 
 	if policyCount > 2 {
