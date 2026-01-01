@@ -80,7 +80,7 @@ func NewPermissionsPolicyTest() *ResponseTest {
 func isAllowlistRestricted(allowlist string) bool {
 	// Strip parentheses if present and get inner value
 	innerValue := allowlist
-	if strings.HasPrefix(innerValue, "(") && strings.HasSuffix(innerValue, ")") {
+	if len(innerValue) >= 2 && strings.HasPrefix(innerValue, "(") && strings.HasSuffix(innerValue, ")") {
 		innerValue = innerValue[1 : len(innerValue)-1]
 	}
 	innerValue = strings.TrimSpace(innerValue)
@@ -92,7 +92,8 @@ func isAllowlistRestricted(allowlist string) bool {
 
 	// Only "self" (without additional origins) is considered restricted/safe
 	// This handles both (self) and self formats
-	if innerValue == "self" {
+	// Case-insensitive comparison per web standards
+	if strings.EqualFold(innerValue, "self") {
 		return true
 	}
 
