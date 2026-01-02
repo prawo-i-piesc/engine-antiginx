@@ -49,6 +49,7 @@ func init() {
 	registerTest(Tests.NewCookieSecurityTest())
 	registerTest(Tests.NewJSObfuscationTest())
 	registerTest(Tests.NewXFrameTest())
+	registerTest(Tests.NewReferrerPolicyTest())
 	registerTest(Tests.NewPermissionsPolicyTest())
 	registerTest(Tests.NewXContentTypeOptionsTest())
 }
