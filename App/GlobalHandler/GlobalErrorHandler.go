@@ -5,6 +5,7 @@ import (
 	HttpClient "Engine-AntiGinx/App/HTTP"
 	Parameter_Parser "Engine-AntiGinx/App/Parameter-Parser"
 	"Engine-AntiGinx/App/Runner"
+	"Engine-AntiGinx/App/execution"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -49,7 +50,7 @@ func InitializeErrorHandler(cliMode bool) *ErrorHandler {
 //   - HttpClient.HttpError: Converted to a generic Errors.Error with "Http Client" source.
 //   - default (runtime panics): Wrapped in a critical Errors.Error (code 999) with stack details.
 //
-// Execution Flow:
+// execution Flow:
 //  1. Sets up panic recovery.
 //  2. Creates and runs the CommandParser to process os.Args.
 //  3. Creates and runs the JobRunner to execute the scanning logic.
@@ -94,8 +95,10 @@ func (e *ErrorHandler) RunSafe() {
 	}()
 	parser := Parameter_Parser.CreateCommandParser()
 	parsedParams := parser.Parse(os.Args)
+	formatter := execution.InitializeFormatter()
+	execPlan := formatter.FormatParameters(parsedParams)
 	runner := Runner.CreateJobRunner()
-	runner.Orchestrate(parsedParams)
+	runner.Orchestrate(execPlan)
 }
 
 // printError writes the formatted error details to standard error (os.Stderr).

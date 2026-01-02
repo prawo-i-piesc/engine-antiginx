@@ -49,17 +49,17 @@ import (
 //   - If ABSENT: Treats execution as a standalone CLI tool (cliMode = true).
 //     Errors will be formatted as human-readable text blocks.
 //
-// Execution Flow:
+// execution Flow:
 //  1. Detect execution mode via os.LookupEnv("BACK_URL").
 //  2. Initialize GlobalHandler with the calculated mode.
 //  3. Delegate full control to errorHandler.RunSafe(), which encapsulates
 //     argument parsing, job orchestration, and panic recovery.
 func main() {
-	err := godotenv.Load()
-	if err != nil {
+	error := godotenv.Load()
+	_, f := os.LookupEnv("BACK_URL")
+	if error != nil && f {
 		fmt.Println("Cannot read .env file")
 	}
-	_, f := os.LookupEnv("BACK_URL")
 	// If BACK_URL exists (f=true), we are in Backend mode (!f=false).
 	// If BACK_URL is missing (f=false), we are in CLI mode (!f=true).
 	errorHandler := GlobalHandler.InitializeErrorHandler(!f)

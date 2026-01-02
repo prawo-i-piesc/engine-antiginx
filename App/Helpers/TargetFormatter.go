@@ -1,7 +1,7 @@
 // Package Runner provides the TargetFormatter component for intelligent URL formatting
 // based on the tests being executed. This file contains logic for automatically selecting
 // the appropriate protocol (HTTP/HTTPS) based on test requirements.
-package execution
+package helpers
 
 import (
 	"Engine-AntiGinx/App/Errors"
