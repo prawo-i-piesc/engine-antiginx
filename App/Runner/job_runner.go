@@ -21,16 +21,11 @@ package Runner
 
 import (
 	error "Engine-AntiGinx/App/Errors"
-	HttpClient "Engine-AntiGinx/App/HTTP"
-	parameterparser "Engine-AntiGinx/App/Parameter-Parser"
-	"Engine-AntiGinx/App/Registry"
 	"Engine-AntiGinx/App/Reporter"
 	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/execution"
 	"fmt"
-	"net/http"
 	"os"
-	"time"
-
 	//"os"
 	"sync"
 )
@@ -64,94 +59,77 @@ type jobRunner struct{}
 // Example:
 //
 //	runner := CreateJobRunner()
-//	runner.Orchestrate(parsedParameters)
+//	runner.Orchestrate(execPlan)
 func CreateJobRunner() *jobRunner {
 	return &jobRunner{}
 }
 
 // Orchestrate is the main execution method that coordinates all components to perform
-// security testing. It parses parameters, configures components, executes tests concurrently,
-// and manages result reporting with graceful shutdown.
+// security testing. It validates the execution plan, configures the reporting infrastructure,
+// executes strategies, and manages a graceful shutdown of the concurrency pipeline.
 //
-// Execution workflow:
+// Execution Workflow:
 //
-//  1. Parameter extraction:
-//     - Extract target URL from first parameter
-//     - Find "--tests" parameter and extract test IDs
-//     - Validate that tests are specified
+//  1. Plan Validation and Extraction:
+//     - Validates that the execution plan contains at least one strategy.
+//     - Extracts global flags (AntiBotFlag) and target information.
 //
-//  2. Target formatting:
-//     - Format target URL using TargetFormatter
-//     - Ensure proper URL structure for HTTP requests
+//  2. Concurrency Infrastructure Setup:
+//     - Initializes a buffered result channel (capacity: 100) to decouple test execution from reporting.
+//     - Initializes a sync.WaitGroup to track the lifecycle of asynchronous strategies.
 //
-//  3. Reporter selection:
-//     - Check BACK_URL environment variable
-//     - Initialize BackendReporter if BACK_URL is set
-//     - Initialize CliReporter otherwise (fallback for local use)
+//  3. Reporter Selection and Initialization:
+//     - Checks for the "BACK_URL" environment variable.
+//     - If BACK_URL exists, validates TaskId and initializes the BackendReporter.
+//     - Otherwise, falls back to the CliReporter for local terminal output.
 //
-//  4. Content loading:
-//     - Fetch target website content once via HTTP GET
-//     - Share response across all tests for efficiency
-//     - Use custom User-Agent headers
+//  4. Reporting Pipeline Activation:
+//     - Starts the reporter's listener goroutine.
+//     - Obtains a doneChannel to synchronize the final shutdown sequence.
 //
-//  5. Concurrent test execution:
-//     - Create buffered result channel (capacity: 100)
-//     - Start reporter goroutine
-//     - Spawn goroutine for each test using WaitGroup
-//     - Each test receives shared HTTP response
+//  5. Concurrent Strategy Execution (Fan-out):
+//     - Iterates through the ordered list of strategies in the Plan.
+//     - Triggers the Execute method for each strategy, passing the specific context,
+//     result channel, and synchronization primitives.
 //
-//  6. Graceful shutdown:
-//     - Wait for all test goroutines to complete (wg.Wait)
-//     - Close result channel to signal reporter
-//     - Wait for reporter to finish processing (<-doneChannel)
-//     - Report any failed uploads to console
+//  6. Graceful Shutdown:
+//     - Blocks until all strategy-level goroutines signal completion (wg.Wait).
+//     - Closes the result channel to signal the reporter that no more data is coming.
+//     - Blocks until the reporter processes remaining results and closes the doneChannel.
+//     - Reports any failed uploads (e.g., network issues during backend reporting) to Stderr.
 //
-// Concurrency architecture:
-//   - Fan-out pattern: Single HTTP response → Multiple test workers
-//   - Producer-consumer: Test workers → Result channel → Reporter
-//   - Synchronization: WaitGroup for tests, channel for reporter
-//   - Buffered channel prevents test blocking if reporter is slow
+// Concurrency Architecture:
+//   - Producer-Consumer: Test strategies (producers) feed results into a shared buffered channel.
+//   - Fan-out: A single execution plan triggers multiple independent strategy executions.
+//   - Synchronization: Uses a combination of WaitGroups for worker tracking and channels for state signaling.
 //
-// Environment variables:
-//   - BACK_URL: If set, results are sent to this HTTP endpoint
+// Environment Variables:
+//   - BACK_URL: If set, the orchestrator switches from CLI output to remote API reporting.
 //
 // Parameters:
-//   - params: Parsed command-line parameters including target and test IDs
+//   - execPlan: A pre-formatted execution plan containing the target, taskId, and strategies.
 //
 // Panics:
-//   - error.Error with code 100: No tests specified (missing --tests parameter)
-//   - error.Error with code 201: Invalid test ID (test not found in Registry)
+//   - error.Error (Code 100): No tests found in the execution plan.
+//   - error.Error (Code 101): BACK_URL is set, but TaskId is missing or empty.
 //
 // Example:
 //
 //	runner := CreateJobRunner()
-//	params := parser.Parse(os.Args)
-//	// params contains: [
-//	//   {Name: "--target", Arguments: ["example.com"]},
-//	//   {Name: "--tests", Arguments: ["https", "hsts"]},
-//	// ]
-//	runner.Orchestrate(params)
-//	// Output: Test results printed to console or sent to backend
-func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
-
-	var testsToExecute []string
-	target := &params[0].Arguments[0]
-
-	// Skip the first parameter and look for "--tests"
-	testParam := findParam(params, "--tests")
-	if testParam == -1 {
-		panic(error.Error{
-			Code: 100,
-			Message: `Runner error occurred. This could be due to:
-				- tests keyword not present in params`,
-			Source:      "Runner",
-			IsRetryable: false,
-		})
-	}
-	testsToExecute = params[testParam].Arguments
+//	plan := &execution.Plan{
+//	    Target: "example.com",
+//	    Strategies: []strategy.TestStrategy{headerStrat},
+//	    TaskId: "uuid-123",
+//	}
+//	runner.Orchestrate(plan)
+func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
+	target := execPlan.Target
+	contexts := execPlan.Contexts
+	flag := execPlan.AntiBotFlag
 
 	// Validate that we actually have tests to run.
-	if testsToExecute == nil {
+	strategies := execPlan.Strategies
+	if len(strategies) == 0 {
 		panic(error.Error{
 			Code: 100,
 			Message: `Runner error occurred. This could be due to:
@@ -161,25 +139,15 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 		})
 	}
 
-	// Using target formatter to properly build target URL
-	targetFormatter := InitializeTargetFormatter()
-	target = targetFormatter.Format(*target, testsToExecute)
-
-	// Preload content required for the tests.
-	// Check if anti-bot detection is enabled
-	antiBotParam := findParam(params, "--antiBotDetection")
-	useAntiBotDetection := antiBotParam != -1
-	result := loadWebsiteContent(*target, useAntiBotDetection)
-	var wg sync.WaitGroup
-
 	// Create a buffered channel to prevent blocking test execution if the reporter is slow.
+	var wg sync.WaitGroup
 	channel := make(chan Tests.TestResult, 100)
 
 	// Determine which reporter to use based on environment configuration.
 	var reporter Reporter.Reporter
 	if v, exists := os.LookupEnv("BACK_URL"); exists {
-		taskIdParam := findParam(params, "--taskId")
-		if taskIdParam == -1 {
+		taskIdParam := execPlan.TaskId
+		if taskIdParam == "" {
 			panic(error.Error{
 				Code: 101,
 				Message: `Runner error occurred. This could be due to:
@@ -188,7 +156,7 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 				IsRetryable: false,
 			})
 		}
-		reporter = Reporter.InitializeBackendReporter(channel, v, params[taskIdParam].Arguments[0], *target)
+		reporter = Reporter.InitializeBackendReporter(channel, v, taskIdParam, target)
 	} else {
 		reporter = Reporter.InitializeCliReporter(channel)
 	}
@@ -197,23 +165,9 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 	// doneChannel will receive a signal (count of failed uploads) when reporting is finished.
 	doneChannel := reporter.StartListening()
 
-	// Iterate over the test IDs and spawn a goroutine for each
-	for _, val := range testsToExecute {
-		t, ok := Registry.GetTest(val)
-		if !ok {
-			panic(error.Error{
-				Code:        201,
-				Message:     fmt.Sprintf("Parsing error occurred. This could be due to:\n- test with Id %s does not exists", val),
-				Source:      "Runner",
-				IsRetryable: false,
-			})
-		}
-		wg.Add(1)
-
-		// Launch the test asynchronously.
-		go performTest(t, &wg, channel, result)
+	for _, val := range strategies {
+		val.Execute(contexts[val.GetName()], channel, &wg, flag)
 	}
-
 	// Wait for all test goroutines to finish producing results.
 	wg.Wait()
 	close(channel)
@@ -223,125 +177,4 @@ func (j *jobRunner) Orchestrate(params []*parameterparser.CommandParameter) {
 	if failedUploads > 0 {
 		fmt.Printf("Engine failed to send %d requests", failedUploads)
 	}
-}
-
-// loadWebsiteContent fetches the target website content via HTTP GET request and returns
-// the response for sharing across all test executions. This function performs a single
-// HTTP request to avoid redundant network calls for each test.
-//
-// The function creates an HTTP client with custom headers to identify the scanner and
-// executes a GET request against the target URL. The returned response object is then
-// shared among all concurrent test goroutines.
-//
-// HTTP configuration:
-//   - User-Agent: "AntiGinx-TestClient/1.0" (identifies the scanner)
-//   - Method: GET
-//   - Timeout: Configured in HttpClient wrapper (default: 30 seconds)
-//
-// The function may panic with httpError if:
-//   - Request creation fails (code 100)
-//   - Network error occurs (code 101)
-//   - Non-200 status code returned (code 102)
-//   - Response body reading fails (code 200)
-//   - Bot protection detected (code 300)
-//
-// Parameters:
-//   - target: The fully qualified URL to request (e.g., "https://example.com")
-//
-// Returns:
-//   - *http.Response: Raw HTTP response object to be shared across all tests
-//
-// Example:
-//
-//	response := loadWebsiteContent("https://example.com", true)
-//	// Response contains headers, body, status code, etc.
-//	// This single response is analyzed by all tests
-func loadWebsiteContent(target string, useAntiBotDetection bool) *http.Response {
-	opts := []HttpClient.WrapperOption{
-		HttpClient.WithHeaders(map[string]string{
-			"User-Agent": "AntiGinx-TestClient/1.0",
-		}),
-	}
-	if useAntiBotDetection {
-		opts = append(opts, HttpClient.WithAntiBotDetection())
-	}
-	httpClient := HttpClient.CreateHttpWrapper(opts...)
-	var content *http.Response
-	var lastErr HttpClient.HttpError
-
-	for i := 0; i < 2; i++ {
-		panicTriggerred := false
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					panicTriggerred = true
-					switch val := r.(type) {
-					case HttpClient.HttpError:
-						if !val.IsRetryable {
-							panic(val)
-						}
-						lastErr = val
-					default:
-						panic(r)
-					}
-				}
-			}()
-			content = httpClient.Get(target)
-		}()
-		if !panicTriggerred {
-			return content
-		}
-		if i < 1 {
-			time.Sleep(time.Second * 2)
-		}
-	}
-	panic(lastErr)
-}
-
-// performTest executes a single security test in a separate goroutine and publishes
-// the result to the shared results channel. This function is designed to be called
-// as a goroutine and implements the worker pattern for concurrent test execution.
-//
-// Workflow:
-//  1. Wrap HTTP response in ResponseTestParams structure
-//  2. Execute the test's Run method with the parameters
-//  3. Send the TestResult to the results channel
-//  4. Signal completion via WaitGroup (deferred)
-//
-// The function uses defer wg.Done() to ensure the WaitGroup is always decremented,
-// even if the test panics or encounters an error. This guarantees proper synchronization
-// and prevents deadlocks in the orchestration logic.
-//
-// Concurrency considerations:
-//   - Thread-safe: Multiple goroutines can call this function concurrently
-//   - Shared response: All tests receive the same HTTP response object (read-only)
-//   - Channel communication: Results are sent to buffered channel (non-blocking)
-//   - Synchronization: WaitGroup ensures proper cleanup
-//
-// Parameters:
-//   - test: Pointer to the ResponseTest to execute
-//   - wg: WaitGroup for synchronizing test completion
-//   - results: Send-only channel for publishing test results
-//   - response: Shared HTTP response object to analyze
-//
-// Example usage (called by Orchestrate):
-//
-//	wg.Add(1)
-//	go performTest(httpsTest, &wg, resultChannel, httpResponse)
-//	// Test runs concurrently, result sent to channel, WaitGroup decremented
-func performTest(test *Tests.ResponseTest, wg *sync.WaitGroup, results chan<- Tests.TestResult, response *http.Response) {
-	defer wg.Done()
-	testParams := Tests.ResponseTestParams{Response: response}
-	testResult := test.Run(testParams)
-	results <- testResult
-}
-
-func findParam(params []*parameterparser.CommandParameter, paramToFind string) int {
-	for i := 1; i < len(params); i++ {
-		currPtr := params[i]
-		if paramToFind == currPtr.Name {
-			return i
-		}
-	}
-	return -1
 }
