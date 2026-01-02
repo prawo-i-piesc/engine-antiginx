@@ -37,8 +37,8 @@ func InitializeErrorHandler(cliMode bool) *ErrorHandler {
 }
 
 // RunSafe executes the main application flow within a protected scope.
-// This is the entry point for the business logic, triggering argument parsing
-// and job orchestration.
+// This is the entry point for the business logic, triggering argument parsing,
+// parameter formatting, and job orchestration.
 //
 // The function establishes a defer/recover block to intercept any panics that occur
 // during execution. It acts as a "try-catch" mechanism for the entire process,
@@ -50,11 +50,12 @@ func InitializeErrorHandler(cliMode bool) *ErrorHandler {
 //   - HttpClient.HttpError: Converted to a generic Errors.Error with "Http Client" source.
 //   - default (runtime panics): Wrapped in a critical Errors.Error (code 999) with stack details.
 //
-// execution Flow:
-//  1. Sets up panic recovery.
+// Execution Flow:
+//  1. Sets up panic recovery via defer/recover.
 //  2. Creates and runs the CommandParser to process os.Args.
-//  3. Creates and runs the JobRunner to execute the scanning logic.
-//  4. If a panic occurs, it is caught, printed to Stderr, and the process exits with code 1.
+//  3. Initializes the Formatter to transform raw parameters into an ExecutionPlan.
+//  4. Creates and runs the JobRunner to orchestrate the security tests.
+//  5. If a panic occurs, it is caught, printed to Stderr, and the process exits with code 1.
 //
 // Exit Behavior:
 //   - On Success: The function returns normally (exit code 0).

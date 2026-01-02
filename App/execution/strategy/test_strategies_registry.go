@@ -5,12 +5,29 @@ import (
 	"fmt"
 )
 
+// strategies holds the global registry of all available TestStrategy implementations.
+// It is unexported to ensure that the registry can only be modified through
+// controlled internal functions like registerStrategy.
 var strategies = make(map[string]TestStrategy)
 
+// init is a special Go function that runs automatically when the package is initialized.
+// It is used here to bootstrap the registry with core strategies, ensuring they
+// are available as soon as the application starts.
 func init() {
 	registerStrategy(InitializeHeaderStrategy())
 }
 
+// registerStrategy adds a new TestStrategy to the global registry map.
+// This function acts as a gatekeeper to ensure that every strategy name is unique.
+//
+// Arguments:
+//   - strategy: An implementation of the TestStrategy interface.
+//
+// Panic Behavior:
+//
+//	To prevent accidental configuration errors during development or startup,
+//	this function panics with an error.Error (code 100) if a strategy with
+//	the same name (retrieved via GetName()) is already registered.
 func registerStrategy(strategy TestStrategy) {
 	if _, exists := strategies[strategy.GetName()]; exists {
 		panic(error.Error{
@@ -23,6 +40,13 @@ func registerStrategy(strategy TestStrategy) {
 	strategies[strategy.GetName()] = strategy
 }
 
+// GetStrategy retrieves a registered TestStrategy by its identifier.
+// This is the primary entry point for the Formatter or Orchestrator to
+// obtain a specific testing algorithm based on user input.
+//
+// Returns:
+//   - TestStrategy: The matching strategy implementation.
+//   - bool: A boolean indicating whether the strategy was found (true) or not (false).
 func GetStrategy(name string) (TestStrategy, bool) {
 	s, ok := strategies[name]
 	return s, ok

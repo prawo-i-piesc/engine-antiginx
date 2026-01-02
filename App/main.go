@@ -32,7 +32,6 @@ package main
 
 import (
 	"Engine-AntiGinx/App/GlobalHandler"
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -55,11 +54,8 @@ import (
 //  3. Delegate full control to errorHandler.RunSafe(), which encapsulates
 //     argument parsing, job orchestration, and panic recovery.
 func main() {
-	error := godotenv.Load()
+	_ = godotenv.Load()
 	_, f := os.LookupEnv("BACK_URL")
-	if error != nil && f {
-		fmt.Println("Cannot read .env file")
-	}
 	// If BACK_URL exists (f=true), we are in Backend mode (!f=false).
 	// If BACK_URL is missing (f=false), we are in CLI mode (!f=true).
 	errorHandler := GlobalHandler.InitializeErrorHandler(!f)

@@ -59,74 +59,69 @@ type jobRunner struct{}
 // Example:
 //
 //	runner := CreateJobRunner()
-//	runner.Orchestrate(parsedParameters)
+//	runner.Orchestrate(execPlan)
 func CreateJobRunner() *jobRunner {
 	return &jobRunner{}
 }
 
 // Orchestrate is the main execution method that coordinates all components to perform
-// security testing. It parses parameters, configures components, executes tests concurrently,
-// and manages result reporting with graceful shutdown.
+// security testing. It validates the execution plan, configures the reporting infrastructure,
+// executes strategies, and manages a graceful shutdown of the concurrency pipeline.
 //
-// execution workflow:
+// Execution Workflow:
 //
-//  1. Parameter extraction:
-//     - Extract target URL from first parameter
-//     - Find "--tests" parameter and extract test IDs
-//     - Validate that tests are specified
+//  1. Plan Validation and Extraction:
+//     - Validates that the execution plan contains at least one strategy.
+//     - Extracts global flags (AntiBotFlag) and target information.
 //
-//  2. Target formatting:
-//     - Format target URL using TargetFormatter
-//     - Ensure proper URL structure for HTTP requests
+//  2. Concurrency Infrastructure Setup:
+//     - Initializes a buffered result channel (capacity: 100) to decouple test execution from reporting.
+//     - Initializes a sync.WaitGroup to track the lifecycle of asynchronous strategies.
 //
-//  3. Reporter selection:
-//     - Check BACK_URL environment variable
-//     - Initialize BackendReporter if BACK_URL is set
-//     - Initialize CliReporter otherwise (fallback for local use)
+//  3. Reporter Selection and Initialization:
+//     - Checks for the "BACK_URL" environment variable.
+//     - If BACK_URL exists, validates TaskId and initializes the BackendReporter.
+//     - Otherwise, falls back to the CliReporter for local terminal output.
 //
-//  4. Content loading:
-//     - Fetch target website content once via HTTP GET
-//     - Share response across all tests for efficiency
-//     - Use custom User-Agent headers
+//  4. Reporting Pipeline Activation:
+//     - Starts the reporter's listener goroutine.
+//     - Obtains a doneChannel to synchronize the final shutdown sequence.
 //
-//  5. Concurrent test execution:
-//     - Create buffered result channel (capacity: 100)
-//     - Start reporter goroutine
-//     - Spawn goroutine for each test using WaitGroup
-//     - Each test receives shared HTTP response
+//  5. Concurrent Strategy Execution (Fan-out):
+//     - Iterates through the ordered list of strategies in the Plan.
+//     - Triggers the Execute method for each strategy, passing the specific context,
+//     result channel, and synchronization primitives.
 //
-//  6. Graceful shutdown:
-//     - Wait for all test goroutines to complete (wg.Wait)
-//     - Close result channel to signal reporter
-//     - Wait for reporter to finish processing (<-doneChannel)
-//     - Report any failed uploads to console
+//  6. Graceful Shutdown:
+//     - Blocks until all strategy-level goroutines signal completion (wg.Wait).
+//     - Closes the result channel to signal the reporter that no more data is coming.
+//     - Blocks until the reporter processes remaining results and closes the doneChannel.
+//     - Reports any failed uploads (e.g., network issues during backend reporting) to Stderr.
 //
-// Concurrency architecture:
-//   - Fan-out pattern: Single HTTP response → Multiple test workers
-//   - Producer-consumer: Test workers → Result channel → Reporter
-//   - Synchronization: WaitGroup for tests, channel for reporter
-//   - Buffered channel prevents test blocking if reporter is slow
+// Concurrency Architecture:
+//   - Producer-Consumer: Test strategies (producers) feed results into a shared buffered channel.
+//   - Fan-out: A single execution plan triggers multiple independent strategy executions.
+//   - Synchronization: Uses a combination of WaitGroups for worker tracking and channels for state signaling.
 //
-// Environment variables:
-//   - BACK_URL: If set, results are sent to this HTTP endpoint
+// Environment Variables:
+//   - BACK_URL: If set, the orchestrator switches from CLI output to remote API reporting.
 //
 // Parameters:
-//   - params: Parsed command-line parameters including target and test IDs
+//   - execPlan: A pre-formatted execution plan containing the target, taskId, and strategies.
 //
 // Panics:
-//   - error.Error with code 100: No tests specified (missing --tests parameter)
-//   - error.Error with code 201: Invalid test ID (test not found in Registry)
+//   - error.Error (Code 100): No tests found in the execution plan.
+//   - error.Error (Code 101): BACK_URL is set, but TaskId is missing or empty.
 //
 // Example:
 //
 //	runner := CreateJobRunner()
-//	params := parser.Parse(os.Args)
-//	// params contains: [
-//	//   {Name: "--target", Arguments: ["example.com"]},
-//	//   {Name: "--tests", Arguments: ["https", "hsts"]},
-//	// ]
-//	runner.Orchestrate(params)
-//	// Output: Test results printed to console or sent to backend
+//	plan := &execution.Plan{
+//	    Target: "example.com",
+//	    Strategies: []strategy.TestStrategy{headerStrat},
+//	    TaskId: "uuid-123",
+//	}
+//	runner.Orchestrate(plan)
 func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
 	target := execPlan.Target
 	contexts := execPlan.Contexts
