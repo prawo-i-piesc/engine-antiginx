@@ -36,6 +36,8 @@ var tests = make(map[string]*Tests.ResponseTest)
 //   - CookieSecurityTest: Analyzes cookie security attributes and session management
 //   - JSObfuscationTest: Detects obfuscated JavaScript code indicating potential security threats
 //   - XFrameTest: Analyzes X-Frame-Options and CSP frame-ancestors for clickjacking protection
+//   - ReferrerPolicyTest: Analyzes Referrer-Policy header for privacy and information leakage protection
+//   - PermissionsPolicyTest: Analyzes Permissions-Policy header for browser feature access control
 //   - XContentTypeOptionsTest: Analyzes X-Content-Type-Options header for MIME sniffing protection
 //
 // Additional tests can be registered by adding registerTest calls in this function.
@@ -47,6 +49,8 @@ func init() {
 	registerTest(Tests.NewCookieSecurityTest())
 	registerTest(Tests.NewJSObfuscationTest())
 	registerTest(Tests.NewXFrameTest())
+	registerTest(Tests.NewReferrerPolicyTest())
+	registerTest(Tests.NewPermissionsPolicyTest())
 	registerTest(Tests.NewXContentTypeOptionsTest())
 }
 
