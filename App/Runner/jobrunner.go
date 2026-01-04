@@ -138,6 +138,15 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
 			IsRetryable: false,
 		})
 	}
+	if len(contexts) == 0 {
+		panic(error.Error{
+			Code: 100,
+			Message: `Runner error occurred. This could be due to:
+					- Not found any tests to execute`,
+			Source:      "Runner",
+			IsRetryable: false,
+		})
+	}
 
 	// Create a buffered channel to prevent blocking test execution if the reporter is slow.
 	var wg sync.WaitGroup
@@ -145,6 +154,8 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
 
 	// Determine which reporter to use based on environment configuration.
 	var reporter Reporter.Reporter
+
+	// Will be changed to Factory Design Pattern, in order to stick to single responsibility rule.
 	if v, exists := os.LookupEnv("BACK_URL"); exists {
 		taskIdParam := execPlan.TaskId
 		if taskIdParam == "" {
