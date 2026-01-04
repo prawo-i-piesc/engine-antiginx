@@ -174,10 +174,10 @@ OUTER:
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
-			cmdErr := runScan(task, stderrBuff)
+			cmdErr := runScan(task, &stderrBuff)
 
 			if cmdErr != nil {
-				handleScanError(stderrBuff, msg)
+				handleScanError(&stderrBuff, msg)
 				continue
 			} else {
 				fmt.Printf("Scan performed successfully: %s\n", task.Id)
@@ -202,16 +202,16 @@ func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 		ErrMidConnCh: errMidConn,
 	}, nil
 }
-func runScan(task EngineTask, stderrBuff bytes.Buffer) error {
+func runScan(task EngineTask, stderrBuff *bytes.Buffer) error {
 	cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuff)
+	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
 	return cmd.Run()
 }
-func handleScanError(stderrBuff bytes.Buffer, msg amqp.Delivery) {
+func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery) {
 	var errJSON Errors.Error
 	errBytes := stderrBuff.Bytes()
 	if jsonErr := json.Unmarshal(errBytes, &errJSON); jsonErr == nil {
-		fmt.Printf("General error from Engine: %v\n", jsonErr)
+		fmt.Printf("General error from Engine: %v\n", errJSON)
 		if errJSON.IsRetryable {
 			fmt.Println("Error is retryable. Requeuing")
 			msg.Nack(false, true)
