@@ -14,6 +14,8 @@ type MockStrategy struct {
 }
 
 func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
+	wg.Add(1)
+	defer wg.Done()
 	channel <- Tests.TestResult{
 		Name:        "Mock test",
 		Certainty:   0,
