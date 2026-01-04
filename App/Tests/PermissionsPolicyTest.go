@@ -107,6 +107,7 @@ func isAllowlistRestricted(allowlist string) bool {
 
 // analyzePermissionsPolicyHeader parses the Permissions-Policy header value and extracts
 // feature directives into a structured metadata map.
+
 func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]interface{} {
 	dangerousFeatures := []string{
 		"camera", "microphone", "geolocation", "payment", "usb", "bluetooth",
@@ -175,12 +176,12 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 		}
 
 		if !isAllowlistRestricted(allowlist) {
-		// Only add to allowedFeatures if not already categorized
-		if !categorized && allowlist != "()" && allowlist != "" {
-			allowedFeatures = append(allowedFeatures, feature)
+			// Only add to allowedFeatures if not already categorized
+			if !categorized && allowlist != "()" && allowlist != "" {
+				allowedFeatures = append(allowedFeatures, feature)
+			}
 		}
 	}
-
 	return map[string]interface{}{
 		"allowed_features":    allowedFeatures,
 		"restricted_features": restrictedFeatures,
