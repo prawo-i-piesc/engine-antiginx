@@ -53,7 +53,7 @@ func TestJobRunner_Orchestrate(t *testing.T) {
 	happyPlan := &execution.Plan{
 		Target:      "https://example.com",
 		AntiBotFlag: false,
-		Strategies:  []strategy.TestStrategy{&MockStrategy{name: "Mock Strategy"}},
+		Strategies:  []strategy.TestStrategy{&MockStrategy{name: "--tests"}},
 		Contexts:    mockContext,
 	}
 
@@ -67,7 +67,7 @@ func TestJobRunner_Orchestrate(t *testing.T) {
 	noContexts := &execution.Plan{
 		Target:      "https://example.com",
 		AntiBotFlag: false,
-		Strategies:  []strategy.TestStrategy{&MockStrategy{name: "Mock Strategy"}},
+		Strategies:  []strategy.TestStrategy{&MockStrategy{name: "--tests"}},
 		Contexts:    map[string]strategy.TestContext{},
 	}
 
