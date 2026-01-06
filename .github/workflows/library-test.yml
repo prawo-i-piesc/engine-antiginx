@@ -1,0 +1,48 @@
+name: CI Test
+run-name: >-
+    ${{ 
+        github.event_name == 'pull_request' 
+        && format('Library CI Test for PR #{0} -> {1}', github.event.number, github.event.pull_request.title)
+    }}
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
+
+jobs:
+    library-ci-test:
+        name: Library - Testing
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+
+        - name: Set up Go
+          uses: actions/setup-go@v6
+          with:
+            go-version-file: 'go.mod'
+
+        - name: Library Test
+          run: |
+            print_status() {
+                if [ $1 -eq 0 ]; then
+                    echo "✅ $2 - OK"
+                else
+                    echo "❌ $2 - ERROR"
+                    exit 1
+                fi
+            }
+            echo "Verifying go.mod and go.sum integrity:"
+            echo "----------------------------------------"
+            go mod tidy
+            print_status $? "go mod tidy"
+            echo "|"
+            echo "|"
+            echo "Checking for changes in go.mod and go.sum:"
+            echo "----------------------------------------"
+            git diff --color=always go.mod go.sum
+            git diff --exit-code go.mod go.sum > /dev/null 2>&1
+            print_status $? "go.mod/go.sum sync check"
