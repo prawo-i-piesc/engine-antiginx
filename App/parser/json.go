@@ -72,7 +72,7 @@ func (j *JsonParser) checkParameters(params []*CommandParameter) {
 		if val == nil {
 			message := `Json parser error occurred. This could be due to:
 				- nil parameter`
-			j.throwPanic(300, message)
+			j.throwPanic(200, message)
 		}
 		arguments := val.Arguments
 		if arguments == nil {
@@ -85,19 +85,19 @@ func (j *JsonParser) checkParameters(params []*CommandParameter) {
 		if !ok {
 			message := `Json parser error occurred. This could be due to:
 				- invalid parameter`
-			j.throwPanic(301, message)
+			j.throwPanic(201, message)
 		}
 
 		if token.ArgRequired && length < 1 {
 			message := `Json parser error occurred. This could be due to:
 				- too few arguments passed to the parameter`
-			j.throwPanic(302, message)
+			j.throwPanic(202, message)
 		}
 
 		if token.ArgCount == 1 && length > 1 {
 			message := `Json parser error occurred. This could be due to:
 				- too many arguments passed to the parameter`
-			j.throwPanic(303, message)
+			j.throwPanic(203, message)
 		}
 
 		if length < 1 && !token.ArgRequired {
@@ -114,8 +114,8 @@ func (j *JsonParser) checkParameters(params []*CommandParameter) {
 // It checks if the arguments exist in the 'args' whitelist and detects duplicates.
 //
 // It panics if:
-//   - An argument is not in the whitelist (Error 305).
-//   - An argument appears more than once (Error 306).
+//   - An argument is not in the whitelist (Error 204).
+//   - An argument appears more than once (Error 205).
 func (j *JsonParser) checkArgs(args []string, givenArgs []string) {
 	validityMap := make(map[string]bool, len(args))
 	for _, val := range args {
@@ -127,12 +127,12 @@ func (j *JsonParser) checkArgs(args []string, givenArgs []string) {
 		if !ok {
 			message := `Json parser error occurred. This could be due to:
 				- invalid argument passed to the parameter`
-			j.throwPanic(200, message)
+			j.throwPanic(204, message)
 		}
 		if occurrence {
 			message := `Json parser error occurred. This could be due to:
 				- one of the arguments occur more than once`
-			j.throwPanic(201, message)
+			j.throwPanic(205, message)
 		}
 		validityMap[val] = true
 	}
