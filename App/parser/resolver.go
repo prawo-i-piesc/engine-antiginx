@@ -7,15 +7,15 @@ import "Engine-AntiGinx/App/Errors"
 // It acts as a router that directs execution to the specific worker (e.g., JsonParser, CommandParser).
 type Resolver struct{}
 
-// method is a wrapper struct used internally to hold a reference to a concrete Parser instance.
-type method struct {
+// parserEntry is a wrapper struct used internally to hold a reference to a concrete Parser instance.
+type parserEntry struct {
 	workerReference Parser
 }
 
 // whiteList serves as a registry mapping command strings (e.g., "json", "test")
 // to their corresponding Parser implementations.
 // This map is initialized on startup and effectively acts as a strategy pattern registry.
-var whiteList = map[string]method{
+var whiteList = map[string]parserEntry{
 
 	"test": {
 		workerReference: CreateCommandParser(),
