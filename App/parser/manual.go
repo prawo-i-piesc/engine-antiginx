@@ -91,6 +91,16 @@ func CreateCommandParser() *parameterParser {
 //
 
 func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
+	length := len(userParameters)
+	if length < 3 {
+		panic(error.Error{
+			Code: 100,
+			Message: `Parsing error occurred. This could be due to:
+				- insufficient number of parameters`,
+			Source:      "parser",
+			IsRetryable: false,
+		})
+	}
 	return transformIntoTable(Params, userParameters)
 }
 

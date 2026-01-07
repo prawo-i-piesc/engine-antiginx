@@ -30,6 +30,12 @@ func CreateJsonParser() *JsonParser {
 // It prepends the target as a "--target" parameter to the final list.
 // This method panics if validation fails or the file cannot be read.
 func (j *JsonParser) Parse(userParameters []string) []*CommandParameter {
+	length := len(userParameters)
+	if length < 3 {
+		message := `Json parser error occurred. This could be due to:
+				- insufficient number of parameters`
+		j.throwPanic(100, message)
+	}
 	fileName := userParameters[2]
 
 	testJson := j.deserializeWithErrorHandling(fileName)
@@ -38,7 +44,7 @@ func (j *JsonParser) Parse(userParameters []string) []*CommandParameter {
 		message := `Json parser error occurred. This could be due to:
 				- empty target
 				- not given or empty parameters`
-		j.throwPanic(200, message)
+		j.throwPanic(101, message)
 	}
 
 	target := testJson.Target
@@ -79,19 +85,19 @@ func (j *JsonParser) checkParameters(params []*CommandParameter) {
 		if !ok {
 			message := `Json parser error occurred. This could be due to:
 				- invalid parameter`
-			j.throwPanic(302, message)
+			j.throwPanic(301, message)
 		}
 
 		if token.ArgRequired && length < 1 {
 			message := `Json parser error occurred. This could be due to:
 				- too few arguments passed to the parameter`
-			j.throwPanic(303, message)
+			j.throwPanic(302, message)
 		}
 
 		if token.ArgCount == 1 && length > 1 {
 			message := `Json parser error occurred. This could be due to:
 				- too many arguments passed to the parameter`
-			j.throwPanic(304, message)
+			j.throwPanic(303, message)
 		}
 
 		if length < 1 && !token.ArgRequired {
@@ -121,12 +127,12 @@ func (j *JsonParser) checkArgs(args []string, givenArgs []string) {
 		if !ok {
 			message := `Json parser error occurred. This could be due to:
 				- invalid argument passed to the parameter`
-			j.throwPanic(305, message)
+			j.throwPanic(200, message)
 		}
 		if occurrence {
 			message := `Json parser error occurred. This could be due to:
 				- one of the arguments occur more than once`
-			j.throwPanic(306, message)
+			j.throwPanic(201, message)
 		}
 		validityMap[val] = true
 	}
@@ -139,7 +145,7 @@ func (j *JsonParser) deserializeWithErrorHandling(fileName string) *TestJson {
 	if fileName == "" {
 		message := `Json parser error occurred. This could be due to:
 				- empty file name`
-		j.throwPanic(100, message)
+		j.throwPanic(102, message)
 	}
 
 	file, err := os.ReadFile(fileName)
@@ -147,7 +153,7 @@ func (j *JsonParser) deserializeWithErrorHandling(fileName string) *TestJson {
 	if err != nil {
 		message := fmt.Sprintf("Json parser error occurred. This could be due to: \n"+
 			"- %v", err)
-		j.throwPanic(102, message)
+		j.throwPanic(103, message)
 	}
 
 	var testJson TestJson
@@ -156,7 +162,7 @@ func (j *JsonParser) deserializeWithErrorHandling(fileName string) *TestJson {
 	if err2 != nil {
 		message := fmt.Sprintf("Json parser error occurred. This could be due to: \n"+
 			"- %v", err2)
-		j.throwPanic(102, message)
+		j.throwPanic(104, message)
 	}
 	return &testJson
 }
@@ -167,7 +173,7 @@ func (j *JsonParser) throwPanic(code int, message string) {
 	panic(Errors.Error{
 		Code:        code,
 		Message:     message,
-		Source:      "Json parser",
+		Source:      "json parser",
 		IsRetryable: false,
 	},
 	)
