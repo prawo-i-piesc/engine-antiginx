@@ -23,7 +23,7 @@
 //   - serv-h-a: Server header analysis for information disclosure
 //
 // The application follows a modular architecture:
-//  1. Parameter Parser: Extracts command-line arguments
+//  1. Parameter parser: Extracts command-line arguments
 //  2. Job Runner: Orchestrates test execution
 //  3. Test Registry: Provides access to available security tests
 //  4. Reporter: Outputs results to CLI or backend API

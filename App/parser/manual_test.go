@@ -1,4 +1,4 @@
-package Parameter_Parser
+package parser
 
 import (
 	"testing"
@@ -34,9 +34,9 @@ func TestParameterParser_Parse(t *testing.T) {
 			},
 		},
 
-		// Code 100, number of params
+		// Code 100, number of Params
 		{
-			name:    "Code 100, number of params",
+			name:    "Code 100, number of Params",
 			params:  []string{"scanner"},
 			wantErr: true,
 		},

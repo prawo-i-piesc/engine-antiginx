@@ -74,7 +74,7 @@ nav:
     - Errors: App/Errors/index.md
     - Helpers: App/Helpers/index.md
     - HTTP: App/HTTP/index.md
-    - Parameter-Parser: App/Parameter-Parser/index.md
+    - Parameter-Parser: App/parser/index.md
     - Registry: App/Registry/index.md
     - Reporter: App/Reporter/index.md
     - Runner: App/Runner/index.md

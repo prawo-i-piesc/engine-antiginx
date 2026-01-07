@@ -3,9 +3,9 @@ package GlobalHandler
 import (
 	"Engine-AntiGinx/App/Errors"
 	HttpClient "Engine-AntiGinx/App/HTTP"
-	Parameter_Parser "Engine-AntiGinx/App/Parameter-Parser"
 	"Engine-AntiGinx/App/Runner"
 	"Engine-AntiGinx/App/execution"
+	parameterparser "Engine-AntiGinx/App/parser"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -94,8 +94,10 @@ func (e *ErrorHandler) RunSafe() {
 			os.Exit(1)
 		}
 	}()
-	parser := Parameter_Parser.CreateCommandParser()
-	parsedParams := parser.Parse(os.Args)
+	args := os.Args
+	resolver := parameterparser.CreateResolver()
+	parser := resolver.Resolve(args)
+	parsedParams := parser.Parse(args)
 	formatter := execution.InitializeFormatter()
 	execPlan := formatter.FormatParameters(parsedParams)
 	runner := Runner.CreateJobRunner()

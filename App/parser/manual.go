@@ -1,4 +1,4 @@
-// Package Parameter_Parser provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
+// Package parser Package Parameter_Parser provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
 // It processes command-line tokens based on statically defined parameter definitions, validates required
 // arguments, enforces whitelists, and provides structured error reporting through panic-based error handling.
 //
@@ -16,80 +16,21 @@
 //   - 304: Invalid argument or unexpected parameter
 //   - 305: Duplicate argument detected
 //   - 306: Too many arguments for single-value parameter
-package Parameter_Parser
+package parser
 
 import (
 	error "Engine-AntiGinx/App/Errors"
 )
 
-// params is the static registry of all supported command-line parameters with their configurations.
-// Each parameter defines:
-//   - Arguments: Whitelist of allowed values (empty means any value accepted)
-//   - DefaultVal: Default value when parameter is provided without arguments
-//   - ArgRequired: Whether arguments are mandatory
-//   - ArgCount: Number of arguments (1 for single, -1 for multiple)
-var params = map[string]parameter{
-	"--target": {
-		Arguments:   []string{},
-		DefaultVal:  "",
-		ArgRequired: true,
-		ArgCount:    1,
-	},
-	"--taskId": {
-		Arguments:   []string{},
-		DefaultVal:  "",
-		ArgRequired: true,
-		ArgCount:    1,
-	},
-	"--userAgent": {
-		Arguments:   []string{},
-		DefaultVal:  "Scanner/1.0",
-		ArgRequired: false,
-		ArgCount:    1,
-	}, /*
-		"--referer": {
-			Arguments:   []string{},
-			DefaultVal:  "",
-			ArgRequired: false,
-			ArgCount:    1,
-		},*/
-	"--tests": {
-		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "cookie-sec", "js-obf", "xframe", "permissions-policy", "x-content-type-options", "referrer-policy",
-			/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/},
-		DefaultVal:  "",
-		ArgRequired: true,
-		ArgCount:    -1,
-	}, /*
-		"--httpMethods": {
-			Arguments: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "TRACE",
-				"CONNECT", "HEAD"},
-			DefaultVal:  "",
-			ArgRequired: true,
-			ArgCount:    -1,
-		},
-		"--files": {
-			Arguments:   []string{},
-			DefaultVal:  "",
-			ArgRequired: true,
-			ArgCount:    -1,
-		},*/
-	"--antiBotDetection": {
-		Arguments:   []string{},
-		DefaultVal:  "", // DefaultVal is not used for flag parameters (ArgCount: 0)
-		ArgRequired: false,
-		ArgCount:    0,
-	},
-}
-
 // parameterParser is the main parser structure that processes command-line arguments.
-// It uses the static params map for parameter definitions and validation rules.
+// It uses the static Params map for parameter definitions and validation rules.
 type parameterParser struct{}
 
 // CommandParameter represents a parsed command-line parameter with its associated arguments.
 // This is the output structure returned by the parser after successful validation.
 type CommandParameter struct {
-	Name      string   // Parameter name (e.g., "--target", "--tests")
-	Arguments []string // List of validated arguments for this parameter
+	Name      string   `json:"Name"`      // Parameter name (e.g., "--target", "--tests")
+	Arguments []string `json:"Arguments"` // List of validated arguments for this parameter
 }
 
 // parameter defines the specification for a command-line parameter including validation rules.
@@ -110,7 +51,7 @@ type parameter struct {
 // Example:
 //
 //	parser := CreateCommandParser()
-//	params := parser.Parse(os.Args)
+//	Params := parser.Parse(os.Args)
 func CreateCommandParser() *parameterParser {
 	return &parameterParser{}
 }
@@ -142,35 +83,25 @@ func CreateCommandParser() *parameterParser {
 // Example:
 //
 //	parser := CreateCommandParser()
-//	params := parser.Parse([]string{"scanner", "test", "--target", "example.com", "--tests", "https"})
+//	Params := parser.Parse([]string{"scanner", "test", "--target", "example.com", "--tests", "https"})
 //	// Returns: []*CommandParameter{
 //	//   {Name: "--target", Arguments: []string{"example.com"}},
 //	//   {Name: "--tests", Arguments: []string{"https"}},
 //	// }
+//
+
 func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
-	paramLen := len(userParameters)
-	if paramLen < 2 {
+	length := len(userParameters)
+	if length < 3 {
 		panic(error.Error{
 			Code: 100,
 			Message: `Parsing error occurred. This could be due to:
 				- insufficient number of parameters`,
-			Source:      "Parser",
+			Source:      "parser",
 			IsRetryable: false,
 		})
 	}
-	//Checking if test keyword is present or is at its position
-	//Raise error if not
-	if userParameters[1] != "test" {
-		panic(error.Error{
-			Code: 201,
-			Message: `Parsing error occurred. This could be due to:
-				- test keyword is not present
-				- structure of the command is invalid`,
-			Source:      "Parser",
-			IsRetryable: false,
-		})
-	}
-	return transformIntoTable(params, userParameters)
+	return transformIntoTable(Params, userParameters)
 }
 
 // transformIntoTable is the core parsing algorithm that transforms and validates user input
@@ -204,7 +135,7 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 //
 // Parameters:
 //
-//	params         Map of parameter definitions for validation.
+//	Params         Map of parameter definitions for validation.
 //	userParameters Raw command-line tokens to parse.
 //
 // Returns:
@@ -234,7 +165,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						Code: 303,
 						Message: `Parsing error occurred. This could be due to:
 							- too few arguments passed to arg required param`,
-						Source:      "Parser",
+						Source:      "parser",
 						IsRetryable: false,
 					})
 				}
@@ -246,7 +177,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 							Code: 306,
 							Message: `Parsing error occurred. This could be due to:
 								- unnecessary argument passed to the parameter`,
-							Source:      "Parser",
+							Source:      "parser",
 							IsRetryable: false,
 						})
 					}
@@ -265,7 +196,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 						Code: 303,
 						Message: `Parsing error occurred. This could be due to:	
 							- too few arguments passed to arg required param`,
-						Source:      "Parser",
+						Source:      "parser",
 						IsRetryable: false,
 					})
 				}
@@ -306,7 +237,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 							Code: 304,
 							Message: `Parsing error occurred. This could be due to:
 								- invalid argument passed to the parameter`,
-							Source:      "Parser",
+							Source:      "parser",
 							IsRetryable: false,
 						})
 					}
@@ -319,7 +250,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					Code: 304,
 					Message: `Parsing error occurred. This could be due to:
 						- invalid argument passed to the parameter`,
-					Source:      "Parser",
+					Source:      "parser",
 					IsRetryable: false,
 				})
 			}
@@ -345,7 +276,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 //
 // Parameters:
 //   - userParam: The argument value provided by the user
-//   - params: Whitelist of allowed values for the parameter
+//   - Params: Whitelist of allowed values for the parameter
 //
 // Returns:
 //   - bool: true if userParam is found in the whitelist, false otherwise
@@ -387,7 +318,7 @@ func checkOccurrences(args []string) {
 				Code: 305,
 				Message: `Parsing error occurred. This could be due to:
 					- one of the arguments occurred more than once`,
-				Source:      "Parser",
+				Source:      "parser",
 				IsRetryable: false,
 			})
 		}
