@@ -45,8 +45,9 @@ jobs:
             go test -v -race -coverprofile=coverage.out ./...
 
             print_status $? "Unit Tests"
-            
-            echo "|"
+
+        - name: Show Coverage Summary
+          run: |
             echo "Coverage Summary:"
             echo "----------------------------------------"
             go tool cover -func=coverage.out
