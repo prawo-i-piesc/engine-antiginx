@@ -1,0 +1,53 @@
+name: CI Test
+run-name: >-
+    ${{ 
+        github.event_name == 'pull_request' 
+        && format('Unit CI Test for PR #{0} -> {1}', github.event.number, github.event.pull_request.title)
+    }}
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+permissions:
+    contents: read
+
+jobs:
+    unit-ci-test:
+        name: Unit - Testing
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+
+        - name: Set up Go
+          uses: actions/setup-go@v6
+          with:
+            go-version-file: 'go.mod'
+
+        - name: Install Dependencies
+          run: go mod download
+
+        - name: Run Unit Tests
+          run: |
+            print_status() {
+                if [ $1 -eq 0 ]; then
+                    echo "✅ $2 - OK"
+                else
+                    echo "❌ $2 - ERROR"
+                    exit 1
+                fi
+            }
+
+            echo "Running unit tests:"
+            echo "----------------------------------------"
+            
+            go test -v -race -coverprofile=coverage.out ./...
+
+            print_status $? "Unit Tests"
+
+        - name: Show Coverage Summary
+          run: |
+            echo "Coverage Summary:"
+            echo "----------------------------------------"
+            go tool cover -func=coverage.out
