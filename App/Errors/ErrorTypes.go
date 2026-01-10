@@ -39,5 +39,5 @@ type Error struct {
 //
 //	[HTTP] Error 101: Network timeout occurred (Retryable: true)
 func (e *Error) Error() string {
-	return fmt.Sprintf("[%s] Error %d: %s", e.Source, e.Code, e.Message, e.IsRetryable)
+	return fmt.Sprintf("[%s] Error %d: %s (Retryable: %t)", e.Source, e.Code, e.Message, e.IsRetryable)
 }
