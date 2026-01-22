@@ -20,8 +20,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /engine-antiginx/E
 # Final stage: a minimal image to run the application
 FROM alpine:3.21 AS run
 
-# Install ca-certificates
-RUN apk --no-cache add ca-certificates
+# Upgrade all packages to get security fixes, then install ca-certificates
+RUN apk --no-cache upgrade && \
+    apk --no-cache add ca-certificates
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S appgroup && \
