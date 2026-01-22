@@ -44,7 +44,7 @@ jobs:
           run: |
             echo "⚙️ Generating documentation for project..."
             if \
-            gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./App/...
+            gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./App/... \
             && \
             gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./Engined/...; then
                 echo ""
