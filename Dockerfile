@@ -31,11 +31,12 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 
 # Copy the application executable from the build image
-COPY --from=build /engine-antiginx/App /engine-antiginx/App
-COPY --from=build /engine-antiginx/Engined /engine-antiginx/Engined
+COPY --from=build --chown=appuser:appgroup /engine-antiginx/App /engine-antiginx/App
+COPY --from=build --chown=appuser:appgroup /engine-antiginx/Engined /engine-antiginx/Engined
 
 # Set ownership and switch to non-root user
 RUN chown -R appuser:appgroup /engine-antiginx
+
 USER appuser
 
 # Document the ports used by the applications
