@@ -18,7 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /engine-antiginx/A
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /engine-antiginx/Engined ./Engined
 
 # Final stage: a minimal image to run the application
-FROM alpine:3.21 AS run
+FROM alpine:3.23 AS run
 
 # Upgrade all packages to get security fixes, then install ca-certificates
 RUN apk --no-cache upgrade && \
