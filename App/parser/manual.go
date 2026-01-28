@@ -203,29 +203,38 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 				argMode = true
 				currentParam = token
 			} else {
+				consumedNext := false
 				if userParametersLen > i+1 {
 					next := userParameters[i+1]
-					_, ok := params[next]
-					if ok {
-						parsedParams = append(parsedParams, &CommandParameter{
-							Name:      token,
-							Arguments: []string{v.DefaultVal},
-						})
-						continue
-					} else {
+					_, nextIsParam := params[next]
+
+					if !nextIsParam {
+						if v.ArgCount == 0 {
+							panic(error.Error{
+								Code: 306,
+								Message: `Parsing error occurred. This could be due to:
+								- unnecessary argument passed to the parameter`,
+								Source:      "parser",
+								IsRetryable: false,
+							})
+						}
 						parsedParams = append(parsedParams, &CommandParameter{
 							Name:      token,
 							Arguments: []string{next},
 						})
 						i++
-						continue
+						consumedNext = true
 					}
-				} else {
+				}
+				if !consumedNext {
+					defaultArgs := []string{}
+					if v.ArgCount != 0 {
+						defaultArgs = []string{v.DefaultVal}
+					}
 					parsedParams = append(parsedParams, &CommandParameter{
 						Name:      token,
-						Arguments: []string{v.DefaultVal},
+						Arguments: defaultArgs,
 					})
-					continue
 				}
 			}
 		} else {
@@ -243,6 +252,15 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					}
 					args = append(args, token)
 				} else {
+					if v.ArgCount == 1 && len(args) == v.ArgCount {
+						panic(error.Error{
+							Code: 306,
+							Message: `Parsing error occurred. This could be due to:
+								- unnecessary argument passed to the parameter`,
+							Source:      "parser",
+							IsRetryable: false,
+						})
+					}
 					args = append(args, token)
 				}
 			} else {
