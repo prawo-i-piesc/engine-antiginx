@@ -1,4 +1,4 @@
-package Parameter_Parser
+package parser
 
 import (
 	"testing"
@@ -29,22 +29,61 @@ func TestParameterParser_Parse(t *testing.T) {
 				},
 				{
 					Name:      "--antiBotDetection",
-					Arguments: []string{""},
+					Arguments: []string{},
+				},
+			},
+		},
+		{
+			name:    "Happy path",
+			params:  []string{"scanner", "test", "--target", "example.com", "--tests", "https", "hsts", "--antiBotDetection", "--userAgent"},
+			wantErr: false,
+			want: []*CommandParameter{
+				{
+					Name:      "--target",
+					Arguments: []string{"example.com"},
+				},
+				{
+					Name:      "--tests",
+					Arguments: []string{"https", "hsts"},
+				},
+				{
+					Name:      "--antiBotDetection",
+					Arguments: []string{},
+				},
+				{
+					Name:      "--userAgent",
+					Arguments: []string{"Scanner/1.0"},
+				},
+			},
+		},
+		{
+			name:    "Happy path",
+			params:  []string{"scanner", "test", "--target", "example.com", "--tests", "https", "hsts", "--antiBotDetection", "--userAgent", "testUA"},
+			wantErr: false,
+			want: []*CommandParameter{
+				{
+					Name:      "--target",
+					Arguments: []string{"example.com"},
+				},
+				{
+					Name:      "--tests",
+					Arguments: []string{"https", "hsts"},
+				},
+				{
+					Name:      "--antiBotDetection",
+					Arguments: []string{},
+				},
+				{
+					Name:      "--userAgent",
+					Arguments: []string{"testUA"},
 				},
 			},
 		},
 
-		// Code 100, number of params
+		// Code 100, number of Params
 		{
-			name:    "Code 100, number of params",
-			params:  []string{"scanner"},
-			wantErr: true,
-		},
-
-		// Code 201, test keyword
-		{
-			name:    "Code 201, test keyword",
-			params:  []string{"scanner", "--target", "example.com", "--tests", "https"},
+			name:    "Code 100, number of Params",
+			params:  []string{"scanner", "test"},
 			wantErr: true,
 		},
 
@@ -67,6 +106,12 @@ func TestParameterParser_Parse(t *testing.T) {
 			params:  []string{"scanner", "test", "--target", "example.com", "--tests", "errorArgument"},
 			wantErr: true,
 		},
+		// Code 304, invalid keyword
+		{
+			name:    "Code 304, invalid argument",
+			params:  []string{"scanner", "test", "--target", "example.com", "--invalid", "errorArgument"},
+			wantErr: true,
+		},
 
 		// Code 305, repetition of arguments
 		{
@@ -79,6 +124,13 @@ func TestParameterParser_Parse(t *testing.T) {
 		{
 			name:    "Code 306, too many arguments",
 			params:  []string{"scanner", "test", "--target", "example.com", "example2.com", "--tests", "https"},
+			wantErr: true,
+		},
+
+		// Code 306, arguments passed to flag param
+		{
+			name:    "Code 306, too few arguments",
+			params:  []string{"scanner", "test", "--target", "example.com", "--tests", "https", "hsts", "--antiBotDetection", "argToFlagParam"},
 			wantErr: true,
 		},
 	}

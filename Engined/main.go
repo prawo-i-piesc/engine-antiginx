@@ -119,19 +119,16 @@ func main() {
 		fmt.Println("Error: RABBITMQ_URL environment variable is not set")
 		return
 	}
-	conn, err := amqp.Dial(rabbitmqURL)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	errMidConn := conn.NotifyClose(make(chan *amqp.Error))
-	defer conn.Close()
 
-	taskChannel, err := conn.Channel()
+	rabbitConf, err := configureRabbitConnection(rabbitmqURL)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	conn := rabbitConf.ConnCh
+	taskChannel := rabbitConf.TaskCh
+	errMidConn := rabbitConf.ErrMidConnCh
+	defer conn.Close()
 	defer taskChannel.Close()
 
 	msgs, err := taskChannel.Consume("scan_queue", "", false, false, false, false, nil)
@@ -139,16 +136,20 @@ func main() {
 		fmt.Println(err)
 		isShuttingDown = true
 	}
+	consumeSafe(msgs, &isShuttingDown, errMidConn, closeChannel)
+}
+
+func consumeSafe(msgs <-chan amqp.Delivery, isShuttingDown *bool, errMidConn chan *amqp.Error, closeChannel chan os.Signal) {
 OUTER:
 	for {
-		if isShuttingDown {
+		if *isShuttingDown {
 			break
 		}
 		select {
 
 		case closeMidConn := <-errMidConn:
 			fmt.Printf("Connection to RabbitMQ crashed. %s. Engine Daemon is going down... \n", closeMidConn)
-			isShuttingDown = true
+			*isShuttingDown = true
 			closeChannel = nil
 			errMidConn = nil
 			os.Exit(1)
@@ -156,7 +157,7 @@ OUTER:
 		case s := <-closeChannel:
 			fmt.Println("Engine Daemon is going down...")
 			fmt.Println(fmt.Sprintf("Received a signal %x", s))
-			isShuttingDown = true
+			*isShuttingDown = true
 			closeChannel = nil
 			errMidConn = nil
 			continue OUTER
@@ -173,31 +174,53 @@ OUTER:
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
-			cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
-			cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuff)
-			cmdErr := cmd.Run()
+			cmdErr := runScan(task, &stderrBuff)
+
 			if cmdErr != nil {
-				errBytes := stderrBuff.Bytes()
-				var errJSON Errors.Error
-				if jsonErr := json.Unmarshal(errBytes, &errJSON); jsonErr != nil {
-					fmt.Printf("General error from Engine: %v\n", jsonErr)
-					if errJSON.IsRetryable {
-						fmt.Println("Error is retryable. Requeuing")
-						msg.Nack(false, true)
-					} else {
-						fmt.Println("Error is fatal. Discarding")
-						msg.Nack(false, false)
-					}
-				} else {
-					fmt.Printf("Fatal error %v\n", stderrBuff)
-					msg.Nack(false, false)
-				}
+				handleScanError(&stderrBuff, msg)
 				continue
 			} else {
 				fmt.Printf("Scan performed successfully: %s\n", task.Id)
 				msg.Ack(false)
 			}
-
 		}
+	}
+}
+func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
+	conn, err := amqp.Dial(queueUrl)
+	if err != nil {
+		return nil, err
+	}
+	errMidConn := conn.NotifyClose(make(chan *amqp.Error))
+	taskChannel, err := conn.Channel()
+	if err != nil {
+		return nil, err
+	}
+	return &RabbitConfig{
+		ConnCh:       conn,
+		TaskCh:       taskChannel,
+		ErrMidConnCh: errMidConn,
+	}, nil
+}
+func runScan(task EngineTask, stderrBuff *bytes.Buffer) error {
+	cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
+	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
+	return cmd.Run()
+}
+func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery) {
+	var errJSON Errors.Error
+	errBytes := stderrBuff.Bytes()
+	if jsonErr := json.Unmarshal(errBytes, &errJSON); jsonErr == nil {
+		fmt.Printf("General error from Engine: %v\n", errJSON)
+		if errJSON.IsRetryable {
+			fmt.Println("Error is retryable. Requeuing")
+			msg.Nack(false, true)
+		} else {
+			fmt.Println("Error is fatal. Discarding")
+			msg.Nack(false, false)
+		}
+	} else {
+		fmt.Printf("Fatal error %v\n", stderrBuff)
+		msg.Nack(false, false)
 	}
 }

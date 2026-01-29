@@ -2,8 +2,8 @@ package execution
 
 import (
 	error "Engine-AntiGinx/App/Errors"
-	parameterparser "Engine-AntiGinx/App/Parameter-Parser"
 	"Engine-AntiGinx/App/execution/strategy"
+	parameterparser "Engine-AntiGinx/App/parser"
 	"os"
 )
 
