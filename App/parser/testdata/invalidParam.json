@@ -1,0 +1,9 @@
+{
+  "Target": "Target",
+  "Parameters" : [
+    {
+      "Name": "--invalid",
+      "Arguments": []
+    }
+  ]
+}

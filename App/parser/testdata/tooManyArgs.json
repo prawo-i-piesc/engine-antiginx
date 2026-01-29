@@ -1,0 +1,13 @@
+{
+  "Target": "Target",
+  "Parameters" : [
+    {
+      "Name": "--tests",
+      "Arguments": ["https"]
+    },
+    {
+      "Name": "--userAgent",
+      "Arguments": ["too","many","args"]
+    }
+  ]
+}
