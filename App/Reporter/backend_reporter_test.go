@@ -2,8 +2,6 @@ package Reporter
 
 import (
 	"Engine-AntiGinx/App/Tests"
-	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -42,8 +40,6 @@ func TestBackendReporter_StartListening(t *testing.T) {
 			calls := 0
 			server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 				calls++
-				bodyBytes, _ := io.ReadAll(request.Body)
-				fmt.Printf("Performed req %v\n", string(bodyBytes))
 				writer.WriteHeader(tt.statusCode)
 			}))
 			defer server.Close()

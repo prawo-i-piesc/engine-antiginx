@@ -167,7 +167,7 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
 				IsRetryable: false,
 			})
 		}
-		reporter = Reporter.InitializeBackendReporter(channel, v, taskIdParam, target, float64(5), 2)
+		reporter = Reporter.InitializeBackendReporter(channel, v, taskIdParam, target, 5, 2)
 	} else {
 		reporter = Reporter.InitializeCliReporter(channel)
 	}

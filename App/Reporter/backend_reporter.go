@@ -96,9 +96,9 @@ type retryResult struct {
 //	close(resultChan)
 //	failedCount := <-doneChan
 //	fmt.Printf("Processing complete. Failed uploads: %d\n", failedCount)
-func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string, testId string, target string, clientTimeOut float64, retryDelay int) *backendReporter {
+func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string, testId string, target string, clientTimeOut int, retryDelay int) *backendReporter {
 	return &backendReporter{channel, backendURL, testId, target, 2, retryDelay, &http.Client{
-		Timeout: time.Duration(clientTimeOut * float64(time.Second)),
+		Timeout: time.Duration(clientTimeOut) * time.Second,
 	}}
 }
 
