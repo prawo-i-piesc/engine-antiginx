@@ -53,6 +53,7 @@ type backendReporter struct {
 	testId        string
 	target        string
 	maxRetries    int
+	retryDelay    int
 	httpClient    *http.Client
 }
 
@@ -95,9 +96,9 @@ type retryResult struct {
 //	close(resultChan)
 //	failedCount := <-doneChan
 //	fmt.Printf("Processing complete. Failed uploads: %d\n", failedCount)
-func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string, testId string, target string) *backendReporter {
-	return &backendReporter{channel, backendURL, testId, target, 2, &http.Client{
-		Timeout: 5 * time.Second,
+func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string, testId string, target string, clientTimeOut float64, retryDelay int) *backendReporter {
+	return &backendReporter{channel, backendURL, testId, target, 2, retryDelay, &http.Client{
+		Timeout: time.Duration(clientTimeOut * float64(time.Second)),
 	}}
 }
 
@@ -167,13 +168,15 @@ func (b *backendReporter) StartListening() <-chan int {
 
 				// ...and double-check if they added anything new to the queue.
 				if len(retryChan) == 0 {
-					b.sendLastWithFlag(
-						Tests.TestResultWrapper{
-							Target:  b.target,
-							TestId:  b.testId,
-							Result:  Tests.TestResult{},
-							EndFlag: true,
-						}, &failedUploads)
+					if failedUploads == 0 {
+						b.sendLastWithFlag(
+							Tests.TestResultWrapper{
+								Target:  b.target,
+								TestId:  b.testId,
+								Result:  Tests.TestResult{},
+								EndFlag: true,
+							}, &failedUploads)
+					}
 					break
 				}
 			}
@@ -252,7 +255,7 @@ func (b *backendReporter) tryToSendOrEnqueue(result Tests.TestResult, attNumber 
 		// Non-blocking backoff strategy
 		go func() {
 			defer retryWg.Done()
-			time.Sleep(2 * time.Second)
+			time.Sleep(time.Duration(b.retryDelay) * time.Second)
 			retryChan <- retryResult{
 				result: result,
 				attNum: attNumber + 1,
@@ -394,7 +397,7 @@ func (b *backendReporter) sendLastWithFlag(result Tests.TestResultWrapper, faile
 		shouldRetry = customErr.IsRetryable
 	}
 	if shouldRetry {
-		time.Sleep(2 * time.Second)
+		time.Sleep(time.Duration(b.retryDelay) * time.Second)
 		err := b.sendToBackend(result)
 		if err != nil {
 			*failedUploads++
