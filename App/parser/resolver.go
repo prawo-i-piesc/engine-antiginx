@@ -22,7 +22,7 @@ var whiteList = map[string]parserEntry{
 	},
 
 	"json": {
-		workerReference: CreateJsonParser(),
+		workerReference: CreateJsonParser(CreateFileReader()),
 	},
 
 	// Will be implemented soon

@@ -7,12 +7,7 @@ import (
 )
 
 func TestParameterParser_Parse(t *testing.T) {
-	tests := []struct {
-		name    string
-		params  []string
-		wantErr bool
-		want    []*CommandParameter
-	}{
+	tests := []manualParserTest{
 		// Happy path
 		{
 			name:    "Happy path",
