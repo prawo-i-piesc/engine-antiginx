@@ -1,6 +1,9 @@
 package parser
 
-import "Engine-AntiGinx/App/Errors"
+import (
+	"Engine-AntiGinx/App/Errors"
+	"os"
+)
 
 // Resolver is responsible for selecting the appropriate Parser implementation
 // based on the command-line arguments provided by the user.
@@ -23,6 +26,10 @@ var whiteList = map[string]parserEntry{
 
 	"json": {
 		workerReference: CreateJsonParser(CreateFileReader()),
+	},
+
+	"rawjson": {
+		workerReference: CreateRawJsonParser(os.Stdin),
 	},
 
 	// Will be implemented soon
