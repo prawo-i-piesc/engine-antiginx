@@ -30,7 +30,7 @@ func (rj *RawJsonParser) Parse(userParameters []string) []*CommandParameter {
 	}
 	commands, err2 := DeserializeTests(inputBytes)
 	if err2 != nil {
-		panic(err)
+		panic(err2)
 	}
 
 	parameters := commands.Parameters
