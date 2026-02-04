@@ -1,10 +1,7 @@
-{
-  "Target": "Target",
-  "Parameters" : [
+[
     null,
     {
       "Name": "--tests",
       "Arguments": ["https", "csp"]
     }
-  ]
-}
+]

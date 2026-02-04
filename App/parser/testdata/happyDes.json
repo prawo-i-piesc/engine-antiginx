@@ -1,0 +1,10 @@
+[
+  {
+    "Name": "--tests",
+    "Arguments": ["https", "csp"]
+  },
+  {
+    "Name": "--antiBotDetection",
+    "Arguments": []
+  }
+]

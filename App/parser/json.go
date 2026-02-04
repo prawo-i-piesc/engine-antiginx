@@ -2,19 +2,14 @@ package parser
 
 import (
 	"Engine-AntiGinx/App/Errors"
-	"encoding/json"
 	"fmt"
 )
 
-// TestJson represents the root structure of the configuration file.
-// It maps directly to the JSON input containing the target URL and a list of parameters.
-type TestJson struct {
-	Target     string              `json:"Target"`
-	Parameters []*CommandParameter `json:"Parameters"`
-}
-
-// JsonParser is responsible for reading, deserializing, and validating
-// configuration logic from a JSON file.
+// JsonParser is responsible for reading
+// configuration logic from a JSON file
+// and error handling.
+// Logic of deserialization and validation
+// moved to deserialize helper
 type JsonParser struct {
 	fileReader FileReader
 }
@@ -53,98 +48,17 @@ func (j *JsonParser) Parse(userParameters []string) []*CommandParameter {
 	target := testJson.Target
 	params := testJson.Parameters
 
-	j.checkParameters(params)
-	finalList := append([]*CommandParameter{&CommandParameter{
-		Name:      "--target",
-		Arguments: []string{target},
-	}}, params...)
+	finalList := append([]*CommandParameter{
+		{
+			Name:      "--target",
+			Arguments: []string{target},
+		}}, params...)
+	err := CheckParameters(params)
+	if err != nil {
+		j.throwPanic(err.Code, err.Message)
+	}
+
 	return finalList
-}
-
-// checkParameters iterates through the provided parameters and validates them
-// against the global Params whitelist.
-//
-// It performs several checks:
-//   - Checks for nil references.
-//   - Verifies if the parameter name exists in the whitelist.
-//   - Validates argument counts (min/max constraints).
-//   - Applies default values for optional parameters if arguments are missing.
-//   - Delegates specific argument validation to checkArgs.
-func (j *JsonParser) checkParameters(params []*CommandParameter) {
-	usedParams := make(map[string]bool, len(params))
-	for _, val := range params {
-		if val == nil {
-			message := `Json parser error occurred. This could be due to:
-				- nil parameter`
-			j.throwPanic(200, message)
-		}
-		arguments := val.Arguments
-		if arguments == nil {
-			val.Arguments = []string{}
-		}
-		name := val.Name
-		length := len(arguments)
-
-		token, ok := Params[name]
-		if !ok {
-			message := `Json parser error occurred. This could be due to:
-				- invalid parameter`
-			j.throwPanic(201, message)
-		}
-		if usedParams[name] {
-			message := `Json parser error occurred. This could be due to:
-				- one of the params occur more than once`
-			j.throwPanic(202, message)
-		}
-		usedParams[name] = true
-		if token.ArgRequired && length < 1 {
-			message := `Json parser error occurred. This could be due to:
-				- too few arguments passed to the parameter`
-			j.throwPanic(203, message)
-		}
-
-		if token.ArgCount == 1 && length > 1 {
-			message := `Json parser error occurred. This could be due to:
-				- too many arguments passed to the parameter`
-			j.throwPanic(204, message)
-		}
-
-		if length < 1 && !token.ArgRequired {
-			val.Arguments = append(val.Arguments, token.DefaultVal)
-		}
-
-		if len(token.Arguments) > 0 {
-			j.checkArgs(token.Arguments, arguments)
-		}
-	}
-}
-
-// checkArgs verifies that the given arguments are allowed for a specific parameter.
-// It checks if the arguments exist in the 'args' whitelist and detects duplicates.
-//
-// It panics if:
-//   - An argument is not in the whitelist (Error 204).
-//   - An argument appears more than once (Error 205).
-func (j *JsonParser) checkArgs(args []string, givenArgs []string) {
-	validityMap := make(map[string]bool, len(args))
-	for _, val := range args {
-		validityMap[val] = false
-	}
-
-	for _, val := range givenArgs {
-		occurrence, ok := validityMap[val]
-		if !ok {
-			message := `Json parser error occurred. This could be due to:
-				- invalid argument passed to the parameter`
-			j.throwPanic(205, message)
-		}
-		if occurrence {
-			message := `Json parser error occurred. This could be due to:
-				- one of the arguments occur more than once`
-			j.throwPanic(206, message)
-		}
-		validityMap[val] = true
-	}
 }
 
 // deserializeWithErrorHandling reads the file from the disk and unmarshalls it into a TestJson struct.
@@ -169,16 +83,11 @@ func (j *JsonParser) deserializeWithErrorHandling(fileName string) *TestJson {
 			"- empty file")
 		j.throwPanic(104, message)
 	}
-
-	var testJson TestJson
-	err2 := json.Unmarshal(file, &testJson)
-	// Deserialization error
+	tests, err2 := DeserializeTests(file)
 	if err2 != nil {
-		message := fmt.Sprintf("Json parser error occurred. This could be due to: \n"+
-			"- %v", err2)
-		j.throwPanic(105, message)
+		j.throwPanic(err2.Code, err2.Message)
 	}
-	return &testJson
+	return tests
 }
 
 // throwPanic is a helper method to construct and panic with a standard application Error.
