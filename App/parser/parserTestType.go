@@ -16,3 +16,9 @@ type jsonParserTest struct {
 	fileName     string
 	errToReturn  error
 }
+
+type desHelpTest struct {
+	name       string
+	expErrCode int
+	filename   string
+}

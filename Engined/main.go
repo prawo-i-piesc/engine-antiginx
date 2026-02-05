@@ -174,7 +174,7 @@ OUTER:
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
-			cmdErr := runScan(task, &stderrBuff)
+			cmdErr := runScan(msg.Body, &stderrBuff)
 
 			if cmdErr != nil {
 				handleScanError(&stderrBuff, msg)
@@ -202,8 +202,9 @@ func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 		ErrMidConnCh: errMidConn,
 	}, nil
 }
-func runScan(task EngineTask, stderrBuff *bytes.Buffer) error {
-	cmd := exec.Command("/engine-antiginx/App", "test", "--target", task.Target, "--antiBotDetection", "--tests", "https", "hsts", "serv-h-a", "xframe", "cookie-sec", "csp", "--taskId", task.Id)
+func runScan(messageBody []byte, stderrBuff *bytes.Buffer) error {
+	cmd := exec.Command("/engine-antiginx/App", "rawjson")
+	cmd.Stdin = bytes.NewReader(messageBody)
 	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
 	return cmd.Run()
 }
