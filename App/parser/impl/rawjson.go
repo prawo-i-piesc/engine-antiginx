@@ -1,7 +1,9 @@
-package parser
+package impl
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/Helpers"
+	"Engine-AntiGinx/App/parser/config/types"
 	"fmt"
 	"io"
 )
@@ -16,7 +18,7 @@ func CreateRawJsonParser(source io.Reader) *RawJsonParser {
 	}
 }
 
-func (rj *RawJsonParser) Parse(userParameters []string) []*CommandParameter {
+func (rj *RawJsonParser) Parse(userParameters []string) []*types.CommandParameter {
 	inputBytes, err := io.ReadAll(rj.inputSource)
 	if err != nil {
 		message := fmt.Sprintf("Raw Json parser error occurred. This could be due to: \n"+
@@ -28,7 +30,7 @@ func (rj *RawJsonParser) Parse(userParameters []string) []*CommandParameter {
 			IsRetryable: false,
 		})
 	}
-	commands, err2 := DeserializeTests(inputBytes)
+	commands, err2 := helpers.DeserializeTests(inputBytes)
 	if err2 != nil {
 		panic(err2)
 	}
@@ -47,12 +49,12 @@ func (rj *RawJsonParser) Parse(userParameters []string) []*CommandParameter {
 		})
 	}
 
-	finalList := append([]*CommandParameter{
+	finalList := append([]*types.CommandParameter{
 		{
 			Name:      "--target",
 			Arguments: []string{target},
 		}}, parameters...)
-	err3 := CheckParameters(finalList)
+	err3 := helpers.CheckParameters(finalList)
 	if err3 != nil {
 		panic(err3)
 	}

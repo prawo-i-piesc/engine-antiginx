@@ -1,20 +1,15 @@
-package parser
+package helpers
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/parser/config"
+	"Engine-AntiGinx/App/parser/config/types"
 	"encoding/json"
 	"fmt"
 )
 
-// TestJson represents the root structure of the configuration file.
-// It maps directly to the JSON input containing the target URL and a list of parameters.
-type TestJson struct {
-	Target     string              `json:"Target"`
-	Parameters []*CommandParameter `json:"Parameters"`
-}
-
-func DeserializeTests(bytes []byte) (*TestJson, *Errors.Error) {
-	var testJson TestJson
+func DeserializeTests(bytes []byte) (*types.TestJson, *Errors.Error) {
+	var testJson types.TestJson
 	err := json.Unmarshal(bytes, &testJson)
 	if err != nil {
 		return nil, &Errors.Error{
@@ -37,7 +32,7 @@ func DeserializeTests(bytes []byte) (*TestJson, *Errors.Error) {
 //   - Validates argument counts (min/max constraints).
 //   - Applies default values for optional parameters if arguments are missing.
 //   - Delegates specific argument validation to checkArgs.
-func CheckParameters(givenParams []*CommandParameter) *Errors.Error {
+func CheckParameters(givenParams []*types.CommandParameter) *Errors.Error {
 	usedParams := make(map[string]bool, len(givenParams))
 	for _, val := range givenParams {
 		if val == nil {
@@ -55,7 +50,7 @@ func CheckParameters(givenParams []*CommandParameter) *Errors.Error {
 		}
 		name := val.Name
 		length := len(arguments)
-		token, ok := Params[name]
+		token, ok := config.Params[name]
 		if !ok {
 			return &Errors.Error{
 				Code: 102,

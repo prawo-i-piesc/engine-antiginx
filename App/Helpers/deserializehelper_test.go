@@ -1,6 +1,8 @@
-package parser
+package helpers
 
 import (
+	"Engine-AntiGinx/App/parser"
+	"Engine-AntiGinx/App/parser/impl"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -8,7 +10,7 @@ import (
 )
 
 func TestCheckParameters(t *testing.T) {
-	tests := []desHelpTest{
+	tests := []parser.desHelpTest{
 		{
 			name:       "Happy path",
 			expErrCode: 0,
@@ -75,14 +77,14 @@ func TestCheckParameters(t *testing.T) {
 	}
 }
 
-func loadJsonParams(t *testing.T, filename string) []*CommandParameter {
+func loadJsonParams(t *testing.T, filename string) []*impl.CommandParameter {
 	t.Helper()
 	path := filepath.Join("testdata", filename)
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("Failed to load fixture %s: %v", filename, err)
 	}
-	var commands []*CommandParameter
+	var commands []*impl.CommandParameter
 	err2 := json.Unmarshal(bytes, &commands)
 	if err2 != nil {
 		t.Fatalf("Failed to load fixture %s: %v", filename, err2)

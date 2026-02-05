@@ -2,6 +2,8 @@ package parser
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/Helpers"
+	"Engine-AntiGinx/App/parser/impl"
 	"os"
 )
 
@@ -21,15 +23,15 @@ type parserEntry struct {
 var whiteList = map[string]parserEntry{
 
 	"test": {
-		workerReference: CreateCommandParser(),
+		workerReference: impl.CreateCommandParser(),
 	},
 
 	"json": {
-		workerReference: CreateJsonParser(CreateFileReader()),
+		workerReference: impl.CreateJsonParser(helpers.CreateFileReader()),
 	},
 
 	"rawjson": {
-		workerReference: CreateRawJsonParser(os.Stdin),
+		workerReference: impl.CreateRawJsonParser(os.Stdin),
 	},
 
 	// Will be implemented soon

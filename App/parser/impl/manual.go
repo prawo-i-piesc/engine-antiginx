@@ -1,4 +1,4 @@
-// Package parser Package Parameter_Parser provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
+// Package impl provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
 // It processes command-line tokens based on statically defined parameter definitions, validates required
 // arguments, enforces whitelists, and provides structured error reporting through panic-based error handling.
 //
@@ -16,31 +16,17 @@
 //   - 304: Invalid argument or unexpected parameter
 //   - 305: Duplicate argument detected
 //   - 306: Too many arguments for single-value parameter
-package parser
+package impl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/parser/config"
+	"Engine-AntiGinx/App/parser/config/types"
 )
 
 // parameterParser is the main parser structure that processes command-line arguments.
 // It uses the static Params map for parameter definitions and validation rules.
 type parameterParser struct{}
-
-// CommandParameter represents a parsed command-line parameter with its associated arguments.
-// This is the output structure returned by the parser after successful validation.
-type CommandParameter struct {
-	Name      string   `json:"Name"`      // Parameter name (e.g., "--target", "--tests")
-	Arguments []string `json:"Arguments"` // List of validated arguments for this parameter
-}
-
-// parameter defines the specification for a command-line parameter including validation rules.
-// It is used internally by the parser to validate user input against expected parameter definitions.
-type parameter struct {
-	Arguments   []string // Whitelist of allowed argument values (empty = no restriction)
-	DefaultVal  string   // Default value when parameter provided without arguments
-	ArgRequired bool     // Whether the parameter must have arguments
-	ArgCount    int      // Expected argument count: 1 for single, -1 for multiple
-}
 
 // CreateCommandParser creates a new instance of the parameter parser.
 // This factory function returns a parser ready to process command-line arguments.
@@ -90,7 +76,7 @@ func CreateCommandParser() *parameterParser {
 //	// }
 //
 
-func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
+func (p *parameterParser) Parse(userParameters []string) []*types.CommandParameter {
 	length := len(userParameters)
 	if length < 3 {
 		panic(error.Error{
@@ -101,7 +87,7 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 			IsRetryable: false,
 		})
 	}
-	return transformIntoTable(Params, userParameters)
+	return transformIntoTable(config.Params, userParameters)
 }
 
 // transformIntoTable is the core parsing algorithm that transforms and validates user input
@@ -148,9 +134,9 @@ func (p *parameterParser) Parse(userParameters []string) []*CommandParameter {
 //	error.Error with code 304: Invalid argument or unexpected token.
 //	error.Error with code 305: Duplicate arguments detected.
 //	error.Error with code 306: Too many arguments for single-value parameter.
-func transformIntoTable(params map[string]parameter, userParameters []string) []*CommandParameter {
+func transformIntoTable(params map[string]types.Parameter, userParameters []string) []*types.CommandParameter {
 	userParametersLen := len(userParameters)
-	parsedParams := []*CommandParameter{}
+	parsedParams := []*types.CommandParameter{}
 	var currentParam string
 	var args []string
 	argMode := false
@@ -183,7 +169,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					}
 				}
 				argCopy := append([]string(nil), args...)
-				parsedParams = append(parsedParams, &CommandParameter{
+				parsedParams = append(parsedParams, &types.CommandParameter{
 					Name:      currentParam,
 					Arguments: argCopy,
 				})
@@ -218,7 +204,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 								IsRetryable: false,
 							})
 						}
-						parsedParams = append(parsedParams, &CommandParameter{
+						parsedParams = append(parsedParams, &types.CommandParameter{
 							Name:      token,
 							Arguments: []string{next},
 						})
@@ -231,7 +217,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 					if v.ArgCount != 0 {
 						defaultArgs = []string{v.DefaultVal}
 					}
-					parsedParams = append(parsedParams, &CommandParameter{
+					parsedParams = append(parsedParams, &types.CommandParameter{
 						Name:      token,
 						Arguments: defaultArgs,
 					})
@@ -278,7 +264,7 @@ func transformIntoTable(params map[string]parameter, userParameters []string) []
 		argMode = false
 		checkOccurrences(args)
 		argCopy := append([]string(nil), args...)
-		parsedParams = append(parsedParams, &CommandParameter{
+		parsedParams = append(parsedParams, &types.CommandParameter{
 			Name:      currentParam,
 			Arguments: argCopy,
 		})

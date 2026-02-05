@@ -1,7 +1,8 @@
-package parser
+package impl
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	types2 "Engine-AntiGinx/App/parser/config/types"
 	"bytes"
 	"os"
 	"path/filepath"
@@ -11,42 +12,42 @@ import (
 )
 
 func TestRawJsonParser_Parse(t *testing.T) {
-	tests := []jsonParserTest{
+	tests := []types2.JsonParserTest{
 		{
-			name:        "Happy Path",
-			params:      []string{},
-			wantErrCode: 0,
-			want: []*CommandParameter{
+			Name:        "Happy Path",
+			Params:      []string{},
+			WantErrCode: 0,
+			Want: []*types2.CommandParameter{
 				{Name: "--target", Arguments: []string{"Target"}},
 				{Name: "--tests", Arguments: []string{"https", "csp"}},
 				{Name: "--antiBotDetection", Arguments: []string{""}},
 			},
-			fileName: "happy.json",
+			FileName: "happy.json",
 		},
 		{
-			name:        "Empty Target",
-			params:      []string{},
-			wantErrCode: 101,
-			fileName:    "emptyTarget.json",
+			Name:        "Empty Target",
+			Params:      []string{},
+			WantErrCode: 101,
+			FileName:    "emptyTarget.json",
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			inputBytes := loadBytes(t, tt.fileName)
+		t.Run(tt.Name, func(t *testing.T) {
+			inputBytes := loadBytes(t, tt.FileName)
 			mockStdin := bytes.NewReader(inputBytes)
 
 			defer func() {
 				r := recover()
-				if tt.wantErrCode != 0 {
+				if tt.WantErrCode != 0 {
 					if r == nil {
-						t.Errorf("Expected error with code %d, program ended with 0", tt.wantErrCode)
+						t.Errorf("Expected error with code %d, program ended with 0", tt.WantErrCode)
 					}
 					err, ok := r.(Errors.Error)
 
 					if !ok {
 						t.Errorf("Unexpected error type %v", r)
-					} else if err.Code != tt.wantErrCode {
-						t.Errorf("Expected error with code %d, ended with %d", tt.wantErrCode, err.Code)
+					} else if err.Code != tt.WantErrCode {
+						t.Errorf("Expected error with code %d, ended with %d", tt.WantErrCode, err.Code)
 					}
 				} else {
 					if r != nil {
@@ -57,9 +58,9 @@ func TestRawJsonParser_Parse(t *testing.T) {
 			}()
 
 			rawParser := CreateRawJsonParser(mockStdin)
-			got := rawParser.Parse(tt.params)
-			if tt.wantErrCode == 0 {
-				assert.Equal(t, tt.want, got)
+			got := rawParser.Parse(tt.Params)
+			if tt.WantErrCode == 0 {
+				assert.Equal(t, tt.Want, got)
 			}
 		})
 	}

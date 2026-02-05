@@ -3,7 +3,7 @@ package execution
 import (
 	error "Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/execution/strategy"
-	parameterparser "Engine-AntiGinx/App/parser"
+	parameterparser "Engine-AntiGinx/App/parser/impl"
 	"os"
 )
 
