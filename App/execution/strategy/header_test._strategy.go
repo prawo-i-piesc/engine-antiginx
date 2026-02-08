@@ -74,6 +74,10 @@ func (h *headerTestStrategy) GetName() string {
 	return "--tests"
 }
 
+func (h *headerTestStrategy) GetPreferredReporterType() ReporterType {
+	return CLIReporter
+}
+
 // loadWebsiteContent fetches the target website content via HTTP GET request and returns
 // the response for sharing across all test executions. This function performs a single
 // HTTP request to avoid redundant network calls for each test.

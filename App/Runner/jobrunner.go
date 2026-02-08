@@ -25,7 +25,6 @@ import (
 	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution"
 	"fmt"
-	"os"
 	//"os"
 	"sync"
 )
@@ -122,7 +121,7 @@ func CreateJobRunner() *jobRunner {
 //	    TaskId: "uuid-123",
 //	}
 //	runner.Orchestrate(plan)
-func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
+func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver *Reporter.Resolver) {
 	target := execPlan.Target
 	contexts := execPlan.Contexts
 	flag := execPlan.AntiBotFlag
@@ -153,24 +152,8 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan) {
 	channel := make(chan Tests.TestResult, 100)
 
 	// Determine which reporter to use based on environment configuration.
-	var reporter Reporter.Reporter
-
-	// Will be changed to Factory Design Pattern, in order to stick to single responsibility rule.
-	if v, exists := os.LookupEnv("BACK_URL"); exists {
-		taskIdParam := execPlan.TaskId
-		if taskIdParam == "" {
-			panic(error.Error{
-				Code: 101,
-				Message: `Runner error occurred. This could be due to:
-					- Misconfiguration of testId param`,
-				Source:      "Runner",
-				IsRetryable: false,
-			})
-		}
-		reporter = Reporter.InitializeBackendReporter(channel, v, taskIdParam, target, 5, 2)
-	} else {
-		reporter = Reporter.InitializeCliReporter(channel)
-	}
+	reporter := repResolver.Resolve(channel, execPlan.TaskId, target,
+		5, 2, strategies)
 
 	// Start the reporter in a separate goroutine.
 	// doneChannel will receive a signal (count of failed uploads) when reporting is finished.
