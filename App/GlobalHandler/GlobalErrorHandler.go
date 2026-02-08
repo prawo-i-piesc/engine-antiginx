@@ -4,7 +4,6 @@ import (
 	"Engine-AntiGinx/App/Errors"
 	HttpClient "Engine-AntiGinx/App/HTTP"
 	"Engine-AntiGinx/App/Runner"
-	"Engine-AntiGinx/App/execution"
 	parameterparser "Engine-AntiGinx/App/parser"
 	"encoding/json"
 	"fmt"
@@ -53,7 +52,7 @@ func InitializeErrorHandler(cliMode bool) *ErrorHandler {
 // Execution Flow:
 //  1. Sets up panic recovery via defer/recover.
 //  2. Creates and runs the CommandParser to process os.Args.
-//  3. Initializes the Formatter to transform raw parameters into an ExecutionPlan.
+//  3. Initializes the ScanFormatter to transform raw parameters into an ExecutionPlan.
 //  4. Creates and runs the JobRunner to orchestrate the security tests.
 //  5. If a panic occurs, it is caught, printed to Stderr, and the process exits with code 1.
 //
@@ -96,9 +95,8 @@ func (e *ErrorHandler) RunSafe() {
 	}()
 	args := os.Args
 	resolver := parameterparser.CreateResolver()
-	parser := resolver.Resolve(args)
+	parser, formatter := resolver.Resolve(args)
 	parsedParams := parser.Parse(args)
-	formatter := execution.InitializeFormatter()
 	execPlan := formatter.FormatParameters(parsedParams)
 	runner := Runner.CreateJobRunner()
 	runner.Orchestrate(execPlan)

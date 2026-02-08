@@ -3,6 +3,8 @@ package parser
 import (
 	"Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/Helpers"
+	"Engine-AntiGinx/App/execution"
+	impl2 "Engine-AntiGinx/App/execution/formatterImpl"
 	"Engine-AntiGinx/App/parser/impl"
 	"os"
 )
@@ -14,7 +16,8 @@ type Resolver struct{}
 
 // parserEntry is a wrapper struct used internally to hold a reference to a concrete Parser instance.
 type parserEntry struct {
-	workerReference Parser
+	workerReference    Parser
+	formatterReference execution.Formatter
 }
 
 // whiteList serves as a registry mapping command strings (e.g., "json", "test")
@@ -23,21 +26,23 @@ type parserEntry struct {
 var whiteList = map[string]parserEntry{
 
 	"test": {
-		workerReference: impl.CreateCommandParser(),
+		workerReference:    impl.CreateCommandParser(),
+		formatterReference: impl2.InitializeFormatter(),
 	},
 
 	"json": {
-		workerReference: impl.CreateJsonParser(helpers.CreateFileReader()),
+		workerReference:    impl.CreateJsonParser(helpers.CreateFileReader()),
+		formatterReference: impl2.InitializeFormatter(),
 	},
 
 	"rawjson": {
-		workerReference: impl.CreateRawJsonParser(os.Stdin),
+		workerReference:    impl.CreateRawJsonParser(os.Stdin),
+		formatterReference: impl2.InitializeFormatter(),
 	},
 
-	// Will be implemented soon
-	//"help" : {
-	//	workerReference: CreateHelpParser(),
-	//},
+	"help": {
+		workerReference: impl.CreateHelpParser(),
+	},
 }
 
 // CreateResolver initializes and returns a new instance of the Resolver service.
@@ -56,7 +61,7 @@ func CreateResolver() *Resolver {
 // Panics if:
 //   - Fewer than 2 arguments are provided (Error 100).
 //   - The requested worker/command is not found in the whitelist (Error 101).
-func (p *Resolver) Resolve(userParameters []string) Parser {
+func (p *Resolver) Resolve(userParameters []string) (Parser, execution.Formatter) {
 	length := len(userParameters)
 	if length < 2 {
 		panic(Errors.Error{
@@ -79,5 +84,5 @@ func (p *Resolver) Resolve(userParameters []string) Parser {
 			IsRetryable: false,
 		})
 	}
-	return worker.workerReference
+	return worker.workerReference, worker.formatterReference
 }
