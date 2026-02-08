@@ -1,9 +1,10 @@
-package impl
+package formatterImpl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
+	"Engine-AntiGinx/App/execution/strategy/strategyImpl"
 	"Engine-AntiGinx/App/parser/config/types"
 	"os"
 )
@@ -84,7 +85,7 @@ func mapStrategies(params []*types.CommandParameter, target string) ([]strategy.
 
 	// Skip the first parameter (target URL) and iterate through potential tests
 	for i := 1; i < len(params); i++ {
-		s, ok := strategy.GetStrategy(params[i].Name)
+		s, ok := strategyImpl.GetStrategy(params[i].Name)
 		if ok {
 			mappedStrategies = append(mappedStrategies, s)
 			mappedContexts[s.GetName()] = strategy.TestContext{

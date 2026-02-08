@@ -6,7 +6,7 @@ import "Engine-AntiGinx/App/execution/strategy"
 // It encapsulates all necessary configurations, the sequence of tests to be
 // executed, and the specific data required for each test strategy.
 //
-// The structure acts as a Data Transfer Object (DTO) between the Formatter
+// The structure acts as a Data Transfer Object (DTO) between the ScanFormatter
 // and the JobRunner, ensuring that the execution logic is decoupled from
 // the parameter parsing logic.
 //

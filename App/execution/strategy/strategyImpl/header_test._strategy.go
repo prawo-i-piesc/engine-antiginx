@@ -1,4 +1,4 @@
-package strategy
+package strategyImpl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
@@ -6,6 +6,7 @@ import (
 	"Engine-AntiGinx/App/Helpers"
 	"Engine-AntiGinx/App/Registry"
 	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
 	"net/http"
 	"sync"
@@ -41,7 +42,7 @@ func InitializeHeaderStrategy() *headerTestStrategy {
 //	If an argument corresponds to a test ID that does not exist in the Registry,
 //	the function panics with an error.Error (code 100), which is caught by the
 //	global ErrorHandler.
-func (h *headerTestStrategy) Execute(ctx TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
+func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
 	// Using target formatter to properly build target URL
 	targetFormatter := helpers.InitializeTargetFormatter()
 	target := targetFormatter.Format(ctx.Target, ctx.Args)
