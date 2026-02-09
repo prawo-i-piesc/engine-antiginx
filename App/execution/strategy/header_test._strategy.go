@@ -74,6 +74,13 @@ func (h *headerTestStrategy) GetName() string {
 	return "--tests"
 }
 
+// GetPreferredReporterType returns the default ReporterType that should be used when
+// running this strategy in the absence of any environment-based override.
+//
+// Centralized configuration (for example, environment variables such as BACK_URL)
+// may override this preference at runtime to route results to a different reporter,
+// but individual strategies should declare their preferred type to keep behavior
+// consistent as more reporter types are introduced.
 func (h *headerTestStrategy) GetPreferredReporterType() ReporterType {
 	return CLIReporter
 }
