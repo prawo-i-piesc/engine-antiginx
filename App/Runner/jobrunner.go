@@ -121,7 +121,7 @@ func CreateJobRunner() *jobRunner {
 //	    TaskId: "uuid-123",
 //	}
 //	runner.Orchestrate(plan)
-func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver *Reporter.Resolver) {
+func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.Resolver) {
 	target := execPlan.Target
 	contexts := execPlan.Contexts
 	flag := execPlan.AntiBotFlag
