@@ -3,6 +3,7 @@ package GlobalHandler
 import (
 	"Engine-AntiGinx/App/Errors"
 	HttpClient "Engine-AntiGinx/App/HTTP"
+	"Engine-AntiGinx/App/Reporter"
 	"Engine-AntiGinx/App/Runner"
 	parameterparser "Engine-AntiGinx/App/parser"
 	"encoding/json"
@@ -99,7 +100,8 @@ func (e *ErrorHandler) RunSafe() {
 	parsedParams := parser.Parse(args)
 	execPlan := formatter.FormatParameters(parsedParams)
 	runner := Runner.CreateJobRunner()
-	runner.Orchestrate(execPlan)
+	repResolver := Reporter.NewResolver()
+	runner.Orchestrate(execPlan, repResolver)
 }
 
 // printError writes the formatted error details to standard error (os.Stderr).

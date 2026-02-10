@@ -1,6 +1,7 @@
 package Runner
 
 import (
+	"Engine-AntiGinx/App/Reporter"
 	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
@@ -8,6 +9,28 @@ import (
 	"sync"
 	"testing"
 )
+
+type MockReporter struct {
+	Ch chan Tests.TestResult
+}
+
+func (mr *MockReporter) StartListening() <-chan int {
+	go func() {
+		for range mr.Ch {
+			//	Consume all data passed
+		}
+	}()
+	mockChan := make(chan int, 1)
+	mockChan <- 0
+	return mockChan
+}
+
+type MockResolver struct{}
+
+func (mRes *MockResolver) Resolve(ch chan Tests.TestResult, taskId string,
+	target string, clientTimeOut int, retryDelay int, strategies []strategy.TestStrategy) Reporter.Reporter {
+	return &MockReporter{ch}
+}
 
 type MockStrategy struct {
 	name string
@@ -27,6 +50,10 @@ func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan Tests.Test
 
 func (m *MockStrategy) GetName() string {
 	return m.name
+}
+func (m *MockStrategy) GetPreferredReporterType() strategy.ReporterType {
+	// It will be changed to mock
+	return strategy.CLIReporter
 }
 
 // Will be used when a factory pattern appears in project
@@ -116,7 +143,7 @@ func TestJobRunner_Orchestrate(t *testing.T) {
 
 			// Then
 			runner := CreateJobRunner()
-			runner.Orchestrate(val.plan)
+			runner.Orchestrate(val.plan, &MockResolver{})
 		})
 	}
 

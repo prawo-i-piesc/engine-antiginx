@@ -5,6 +5,13 @@ import (
 	"sync"
 )
 
+type ReporterType int
+
+const (
+	CLIReporter ReporterType = iota
+	HelpReporter
+)
+
 // TestStrategy defines the contract for a family of security testing algorithms.
 // Any new security test (e.g., XSS, Headers, SSL) must implement this interface
 // to be compatible with the application's Orchestrator and Registry.
@@ -26,6 +33,7 @@ type TestStrategy interface {
 	// This string is used as the command-line flag (e.g., "--tests") and as
 	// the key in the strategy registry.
 	GetName() string
+	GetPreferredReporterType() ReporterType
 }
 
 // TestContext encapsulates the specific data required for a TestStrategy to run.
