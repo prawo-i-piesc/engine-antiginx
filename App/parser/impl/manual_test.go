@@ -8,7 +8,7 @@ import (
 )
 
 func TestParameterParser_Parse(t *testing.T) {
-	tests := []types2.ManualParserTest{
+	tests := []types2.CliParserTest{
 		// Happy path
 		{
 			Name:    "Happy path",

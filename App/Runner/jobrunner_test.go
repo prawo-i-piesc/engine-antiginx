@@ -11,7 +11,7 @@ import (
 )
 
 type MockReporter struct {
-	Ch chan Tests.TestResult
+	Ch chan strategy.ResultWrapper
 }
 
 func (mr *MockReporter) StartListening() <-chan int {
@@ -27,7 +27,7 @@ func (mr *MockReporter) StartListening() <-chan int {
 
 type MockResolver struct{}
 
-func (mRes *MockResolver) Resolve(ch chan Tests.TestResult, taskId string,
+func (mRes *MockResolver) Resolve(ch chan strategy.ResultWrapper, taskId string,
 	target string, clientTimeOut int, retryDelay int, strategies []strategy.TestStrategy) Reporter.Reporter {
 	return &MockReporter{ch}
 }
@@ -36,16 +36,17 @@ type MockStrategy struct {
 	name string
 }
 
-func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
+func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	wg.Add(1)
 	defer wg.Done()
-	channel <- Tests.TestResult{
+	testResult := Tests.TestResult{
 		Name:        "Mock test",
 		Certainty:   0,
 		ThreatLevel: 0,
 		Metadata:    nil,
 		Description: "Mock test",
 	}
+	channel <- strategy.WrapStrategyResult(&testResult, nil)
 }
 
 func (m *MockStrategy) GetName() string {

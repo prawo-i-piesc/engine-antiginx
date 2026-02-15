@@ -1,8 +1,7 @@
 package helpers
 
 import (
-	"Engine-AntiGinx/App/parser"
-	"Engine-AntiGinx/App/parser/impl"
+	"Engine-AntiGinx/App/parser/config/types"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -10,81 +9,81 @@ import (
 )
 
 func TestCheckParameters(t *testing.T) {
-	tests := []parser.desHelpTest{
+	tests := []types.DesHelpTest{
 		{
-			name:       "Happy path",
-			expErrCode: 0,
-			filename:   "happyDes.json",
+			Name:       "Happy path",
+			ExpErrCode: 0,
+			Filename:   "happyDes.json",
 		},
 		{
-			name:       "Nil param case",
-			expErrCode: 101,
-			filename:   "nilparam.json",
+			Name:       "Nil param case",
+			ExpErrCode: 101,
+			Filename:   "nilparam.json",
 		},
 		{
-			name:       "Repetitive params",
-			expErrCode: 103,
-			filename:   "repetitiveParam.json",
+			Name:       "Repetitive params",
+			ExpErrCode: 103,
+			Filename:   "repetitiveParam.json",
 		},
 		{
-			name:       "Empty args",
-			expErrCode: 104,
-			filename:   "emptyArgs.json",
+			Name:       "Empty args",
+			ExpErrCode: 104,
+			Filename:   "emptyArgs.json",
 		},
 		{
-			name:       "Invalid param",
-			expErrCode: 102,
-			filename:   "invalidParam.json",
+			Name:       "Invalid param",
+			ExpErrCode: 102,
+			Filename:   "invalidParam.json",
 		},
 		{
-			name:       "Too few args",
-			expErrCode: 104,
-			filename:   "tooFewArgs.json",
+			Name:       "Too few args",
+			ExpErrCode: 104,
+			Filename:   "tooFewArgs.json",
 		},
 		{
-			name:       "Too many args",
-			expErrCode: 105,
-			filename:   "tooManyArgs.json",
+			Name:       "Too many args",
+			ExpErrCode: 105,
+			Filename:   "tooManyArgs.json",
 		},
 		{
-			name:       "Repetitive arg",
-			expErrCode: 107,
-			filename:   "repetitiveArgs.json",
+			Name:       "Repetitive arg",
+			ExpErrCode: 107,
+			Filename:   "repetitiveArgs.json",
 		},
 		{
-			name:       "Invalid arg",
-			expErrCode: 106,
-			filename:   "invalidArg.json",
+			Name:       "Invalid arg",
+			ExpErrCode: 106,
+			Filename:   "invalidArg.json",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			givenData := loadJsonParams(t, tt.filename)
+		t.Run(tt.Name, func(t *testing.T) {
+			givenData := loadJsonParams(t, tt.Filename)
 			err := CheckParameters(givenData)
 			if err != nil {
-				if tt.expErrCode == 0 {
+				if tt.ExpErrCode == 0 {
 					t.Errorf("Unexpected error,\nmessage: %s\ncode: %d ", err.Message, err.Code)
-				} else if tt.expErrCode != err.Code {
-					t.Errorf("Expected error with code %d got %d ", tt.expErrCode, err.Code)
+				} else if tt.ExpErrCode != err.Code {
+					t.Errorf("Expected error with code %d got %d ", tt.ExpErrCode, err.Code)
 				}
 			} else {
-				if tt.expErrCode != 0 {
-					t.Errorf("Expected error with code %d got none", tt.expErrCode)
+				if tt.ExpErrCode != 0 {
+					t.Errorf("Expected error with code %d got none", tt.ExpErrCode)
 				}
 			}
 		})
 	}
 }
 
-func loadJsonParams(t *testing.T, filename string) []*impl.CommandParameter {
+func loadJsonParams(t *testing.T, filename string) []*types.CommandParameter {
 	t.Helper()
-	path := filepath.Join("testdata", filename)
+	path := filepath.Join("../parser/testdata", filename)
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("Failed to load fixture %s: %v", filename, err)
 	}
-	var commands []*impl.CommandParameter
+	var commands []*types.CommandParameter
 	err2 := json.Unmarshal(bytes, &commands)
 	if err2 != nil {
 		t.Fatalf("Failed to load fixture %s: %v", filename, err2)

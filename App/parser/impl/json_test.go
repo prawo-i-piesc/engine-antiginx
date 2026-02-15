@@ -126,7 +126,7 @@ func TestJsonParser_Parse(t *testing.T) {
 }
 func loadFixture(t *testing.T, filename string) []byte {
 	t.Helper()
-	path := filepath.Join("testdata", filename)
+	path := filepath.Join("../testdata", filename)
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("Failed to load fixture %s: %v", filename, err)

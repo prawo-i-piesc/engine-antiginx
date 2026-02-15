@@ -2,6 +2,7 @@ package Reporter
 
 import (
 	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/execution/strategy"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,6 +13,7 @@ type backendReporterTest struct {
 	statusCode      int
 	expectedFailure int
 	expectedCalls   int
+	testResult      strategy.ResultWrapper
 }
 
 func TestBackendReporter_StartListening(t *testing.T) {
@@ -21,18 +23,49 @@ func TestBackendReporter_StartListening(t *testing.T) {
 			statusCode:      http.StatusOK,
 			expectedFailure: 0,
 			expectedCalls:   2,
+			testResult: strategy.WrapStrategyResult(
+				&Tests.TestResult{
+					Name:        "Test scan",
+					Certainty:   0,
+					ThreatLevel: 0,
+					Metadata:    nil,
+					Description: "",
+				}, nil),
 		},
 		{
 			name:            "Error 500, retryable",
 			statusCode:      http.StatusInternalServerError,
 			expectedFailure: 1,
 			expectedCalls:   3,
+			testResult: strategy.WrapStrategyResult(
+				&Tests.TestResult{
+					Name:        "Test scan",
+					Certainty:   0,
+					ThreatLevel: 0,
+					Metadata:    nil,
+					Description: "",
+				}, nil),
 		},
 		{
 			name:            "Error 400, non retryable",
 			statusCode:      http.StatusBadRequest,
 			expectedFailure: 1,
 			expectedCalls:   1,
+			testResult: strategy.WrapStrategyResult(
+				&Tests.TestResult{
+					Name:        "Test scan",
+					Certainty:   0,
+					ThreatLevel: 0,
+					Metadata:    nil,
+					Description: "",
+				}, nil),
+		},
+		{
+			name:            "Nil test results",
+			statusCode:      http.StatusOK,
+			expectedFailure: 1,
+			expectedCalls:   0,
+			testResult:      strategy.WrapStrategyResult(nil, nil),
 		},
 	}
 	for _, tt := range tests {
@@ -44,18 +77,11 @@ func TestBackendReporter_StartListening(t *testing.T) {
 			}))
 			defer server.Close()
 
-			resChan := make(chan Tests.TestResult)
+			resChan := make(chan strategy.ResultWrapper)
 
 			reporter := InitializeBackendReporter(resChan, server.URL, "test-id", "target", 0, 0)
-
 			done := reporter.StartListening()
-			resChan <- Tests.TestResult{
-				Name:        "Test scan",
-				Certainty:   0,
-				ThreatLevel: 0,
-				Metadata:    nil,
-				Description: "",
-			}
+			resChan <- tt.testResult
 			close(resChan)
 			failedUploads := <-done
 

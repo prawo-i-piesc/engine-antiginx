@@ -67,7 +67,7 @@ func TestRawJsonParser_Parse(t *testing.T) {
 }
 func loadBytes(t *testing.T, filename string) []byte {
 	t.Helper()
-	path := filepath.Join("testdata", filename)
+	path := filepath.Join("../testdata", filename)
 	testBytes, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("Failed to load fixture %s: %v", filename, err)

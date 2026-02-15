@@ -1,6 +1,6 @@
 package types
 
-type ManualParserTest struct {
+type CliParserTest struct {
 	Name    string
 	Params  []string
 	WantErr bool
@@ -18,7 +18,7 @@ type JsonParserTest struct {
 }
 
 type DesHelpTest struct {
-	name       string
-	expErrCode int
-	filename   string
+	Name       string
+	ExpErrCode int
+	Filename   string
 }
