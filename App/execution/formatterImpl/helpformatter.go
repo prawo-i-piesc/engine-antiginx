@@ -12,6 +12,10 @@ import (
 type HelpFormatter struct {
 }
 
+func NewHelpFormatter() *HelpFormatter {
+	return &HelpFormatter{}
+}
+
 func (h *HelpFormatter) FormatParameters(params []*types.CommandParameter) *execution.Plan {
 	if _, exists := os.LookupEnv("BACK_URL"); exists {
 		panic(Errors.Error{
@@ -24,13 +28,23 @@ func (h *HelpFormatter) FormatParameters(params []*types.CommandParameter) *exec
 	}
 
 	if len(params) < 1 {
-		helpStrategy, _ := strategyImpl.GetHelpStrategy("")
+		helpStrategy, ok := strategyImpl.GetHelpStrategy("")
+		if !ok {
+			panic(Errors.Error{
+				Code: 102,
+				Message: `Help Formatter error occurred. This could be due to:
+							- invalid help param passed`,
+				Source:      "Help Formatter",
+				IsRetryable: false,
+			})
+		}
 		return &execution.Plan{
 			Target:      "",
 			AntiBotFlag: false,
 			Strategies:  []strategy.TestStrategy{helpStrategy},
 			Contexts:    nil,
 			TaskId:      "",
+			IsHelp:      true,
 		}
 	}
 
@@ -41,6 +55,7 @@ func (h *HelpFormatter) FormatParameters(params []*types.CommandParameter) *exec
 		Strategies:  mappedHelpStrategies,
 		Contexts:    mappedHelpContexts,
 		TaskId:      "",
+		IsHelp:      true,
 	}
 }
 func (h *HelpFormatter) mapHelpStrategies(params []*types.CommandParameter) ([]strategy.TestStrategy, map[string]strategy.TestContext) {
@@ -50,7 +65,7 @@ func (h *HelpFormatter) mapHelpStrategies(params []*types.CommandParameter) ([]s
 		strat, ok := strategyImpl.GetHelpStrategy(val.Name)
 		if !ok {
 			panic(Errors.Error{
-				Code: 101,
+				Code: 102,
 				Message: `Help Formatter error occurred. This could be due to:
 							- invalid help param passed`,
 				Source:      "Help Formatter",

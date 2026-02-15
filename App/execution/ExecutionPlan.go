@@ -35,4 +35,5 @@ type Plan struct {
 	Strategies  []strategy.TestStrategy
 	Contexts    map[string]strategy.TestContext
 	TaskId      string
+	IsHelp      bool
 }

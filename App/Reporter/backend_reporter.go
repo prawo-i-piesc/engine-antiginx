@@ -19,6 +19,7 @@ package Reporter
 import (
 	"Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/execution/strategy"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -48,7 +49,7 @@ import (
 //   - maxRetries: Maximum retry attempts for failed submissions (default: 2)
 //   - httpClient: HTTP client with configured timeout (default: 5 seconds)
 type backendReporter struct {
-	resultChannel chan Tests.TestResult
+	resultChannel chan strategy.ResultWrapper
 	backendURL    string
 	testId        string
 	target        string
@@ -65,7 +66,7 @@ type backendReporter struct {
 //   - result: The original TestResult that failed to submit
 //   - attNum: Current attempt number (0-based, incremented with each retry)
 type retryResult struct {
-	result Tests.TestResult
+	result strategy.ResultWrapper
 	attNum int
 }
 
@@ -96,7 +97,7 @@ type retryResult struct {
 //	close(resultChan)
 //	failedCount := <-doneChan
 //	fmt.Printf("Processing complete. Failed uploads: %d\n", failedCount)
-func InitializeBackendReporter(channel chan Tests.TestResult, backendURL string, testId string, target string, clientTimeOut int, retryDelay int) *backendReporter {
+func InitializeBackendReporter(channel chan strategy.ResultWrapper, backendURL string, testId string, target string, clientTimeOut int, retryDelay int) *backendReporter {
 	return &backendReporter{channel, backendURL, testId, target, 2, retryDelay, &http.Client{
 		Timeout: time.Duration(clientTimeOut) * time.Second,
 	}}
@@ -231,11 +232,16 @@ func (b *backendReporter) StartListening() <-chan int {
 //   - retryChan: Channel for re-queuing failed results
 //   - retryWg: WaitGroup for tracking sleeping retry goroutines
 //   - failedUploads: Pointer to counter for permanent failures
-func (b *backendReporter) tryToSendOrEnqueue(result Tests.TestResult, attNumber int, retryChan chan retryResult, retryWg *sync.WaitGroup, failedUploads *int) {
+func (b *backendReporter) tryToSendOrEnqueue(result strategy.ResultWrapper, attNumber int, retryChan chan retryResult, retryWg *sync.WaitGroup, failedUploads *int) {
+	ok, val := result.GetTestResult()
+	if !ok {
+		*failedUploads++
+		return
+	}
 	resultWrapper := Tests.TestResultWrapper{
 		Target:  b.target,
 		TestId:  b.testId,
-		Result:  result,
+		Result:  *val,
 		EndFlag: false,
 	}
 	err := b.sendToBackend(resultWrapper)

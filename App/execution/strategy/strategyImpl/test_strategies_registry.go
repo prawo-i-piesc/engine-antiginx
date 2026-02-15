@@ -20,6 +20,8 @@ func init() {
 	registerStrategy(InitializeHeaderStrategy())
 
 	// Help strategies initialization
+	registerHelpStrategy(NewGeneralHelpStrategy())
+	registerHelpStrategy(NewHeaderTestHelp())
 
 }
 

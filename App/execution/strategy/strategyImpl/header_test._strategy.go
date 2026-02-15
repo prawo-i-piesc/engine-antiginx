@@ -42,7 +42,7 @@ func InitializeHeaderStrategy() *headerTestStrategy {
 //	If an argument corresponds to a test ID that does not exist in the Registry,
 //	the function panics with an error.Error (code 100), which is caught by the
 //	global ErrorHandler.
-func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
+func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	// Using target formatter to properly build target URL
 	targetFormatter := helpers.InitializeTargetFormatter()
 	target := targetFormatter.Format(ctx.Target, ctx.Args)
@@ -82,8 +82,8 @@ func (h *headerTestStrategy) GetName() string {
 // may override this preference at runtime to route results to a different reporter,
 // but individual strategies should declare their preferred type to keep behavior
 // consistent as more reporter types are introduced.
-func (h *headerTestStrategy) GetPreferredReporterType() ReporterType {
-	return CLIReporter
+func (h *headerTestStrategy) GetPreferredReporterType() strategy.ReporterType {
+	return strategy.CLIReporter
 }
 
 // loadWebsiteContent fetches the target website content via HTTP GET request and returns
@@ -190,9 +190,10 @@ func loadWebsiteContent(target string, useAntiBotDetection bool) *http.Response 
 //	wg.Add(1)
 //	go performTest(httpsTest, &wg, resultChannel, httpResponse)
 //	// Test runs concurrently, result sent to channel, WaitGroup decremented
-func performTest(test *Tests.ResponseTest, wg *sync.WaitGroup, results chan<- Tests.TestResult, response *http.Response) {
+func performTest(test *Tests.ResponseTest, wg *sync.WaitGroup, results chan<- strategy.ResultWrapper, response *http.Response) {
 	defer wg.Done()
 	testParams := Tests.ResponseTestParams{Response: response}
 	testResult := test.Run(testParams)
-	results <- testResult
+	wrapped := strategy.WrapStrategyResult(&testResult, nil)
+	results <- wrapped
 }

@@ -41,7 +41,8 @@ var whiteList = map[string]parserEntry{
 	},
 
 	"help": {
-		workerReference: impl.CreateHelpParser(),
+		workerReference:    impl.CreateHelpParser(),
+		formatterReference: impl2.NewHelpFormatter(),
 	},
 }
 

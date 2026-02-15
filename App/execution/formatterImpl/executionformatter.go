@@ -64,6 +64,7 @@ func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *exec
 		Strategies:  mappedStrategies,
 		Contexts:    mappedContexts,
 		TaskId:      taskId,
+		IsHelp:      false,
 	}
 }
 

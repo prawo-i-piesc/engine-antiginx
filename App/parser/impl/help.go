@@ -18,7 +18,8 @@ func (h *HelpParser) Parse(userParameters []string) []*types.CommandParameter {
 		return []*types.CommandParameter{}
 	}
 	var commands []*types.CommandParameter
-	for _, val := range userParameters {
+	for i := 2; i < length; i++ {
+		val := userParameters[i]
 		_, ok := config.Params[val]
 		if !ok {
 			panic(Errors.Error{
