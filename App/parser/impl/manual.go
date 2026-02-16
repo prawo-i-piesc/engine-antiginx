@@ -1,4 +1,4 @@
-// Package formatterImpl provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
+// Package impl provides CLI argument parsing functionality for the Engine-AntiGinx scanner.
 // It processes command-line tokens based on statically defined parameter definitions, validates required
 // arguments, enforces whitelists, and provides structured error reporting through panic-based error handling.
 //
