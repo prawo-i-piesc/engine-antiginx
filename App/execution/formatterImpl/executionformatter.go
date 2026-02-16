@@ -1,19 +1,21 @@
-package execution
+package formatterImpl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
-	parameterparser "Engine-AntiGinx/App/parser"
+	"Engine-AntiGinx/App/execution/strategy/strategyImpl"
+	"Engine-AntiGinx/App/parser/config/types"
 	"os"
 )
 
-type Formatter struct{}
+type ScanFormatter struct{}
 
-// InitializeFormatter creates a new instance of the Formatter.
+// InitializeFormatter creates a new instance of the ScanFormatter.
 // It is used to prepare the environment for transforming raw command-line
 // arguments into a structured execution plan.
-func InitializeFormatter() *Formatter {
-	return &Formatter{}
+func InitializeFormatter() *ScanFormatter {
+	return &ScanFormatter{}
 }
 
 // FormatParameters transforms a slice of CommandParameters into a cohesive Plan.
@@ -32,7 +34,7 @@ func InitializeFormatter() *Formatter {
 // Returns:
 //
 //	A pointer to a Plan ready to be executed by the JobRunner.
-func (f *Formatter) FormatParameters(params []*parameterparser.CommandParameter) *Plan {
+func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *execution.Plan {
 	target := params[0].Arguments[0]
 
 	// Check for global flags
@@ -56,12 +58,13 @@ func (f *Formatter) FormatParameters(params []*parameterparser.CommandParameter)
 		taskId = params[taskIdParam].Arguments[0]
 	}
 
-	return &Plan{
+	return &execution.Plan{
 		Target:      target,
 		AntiBotFlag: useAntiBotDetection,
 		Strategies:  mappedStrategies,
 		Contexts:    mappedContexts,
 		TaskId:      taskId,
+		IsHelp:      false,
 	}
 }
 
@@ -72,7 +75,7 @@ func (f *Formatter) FormatParameters(params []*parameterparser.CommandParameter)
 // Returns:
 //   - A slice of TestStrategy: The sequence of tests to be performed.
 //   - A map of TestContext: Data specific to each strategy, keyed by strategy name.
-func mapStrategies(params []*parameterparser.CommandParameter, target string) ([]strategy.TestStrategy, map[string]strategy.TestContext) {
+func mapStrategies(params []*types.CommandParameter, target string) ([]strategy.TestStrategy, map[string]strategy.TestContext) {
 	maxCapacity := len(params) - 1
 	if maxCapacity <= 0 {
 		return nil, nil
@@ -83,7 +86,7 @@ func mapStrategies(params []*parameterparser.CommandParameter, target string) ([
 
 	// Skip the first parameter (target URL) and iterate through potential tests
 	for i := 1; i < len(params); i++ {
-		s, ok := strategy.GetStrategy(params[i].Name)
+		s, ok := strategyImpl.GetStrategy(params[i].Name)
 		if ok {
 			mappedStrategies = append(mappedStrategies, s)
 			mappedContexts[s.GetName()] = strategy.TestContext{
@@ -97,7 +100,7 @@ func mapStrategies(params []*parameterparser.CommandParameter, target string) ([
 
 // findParam is a helper function that performs a linear search through parameters
 // to find a match by name. Returns the index of the parameter or -1 if not found.
-func findParam(params []*parameterparser.CommandParameter, paramToFind string) int {
+func findParam(params []*types.CommandParameter, paramToFind string) int {
 	for i := 1; i < len(params); i++ {
 		currPtr := params[i]
 		if paramToFind == currPtr.Name {

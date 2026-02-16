@@ -1,7 +1,6 @@
 package strategy
 
 import (
-	"Engine-AntiGinx/App/Tests"
 	"sync"
 )
 
@@ -27,7 +26,7 @@ type TestStrategy interface {
 	//   - channel: A thread-safe pipe to stream TestResult objects back to the UI.
 	//   - wg: A synchronization primitive used to coordinate the completion of the test.
 	//   - antiBotFlag: A global setting to toggle evasion techniques during execution.
-	Execute(ctx TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool)
+	Execute(ctx TestContext, channel chan ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool)
 
 	// GetName returns the unique identifier for the strategy.
 	// This string is used as the command-line flag (e.g., "--tests") and as

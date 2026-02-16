@@ -1,4 +1,8 @@
-package parser
+package config
+
+import (
+	"Engine-AntiGinx/App/parser/config/types"
+)
 
 // Params is the static registry of all supported command-line parameters with their configurations.
 // Each parameter defines:
@@ -6,7 +10,7 @@ package parser
 //   - DefaultVal: Default value when parameter is provided without arguments
 //   - ArgRequired: Whether arguments are mandatory
 //   - ArgCount: Number of arguments (1 for single, -1 for multiple)
-var Params = map[string]parameter{
+var Params = map[string]types.Parameter{
 	"--target": {
 		Arguments:   []string{},
 		DefaultVal:  "",

@@ -1,5 +1,9 @@
 package parser
 
+import (
+	"Engine-AntiGinx/App/parser/config/types"
+)
+
 // Parser defines the interface for strategies that process user input.
 // Any component that translates raw command-line arguments into structured
 // application parameters must implement this interface.
@@ -9,5 +13,5 @@ type Parser interface {
 	//
 	// It returns a slice of pointers to CommandParameter, ready to be used by the application core.
 	// Note: Implementations may panic if the input data violates validation rules.
-	Parse(userParameters []string) []*CommandParameter
+	Parse(userParameters []string) []*types.CommandParameter
 }

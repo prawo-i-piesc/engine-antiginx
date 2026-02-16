@@ -1,7 +1,9 @@
-package parser
+package impl
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	helpers "Engine-AntiGinx/App/Helpers"
+	"Engine-AntiGinx/App/parser/config/types"
 	"fmt"
 )
 
@@ -11,11 +13,11 @@ import (
 // Logic of deserialization and validation
 // moved to deserialize helper
 type JsonParser struct {
-	fileReader FileReader
+	fileReader helpers.FileReader
 }
 
 // CreateJsonParser initializes and returns a new instance of JsonParser.
-func CreateJsonParser(fileReader FileReader) *JsonParser {
+func CreateJsonParser(fileReader helpers.FileReader) *JsonParser {
 	return &JsonParser{
 		fileReader: fileReader,
 	}
@@ -27,7 +29,7 @@ func CreateJsonParser(fileReader FileReader) *JsonParser {
 //
 // It prepends the target as a "--target" parameter to the final list.
 // This method panics if validation fails or the file cannot be read.
-func (j *JsonParser) Parse(userParameters []string) []*CommandParameter {
+func (j *JsonParser) Parse(userParameters []string) []*types.CommandParameter {
 	length := len(userParameters)
 	if length < 3 {
 		message := `Json parser error occurred. This could be due to:
@@ -48,12 +50,12 @@ func (j *JsonParser) Parse(userParameters []string) []*CommandParameter {
 	target := testJson.Target
 	params := testJson.Parameters
 
-	finalList := append([]*CommandParameter{
+	finalList := append([]*types.CommandParameter{
 		{
 			Name:      "--target",
 			Arguments: []string{target},
 		}}, params...)
-	err := CheckParameters(params)
+	err := helpers.CheckParameters(params)
 	if err != nil {
 		j.throwPanic(err.Code, err.Message)
 	}
@@ -63,7 +65,7 @@ func (j *JsonParser) Parse(userParameters []string) []*CommandParameter {
 
 // deserializeWithErrorHandling reads the file from the disk and unmarshalls it into a TestJson struct.
 // It handles file I/O errors and JSON syntax errors by triggering a panic with a descriptive message.
-func (j *JsonParser) deserializeWithErrorHandling(fileName string) *TestJson {
+func (j *JsonParser) deserializeWithErrorHandling(fileName string) *types.TestJson {
 	// Empty file name case
 	if fileName == "" {
 		message := `Json parser error occurred. This could be due to:
@@ -83,7 +85,7 @@ func (j *JsonParser) deserializeWithErrorHandling(fileName string) *TestJson {
 			"- empty file")
 		j.throwPanic(104, message)
 	}
-	tests, err2 := DeserializeTests(file)
+	tests, err2 := helpers.DeserializeTests(file)
 	if err2 != nil {
 		j.throwPanic(err2.Code, err2.Message)
 	}

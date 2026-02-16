@@ -22,8 +22,8 @@ package Runner
 import (
 	error "Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/Reporter"
-	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution"
+	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
 	//"os"
 	"sync"
@@ -125,10 +125,11 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.R
 	target := execPlan.Target
 	contexts := execPlan.Contexts
 	flag := execPlan.AntiBotFlag
+	isHelp := execPlan.IsHelp
 
 	// Validate that we actually have tests to run.
 	strategies := execPlan.Strategies
-	if len(strategies) == 0 {
+	if !isHelp && len(strategies) == 0 {
 		panic(error.Error{
 			Code: 100,
 			Message: `Runner error occurred. This could be due to:
@@ -137,7 +138,7 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.R
 			IsRetryable: false,
 		})
 	}
-	if len(contexts) == 0 {
+	if !isHelp && len(contexts) == 0 {
 		panic(error.Error{
 			Code: 100,
 			Message: `Runner error occurred. This could be due to:
@@ -149,7 +150,7 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.R
 
 	// Create a buffered channel to prevent blocking test execution if the reporter is slow.
 	var wg sync.WaitGroup
-	channel := make(chan Tests.TestResult, 100)
+	channel := make(chan strategy.ResultWrapper, 100)
 
 	// Determine which reporter to use based on environment configuration.
 	reporter := repResolver.Resolve(channel, execPlan.TaskId, target,

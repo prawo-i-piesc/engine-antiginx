@@ -8,7 +8,9 @@
 package Reporter
 
 import (
+	"Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
 )
 
@@ -50,7 +52,7 @@ var separator string = `---------------------------------------------`
 // Fields:
 //   - resultChannel: Receive-only channel for consuming test results
 type cliReporter struct {
-	resultChannel <-chan Tests.TestResult
+	resultChannel <-chan strategy.ResultWrapper
 }
 
 // InitializeCliReporter creates and returns a new instance of the CLI reporter
@@ -87,7 +89,7 @@ type cliReporter struct {
 //
 //	// Wait for completion
 //	<-doneChan
-func InitializeCliReporter(channel chan Tests.TestResult) *cliReporter {
+func InitializeCliReporter(channel chan strategy.ResultWrapper) *cliReporter {
 	return &cliReporter{
 		resultChannel: channel,
 	}
@@ -143,7 +145,17 @@ func (c *cliReporter) StartListening() <-chan int {
 
 		// The loop terminates automatically when c.resultChannel is closed by the sender.
 		for result := range c.resultChannel {
-			printTestResult(result)
+			ok, val := result.GetTestResult()
+			if !ok {
+				panic(Errors.Error{
+					Code: 100,
+					Message: `Cli Reporter error occurred. This could be due to:
+								- nil Test results`,
+					Source:      "Cli Reporter",
+					IsRetryable: false,
+				})
+			}
+			printTestResult(*val)
 		}
 
 		// Signal completion. 0 indicates success (no upload errors in CLI mode).

@@ -2,7 +2,6 @@ package Reporter
 
 import (
 	"Engine-AntiGinx/App/Errors"
-	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"reflect"
 	"sync"
@@ -20,7 +19,7 @@ func (m MockStrategyHelpPref) GetName() string {
 func (m MockStrategyHelpPref) GetPreferredReporterType() strategy.ReporterType {
 	return strategy.HelpReporter
 }
-func (m MockStrategyHelpPref) Execute(ctx strategy.TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
+func (m MockStrategyHelpPref) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 }
 
 type MockCliPrefStrategy struct{}
@@ -32,7 +31,7 @@ func (m MockCliPrefStrategy) GetName() string {
 func (m MockCliPrefStrategy) GetPreferredReporterType() strategy.ReporterType {
 	return strategy.CLIReporter
 }
-func (m MockCliPrefStrategy) Execute(ctx strategy.TestContext, channel chan Tests.TestResult, wg *sync.WaitGroup, antiBotFlag bool) {
+func (m MockCliPrefStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 }
 
 type ResolverTest struct {
@@ -54,14 +53,14 @@ func TestResolver_Resolve(t *testing.T) {
 			wantReporterType: reflect.TypeOf(&cliReporter{}),
 			setEnv:           false,
 		},
-		//{
-		//	Name: "Resolve Help Reporter",
-		//	strategies: []strategy.TestStrategy{
-		//		MockStrategyHelpPref{},
-		//	},
-		//	wantErr: false,
-		//	wantReporterType: reflect.TypeOf(&{}),
-		//},
+		{
+			Name: "Resolve Help Reporter",
+			strategies: []strategy.TestStrategy{
+				MockStrategyHelpPref{},
+			},
+			wantErr:          false,
+			wantReporterType: reflect.TypeOf(&helpReporter{}),
+		},
 		{
 			Name: "Resolve Backend Reporter",
 			strategies: []strategy.TestStrategy{
@@ -112,7 +111,7 @@ func TestResolver_Resolve(t *testing.T) {
 				}
 			}()
 			resolver := NewResolver()
-			reporter := resolver.Resolve(make(chan Tests.TestResult), "test", "test", 0, 0, tt.strategies)
+			reporter := resolver.Resolve(make(chan strategy.ResultWrapper), "test", "test", 0, 0, tt.strategies)
 			of := reflect.TypeOf(reporter)
 			if !assert.Equal(t, tt.wantReporterType, of) {
 				t.Errorf("Expected reporter with type %T but got %T", tt.wantReporterType, of)
