@@ -53,7 +53,7 @@ func init() {
 	registerTest(Tests.NewReferrerPolicyTest())
 	registerTest(Tests.NewPermissionsPolicyTest())
 	registerTest(Tests.NewXContentTypeOptionsTest())
-	 registerTest(Tests.NewSSLCertificateSecurityTest())
+	registerTest(Tests.NewSSLCertificateSecurityTest())
 	registerTest(Tests.NewCrossOriginTest())
 }
 
