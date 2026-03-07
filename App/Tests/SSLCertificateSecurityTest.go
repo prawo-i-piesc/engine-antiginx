@@ -5,9 +5,9 @@
 package Tests
 
 import (
-    "crypto/tls"
-    "net"
-    "time"
+	"crypto/tls"
+	"net"
+	"time"
 )
 
 // NewSSLCertificateSecurityTest creates a new ResponseTest that analyzes the SSL/TLS certificate
