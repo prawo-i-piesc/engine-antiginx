@@ -5,7 +5,11 @@
 package Tests
 
 import (
+	"crypto/ecdsa"
+	"crypto/rsa"
 	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"net"
 	"time"
 )
@@ -82,14 +86,26 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 			cert := certs[0]
 
 			metadata := map[string]interface{}{
-				"Issuer": cert.Issuer.String(),
-				"Subject": cert.Subject.String(),
-				"NotBefore": cert.NotBefore,
-				"NotAfter": cert.NotAfter,
+				"Issuer":             cert.Issuer.String(),
+				"Subject":            cert.Subject.String(),
+				"NotBefore":          cert.NotBefore,
+				"NotAfter":           cert.NotAfter,
 				"SignatureAlgorithm": cert.SignatureAlgorithm.String(),
-				"KeyUsage": cert.KeyUsage,
-				"DNSNames": cert.DNSNames,
-				"IsCA": cert.IsCA,
+				"KeyUsage":           cert.KeyUsage,
+				"DNSNames":           cert.DNSNames,
+				"IsCA":               cert.IsCA,
+			}
+
+			// Populate public key metadata
+			switch pubKey := cert.PublicKey.(type) {
+			case *rsa.PublicKey:
+				metadata["PublicKeyType"] = "RSA"
+				metadata["PublicKeyBits"] = pubKey.N.BitLen()
+			case *ecdsa.PublicKey:
+				metadata["PublicKeyType"] = "ECDSA"
+				metadata["PublicKeyBits"] = pubKey.Curve.Params().BitSize
+			default:
+				metadata["PublicKeyType"] = "Unknown"
 			}
 
 			now := time.Now()
@@ -109,6 +125,44 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 					ThreatLevel: High,
 					Metadata:    metadata,
 					Description: "Certificate has expired.",
+				}
+			}
+
+			// Check for hostname mismatch
+			if err := cert.VerifyHostname(host); err != nil {
+				return TestResult{
+					Name:        "SSL Certificate Security Analysis",
+					Certainty:   100,
+					ThreatLevel: High,
+					Metadata:    metadata,
+					Description: "Certificate hostname mismatch: " + err.Error(),
+				}
+			}
+
+			// Check for self-signed certificate
+			if cert.Issuer.String() == cert.Subject.String() {
+				return TestResult{
+					Name:        "SSL Certificate Security Analysis",
+					Certainty:   100,
+					ThreatLevel: Critical,
+					Metadata:    metadata,
+					Description: "Certificate is self-signed.",
+				}
+			}
+
+			// Check certificate chain completeness.
+			// Roots: nil causes cert.Verify to use the system's trusted CA store.
+			intermediatePool := x509.NewCertPool()
+			for _, c := range certs[1:] {
+				intermediatePool.AddCert(c)
+			}
+			if _, err := cert.Verify(x509.VerifyOptions{Intermediates: intermediatePool}); err != nil {
+				return TestResult{
+					Name:        "SSL Certificate Security Analysis",
+					Certainty:   100,
+					ThreatLevel: Critical,
+					Metadata:    metadata,
+					Description: "Certificate chain verification failed: " + err.Error(),
 				}
 			}
 
@@ -132,6 +186,30 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 					ThreatLevel: Medium,
 					Metadata:    metadata,
 					Description: "Certificate uses a weak signature algorithm (MD5 or SHA1).",
+				}
+			}
+
+			// Check for short public key length
+			switch pubKey := cert.PublicKey.(type) {
+			case *rsa.PublicKey:
+				if pubKey.N.BitLen() < 2048 {
+					return TestResult{
+						Name:        "SSL Certificate Security Analysis",
+						Certainty:   100,
+						ThreatLevel: Medium,
+						Metadata:    metadata,
+						Description: fmt.Sprintf("Certificate uses a short RSA key (%d bits). Minimum recommended is 2048 bits.", pubKey.N.BitLen()),
+					}
+				}
+			case *ecdsa.PublicKey:
+				if pubKey.Curve.Params().BitSize < 256 {
+					return TestResult{
+						Name:        "SSL Certificate Security Analysis",
+						Certainty:   100,
+						ThreatLevel: Medium,
+						Metadata:    metadata,
+						Description: fmt.Sprintf("Certificate uses a short ECDSA key (%d bits). Minimum recommended is 256 bits.", pubKey.Curve.Params().BitSize),
+					}
 				}
 			}
 
