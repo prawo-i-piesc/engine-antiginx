@@ -9,6 +9,7 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"net"
 	"time"
@@ -50,31 +51,39 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 				}
 			}
 
+			host := url.Hostname()
 			tlsState := params.Response.TLS
 			if tlsState == nil {
-			host := url.Hostname()
-			port := url.Port()
-			if port == "" {
-				port = "443"
-			}
-			address := net.JoinHostPort(host, port)
+				port := url.Port()
 
-			conn, err := tls.DialWithDialer(&net.Dialer{
-				Timeout: 10 * time.Second,
-			}, "tcp", address, &tls.Config{
-				InsecureSkipVerify: true,
-			})
-			if err != nil {
-				return TestResult{
-					Name:        "SSL Certificate Security Analysis",
-					Certainty:   100,
-					ThreatLevel: Critical,
-					Metadata:    nil,
-					Description: "No TLS connection state available in the HTTP response.",
+				if port == "" {
+					port = "443"
 				}
+
+				address := net.JoinHostPort(host, port)
+
+				conn, err := tls.DialWithDialer(&net.Dialer{
+					Timeout: 10 * time.Second,
+				}, "tcp", address, &tls.Config{
+					InsecureSkipVerify: true,
+				})
+
+				if err != nil {
+					return TestResult{
+						Name:        "SSL Certificate Security Analysis",
+						Certainty:   100,
+						ThreatLevel: Critical,
+						Metadata:    nil,
+						Description: "Failed to establish TLS connection: " + err.Error(),
+					}
+				}
+				defer conn.Close()
+				state := conn.ConnectionState()
+				tlsState = &state
 			}
 
 			certs := tlsState.PeerCertificates
+
 			if len(certs) == 0 {
 				return TestResult{
 					Name:        "SSL Certificate Security Analysis",
@@ -84,6 +93,8 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 					Description: "No SSL certificate presented by the server.",
 				}
 			}
+
+
 			cert := certs[0]
 
 			metadata := map[string]interface{}{
@@ -188,7 +199,6 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 			}
 
 			// Check certificate chain completeness.
-			// Roots: nil causes cert.Verify to use the system's trusted CA store.
 			intermediatePool := x509.NewCertPool()
 			for _, c := range certs[1:] {
 				intermediatePool.AddCert(c)
@@ -203,17 +213,8 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 				}
 			}
 
-			daysLeft := int(cert.NotAfter.Sub(now).Hours() / 24)
-			if daysLeft < 30 {
-				return TestResult{
-					Name:        "SSL Certificate Security Analysis",
-					Certainty:   100,
-					ThreatLevel: Info,
-					Metadata:    metadata,
-					Description: "Certificate is valid but will expire in less than 30 days.",
-				}
-			}
-
+			
+			
 			// Check for weak signature algorithms
 			if cert.SignatureAlgorithm.String() == "MD5-RSA" || cert.SignatureAlgorithm.String() == "SHA1-RSA" {
 				return TestResult{
@@ -246,6 +247,17 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 						Metadata:    metadata,
 						Description: fmt.Sprintf("Certificate uses a short ECDSA key (%d bits). Minimum recommended is 256 bits.", pubKey.Curve.Params().BitSize),
 					}
+				}
+			}
+
+			daysLeft := int(cert.NotAfter.Sub(now).Hours() / 24)
+			if daysLeft < 30 {
+				return TestResult{
+					Name:        "SSL Certificate Security Analysis",
+					Certainty:   100,
+					ThreatLevel: Info,
+					Metadata:    metadata,
+					Description: "Certificate is valid but will expire in less than 30 days.",
 				}
 			}
 
