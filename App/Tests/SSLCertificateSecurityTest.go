@@ -50,6 +50,8 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 				}
 			}
 
+			tlsState := params.Response.TLS
+			if tlsState == nil {
 			host := url.Hostname()
 			port := url.Port()
 			if port == "" {
@@ -68,12 +70,11 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 					Certainty:   100,
 					ThreatLevel: Critical,
 					Metadata:    nil,
-					Description: "Failed to establish TLS connection: " + err.Error(),
+					Description: "No TLS connection state available in the HTTP response.",
 				}
 			}
-			defer conn.Close()
 
-			certs := conn.ConnectionState().PeerCertificates
+			certs := tlsState.PeerCertificates
 			if len(certs) == 0 {
 				return TestResult{
 					Name:        "SSL Certificate Security Analysis",
@@ -108,26 +109,62 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 				metadata["PublicKeyType"] = "Unknown"
 			}
 
-			now := time.Now()
-			if now.Before(cert.NotBefore) {
-				return TestResult{
-					Name:        "SSL Certificate Security Analysis",
-					Certainty:   100,
-					ThreatLevel: High,
-					Metadata:    metadata,
-					Description: "Certificate is not yet valid.",
-				}
+			// Build intermediates pool from the certificate chain provided by the server.
+			intermediates := x509.NewCertPool()
+			for _, c := range certs[1:] {
+				intermediates.AddCert(c)
 			}
-			if now.After(cert.NotAfter) {
+
+			// Perform explicit x509 verification using the hostname from the request URL
+			// so that self-signed, invalid-chain, and hostname-mismatch cases are detected.
+			opts := x509.VerifyOptions{
+				DNSName:       url.Hostname(),
+				Intermediates: intermediates,
+				CurrentTime:   time.Now(),
+			}
+			_, verifyErr := cert.Verify(opts)
+
+			if verifyErr != nil {
+				var hostnameErr x509.HostnameError
+				if errors.As(verifyErr, &hostnameErr) {
+					return TestResult{
+						Name:        "SSL Certificate Security Analysis",
+						Certainty:   100,
+						ThreatLevel: High,
+						Metadata:    metadata,
+						Description: "Certificate hostname mismatch: " + verifyErr.Error(),
+					}
+				}
+
+				var certInvalidErr x509.CertificateInvalidError
+				if errors.As(verifyErr, &certInvalidErr) {
+					switch certInvalidErr.Reason {
+					case x509.Expired:
+						description := "Certificate has expired."
+						if time.Now().Before(cert.NotBefore) {
+							description = "Certificate is not yet valid."
+						}
+						return TestResult{
+							Name:        "SSL Certificate Security Analysis",
+							Certainty:   100,
+							ThreatLevel: High,
+							Metadata:    metadata,
+							Description: description,
+						}
+					}
+				}
+
+				// Self-signed, untrusted root, or other chain validation failure.
 				return TestResult{
 					Name:        "SSL Certificate Security Analysis",
 					Certainty:   100,
-					ThreatLevel: High,
+					ThreatLevel: Critical,
 					Metadata:    metadata,
-					Description: "Certificate has expired.",
+					Description: "Certificate chain validation failed: " + verifyErr.Error(),
 				}
 			}
 
+			now := time.Now()
 			// Check for hostname mismatch
 			if err := cert.VerifyHostname(host); err != nil {
 				return TestResult{
@@ -176,7 +213,6 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 					Description: "Certificate is valid but will expire in less than 30 days.",
 				}
 			}
-
 
 			// Check for weak signature algorithms
 			if cert.SignatureAlgorithm.String() == "MD5-RSA" || cert.SignatureAlgorithm.String() == "SHA1-RSA" {
