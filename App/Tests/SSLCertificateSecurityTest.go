@@ -53,7 +53,9 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 			}
 			address := net.JoinHostPort(host, port)
 
-			conn, err := tls.Dial("tcp", address, &tls.Config{
+			conn, err := tls.DialWithDialer(&net.Dialer{
+				Timeout: 10 * time.Second,
+			}, "tcp", address, &tls.Config{
 				InsecureSkipVerify: true,
 			})
 			if err != nil {
