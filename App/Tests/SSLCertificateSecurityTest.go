@@ -46,9 +46,9 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 				}
 			}
 
-			host, port, err := net.SplitHostPort(url.Host)
-			if err != nil {
-				host = url.Host
+			host := url.Hostname()
+			port := url.Port()
+			if port == "" {
 				port = "443"
 			}
 			address := net.JoinHostPort(host, port)
