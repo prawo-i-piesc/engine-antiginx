@@ -219,9 +219,7 @@ func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 	}, nil
 }
 func runScan(messageBody []byte, stderrBuff *bytes.Buffer) error {
-	//cmd := exec.Command("/engine-antiginx/App", "rawjson")
-	cmd := exec.Command("go", "run", ".", "rawjson")
-	cmd.Dir = "../App"
+	cmd := exec.Command("/engine-antiginx/App", "rawjson")
 	cmd.Stdin = bytes.NewReader(messageBody)
 	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
 	return cmd.Run()
