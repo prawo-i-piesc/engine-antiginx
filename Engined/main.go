@@ -47,6 +47,7 @@ package main
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/parser/config/types"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -163,14 +164,20 @@ OUTER:
 			continue OUTER
 
 		case msg := <-msgs:
-			var task EngineTask
+			var task types.TestJson
 			err := json.Unmarshal(msg.Body, &task)
 			if err != nil {
 				fmt.Printf("Task parsing error %s\n", err)
 				msg.Nack(false, false)
 				continue
 			}
-			fmt.Printf("Consumer received a task with id: %s\n", task.Id)
+
+			taskId := findParam(task.Parameters, "--taskId")
+			parameter := task.Parameters[taskId]
+			if taskId >= 0 {
+
+				fmt.Printf("Consumer received a task with id: %s\n", parameter)
+			}
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
@@ -180,11 +187,20 @@ OUTER:
 				handleScanError(&stderrBuff, msg)
 				continue
 			} else {
-				fmt.Printf("Scan performed successfully: %s\n", task.Id)
+				fmt.Printf("Scan performed successfully: %s\n", parameter)
 				msg.Ack(false)
 			}
 		}
 	}
+}
+func findParam(params []*types.CommandParameter, paramToFind string) int {
+	for i := 1; i < len(params); i++ {
+		currPtr := params[i]
+		if paramToFind == currPtr.Name {
+			return i
+		}
+	}
+	return -1
 }
 func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 	conn, err := amqp.Dial(queueUrl)
@@ -203,7 +219,9 @@ func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 	}, nil
 }
 func runScan(messageBody []byte, stderrBuff *bytes.Buffer) error {
-	cmd := exec.Command("/engine-antiginx/App", "rawjson")
+	//cmd := exec.Command("/engine-antiginx/App", "rawjson")
+	cmd := exec.Command("go", "run", ".", "rawjson")
+	cmd.Dir = "../App"
 	cmd.Stdin = bytes.NewReader(messageBody)
 	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
 	return cmd.Run()
@@ -221,7 +239,7 @@ func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery) {
 			msg.Nack(false, false)
 		}
 	} else {
-		fmt.Printf("Fatal error %v\n", stderrBuff)
+		fmt.Printf("Fatal error: %s\n", stderrBuff.String())
 		msg.Nack(false, false)
 	}
 }

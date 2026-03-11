@@ -1,7 +1,7 @@
 # {{{1 docker
 **/.classpath
 **/.dockerignore
-**/.env
+Engined/.env
 **/.git
 **/.gitignore
 **/.project
