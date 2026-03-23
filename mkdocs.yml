@@ -67,11 +67,18 @@ markdown_extensions:
       toc_depth: 2-4
 
 nav:
-  - Home: index.md
+  - Engine Antiginx: EngineAntiginx/EngineAntiginx.md
+  - Quick Start: 
+    - Quick Start: QuickStart/QuickStart.md
+    - CLI: QuickStart/CLI.md
+    - Docker: QuickStart/Docker.md
+    - Docker-Compose: QuickStart/DockerCompose.md
   - App Documentation:
     - App: App/index.md
     - CVE: App/CVE/index.md
     - Errors: App/Errors/index.md
+    - Execution: App/Execution/index.md
+    - GlobalHandler: App/GlobalHandler/index.md
     - Helpers: App/Helpers/index.md
     - HTTP: App/HTTP/index.md
     - Parameter-Parser: App/parser/index.md
