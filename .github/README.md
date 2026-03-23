@@ -68,7 +68,6 @@ Engine-AntiGinx/
 ├── mkdocs.yml                # Documentation configuration
 ├── go.mod                    # Go module dependencies
 ├── go.sum                    # Dependency lock
-├── go test                   # Test suite
 ├── LICENSE                   # Apache 2.0 License
 └── .env.example              # Environment template
 ```
