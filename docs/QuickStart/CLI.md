@@ -1,7 +1,18 @@
 # 💻 Quick Start — CLI
 This guide shows you how to run Engine-AntiGinx locally from your terminal.
 
+
 <br>
+
+
+## ✅ Requirements
+- Go 1.25+ (for local CLI mode)
+- Internet access (to scan targets)
+- Optional: RabbitMQ (if integrating with `Engined`)
+
+
+<br>
+
 
 ## ⚡ Quick Start
 Start a quick scan in just one command:
@@ -9,7 +20,9 @@ Start a quick scan in just one command:
 go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 ```
 
+
 <br>
+
 
 ## 📖 Available Command Modes
 | Mode | Description | Example |
@@ -19,10 +32,13 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `rawjson` | Load JSON from `stdin` | `cat scan.json \| go run ./App/main.go rawjson` |
 | `help` | General or contextual help | `go run ./App/main.go help --tests` |
 
-#### 📌 Binary Name Note
+**📌 Binary Name Note:**
+
 - Code examples may show `antiginx`, but it's safest to use `go run ./App/main.go ...` or your own compiled binary.
 
+
 <br>
+
 
 ## ⚙️ Parameters for `test` Mode
 | Parameter | Required | Arguments | Description |
@@ -33,6 +49,8 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `--antiBotDetection` | ❌ No | 0 (flag) | Enable anti-bot detection mechanisms |
 | `--taskId` | depends on workflow | 1 | Task identifier (useful for backend/queue integrations) |
 
+
+<br>
 
 
 ## 🛡️ Valid Test IDs (`--tests`)
@@ -51,38 +69,37 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `ssl-cert` | SSL/TLS Certificate Security |
 | `cross-origin-x` | Cross-Origin Security Headers |
 
-#### ⚠️ Important
+**⚠️ Important:**
 - Use these IDs exactly. Typos or old aliases will result in parser errors.
+
 
 <br>
 
+
 ## 📝 Usage Examples
 
-#### Single Test
+### Single Test
 ```bash
 go run ./App/main.go test --target https://example.com --tests https 
 ```
 
-<br>
-
-#### Multiple Tests + Anti-Bot
+### Multiple Tests + Anti-Bot
 ```bash
 go run ./App/main.go test --target example.com --tests https hsts csp xframe --antiBotDetection
 ```
 
-<br>
-
-#### Custom User-Agent
+### Custom User-Agent
 ```bash
 go run ./App/main.go test --target example.com --tests serv-h-a ssl-cert --userAgent "MyScanner/2.0"
 ```
 
+
 <br>
+
 
 ## 📄 JSON File Mode
 
-#### Example `scan.json`
-
+### Example `scan.json`
 ```json
 {
 	"Target": "https://example.com",
@@ -99,23 +116,24 @@ go run ./App/main.go test --target example.com --tests serv-h-a ssl-cert --userA
 }
 ```
 
-<br>
-
-#### Run `scan.json`:
+### Run `scan.json`:
 ```bash
 go run ./App/main.go json ./scan.json
 ```
 
+
 <br>
+
 
 ## 🔀 Raw JSON Mode (stdin)
 ```bash
 cat ./scan.json | go run ./App/main.go rawjson
 ```
-
 Useful when input comes from another process, API, or message queue.
 
+
 <br>
+
 
 ## 📚 Help Command
 General help:
@@ -123,14 +141,14 @@ General help:
 go run ./App/main.go help
 ```
 
-<br>
-
 Prints general usage or detailed info about available tests and parameters.
 ```bash
 go run ./App/main.go help --tests
 ```
 
+
 <br>
+
 
 ## 🔧 Troubleshooting
 - **Error: invalid worker param** → Verify the command is `test`, `json`, `rawjson`, or `help`.

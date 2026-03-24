@@ -1,7 +1,9 @@
 # ⚙️ Engine-AntiGinx
 A lightweight, fast, and scalable **Security testing engine** built with Go. Designed to identify vulnerabilities, security misconfigurations, and compliance issues across web applications with surgical precision.
-
 **Two deployment modes**: Standalone CLI for quick scans, or distributed worker for high-volume enterprise scanning via RabbitMQ message queue.
+
+
+<br>
 
 
 ## 🌟 About the Project
@@ -14,9 +16,12 @@ A lightweight, fast, and scalable **Security testing engine** built with Go. Des
 - **API-ready output** — JSON results for easy integration with SIEM, ticketing, and CI/CD systems
 
 **Core architecture:**
+
 - **App** — Fast CLI scanner for manual scans and test orchestration
 - **Engined** — Background daemon for high-throughput, queue-driven scanning
 
+
+<br>
 
 
 ## 💻 Technologies
@@ -31,6 +36,8 @@ A lightweight, fast, and scalable **Security testing engine** built with Go. Des
 | 📚 **MkDocs** | Docs | Material theme, fast search, GitHub Pages |
 
 
+<br>
+
 
 ## ⚡ Key Features
 - **🔍 Comprehensive Security Testing** — 12+ configurable security tests covering modern OWASP top concerns
@@ -40,6 +47,8 @@ A lightweight, fast, and scalable **Security testing engine** built with Go. Des
 - **🚀 Easy Deployment** — Standalone CLI or containerized with Docker/Docker Compose
 - **📊 Enterprise-Ready** — Support for custom User-Agents, anti-bot detection, task tracking
 
+
+<br>
 
 
 ## 📁 Project Structure
@@ -73,6 +82,8 @@ Engine-AntiGinx/
 ```
 
 
+<br>
+
 
 ## 🔧 Security Tests Available
 | Test ID | Name | Description | CVSS Focus |
@@ -91,6 +102,8 @@ Engine-AntiGinx/
 | `cross-origin-x` | Cross-Origin Security | COEP/CORP/COOP headers | Cross-Origin |
 
 
+<br>
+
 
 ## 📋 Prerequisites
 | Component | Version | Purpose |
@@ -101,33 +114,40 @@ Engine-AntiGinx/
 | RabbitMQ | 3.8+ | Task queue (optional) |
 
 
+<br>
+
 
 ## 📚 Documentation
 Our documentation is comprehensive and organized into logical sections:
 
-- **[Quick Start](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/QuickStart/)** — Get running in minutes
-  - [CLI Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/CLI/) — All commands, parameters, examples
-  - [Docker Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/Docker/) — Container options & troubleshooting
-  - [Docker Compose Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/) — Full example setup
-- **[Engine-AntiGinx Overview](https://prawo-i-piesc.github.io/engine-antiginx/EngineAntiginx/EngineAntiginx/)** — Architecture & capabilities
-- **[API Documentation](https://prawo-i-piesc.github.io/engine-antiginx/App/)** — Detailed package references
+- **[Engine-AntiGinx Documentation](https://prawo-i-piesc.github.io/engine-antiginx/)** - full documentation with detailed guides, API references, and architecture overviews.
+- **[Quick Start](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/QuickStart/)** — step-by-step guides for local CLI, Docker, and Docker Compose setups.
+    - [CLI Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/CLI/) — usage instructions for the standalone CLI scanner
+    - [Docker Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/Docker/) — instructions for running the scanner in a Docker container
+    - [Docker Compose Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/) — full stack deployment with RabbitMQ and multiple workers
 
 
+<br>
 
-## Contributing
+
+## 🤝 Contributing
 We welcome contributions! Please:
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Commit changes with clear messages
 4. Push to the branch and create a Pull Request
 
 
+<br>
+
 
 ## 📞 Support & Community
 - 🐛 **Found a bug?** → [Open an Issue](https://github.com/prawo-i-piesc/engine-antiginx/issues)
-- 💬 **Have a question?** → [Start a Discussion](https://github.com/prawo-i-piesc/engine-antiginx/discussions)
 - 📧 **Commercial support** → Contact the Antiginx team
 
+
+<br>
 
 
 ## 📄 Links
@@ -135,9 +155,5 @@ We welcome contributions! Please:
 - 🐳 [Container Images (GHCR)](https://github.com/prawo-i-piesc/engine-antiginx/pkgs/container/engine-antiginx)
 - 📚 [Full Documentation (GitHub Pages)](https://prawo-i-piesc.github.io/engine-antiginx/)
 - 🚀 [GitHub Actions & Releases](https://github.com/prawo-i-piesc/engine-antiginx/actions)
-- 📝 [License](../LICENSE)
+- 📝 [License](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/LICENSE)
 - 👥 [GitHub Team](https://github.com/prawo-i-piesc)
-
-
-
-**Made with** ⚡ **for security professionals, developers, and DevOps teams worldwide.**

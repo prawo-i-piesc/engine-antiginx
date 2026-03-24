@@ -26,6 +26,8 @@ jobs:
         steps:
         - name: 📥 Git -- Checkout repository
           uses: actions/checkout@v6
+          with:
+            fetch-depth: 0
 
         - name: 📘 Go -- Set up
           uses: actions/setup-go@v6
