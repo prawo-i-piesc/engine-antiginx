@@ -480,7 +480,11 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 
 	// Read response body and reset it so downstream tests can read it
 	body, err := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", err.Error())
+		}
+	}()
 	if err != nil {
 		panic(HttpError{
 			Url:         url,

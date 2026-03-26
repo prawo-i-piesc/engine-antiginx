@@ -173,7 +173,11 @@ func (c *CVEClient) searchCVEs(technology, version string) ([]CVEResult, error) 
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Printf("CVEClient \nWarning: Failed to close response channel: %s", err.Error())
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("API request failed with status: %d", resp.StatusCode)

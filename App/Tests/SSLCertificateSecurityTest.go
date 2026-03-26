@@ -77,7 +77,11 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 						Description: "Failed to establish TLS connection: " + err.Error(),
 					}
 				}
-				defer conn.Close()
+				defer func() {
+					if err := conn.Close(); err != nil {
+						fmt.Printf("SSLCertTest \nWarning: Failed to close connection channel: %s", err.Error())
+					}
+				}()
 				state := conn.ConnectionState()
 				tlsState = &state
 			}
@@ -93,7 +97,6 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 					Description: "No SSL certificate presented by the server.",
 				}
 			}
-
 
 			cert := certs[0]
 
@@ -213,8 +216,6 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 				}
 			}
 
-			
-			
 			// Check for weak signature algorithms
 			if cert.SignatureAlgorithm.String() == "MD5-RSA" || cert.SignatureAlgorithm.String() == "SHA1-RSA" {
 				return TestResult{
