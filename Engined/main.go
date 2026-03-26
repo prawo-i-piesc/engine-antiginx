@@ -129,8 +129,18 @@ func main() {
 	conn := rabbitConf.ConnCh
 	taskChannel := rabbitConf.TaskCh
 	errMidConn := rabbitConf.ErrMidConnCh
-	defer conn.Close()
-	defer taskChannel.Close()
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			fmt.Printf("Warning: Failed closing connection %s\n", err.Error())
+		}
+	}()
+	defer func() {
+		err := taskChannel.Close()
+		if err != nil {
+			fmt.Printf("Warning: Failed closing connection with task channel %s\n", err.Error())
+		}
+	}()
 
 	msgs, err := taskChannel.Consume("scan_queue", "", false, false, false, false, nil)
 	if err != nil {
@@ -142,10 +152,7 @@ func main() {
 
 func consumeSafe(msgs <-chan amqp.Delivery, isShuttingDown *bool, errMidConn chan *amqp.Error, closeChannel chan os.Signal) {
 OUTER:
-	for {
-		if *isShuttingDown {
-			break
-		}
+	for !*isShuttingDown {
 		select {
 
 		case closeMidConn := <-errMidConn:
@@ -157,7 +164,7 @@ OUTER:
 
 		case s := <-closeChannel:
 			fmt.Println("Engine Daemon is going down...")
-			fmt.Println(fmt.Sprintf("Received a signal %x", s))
+			fmt.Printf("Received a signal %x", s)
 			*isShuttingDown = true
 			closeChannel = nil
 			errMidConn = nil
@@ -168,16 +175,23 @@ OUTER:
 			err := json.Unmarshal(msg.Body, &task)
 			if err != nil {
 				fmt.Printf("Task parsing error %s\n", err)
-				msg.Nack(false, false)
+				err := msg.Nack(false, false)
+				if err != nil {
+					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
+				}
 				continue
 			}
 
 			taskId := findParam(task.Parameters, "--taskId")
-			parameter := task.Parameters[taskId]
-			if taskId >= 0 {
-
-				fmt.Printf("Consumer received a task with id: %s\n", parameter)
+			if taskId < 0 {
+				fmt.Printf("Invalid task structure, cannot find taskId param.\n")
+				nackErr := msg.Nack(false, false)
+				if nackErr != nil {
+					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
+				}
 			}
+			parameter := task.Parameters[taskId]
+			fmt.Printf("Consumer received a task with id: %s\n", parameter)
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
@@ -188,7 +202,11 @@ OUTER:
 				continue
 			} else {
 				fmt.Printf("Scan performed successfully: %s\n", parameter)
-				msg.Ack(false)
+
+				err := msg.Ack(false)
+				if err != nil {
+					fmt.Printf("Warning: Failed to ack task %s\n", err.Error())
+				}
 			}
 		}
 	}
@@ -231,13 +249,22 @@ func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery) {
 		fmt.Printf("General error from Engine: %v\n", errJSON)
 		if errJSON.IsRetryable {
 			fmt.Println("Error is retryable. Requeuing")
-			msg.Nack(false, true)
+			nackErr := msg.Nack(false, true)
+			if nackErr != nil {
+				fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
+			}
 		} else {
 			fmt.Println("Error is fatal. Discarding")
-			msg.Nack(false, false)
+			nackErr := msg.Nack(false, false)
+			if nackErr != nil {
+				fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
+			}
 		}
 	} else {
 		fmt.Printf("Fatal error: %s\n", stderrBuff.String())
-		msg.Nack(false, false)
+		nackErr := msg.Nack(false, false)
+		if nackErr != nil {
+			fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
+		}
 	}
 }
