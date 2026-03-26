@@ -8,29 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://prawo-i-piesc.github.io/engine-antiginx/">
+        <link rel="canonical" href="https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/">
       
       
+        <link rel="prev" href="../Docker/">
       
-        <link rel="next" href="QuickStart/QuickStart/">
+      
+        <link rel="next" href="../../App/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Engine-AntiGinx Documentation</title>
+        <title>Docker-Compose - Engine-AntiGinx Documentation</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="css/timeago.css">
+      <link rel="stylesheet" href="../../css/timeago.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#about-the-project" class="md-skip">
+        <a href="#requirements" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Engine-AntiGinx Documentation" class="md-header__button md-logo" aria-label="Engine-AntiGinx Documentation" data-md-component="logo">
+    <a href="../.." title="Engine-AntiGinx Documentation" class="md-header__button md-logo" aria-label="Engine-AntiGinx Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Engine Antiginx
+              Docker-Compose
             
           </span>
         </div>
@@ -221,11 +223,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -242,11 +242,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="QuickStart/QuickStart/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../QuickStart/" class="md-tabs__link">
           
   
   
@@ -266,7 +268,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="App/" class="md-tabs__link">
+        <a href="../../App/" class="md-tabs__link">
           
   
   
@@ -286,7 +288,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="Engined/" class="md-tabs__link">
+        <a href="../../Engined/" class="md-tabs__link">
           
   
   
@@ -320,7 +322,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Engine-AntiGinx Documentation" class="md-nav__button md-logo" aria-label="Engine-AntiGinx Documentation" data-md-component="logo">
+    <a href="../.." title="Engine-AntiGinx Documentation" class="md-nav__button md-logo" aria-label="Engine-AntiGinx Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -347,35 +349,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Engine Antiginx
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -391,134 +368,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#about-the-project" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🌟 About the Project
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#technologies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        💻 Technologies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ⚡ Key Features
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#project-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📁 Project Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-tests-available" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔧 Security Tests Available
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📋 Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📚 Documentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🤝 Contributing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#support-community" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📞 Support &amp; Community
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📄 Links
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -527,26 +376,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -564,7 +418,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -582,7 +436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="QuickStart/QuickStart/" class="md-nav__link">
+      <a href="../QuickStart/" class="md-nav__link">
         
   
   
@@ -610,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="QuickStart/CLI/" class="md-nav__link">
+      <a href="../CLI/" class="md-nav__link">
         
   
   
@@ -638,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="QuickStart/Docker/" class="md-nav__link">
+      <a href="../Docker/" class="md-nav__link">
         
   
   
@@ -663,10 +517,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="QuickStart/DockerCompose/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker-Compose
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -682,6 +561,123 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-prepare-env-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1️⃣ Prepare .env File
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-create-docker-composeyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2️⃣ Create docker-compose.yml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-start-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3️⃣ Start Services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Quick Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-stop-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4️⃣ Stop Services
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔄 How It Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-format-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📤 Message Format Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -753,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/" class="md-nav__link">
+      <a href="../../App/" class="md-nav__link">
         
   
   
@@ -781,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/CVE/" class="md-nav__link">
+      <a href="../../App/CVE/" class="md-nav__link">
         
   
   
@@ -809,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/Errors/" class="md-nav__link">
+      <a href="../../App/Errors/" class="md-nav__link">
         
   
   
@@ -837,7 +833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/execution/" class="md-nav__link">
+      <a href="../../App/execution/" class="md-nav__link">
         
   
   
@@ -865,7 +861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/GlobalHandler/" class="md-nav__link">
+      <a href="../../App/GlobalHandler/" class="md-nav__link">
         
   
   
@@ -893,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/Helpers/" class="md-nav__link">
+      <a href="../../App/Helpers/" class="md-nav__link">
         
   
   
@@ -921,7 +917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/HTTP/" class="md-nav__link">
+      <a href="../../App/HTTP/" class="md-nav__link">
         
   
   
@@ -949,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/parser/" class="md-nav__link">
+      <a href="../../App/parser/" class="md-nav__link">
         
   
   
@@ -977,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/Registry/" class="md-nav__link">
+      <a href="../../App/Registry/" class="md-nav__link">
         
   
   
@@ -1005,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/Reporter/" class="md-nav__link">
+      <a href="../../App/Reporter/" class="md-nav__link">
         
   
   
@@ -1033,7 +1029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/Runner/" class="md-nav__link">
+      <a href="../../App/Runner/" class="md-nav__link">
         
   
   
@@ -1061,7 +1057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="App/Tests/" class="md-nav__link">
+      <a href="../../App/Tests/" class="md-nav__link">
         
   
   
@@ -1148,7 +1144,7 @@
   
   
     <li class="md-nav__item">
-      <a href="Engined/" class="md-nav__link">
+      <a href="../../Engined/" class="md-nav__link">
         
   
   
@@ -1201,10 +1197,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#about-the-project" class="md-nav__link">
+  <a href="#requirements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌟 About the Project
+        ✅ Requirements
       
     </span>
   </a>
@@ -1212,10 +1208,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#technologies" class="md-nav__link">
+  <a href="#1-prepare-env-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        💻 Technologies
+        1️⃣ Prepare .env File
       
     </span>
   </a>
@@ -1223,10 +1219,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-features" class="md-nav__link">
+  <a href="#2-create-docker-composeyml" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ⚡ Key Features
+        2️⃣ Create docker-compose.yml
       
     </span>
   </a>
@@ -1234,10 +1230,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#project-structure" class="md-nav__link">
+  <a href="#3-start-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📁 Project Structure
+        3️⃣ Start Services
       
     </span>
   </a>
@@ -1245,10 +1241,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#security-tests-available" class="md-nav__link">
+  <a href="#quick-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔧 Security Tests Available
+        ✅ Quick Validation
       
     </span>
   </a>
@@ -1256,10 +1252,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#4-stop-services" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📋 Prerequisites
+        4️⃣ Stop Services
       
     </span>
   </a>
@@ -1267,10 +1263,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📚 Documentation
+        🔄 How It Works
       
     </span>
   </a>
@@ -1278,10 +1274,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#contributing" class="md-nav__link">
+  <a href="#message-format-example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🤝 Contributing
+        📤 Message Format Example
       
     </span>
   </a>
@@ -1289,21 +1285,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#support-community" class="md-nav__link">
+  <a href="#troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📞 Support &amp; Community
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#links" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📄 Links
+        🔧 Troubleshooting
       
     </span>
   </a>
@@ -1328,6 +1313,46 @@
   
 
 
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Engine Antiginx
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../QuickStart/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
               
               <article class="md-content__inner md-typeset">
                 
@@ -1338,266 +1363,113 @@
   
 
 
-<h1 id="engine-antiginx">⚙️ Engine-AntiGinx<a class="headerlink" href="#engine-antiginx" title="Permanent link">&para;</a></h1>
-<p>A lightweight, fast, and scalable <strong>Security testing engine</strong> built with Go. Designed to identify vulnerabilities, security misconfigurations, and compliance issues across web applications with surgical precision.
-<strong>Two deployment modes</strong>: Standalone CLI for quick scans, or distributed worker for high-volume enterprise scanning via RabbitMQ message queue.</p>
+<h1 id="quick-start-docker-compose">🧩 Quick Start — Docker Compose<a class="headerlink" href="#quick-start-docker-compose" title="Permanent link">&para;</a></h1>
+<p>This variant runs <code>Engined</code> as a container service ready to work with RabbitMQ.</p>
 <p><br></p>
-<h2 id="about-the-project">🌟 About the Project<a class="headerlink" href="#about-the-project" title="Permanent link">&para;</a></h2>
-<p><strong>Engine-AntiGinx</strong> is a modern security assessment tool that transforms how organizations discover and remediate web application vulnerabilities. It combines:</p>
+<h2 id="requirements">✅ Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Concurrent scanning</strong> — Tests run in parallel using goroutines for maximum speed</li>
-<li><strong>CVSS-aligned threat levels</strong> — Easy-to-understand risk classification for stakeholders  </li>
-<li><strong>CVE cross-referencing</strong> — Automatic NIST NVD vulnerability database lookups</li>
-<li><strong>Zero-config deployment</strong> — Works standalone or integrates seamlessly with your infrastructure</li>
-<li><strong>API-ready output</strong> — JSON results for easy integration with SIEM, ticketing, and CI/CD systems</li>
+<li>Docker + Docker Compose</li>
+<li>Running RabbitMQ instance</li>
+<li>Existing Docker network <code>antiginx</code> (defined as <code>external</code>)</li>
 </ul>
-<p><strong>Core architecture:</strong></p>
-<ul>
-<li><strong>App</strong> — Fast CLI scanner for manual scans and test orchestration</li>
-<li><strong>Engined</strong> — Background daemon for high-throughput, queue-driven scanning</li>
-</ul>
+<p><strong>Create the network (one-time setup) if you don't have it:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>antiginx
+</span></code></pre></div></p>
 <p><br></p>
-<h2 id="technologies">💻 Technologies<a class="headerlink" href="#technologies" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Technology</th>
-<th>Purpose</th>
-<th>Details</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>🎯 <strong>Go 1.25</strong></td>
-<td>Core language</td>
-<td>Concurrent, compiled, production-ready</td>
-</tr>
-<tr>
-<td>🐰 <strong>RabbitMQ</strong></td>
-<td>Task queue</td>
-<td>Scale scanning to multiple workers</td>
-</tr>
-<tr>
-<td>🐳 <strong>Docker</strong></td>
-<td>Containers</td>
-<td>Multi-arch builds (amd64/arm64)</td>
-</tr>
-<tr>
-<td>🐙 <strong>Docker Compose</strong></td>
-<td>Orchestration</td>
-<td>One-command deployment with full stack</td>
-</tr>
-<tr>
-<td>🔄 <strong>GitHub Actions</strong></td>
-<td>CI/CD</td>
-<td>Automated builds, tests, releases</td>
-</tr>
-<tr>
-<td>📦 <strong>GHCR</strong></td>
-<td>Registry</td>
-<td>Pre-built images, always fresh</td>
-</tr>
-<tr>
-<td>📚 <strong>MkDocs</strong></td>
-<td>Docs</td>
-<td>Material theme, fast search, GitHub Pages</td>
-</tr>
-</tbody>
-</table>
+<h2 id="1-prepare-env-file">1️⃣ Prepare <code>.env</code> File<a class="headerlink" href="#1-prepare-env-file" title="Permanent link">&para;</a></h2>
+<p>Create a <code>.env</code> file in the project root directory:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ENGINE_PORT=5000
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>BACK_URL=http://backend:3000/api/results
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+</span></code></pre></div></p>
 <p><br></p>
-<h2 id="key-features">⚡ Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<p><strong>📋 About Environment Variables:</strong></p>
 <ul>
-<li><strong>🔍 Comprehensive Security Testing</strong> — 12+ configurable security tests covering modern OWASP top concerns</li>
-<li><strong>⏱ High Performance</strong> — Concurrent test execution with goroutines, minimal resource footprint</li>
-<li><strong>🔗 Queue-Driven Architecture</strong> — RabbitMQ integration for distributed, high-throughput scanning</li>
-<li><strong>🎯 Structured Results</strong> — CVSS severity levels, CVE identification, JSON output for integrations</li>
-<li><strong>🚀 Easy Deployment</strong> — Standalone CLI or containerized with Docker/Docker Compose</li>
-<li><strong>📊 Enterprise-Ready</strong> — Support for custom User-Agents, anti-bot detection, task tracking</li>
+<li><code>ENGINE_PORT</code> is used by <code>docker-compose.yml</code> for port mapping (<code>${ENGINE_PORT}:5000</code>).</li>
+<li><code>BACK_URL</code> and <code>RABBITMQ_URL</code> are passed into the container as environment variables.</li>
 </ul>
 <p><br></p>
-<h2 id="project-structure">📁 Project Structure<a class="headerlink" href="#project-structure" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Engine-AntiGinx/
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── App/                      # CLI Security Scanner
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── main.go               # App entry point
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── CVE/                  # CVE vulnerability assessment (NIST NVD)
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── Errors/               # Structured error handling
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── Helpers/              # Utility functions (math, strings, formatting)
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── HTTP/                 # HTTP client with anti-bot detection
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── parser/               # CLI argument parser with validation
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── Registry/             # Thread-safe test registry
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   ├── Reporter/             # Results reporter (CLI/Backend modes)
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── Runner/               # Job orchestrator
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   ├── execution/            # Execution plan &amp; formatter system
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   └── Tests/                # Security test implementations (12 tests)
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── Engined/                  # Background Daemon
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   ├── main.go               # RabbitMQ consumer entry point
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   └── queueconfig.go        # Queue configuration
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>├── docs/                     # MkDocs documentation
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── EngineAntiginx/       # Project overview
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   └── QuickStart/           # Installation &amp; usage guides
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>├── docker-compose.yml        # Container orchestration
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>├── Dockerfile                # Multi-stage Docker build
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>├── mkdocs.yml                # Documentation configuration
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>├── go.mod                    # Go module dependencies
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>├── go.sum                    # Dependency lock
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>├── LICENSE                   # Apache 2.0 License
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>└── .env.example              # Environment template
-</span></code></pre></div>
-<p><br></p>
-<h2 id="security-tests-available">🔧 Security Tests Available<a class="headerlink" href="#security-tests-available" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Test ID</th>
-<th>Name</th>
-<th>Description</th>
-<th>CVSS Focus</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>https</code></td>
-<td>HTTPS Protocol Verification</td>
-<td>Checks encrypted connection usage</td>
-<td>Encryption</td>
-</tr>
-<tr>
-<td><code>hsts</code></td>
-<td>HSTS Header Analysis</td>
-<td>HTTP Strict Transport Security config</td>
-<td>Transport</td>
-</tr>
-<tr>
-<td><code>serv-h-a</code></td>
-<td>Server Header Analysis</td>
-<td>Technology detection + CVE assessment</td>
-<td>Information Disclosure</td>
-</tr>
-<tr>
-<td><code>csp</code></td>
-<td>Content Security Policy</td>
-<td>XSS and injection attack prevention</td>
-<td>XSS/Injection</td>
-</tr>
-<tr>
-<td><code>cookie-sec</code></td>
-<td>Cookie Security</td>
-<td>Session management &amp; security attributes</td>
-<td>Session Mgmt</td>
-</tr>
-<tr>
-<td><code>js-obf</code></td>
-<td>JavaScript Obfuscation</td>
-<td>Detects obfuscated code anomalies</td>
-<td>Malware/APT</td>
-</tr>
-<tr>
-<td><code>xframe</code></td>
-<td>X-Frame-Options</td>
-<td>Clickjacking protection validation</td>
-<td>Clickjacking</td>
-</tr>
-<tr>
-<td><code>permissions-policy</code></td>
-<td>Permissions Policy</td>
-<td>Browser feature access control</td>
-<td>Feature Policy</td>
-</tr>
-<tr>
-<td><code>x-content-type-options</code></td>
-<td>MIME Sniffing Protection</td>
-<td>MIME type enforcement</td>
-<td>MIME Sniffing</td>
-</tr>
-<tr>
-<td><code>referrer-policy</code></td>
-<td>Referrer Policy</td>
-<td>Privacy leak prevention via referrer</td>
-<td>Privacy</td>
-</tr>
-<tr>
-<td><code>ssl-cert</code></td>
-<td>SSL/TLS Certificate Security</td>
-<td>Certificate validity &amp; strength</td>
-<td>Encryption</td>
-</tr>
-<tr>
-<td><code>cross-origin-x</code></td>
-<td>Cross-Origin Security</td>
-<td>COEP/CORP/COOP headers</td>
-<td>Cross-Origin</td>
-</tr>
-</tbody>
-</table>
-<p><br></p>
-<h2 id="prerequisites">📋 Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Component</th>
-<th>Version</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Go</td>
-<td>1.25+</td>
-<td>Build &amp; run locally</td>
-</tr>
-<tr>
-<td>Docker</td>
-<td>24+</td>
-<td>Containerization</td>
-</tr>
-<tr>
-<td>Docker Compose</td>
-<td>2.0+</td>
-<td>Orchestration</td>
-</tr>
-<tr>
-<td>RabbitMQ</td>
-<td>3.8+</td>
-<td>Task queue (optional)</td>
-</tr>
-</tbody>
-</table>
-<p><br></p>
-<h2 id="documentation">📚 Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
-<p>Our documentation is comprehensive and organized into logical sections:</p>
+<h2 id="2-create-docker-composeyml">2️⃣ Create <code>docker-compose.yml</code><a class="headerlink" href="#2-create-docker-composeyml" title="Permanent link">&para;</a></h2>
+<p>Create or update the <code>docker-compose.yml</code> file in your project root:
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.8&#39;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nt">services</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">engine-antiginx</span><span class="p">:</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/prawo-i-piesc/engine-antiginx:latest</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">engine-antiginx-worker</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;${ENGINE_PORT}:5000&quot;</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RABBITMQ_URL=${RABBITMQ_URL}</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BACK_URL=${BACK_URL}</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="nt">mem_limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1024m</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">antiginx</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="nt">networks</span><span class="p">:</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="nt">antiginx</span><span class="p">:</span>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span></code></pre></div></p>
+<p><strong>💡 Customization:</strong></p>
 <ul>
-<li><strong><a href="https://prawo-i-piesc.github.io/engine-antiginx/">Engine-AntiGinx Documentation</a></strong> - full documentation with detailed guides, API references, and architecture overviews.</li>
-<li><strong><a href="https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/QuickStart/">Quick Start</a></strong> — step-by-step guides for local CLI, Docker, and Docker Compose setups.<ul>
-<li><a href="https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/CLI/">CLI Guide</a> — usage instructions for the standalone CLI scanner</li>
-<li><a href="https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/Docker/">Docker Guide</a> — instructions for running the scanner in a Docker container</li>
-<li><a href="https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/">Docker Compose Guide</a> — full stack deployment with RabbitMQ and multiple workers</li>
-</ul>
-</li>
+<li>Change <code>ghcr.io/prawo-i-piesc/engine-antiginx:latest</code> to your own registry if needed.</li>
+<li>Adjust <code>mem_limit</code> based on your scan complexity and server capacity.</li>
 </ul>
 <p><br></p>
-<h2 id="contributing">🤝 Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
-<p>We welcome contributions! Please:</p>
-<ol>
-<li>Fork the repository</li>
-<li>Create a feature branch (<code>git checkout -b feature/my-feature</code>)</li>
-<li>Commit changes with clear messages</li>
-<li>Push to the branch and create a Pull Request</li>
-</ol>
+<h2 id="3-start-services">3️⃣ Start Services<a class="headerlink" href="#3-start-services" title="Permanent link">&para;</a></h2>
+<p>Start the container in detached mode:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre></div></p>
 <p><br></p>
-<h2 id="support-community">📞 Support &amp; Community<a class="headerlink" href="#support-community" title="Permanent link">&para;</a></h2>
+<h2 id="quick-validation">✅ Quick Validation<a class="headerlink" href="#quick-validation" title="Permanent link">&para;</a></h2>
+<p>Check status:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>ps
+</span></code></pre></div></p>
+<p>View logs:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>engine-antiginx
+</span></code></pre></div></p>
+<p><br></p>
+<h2 id="4-stop-services">4️⃣ Stop Services<a class="headerlink" href="#4-stop-services" title="Permanent link">&para;</a></h2>
+<p>Stop and remove containers:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>down
+</span></code></pre></div></p>
+<p><br></p>
+<h2 id="how-it-works">🔄 How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <ul>
-<li>🐛 <strong>Found a bug?</strong> → <a href="https://github.com/prawo-i-piesc/engine-antiginx/issues">Open an Issue</a></li>
-<li>📧 <strong>Commercial support</strong> → Contact the Antiginx team</li>
+<li>Container launches the <code>/engine-antiginx/Engined</code> binary.</li>
+<li>Worker consumes messages from the <code>scan_queue</code> queue.</li>
+<li>Each task message (JSON format) triggers a scan via <code>App</code> (<code>rawjson</code> mode).</li>
+<li>Results and errors are ACK/NACK'd according to retry logic.</li>
 </ul>
 <p><br></p>
-<h2 id="links">📄 Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<h2 id="message-format-example">📤 Message Format Example<a class="headerlink" href="#message-format-example" title="Permanent link">&para;</a></h2>
+<p>When sending a task to RabbitMQ, use this JSON structure:
+<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">&quot;Target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://example.com&quot;</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">&quot;Parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">            </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;--tests&quot;</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">            </span><span class="nt">&quot;Arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hsts&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;serv-h-a&quot;</span><span class="p">]</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="p">},</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">        </span><span class="p">{</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">            </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;--taskId&quot;</span><span class="p">,</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">            </span><span class="nt">&quot;Arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;task-123&quot;</span><span class="p">]</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">}</span>
+</span></code></pre></div></p>
+<p><br></p>
+<h2 id="troubleshooting">🔧 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <ul>
-<li>📦 <a href="https://github.com/prawo-i-piesc/engine-antiginx">GitHub Repository</a></li>
-<li>🐳 <a href="https://github.com/prawo-i-piesc/engine-antiginx/pkgs/container/engine-antiginx">Container Images (GHCR)</a></li>
-<li>📚 <a href="https://prawo-i-piesc.github.io/engine-antiginx/">Full Documentation (GitHub Pages)</a></li>
-<li>🚀 <a href="https://github.com/prawo-i-piesc/engine-antiginx/actions">GitHub Actions &amp; Releases</a></li>
-<li>📝 <a href="https://github.com/prawo-i-piesc/engine-antiginx/blob/main/LICENSE">License</a></li>
-<li>👥 <a href="https://github.com/prawo-i-piesc">GitHub Team</a></li>
+<li><strong>Error: <code>network antiginx declared as external, but could not be found</code></strong> → Create the network: <code>docker network create antiginx</code>.</li>
+<li><strong>Empty/incorrect <code>RABBITMQ_URL</code></strong> → Update <code>.env</code> and restart with <code>docker compose up -d</code>.</li>
+<li><strong>No results reaching backend</strong> → Verify the <code>BACK_URL</code> endpoint is reachable from the container network.</li>
+<li><strong>Worker keeps crashing</strong> → Check logs with <code>docker compose logs -f engine-antiginx</code> and verify RabbitMQ connectivity.</li>
 </ul>
 
 
@@ -1621,7 +1493,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 21, 2025 13:50:01 UTC"><span class="timeago" datetime="2025-11-21T13:50:01+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 21, 2025 13:50:01 UTC">2025-11-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="March 26, 2026 13:06:04 UTC"><span class="timeago" datetime="2026-03-26T13:06:04+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="March 26, 2026 13:06:04 UTC">2026-03-26</span>
   </span>
 
     
@@ -1631,7 +1503,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="November 21, 2025 13:50:01 UTC"><span class="timeago" datetime="2025-11-21T13:50:01+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="November 21, 2025 13:50:01 UTC">2025-11-21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="March 26, 2026 13:06:04 UTC"><span class="timeago" datetime="2026-03-26T13:06:04+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="March 26, 2026 13:06:04 UTC">2026-03-26</span>
   </span>
 
     
@@ -1706,14 +1578,14 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.path", "navigation.top", "navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.path", "navigation.top", "navigation.instant", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="js/timeago.min.js"></script>
+        <script src="../../js/timeago.min.js"></script>
       
-        <script src="js/timeago_mkdocs_material.js"></script>
+        <script src="../../js/timeago_mkdocs_material.js"></script>
       
     
   </body>
