@@ -54,7 +54,6 @@ func TestRawJsonParser_Parse(t *testing.T) {
 						t.Errorf("Unexpected panic %v", r)
 					}
 				}
-				return
 			}()
 
 			rawParser := CreateRawJsonParser(mockStdin)
