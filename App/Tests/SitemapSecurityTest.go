@@ -352,13 +352,16 @@ func analyzeSitemap(baseUrl string) SitemapAnalysis {
 func extractUrlsFromSitemap(content string) []string {
 	urls := []string{}
 	
-	// Regex to match <loc>URL</loc> tags
-	locPattern := regexp.MustCompile(`<loc>(.*?)</loc>`)
+	// Regex to match <loc>URL</loc> tags, allowing newlines inside <loc> content
+	locPattern := regexp.MustCompile(`(?s)<loc>(.*?)</loc>`)
 	matches := locPattern.FindAllStringSubmatch(content, -1)
 	
 	for _, match := range matches {
 		if len(match) > 1 {
-			urls = append(urls, match[1])
+			locValue := strings.TrimSpace(match[1])
+			if locValue != "" {
+				urls = append(urls, locValue)
+			}
 		}
 	}
 	
