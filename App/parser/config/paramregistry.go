@@ -61,4 +61,10 @@ var Params = map[string]types.Parameter{
 		ArgRequired: false,
 		ArgCount:    0,
 	},
+	"--all": {
+		Arguments:   []string{},
+		DefaultVal:  "", // DefaultVal is not used for flag parameters (ArgCount: 0)
+		ArgRequired: false,
+		ArgCount:    0,
+	},
 }

@@ -88,6 +88,15 @@ func mapStrategies(params []*types.CommandParameter, target string) ([]strategy.
 	for i := 1; i < len(params); i++ {
 		s, ok := strategyImpl.GetStrategy(params[i].Name)
 		if ok {
+			if s.GetName() == "--all" {
+				allStrategy := append(make([]strategy.TestStrategy, 0, 1), s)
+				allStrategyContext := make(map[string]strategy.TestContext)
+				allStrategyContext[s.GetName()] = strategy.TestContext{
+					Target: target,
+					Args:   params[i].Arguments,
+				}
+				return allStrategy, allStrategyContext
+			}
 			mappedStrategies = append(mappedStrategies, s)
 			mappedContexts[s.GetName()] = strategy.TestContext{
 				Target: target,

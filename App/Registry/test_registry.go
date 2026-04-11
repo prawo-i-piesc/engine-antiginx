@@ -114,3 +114,11 @@ func GetTest(testId string) (*Tests.ResponseTest, bool) {
 	t, ok := tests[testId]
 	return t, ok
 }
+
+func GetAllTests() []*Tests.ResponseTest {
+	values := make([]*Tests.ResponseTest, 0, len(tests))
+	for _, value := range tests {
+		values = append(values, value)
+	}
+	return values
+}
