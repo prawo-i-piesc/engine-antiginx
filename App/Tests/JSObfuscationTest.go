@@ -502,7 +502,7 @@ func generateObfuscationDescription(analysis JSObfuscationAnalysis) string {
 		}
 		description.WriteString(strings.Join(analysis.SuspiciousPatterns[:maxPatterns], "; "))
 		if len(analysis.SuspiciousPatterns) > maxPatterns {
-			description.WriteString(fmt.Sprintf(" and %d more", len(analysis.SuspiciousPatterns)-maxPatterns))
+			_, _ = fmt.Fprintf(&description, " and %d more", len(analysis.SuspiciousPatterns)-maxPatterns)
 		}
 		description.WriteString(".")
 	}
