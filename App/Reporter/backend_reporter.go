@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -330,7 +331,11 @@ func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error {
 			IsRetryable: true,
 		}
 	}
-	defer res.Body.Close()
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			log.Printf("BACKEND REPORTER\nwarning: failed to close response body: %s", err.Error())
+		}
+	}()
 
 	err3 := b.handleRetryLogic(res)
 
@@ -343,10 +348,7 @@ func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Erro
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
 		return nil
 	}
-	retryable := true
-	if response.StatusCode >= 400 && response.StatusCode < 500 {
-		retryable = false
-	}
+	retryable := response.StatusCode < 400 || response.StatusCode >= 500
 	return &Errors.Error{
 		Code: 103,
 		Message: fmt.Sprintf(`Reporter error occurred. This could be due to:

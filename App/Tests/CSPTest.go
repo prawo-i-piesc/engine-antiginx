@@ -329,8 +329,8 @@ func generateCSPDescription(analysis CSPAnalysis) string {
 	var description strings.Builder
 
 	// Overall assessment
-	description.WriteString(fmt.Sprintf("Content Security Policy detected with %s protection level (strength: %d/100). ",
-		analysis.ProtectionLevel, analysis.PolicyStrength))
+	_, _ = fmt.Fprintf(&description, "Content Security Policy detected with %s protection level (strength: %d/100). ",
+		analysis.ProtectionLevel, analysis.PolicyStrength)
 
 	// Critical vulnerabilities
 	if len(analysis.CriticalVulns) > 0 {
@@ -348,8 +348,8 @@ func generateCSPDescription(analysis CSPAnalysis) string {
 
 	// Missing directives
 	if len(analysis.MissingDirectives) > 0 {
-		description.WriteString(fmt.Sprintf("Missing %d recommended directives: %s. ",
-			len(analysis.MissingDirectives), strings.Join(analysis.MissingDirectives, ", ")))
+		_, _ = fmt.Fprintf(&description, "Missing %d recommended directives: %s. ",
+			len(analysis.MissingDirectives), strings.Join(analysis.MissingDirectives, ", "))
 	}
 
 	// Recommendations

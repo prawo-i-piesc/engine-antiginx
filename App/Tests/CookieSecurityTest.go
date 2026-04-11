@@ -354,13 +354,25 @@ func calculateIndividualCookieScore(detail CookieSecurityDetail) int {
 	if !detail.HasHttpOnly {
 		score -= 25
 	}
-	if !detail.HasSecure {
-		score -= 25
-	}
-	if detail.SameSite == "" || detail.SameSite == "None" {
+
+	//Before lint
+	//if !detail.HasSecure {
+	//	score -= 25
+	//}
+	//if detail.SameSite == "" || detail.SameSite == "None" {
+	//	score -= 20
+	//} else if detail.SameSite == "Lax" {
+	//	score -= 5 // Minor deduction, Strict is better
+	//}
+
+	// After lint
+	switch detail.SameSite {
+	case "":
 		score -= 20
-	} else if detail.SameSite == "Lax" {
-		score -= 5 // Minor deduction, Strict is better
+	case "None":
+		score -= 20
+	case "Lax":
+		score -= 5
 	}
 
 	// Deduct for long expiration
@@ -422,8 +434,13 @@ func evaluateCookieThreatLevel(analysis CookieSecurityAnalysis) ThreatLevel {
 func generateCookieDescription(analysis CookieSecurityAnalysis) string {
 	var description strings.Builder
 
-	description.WriteString(fmt.Sprintf("Analyzed %d cookie(s) with overall security score of %d/100. ",
-		analysis.TotalCookies, analysis.OverallSecurityScore))
+	// Before lint
+	//description.WriteString(fmt.Sprintf("Analyzed %d cookie(s) with overall security score of %d/100. ",
+	//	analysis.TotalCookies, analysis.OverallSecurityScore))
+
+	// After lint
+	_, _ = fmt.Fprintf(&description, "Analyzed %d cookie(s) with overall security score of %d/100. ",
+		analysis.TotalCookies, analysis.OverallSecurityScore)
 
 	// Critical issues first
 	if len(analysis.CriticalIssues) > 0 {
@@ -438,7 +455,7 @@ func generateCookieDescription(analysis CookieSecurityAnalysis) string {
 		maxIssues := helpers.MinInt(3, len(analysis.SecurityIssues))
 		description.WriteString(strings.Join(analysis.SecurityIssues[:maxIssues], "; "))
 		if len(analysis.SecurityIssues) > 3 {
-			description.WriteString(fmt.Sprintf(" and %d more", len(analysis.SecurityIssues)-3))
+			_, _ = fmt.Fprintf(&description, " and %d more", len(analysis.SecurityIssues)-3)
 		}
 		description.WriteString(".")
 	}
