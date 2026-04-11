@@ -455,7 +455,7 @@ func generateCookieDescription(analysis CookieSecurityAnalysis) string {
 		maxIssues := helpers.MinInt(3, len(analysis.SecurityIssues))
 		description.WriteString(strings.Join(analysis.SecurityIssues[:maxIssues], "; "))
 		if len(analysis.SecurityIssues) > 3 {
-			description.WriteString(fmt.Sprintf(" and %d more", len(analysis.SecurityIssues)-3))
+			_, _ = fmt.Fprintf(&description, " and %d more", len(analysis.SecurityIssues)-3)
 		}
 		description.WriteString(".")
 	}

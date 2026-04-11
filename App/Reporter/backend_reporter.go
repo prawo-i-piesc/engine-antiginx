@@ -348,7 +348,7 @@ func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Erro
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
 		return nil
 	}
-	retryable := !(response.StatusCode >= 400 && response.StatusCode < 500)
+	retryable := response.StatusCode < 400 || response.StatusCode >= 500
 	return &Errors.Error{
 		Code: 103,
 		Message: fmt.Sprintf(`Reporter error occurred. This could be due to:

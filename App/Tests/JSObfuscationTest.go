@@ -470,8 +470,8 @@ func generateObfuscationDescription(analysis JSObfuscationAnalysis) string {
 
 	var description strings.Builder
 
-	description.WriteString(fmt.Sprintf("JavaScript obfuscation detected with %s level (score: %d/100). ",
-		analysis.ObfuscationLevel, analysis.ObfuscationScore))
+	_, _ = fmt.Fprintf(&description, "JavaScript obfuscation detected with %s level (score: %d/100). ",
+		analysis.ObfuscationLevel, analysis.ObfuscationScore)
 
 	// Malicious indicators first
 	if len(analysis.MaliciousIndicators) > 0 {
@@ -489,8 +489,8 @@ func generateObfuscationDescription(analysis JSObfuscationAnalysis) string {
 
 	// Key statistics
 	if analysis.DynamicExecution > 0 || analysis.EncodedStrings > 0 {
-		description.WriteString(fmt.Sprintf("Found: %d dynamic execution calls, %d encoded strings. ",
-			analysis.DynamicExecution, analysis.EncodedStrings))
+		_, _ = fmt.Fprintf(&description, "Found: %d dynamic execution calls, %d encoded strings. ",
+			analysis.DynamicExecution, analysis.EncodedStrings)
 	}
 
 	// Suspicious patterns
