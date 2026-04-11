@@ -121,6 +121,13 @@ func main() {
 		return
 	}
 
+	engineCall, isSet := os.LookupEnv("ENGINE_ANTIGINX_CALL")
+
+	if !isSet || engineCall == "" {
+		fmt.Printf("Error: ENGINE_ANTIGINX_CALL environment variable is not set")
+		return
+	}
+
 	rabbitConf, err := configureRabbitConnection(rabbitmqURL)
 	if err != nil {
 		fmt.Println(err)
@@ -147,10 +154,11 @@ func main() {
 		fmt.Println(err)
 		isShuttingDown = true
 	}
-	consumeSafe(msgs, &isShuttingDown, errMidConn, closeChannel)
+	consumeSafe(msgs, &isShuttingDown, errMidConn, closeChannel, engineCall)
 }
 
-func consumeSafe(msgs <-chan amqp.Delivery, isShuttingDown *bool, errMidConn chan *amqp.Error, closeChannel chan os.Signal) {
+func consumeSafe(msgs <-chan amqp.Delivery, isShuttingDown *bool,
+	errMidConn chan *amqp.Error, closeChannel chan os.Signal, engineCall string) {
 OUTER:
 	for !*isShuttingDown {
 		select {
@@ -195,7 +203,7 @@ OUTER:
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
-			cmdErr := runScan(msg.Body, &stderrBuff)
+			cmdErr := runScan(msg.Body, &stderrBuff, engineCall)
 
 			if cmdErr != nil {
 				handleScanError(&stderrBuff, msg)
@@ -236,8 +244,10 @@ func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 		ErrMidConnCh: errMidConn,
 	}, nil
 }
-func runScan(messageBody []byte, stderrBuff *bytes.Buffer) error {
-	cmd := exec.Command("/engine-antiginx/App", "rawjson")
+func runScan(messageBody []byte, stderrBuff *bytes.Buffer, engineCall string) error {
+	// Previous value
+	// "/engine-antiginx/App" , "rawjson"
+	cmd := exec.Command(engineCall, "rawjson")
 	cmd.Stdin = bytes.NewReader(messageBody)
 	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
 	return cmd.Run()
