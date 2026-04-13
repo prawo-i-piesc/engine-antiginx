@@ -145,7 +145,6 @@ func transformIntoTable(params map[string]types.Parameter, userParameters []stri
 		v, ok := params[token]
 		if ok {
 			if argMode {
-				argMode = false
 				if len(args) == 0 {
 					panic(error.Error{
 						Code: 303,
@@ -176,6 +175,7 @@ func transformIntoTable(params map[string]types.Parameter, userParameters []stri
 				// clear args for reuse
 				args = args[:0]
 			}
+			argMode = v.ArgRequired
 			if v.ArgRequired {
 				if userParametersLen == i+1 {
 					panic(error.Error{
@@ -186,7 +186,6 @@ func transformIntoTable(params map[string]types.Parameter, userParameters []stri
 						IsRetryable: false,
 					})
 				}
-				argMode = true
 				currentParam = token
 			} else {
 				consumedNext := false
@@ -225,7 +224,7 @@ func transformIntoTable(params map[string]types.Parameter, userParameters []stri
 			}
 		} else {
 			if argMode {
-				v, _ := params[currentParam]
+				v := params[currentParam]
 				if len(v.Arguments) > 0 {
 					if !findElement(token, v.Arguments) {
 						panic(error.Error{
@@ -261,14 +260,12 @@ func transformIntoTable(params map[string]types.Parameter, userParameters []stri
 		}
 	}
 	if argMode {
-		argMode = false
 		checkOccurrences(args)
 		argCopy := append([]string(nil), args...)
 		parsedParams = append(parsedParams, &types.CommandParameter{
 			Name:      currentParam,
 			Arguments: argCopy,
 		})
-		args = args[:0]
 	}
 
 	return parsedParams

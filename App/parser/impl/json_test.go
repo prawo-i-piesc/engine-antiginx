@@ -109,7 +109,6 @@ func TestJsonParser_Parse(t *testing.T) {
 						t.Errorf("Unexpected panic %v", r)
 					}
 				}
-				return
 			}()
 			mockReader := &MockReader{
 				dataToReturn: inputData,

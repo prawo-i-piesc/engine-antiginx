@@ -201,12 +201,24 @@ func assessEmbeddingCapability(xframeDirective, cspFrameValue string, xframeVali
 	// CSP frame-ancestors takes precedence
 	if cspFrameValue != "" {
 		cspLower := strings.ToLower(strings.TrimSpace(cspFrameValue))
-		switch {
-		case cspLower == "'none'":
+		// Before lint
+		//switch {
+		//case cspLower == "'none'":
+		//	return "blocked"
+		//case cspLower == "'self'":
+		//	return "same-origin"
+		//case cspLower == "*":
+		//	return "allowed"
+		//default:
+		//	return "limited"
+
+		// After lint
+		switch cspLower {
+		case "'none'":
 			return "blocked"
-		case cspLower == "'self'":
+		case "'self'":
 			return "same-origin"
-		case cspLower == "*":
+		case "'*'":
 			return "allowed"
 		default:
 			return "limited"

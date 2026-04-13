@@ -70,7 +70,9 @@ func (m *MockStrategy) GetPreferredReporterType() strategy.ReporterType {
 // For now tests only cover cases with CliReporter
 // Add more cases after implementation of factory pattern
 func TestJobRunner_Orchestrate(t *testing.T) {
-	os.Unsetenv("BACK_URL")
+	if _, isSet := os.LookupEnv("BACK_URL"); isSet {
+		_ = os.Unsetenv("BACK_URL")
+	}
 	// Given
 	mockContext := map[string]strategy.TestContext{
 		"--tests": {

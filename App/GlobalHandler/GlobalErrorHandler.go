@@ -119,7 +119,7 @@ func (e *ErrorHandler) RunSafe() {
 //   - err: The standardized Errors.Error object to display.
 func (e *ErrorHandler) printError(err Errors.Error) {
 	if e.cliMode {
-		fmt.Fprintf(os.Stderr, `
+		_, _ = fmt.Fprintf(os.Stderr, `
 --------------------------------------------------
 ERROR SOURCE: %s
 EXIT CODE:    %d
@@ -130,6 +130,8 @@ RETRYABLE:    %t
 	} else {
 		encoder := json.NewEncoder(os.Stderr)
 		encoder.SetIndent("", "  ")
-		encoder.Encode(err)
+		if encodeErr := encoder.Encode(err); encodeErr != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "FATAL: Failed to encode error to JSON: %v\n Original Error: %s\n", encodeErr, err.Message)
+		}
 	}
 }
