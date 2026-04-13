@@ -39,7 +39,9 @@ var tests = make(map[string]*Tests.ResponseTest)
 //   - ReferrerPolicyTest: Analyzes Referrer-Policy header for privacy and information leakage protection
 //   - PermissionsPolicyTest: Analyzes Permissions-Policy header for browser feature access control
 //   - XContentTypeOptionsTest: Analyzes X-Content-Type-Options header for MIME sniffing protection
+//   - SSLCertificateSecurityTest: Analyzes SSL/TLS certificate security and configuration
 //   - CrossOriginTest: Analyzes Cross-Origin security headers (COEP, CORP, COOP) for cross-origin attack protection
+//   - SitemapSecurityTest: Analyzes sitemap.xml for dangerous path exposure to search engines
 //
 // Additional tests can be registered by adding registerTest calls in this function.
 func init() {
@@ -55,6 +57,7 @@ func init() {
 	registerTest(Tests.NewXContentTypeOptionsTest())
 	registerTest(Tests.NewSSLCertificateSecurityTest())
 	registerTest(Tests.NewCrossOriginTest())
+	registerTest(Tests.NewSitemapSecurityTest())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.
