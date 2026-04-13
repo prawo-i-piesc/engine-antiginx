@@ -18,6 +18,7 @@ var helpStrategies = make(map[string]strategy.TestStrategy)
 func init() {
 	// Scan strategies initialization
 	registerStrategy(InitializeHeaderStrategy())
+	registerStrategy(InitializeAllTestsStrategy())
 
 	// Help strategies initialization
 	registerHelpStrategy(NewGeneralHelpStrategy())
