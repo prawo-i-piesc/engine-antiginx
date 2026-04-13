@@ -207,11 +207,17 @@ func analyzeSitemap(baseUrl string) SitemapAnalysis {
 	}
 
 	// Fetch sitemap.xml
+
 	resp, err := http.Get(sitemapUrl)
 	if err != nil {
 		return analysis
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", err.Error())
+		}
+	}()
 
 	// If sitemap doesn't exist or is inaccessible, return safe result
 	if resp.StatusCode != 200 {
