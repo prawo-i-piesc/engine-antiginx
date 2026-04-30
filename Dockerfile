@@ -1,44 +1,77 @@
-# Build stage: compile the Go application
-FROM golang:1.26-alpine AS build
+# Variables
+ARG ENGINE_BINARY_APP_NAME=cli-app
+ARG ENGINE_BINARY_DAEMON_NAME=daemon
+ARG TARGETARCH
+
+ARG USERNAME=antiginx_user
+ARG GROUPNAME=antiginx_group
+ARG USER_UID=1001
+ARG USER_GID=1001
+# ---
+
+
+# Base images for stages
+FROM golang:1.26-alpine AS base
+FROM alpine:3.23 AS run
+# ---
+
+
+# STAGE: Install dependencies
+FROM base AS deps
 
 WORKDIR /app
 
-# Copy the Go module files
 COPY go.mod ./
 COPY go.sum ./
 
-# Download the Go module dependencies
-RUN go mod download
+RUN if [ -f go.mod ] && [ -f go.sum ]; then          \
+        go mod download;                             \
+    else                                             \
+        echo "No go.mod or go.sum found" && exit 1;  \
+    fi
+# ---
 
-COPY . .
 
-# Build - TARGETARCH is automatically set by Docker Buildx for multi-arch builds
+# STAGE: Build the application
+FROM base AS build
+
+ARG ENGINE_BINARY_APP_NAME
+ARG ENGINE_BINARY_DAEMON_NAME
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /engine-antiginx/App ./App
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /engine-antiginx/Engined ./Engined
-
-# Final stage: a minimal image to run the application
-FROM alpine:3.23 AS run
-
-# Upgrade all packages to get security fixes, then install ca-certificates
-RUN apk --no-cache upgrade && \
-    apk --no-cache add ca-certificates
-
-# Create non-root user for security
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
 
 WORKDIR /app
 
-# Copy the application executable from the build image
-COPY --from=build --chown=appuser:appgroup /engine-antiginx/App /engine-antiginx/App
-COPY --from=build --chown=appuser:appgroup /engine-antiginx/Engined /engine-antiginx/Engined
+COPY . .
 
-# Set ownership and switch to non-root user
-RUN chown -R appuser:appgroup /engine-antiginx
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o ./${ENGINE_BINARY_APP_NAME} ./App
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o ./${ENGINE_BINARY_DAEMON_NAME} ./Engined
+# ---
 
-USER appuser
 
-# Document the ports used by the applications
+# STAGE: Final image to run the application
+FROM run AS runner
+
+ARG ENGINE_BINARY_APP_NAME
+ARG ENGINE_BINARY_DAEMON_NAME
+
+ARG USERNAME
+ARG GROUPNAME
+ARG USER_UID
+ARG USER_GID
+
+WORKDIR /app
+
+RUN apk --no-cache upgrade &&          \
+    apk --no-cache add ca-certificates
+
+RUN addgroup -g ${USER_GID} -S ${GROUPNAME}
+RUN adduser -u ${USER_UID} -S ${USERNAME} -G ${GROUPNAME}
+
+COPY --from=build --chown=${USERNAME}:${GROUPNAME} /app/${ENGINE_BINARY_APP_NAME} ./${ENGINE_BINARY_APP_NAME}
+COPY --from=build --chown=${USERNAME}:${GROUPNAME} /app/${ENGINE_BINARY_DAEMON_NAME} ./${ENGINE_BINARY_DAEMON_NAME}
+
+USER ${USERNAME}
+
 EXPOSE 5000
-CMD ["/engine-antiginx/Engined"]
+CMD ["./${ENGINE_BINARY_DAEMON_NAME}"]
+# ---

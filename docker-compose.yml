@@ -1,9 +1,7 @@
 services:
   engine-antiginx:
     image: ghcr.io/prawo-i-piesc/engine-antiginx:latest
-    command: /engine-antiginx/Engined
-
-    container_name: engine
+    container_name: engine-antiginx
     restart: unless-stopped
 
     ports:
@@ -12,8 +10,7 @@ services:
     environment:
       - BACK_URL=${BACK_URL}
       - RABBITMQ_URL=${RABBITMQ_URL}
-
-    mem_limit: 1024m
+      - ENGINE_ANTIGINX_CALL=${ENGINE_ANTIGINX_CALL}
 
     networks:
       - vpn-net
