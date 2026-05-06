@@ -191,25 +191,37 @@ OUTER:
 			}
 
 			taskId := findParam(task.Parameters, "--taskId")
+			idParam := task.Parameters[taskId]
+
 			if taskId < 0 {
 				fmt.Printf("Invalid task structure, cannot find taskId param.\n")
-				nackErr := msg.Nack(false, false)
+				nackErr := msg.Ack(false)
 				if nackErr != nil {
 					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
 				}
 			}
-			parameter := task.Parameters[taskId]
-			fmt.Printf("Consumer received a task with id: %s\n", parameter)
+
+			ackCounter := getRetryCount(msg)
+			fmt.Printf("Ack counter %d \n", ackCounter)
+			if ackCounter > int64(3) {
+				fmt.Printf("Too many requeing for task with id: %s\n", idParam)
+				nackErr := msg.Ack(false)
+				if nackErr != nil {
+					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
+				}
+			}
+
+			fmt.Printf("Consumer received a task with id: %s\n", idParam)
 			fmt.Printf("Target url %s\n", task.Target)
 
 			var stderrBuff bytes.Buffer
 			cmdErr := runScan(msg.Body, &stderrBuff, engineCall)
 
 			if cmdErr != nil {
-				handleScanError(&stderrBuff, msg)
+				handleScanError(&stderrBuff, msg, *idParam)
 				continue
 			} else {
-				fmt.Printf("Scan performed successfully: %s\n", parameter)
+				fmt.Printf("Scan performed successfully: %s\n", idParam)
 
 				err := msg.Ack(false)
 				if err != nil {
@@ -252,29 +264,43 @@ func runScan(messageBody []byte, stderrBuff *bytes.Buffer, engineCall string) er
 	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)
 	return cmd.Run()
 }
-func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery) {
+func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery, idParam types.CommandParameter) {
 	var errJSON Errors.Error
 	errBytes := stderrBuff.Bytes()
 	if jsonErr := json.Unmarshal(errBytes, &errJSON); jsonErr == nil {
 		fmt.Printf("General error from Engine: %v\n", errJSON)
+		currRetries := getRetryCount(msg)
 		if errJSON.IsRetryable {
-			fmt.Println("Error is retryable. Requeuing")
+			fmt.Printf("Error is retryable. Requeuing task with id: %s | Current retries: %d\n", idParam, currRetries)
 			nackErr := msg.Nack(false, true)
 			if nackErr != nil {
 				fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
 			}
 		} else {
-			fmt.Println("Error is fatal. Discarding")
-			nackErr := msg.Nack(false, false)
+			fmt.Printf("Error is fatal. Discarding task with id %s", idParam)
+			nackErr := msg.Ack(false)
 			if nackErr != nil {
 				fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
 			}
 		}
 	} else {
 		fmt.Printf("Fatal error: %s\n", stderrBuff.String())
-		nackErr := msg.Nack(false, false)
+		nackErr := msg.Ack(false)
 		if nackErr != nil {
 			fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
 		}
 	}
+}
+
+func getRetryCount(msg amqp.Delivery) int64 {
+	if xDeath, ok := msg.Headers["x-death"].([]interface{}); ok {
+		if len(xDeath) > 0 {
+			if deathInfo, ok := xDeath[0].(amqp.Table); ok {
+				if count, ok := deathInfo["count"].(int64); ok {
+					return count
+				}
+			}
+		}
+	}
+	return 0
 }
