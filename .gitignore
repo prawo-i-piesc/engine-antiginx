@@ -1,30 +1,127 @@
-# {{{1 go
+# ------------------------------------------
+# .gitignore for GO projects
+# ------------------------------------------
+
+
+# ------------------------------------------
+# Binaries
+# ------------------------------------------
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
+
+# ------------------------------------------
+# Test binary
+# ------------------------------------------
 *.test
 
+
+# ------------------------------------------
+# Code coverage profiles and other test artifacts
+# ------------------------------------------
 *.out
+coverage.*
+*.coverprofile
+profile.cov
+
+
+# ------------------------------------------
+# Go workspace file
+# ------------------------------------------
 go.work
-# }}}1
+go.work.sum
 
-## {{{1 os
+
+# ------------------------------------------
+# Local env files
+# ------------------------------------------
+.env
+.env*.local
+
+
+# ------------------------------------------
+# ------------------------------------------
+# Other files and directories to ignore
+# ------------------------------------------
+# ------------------------------------------
+
+
+# ------------------------------------------
+# System Files and OS Artifacts
+# ------------------------------------------
+# macOS
 .DS_Store
-## }}}1
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.Trash/
+.CFUserTextEncoding
+.DocumentRevisions-V100
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.*
 
-## {{{1 ide
-.idea
-## }}}1
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.cab
+*.lnk
+Desktop.ini
+$RECYCLE.BIN/
 
-## {{{1 archives
+# Linux
+.directory
+.Trash-*
+.fuse_hidden*
+.Xauthority
+
+
+# ------------------------------------------
+# Code Editor and IDE Files
+# ------------------------------------------
+# Vim
+*.swp
+*.swo
+.netrwhist
+*~
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/keybindings.json
+
+# JetBrains
+.idea/
+*.iml
+
+
+# ------------------------------------------
+# Temporary and Backup Files
+# ------------------------------------------
+*.bak
+*.tmp
+*.temp
+*.dockerfile.bak
+
+
+# ------------------------------------------
+# Archive and Compressed Files
+# ------------------------------------------
 *.7z
 *.bz2
 *.bzip
 *.bzip2
-*.cab
 *.gz
 *.gzip
 *.jar
@@ -35,10 +132,8 @@ go.work
 *.xar
 *.xz
 *.zip
-
 *.iso
 *.dmg
-
 *.deb
 *.egg
 *.gem
@@ -48,4 +143,25 @@ go.work
 *.rpm
 *.txz
 *.xpi
-## }}}1
+
+
+# ------------------------------------------
+# Security-Sensitive Files and Credentials
+# ------------------------------------------
+.ssh/*
+.gnupg/
+.aws/
+.azure/
+.kube/config
+*.pem
+*.key
+.netrc
+.npmrc
+.env
+.env.*
+!.env.example
+.docker/config.json
+.gcloud/
+.config/gh/
+*.p12
+*.pfx
