@@ -30,7 +30,7 @@ func TestBackendReporter_StartListening(t *testing.T) {
 					ThreatLevel: 0,
 					Metadata:    nil,
 					Description: "",
-				}, nil),
+				}, nil, nil),
 		},
 		{
 			name:            "Error 500, retryable",
@@ -44,7 +44,7 @@ func TestBackendReporter_StartListening(t *testing.T) {
 					ThreatLevel: 0,
 					Metadata:    nil,
 					Description: "",
-				}, nil),
+				}, nil, nil),
 		},
 		{
 			name:            "Error 400, non retryable",
@@ -58,14 +58,25 @@ func TestBackendReporter_StartListening(t *testing.T) {
 					ThreatLevel: 0,
 					Metadata:    nil,
 					Description: "",
-				}, nil),
+				}, nil, nil),
 		},
 		{
 			name:            "Nil test results",
 			statusCode:      http.StatusOK,
 			expectedFailure: 1,
 			expectedCalls:   0,
-			testResult:      strategy.WrapStrategyResult(nil, nil),
+			testResult:      strategy.WrapStrategyResult(nil, nil, nil),
+		},
+		{
+			name:            "Unprocessed test with Request Info",
+			statusCode:      http.StatusOK,
+			expectedFailure: 0,
+			expectedCalls:   2,
+			testResult: strategy.WrapStrategyResult(
+				nil, nil, &strategy.RequestInfo{
+					Message: "Test message",
+					Code:    300,
+				}),
 		},
 	}
 	for _, tt := range tests {
