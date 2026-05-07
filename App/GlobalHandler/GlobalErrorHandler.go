@@ -71,9 +71,6 @@ func (e *ErrorHandler) RunSafe() {
 		if r := recover(); r != nil {
 			switch val := r.(type) {
 			case Errors.Error:
-				if val.Code >= 300 {
-
-				}
 				e.printError(val)
 			case HttpClient.HttpError:
 				// Convert specific HTTP error to generic App Error
