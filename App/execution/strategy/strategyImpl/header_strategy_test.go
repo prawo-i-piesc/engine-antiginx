@@ -85,8 +85,8 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 				}
 			}()
 			headerStrategy := InitializeHeaderStrategy(
-				func(target string, useAntiBotDetection bool) *http.Response {
-					return &http.Response{}
+				func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo) {
+					return &http.Response{}, nil
 				}, val.getTest,
 				func(target string, params []string) *string {
 					return &target
