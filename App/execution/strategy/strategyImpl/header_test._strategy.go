@@ -2,22 +2,32 @@ package strategyImpl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
-	"Engine-AntiGinx/App/Helpers"
-	"Engine-AntiGinx/App/Registry"
+	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
+	"net/http"
 	"sync"
 )
 
 // headerTestStrategy implements the strategy.TestStrategy interface.
 // It is responsible for orchestrating header-based security assessments
 // by fetching target content and executing a suite of sub-tests concurrently.
-type headerTestStrategy struct{}
+type headerTestStrategy struct {
+	loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo)
+	getTest            func(testId string) (*Tests.ResponseTest, bool)
+	format             func(target string, params []string) *string
+}
 
 // InitializeHeaderStrategy returns a pointer to a new headerTestStrategy.
 // It acts as the constructor for the header-based testing logic.
-func InitializeHeaderStrategy() *headerTestStrategy {
-	return &headerTestStrategy{}
+func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo),
+	getTest func(testId string) (*Tests.ResponseTest, bool),
+	format func(target string, params []string) *string) *headerTestStrategy {
+	return &headerTestStrategy{
+		loadWebsiteContent: loadWebsiteContent,
+		getTest:            getTest,
+		format:             format,
+	}
 }
 
 // Execute performs the strategy logic by fetching the target website's content
@@ -28,7 +38,7 @@ func InitializeHeaderStrategy() *headerTestStrategy {
 //   - Results are streamed back to the orchestrator via the provided result channel.
 //
 // Logic Flow:
-//  1. Formats the target URL using the targetFormatter helper.
+//  1. Formats the target URL using the format helper.
 //  2. Fetches the raw website content (respecting the antiBotFlag).
 //  3. Iterates through ctx.Args to identify specific sub-tests in the Registry.
 //  4. Launches each valid sub-test in its own goroutine.
@@ -40,9 +50,8 @@ func InitializeHeaderStrategy() *headerTestStrategy {
 //	global ErrorHandler.
 func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	// Using target formatter to properly build target URL
-	targetFormatter := helpers.InitializeTargetFormatter()
-	target := targetFormatter.Format(ctx.Target, ctx.Args)
-	result, reqInfo := strategy.LoadWebsiteContent(*target, antiBotFlag)
+	target := h.format(ctx.Target, ctx.Args)
+	result, reqInfo := h.loadWebsiteContent(*target, antiBotFlag)
 
 	if reqInfo.Code != 0 {
 		channel <- strategy.WrapStrategyResult(nil, nil, reqInfo)
@@ -50,7 +59,7 @@ func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan stra
 	}
 
 	for _, val := range ctx.Args {
-		t, ok := Registry.GetTest(val)
+		t, ok := h.getTest(val)
 		if !ok {
 			panic(error.Error{
 				Code:        100,

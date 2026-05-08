@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// targetFormatter is responsible for formatting target URLs by intelligently adding
+// TargetFormatter is responsible for formatting target URLs by intelligently adding
 // appropriate protocol prefixes (http:// or https://) based on the tests being executed.
 //
 // The formatter implements smart protocol selection:
@@ -18,9 +18,9 @@ import (
 //
 // This ensures tests can properly assess protocol-level security issues without
 // automatic browser redirects interfering with the analysis.
-type targetFormatter struct{}
+type TargetFormatter struct{}
 
-// InitializeTargetFormatter creates a new instance of targetFormatter ready to format
+// InitializeTargetFormatter creates a new instance of TargetFormatter ready to format
 // target URLs. This factory function provides the entry point for creating a formatter
 // that intelligently selects protocols based on test requirements.
 //
@@ -28,15 +28,15 @@ type targetFormatter struct{}
 // if needed, though typically only one instance is created per test run.
 //
 // Returns:
-//   - *targetFormatter: A new formatter instance ready to call Format()
+//   - *TargetFormatter: A new formatter instance ready to call Format()
 //
 // Example:
 //
 //	formatter := InitializeTargetFormatter()
 //	targetURL := formatter.Format("example.com", []string{"https", "hsts"})
 //	// Returns: "http://example.com" (HTTP for protocol testing)
-func InitializeTargetFormatter() *targetFormatter {
-	return &targetFormatter{}
+func InitializeTargetFormatter() *TargetFormatter {
+	return &TargetFormatter{}
 }
 
 // Format constructs a properly formatted target URL by adding the appropriate protocol
@@ -89,7 +89,7 @@ func InitializeTargetFormatter() *targetFormatter {
 //	// Invalid: protocol already specified
 //	url4 := formatter.Format("https://example.com", []string{"https"})
 //	// Panics with error code 100
-func (t *targetFormatter) Format(target string, params []string) *string {
+func (t *TargetFormatter) Format(target string, params []string) *string {
 	if strings.HasPrefix(target, "http") || strings.HasPrefix(target, "https") {
 		panic(Errors.Error{
 			Code: 100,
@@ -127,12 +127,12 @@ func (t *targetFormatter) Format(target string, params []string) *string {
 //
 // Example:
 //
-//	formatter := &targetFormatter{}
+//	formatter := &TargetFormatter{}
 //	tests := []string{"https", "hsts", "csp"}
 //
 //	found1 := formatter.containsParam(tests, "https")  // returns true
 //	found2 := formatter.containsParam(tests, "xFrame") // returns false
-func (t *targetFormatter) containsParam(params []string, token string) bool {
+func (t *TargetFormatter) containsParam(params []string, token string) bool {
 	for _, param := range params {
 		if param == token {
 			return true
