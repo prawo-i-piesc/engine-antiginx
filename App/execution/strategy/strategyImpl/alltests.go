@@ -16,11 +16,16 @@ func InitializeAllTestsStrategy() *allTestsStrategy {
 func (a *allTestsStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	targetFormatter := helpers.InitializeTargetFormatter()
 	target := targetFormatter.Format(ctx.Target, ctx.Args)
-	result := loadWebsiteContent(*target, antiBotFlag)
+	result, reqInfo := strategy.LoadWebsiteContent(*target, antiBotFlag)
+
+	if reqInfo.Code != 0 {
+		channel <- strategy.WrapStrategyResult(nil, nil, reqInfo)
+		return
+	}
 
 	for _, val := range Registry.GetAllTests() {
 		wg.Add(1)
-		go performTest(val, wg, channel, result)
+		go strategy.PerformTest(val, wg, channel, result)
 	}
 }
 

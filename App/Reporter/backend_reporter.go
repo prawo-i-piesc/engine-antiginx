@@ -18,6 +18,7 @@ package Reporter
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/Reporter/types"
 	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"bytes"
@@ -150,6 +151,8 @@ func InitializeBackendReporter(channel chan strategy.ResultWrapper, backendURL s
 //	if failedCount > 0 {
 //	    log.Printf("Warning: %d results failed to upload", failedCount)
 //	}
+
+// TODO rozróżnić kiedy jeden z wyników na kanale ma jakieś reqInfo
 func (b *backendReporter) StartListening() <-chan int {
 	done := make(chan int)
 
@@ -172,7 +175,7 @@ func (b *backendReporter) StartListening() <-chan int {
 				if len(retryChan) == 0 {
 					if failedUploads == 0 {
 						b.sendLastWithFlag(
-							Tests.TestResultWrapper{
+							types.TestResultWrapper{
 								Target:  b.target,
 								TestId:  b.testId,
 								Result:  Tests.TestResult{},
@@ -191,6 +194,16 @@ func (b *backendReporter) StartListening() <-chan int {
 					// Setting the channel to nil disables this case in the select statement,
 					// allowing the loop to continue processing retries.
 					b.resultChannel = nil
+				} else if pres, info := res.GetReqInfo(); pres {
+					b.sendLastWithFlag(
+						types.TestResultWrapper{
+							Target:      b.target,
+							TestId:      b.testId,
+							Result:      Tests.TestResult{},
+							EndFlag:     false,
+							ResultType:  types.Message,
+							ProcessInfo: *info,
+						}, &failedUploads)
 				} else {
 					b.tryToSendOrEnqueue(res, 0, retryChan, &retryWg, &failedUploads)
 				}
@@ -239,11 +252,16 @@ func (b *backendReporter) tryToSendOrEnqueue(result strategy.ResultWrapper, attN
 		*failedUploads++
 		return
 	}
-	resultWrapper := Tests.TestResultWrapper{
-		Target:  b.target,
-		TestId:  b.testId,
-		Result:  *val,
-		EndFlag: false,
+	resultWrapper := types.TestResultWrapper{
+		Target:     b.target,
+		TestId:     b.testId,
+		Result:     *val,
+		EndFlag:    false,
+		ResultType: types.Success,
+		ProcessInfo: strategy.RequestInfo{
+			Message: "Test completed successfully",
+			Code:    0,
+		},
 	}
 	err := b.sendToBackend(resultWrapper)
 	if err == nil {
@@ -315,7 +333,7 @@ func (b *backendReporter) tryToSendOrEnqueue(result strategy.ResultWrapper, attN
 //	        // Permanent failure
 //	    }
 //	}
-func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error {
+func (b *backendReporter) sendToBackend(result types.TestResultWrapper) error {
 	req, err := b.prepareReqWithErrHandling(result)
 	if err != nil {
 		return err
@@ -357,7 +375,7 @@ func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Erro
 		IsRetryable: retryable,
 	}
 }
-func (b *backendReporter) prepareReqWithErrHandling(result Tests.TestResultWrapper) (*http.Request, *Errors.Error) {
+func (b *backendReporter) prepareReqWithErrHandling(result types.TestResultWrapper) (*http.Request, *Errors.Error) {
 	marshalled, err := json.Marshal(result)
 	if err != nil {
 		return nil, &Errors.Error{
@@ -392,7 +410,7 @@ func (b *backendReporter) prepareReqWithErrHandling(result Tests.TestResultWrapp
 // Parameters:
 //   - result:        The TestResultWrapper to send. Typically, this should be an empty result with EndFlag set to true.
 //   - failedUploads: Pointer to an integer counter tracking the number of failed uploads. This will be incremented if the final request fails.
-func (b *backendReporter) sendLastWithFlag(result Tests.TestResultWrapper, failedUploads *int) {
+func (b *backendReporter) sendLastWithFlag(result types.TestResultWrapper, failedUploads *int) {
 	err := b.sendToBackend(result)
 	if err == nil {
 		return
