@@ -1,6 +1,13 @@
 package strategy
 
-import "Engine-AntiGinx/App/Tests"
+import (
+	"Engine-AntiGinx/App/Tests"
+)
+
+type RequestInfo struct {
+	Message string `json:"Message"`
+	Code    int    `json:"Code"`
+}
 
 // ResultWrapper encapsulates the outcome of a strategy execution.
 //
@@ -9,6 +16,7 @@ import "Engine-AntiGinx/App/Tests"
 // and help/usage information (e.g., manual pages) using a single data structure.
 type ResultWrapper struct {
 	testResult  *Tests.TestResult
+	reqInfo     *RequestInfo
 	helpMessage *HelpStrategyResult
 }
 
@@ -38,10 +46,11 @@ type HelpSection struct {
 //
 // Returns:
 //   - ResultWrapper: The initialized wrapper struct
-func WrapStrategyResult(testResult *Tests.TestResult, helpMessage *HelpStrategyResult) ResultWrapper {
+func WrapStrategyResult(testResult *Tests.TestResult, helpMessage *HelpStrategyResult, info *RequestInfo) ResultWrapper {
 	return ResultWrapper{
 		testResult:  testResult,
 		helpMessage: helpMessage,
+		reqInfo:     info,
 	}
 }
 
@@ -54,6 +63,10 @@ func WrapStrategyResult(testResult *Tests.TestResult, helpMessage *HelpStrategyR
 //   - *Tests.TestResult: The pointer to the test result (or nil)
 func (w ResultWrapper) GetTestResult() (bool, *Tests.TestResult) {
 	return w.testResult != nil, w.testResult
+}
+
+func (w ResultWrapper) GetReqInfo() (bool, *RequestInfo) {
+	return w.reqInfo != nil, w.reqInfo
 }
 
 // GetHelpMessage retrieves the underlying help strategy result from the wrapper.

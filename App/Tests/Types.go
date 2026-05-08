@@ -70,19 +70,6 @@ type TestResult struct {
 	Description string      `json:"Description"` // Human-readable findings explanation
 }
 
-// TestResultWrapper represents fully structured response sent to the backend
-// Fields:
-//   - Target: Given target
-//   - TestId: id related to full scan
-//   - Result: Core data of test
-//   - EndFlag: Check if engine finished its job
-type TestResultWrapper struct {
-	Target  string     `json:"target"`
-	TestId  string     `json:"testId"`
-	Result  TestResult `json:"result"`
-	EndFlag bool       `json:"endFlag"`
-}
-
 // ResponseTestParams encapsulates the parameters passed to a ResponseTest for execution.
 // It provides the HTTP response object that tests analyze to detect security issues,
 // misconfigurations, and vulnerabilities.

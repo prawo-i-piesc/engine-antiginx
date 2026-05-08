@@ -146,16 +146,21 @@ func (c *cliReporter) StartListening() <-chan int {
 		// The loop terminates automatically when c.resultChannel is closed by the sender.
 		for result := range c.resultChannel {
 			ok, val := result.GetTestResult()
-			if !ok {
+			okInfo, info := result.GetReqInfo()
+			if !ok && !okInfo {
 				panic(Errors.Error{
 					Code: 100,
 					Message: `Cli Reporter error occurred. This could be due to:
-								- nil Test results`,
+								- fatal error`,
 					Source:      "Cli Reporter",
 					IsRetryable: false,
 				})
 			}
-			printTestResult(*val)
+			if okInfo {
+				printProcessInfo(*info)
+			} else {
+				printTestResult(*val)
+			}
 		}
 
 		// Signal completion. 0 indicates success (no upload errors in CLI mode).
@@ -198,5 +203,11 @@ func printTestResult(result Tests.TestResult) {
 	fmt.Printf("Certanity: %d\n", result.Certainty)
 	fmt.Printf("Threat level %v\n", result.ThreatLevel)
 	fmt.Printf("Description: %s\n", result.Description)
+	fmt.Println(separator)
+}
+
+func printProcessInfo(info strategy.RequestInfo) {
+	fmt.Printf("Engine was unable to test this website\n")
+	fmt.Printf("\nTest process message: \n%s\n", info.Message)
 	fmt.Println(separator)
 }

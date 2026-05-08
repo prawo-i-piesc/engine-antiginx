@@ -25,11 +25,16 @@ func InitializeAllTestsStrategy(loadWebsiteContent func(target string, useAntiBo
 
 func (a *allTestsStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	target := a.format(ctx.Target, ctx.Args)
-	result := a.loadWebsiteContent(*target, antiBotFlag)
+	result, reqInfo := a.loadWebsiteContent(*target, antiBotFlag)
+
+	if reqInfo.Code != 0 {
+		channel <- strategy.WrapStrategyResult(nil, nil, reqInfo)
+		return
+	}
 
 	for _, val := range a.getAllTests() {
 		wg.Add(1)
-		go performTest(val, wg, channel, result)
+		go strategy.PerformTest(val, wg, channel, result)
 	}
 }
 
