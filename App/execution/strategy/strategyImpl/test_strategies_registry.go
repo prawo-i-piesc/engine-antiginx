@@ -2,6 +2,7 @@ package strategyImpl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
+	helpers "Engine-AntiGinx/App/Helpers"
 	"Engine-AntiGinx/App/Registry"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
@@ -18,8 +19,8 @@ var helpStrategies = make(map[string]strategy.TestStrategy)
 // are available as soon as the application starts.
 func init() {
 	// Scan strategies initialization
-	registerStrategy(InitializeHeaderStrategy(loadWebsiteContent, Registry.GetTest))
-	registerStrategy(InitializeAllTestsStrategy(loadWebsiteContent, Registry.GetAllTests))
+	registerStrategy(InitializeHeaderStrategy(loadWebsiteContent, Registry.GetTest, helpers.InitializeTargetFormatter().Format))
+	registerStrategy(InitializeAllTestsStrategy(loadWebsiteContent, Registry.GetAllTests, helpers.InitializeTargetFormatter().Format))
 
 	// Help strategies initialization
 	registerHelpStrategy(NewGeneralHelpStrategy())
