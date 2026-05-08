@@ -191,8 +191,6 @@ OUTER:
 			}
 
 			taskId := findParam(task.Parameters, "--taskId")
-			idParam := task.Parameters[taskId]
-
 			if taskId < 0 {
 				fmt.Printf("Invalid task structure, cannot find taskId param.\n")
 				nackErr := msg.Ack(false)
@@ -200,6 +198,7 @@ OUTER:
 					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
 				}
 			}
+			idParam := task.Parameters[taskId]
 
 			ackCounter := getRetryCount(msg)
 			fmt.Printf("Ack counter %d \n", ackCounter)
