@@ -4,18 +4,21 @@ import (
 	error "Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
-	"Engine-AntiGinx/App/execution/strategy/strategyImpl"
 	"Engine-AntiGinx/App/parser/config/types"
 	"os"
 )
 
-type ScanFormatter struct{}
+type ScanFormatter struct {
+	getStrategy func(name string) (strategy.TestStrategy, bool)
+}
 
 // InitializeFormatter creates a new instance of the ScanFormatter.
 // It is used to prepare the environment for transforming raw command-line
 // arguments into a structured execution plan.
-func InitializeFormatter() *ScanFormatter {
-	return &ScanFormatter{}
+func InitializeFormatter(getStrategy func(name string) (strategy.TestStrategy, bool)) *ScanFormatter {
+	return &ScanFormatter{
+		getStrategy: getStrategy,
+	}
 }
 
 // FormatParameters transforms a slice of CommandParameters into a cohesive Plan.
@@ -42,7 +45,7 @@ func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *exec
 	useAntiBotDetection := antiBotParam != -1
 
 	// Map parameters to executable strategies and their specific contexts
-	mappedStrategies, mappedContexts := mapStrategies(params, target)
+	mappedStrategies, mappedContexts := f.mapStrategies(params, target)
 	var taskId string
 	if _, exists := os.LookupEnv("BACK_URL"); exists {
 		taskIdParam := findParam(params, "--taskId")
@@ -75,7 +78,7 @@ func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *exec
 // Returns:
 //   - A slice of TestStrategy: The sequence of tests to be performed.
 //   - A map of TestContext: Data specific to each strategy, keyed by strategy name.
-func mapStrategies(params []*types.CommandParameter, target string) ([]strategy.TestStrategy, map[string]strategy.TestContext) {
+func (f *ScanFormatter) mapStrategies(params []*types.CommandParameter, target string) ([]strategy.TestStrategy, map[string]strategy.TestContext) {
 	maxCapacity := len(params) - 1
 	if maxCapacity <= 0 {
 		return nil, nil
@@ -86,7 +89,7 @@ func mapStrategies(params []*types.CommandParameter, target string) ([]strategy.
 
 	// Skip the first parameter (target URL) and iterate through potential tests
 	for i := 1; i < len(params); i++ {
-		s, ok := strategyImpl.GetStrategy(params[i].Name)
+		s, ok := f.getStrategy(params[i].Name)
 		if ok {
 			if s.GetName() == "--all" {
 				allStrategy := append(make([]strategy.TestStrategy, 0, 1), s)

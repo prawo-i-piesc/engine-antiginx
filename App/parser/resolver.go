@@ -5,6 +5,7 @@ import (
 	"Engine-AntiGinx/App/Helpers"
 	"Engine-AntiGinx/App/execution"
 	impl2 "Engine-AntiGinx/App/execution/formatterImpl"
+	"Engine-AntiGinx/App/execution/strategy/strategyImpl"
 	"Engine-AntiGinx/App/parser/impl"
 	"os"
 )
@@ -27,17 +28,17 @@ var whiteList = map[string]parserEntry{
 
 	"test": {
 		workerReference:    impl.CreateCommandParser(),
-		formatterReference: impl2.InitializeFormatter(),
+		formatterReference: impl2.InitializeFormatter(strategyImpl.GetStrategy),
 	},
 
 	"json": {
 		workerReference:    impl.CreateJsonParser(helpers.CreateFileReader()),
-		formatterReference: impl2.InitializeFormatter(),
+		formatterReference: impl2.InitializeFormatter(strategyImpl.GetStrategy),
 	},
 
 	"rawjson": {
 		workerReference:    impl.CreateRawJsonParser(os.Stdin),
-		formatterReference: impl2.InitializeFormatter(),
+		formatterReference: impl2.InitializeFormatter(strategyImpl.GetStrategy),
 	},
 
 	"help": {
