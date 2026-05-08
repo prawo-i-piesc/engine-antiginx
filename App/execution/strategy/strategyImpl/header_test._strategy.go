@@ -4,7 +4,6 @@ import (
 	error "Engine-AntiGinx/App/Errors"
 	HttpClient "Engine-AntiGinx/App/HTTP"
 	"Engine-AntiGinx/App/Helpers"
-	"Engine-AntiGinx/App/Registry"
 	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
@@ -16,12 +15,19 @@ import (
 // headerTestStrategy implements the strategy.TestStrategy interface.
 // It is responsible for orchestrating header-based security assessments
 // by fetching target content and executing a suite of sub-tests concurrently.
-type headerTestStrategy struct{}
+type headerTestStrategy struct {
+	loadWebsiteContent func(target string, useAntiBotDetection bool) *http.Response
+	getTest            func(testId string) (*Tests.ResponseTest, bool)
+}
 
 // InitializeHeaderStrategy returns a pointer to a new headerTestStrategy.
 // It acts as the constructor for the header-based testing logic.
-func InitializeHeaderStrategy() *headerTestStrategy {
-	return &headerTestStrategy{}
+func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) *http.Response,
+	getTest func(testId string) (*Tests.ResponseTest, bool)) *headerTestStrategy {
+	return &headerTestStrategy{
+		loadWebsiteContent: loadWebsiteContent,
+		getTest:            getTest,
+	}
 }
 
 // Execute performs the strategy logic by fetching the target website's content
@@ -46,10 +52,10 @@ func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan stra
 	// Using target formatter to properly build target URL
 	targetFormatter := helpers.InitializeTargetFormatter()
 	target := targetFormatter.Format(ctx.Target, ctx.Args)
-	result := loadWebsiteContent(*target, antiBotFlag)
+	result := h.loadWebsiteContent(*target, antiBotFlag)
 
 	for _, val := range ctx.Args {
-		t, ok := Registry.GetTest(val)
+		t, ok := h.getTest(val)
 		if !ok {
 			panic(error.Error{
 				Code:        100,
