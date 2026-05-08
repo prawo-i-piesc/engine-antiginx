@@ -43,7 +43,7 @@ func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan strategy.R
 		Metadata:    nil,
 		Description: "Mock test",
 	}
-	channel <- strategy.WrapStrategyResult(&testResult, nil)
+	channel <- strategy.WrapStrategyResult(&testResult, nil, nil)
 }
 
 func (m *MockStrategy) GetName() string {

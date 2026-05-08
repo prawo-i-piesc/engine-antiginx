@@ -21,7 +21,7 @@ func prepareHelpData() strategy.ResultWrapper {
 	}
 	helpMess.AppendSection(helpSec)
 	helpMess.HelpHeader("test header")
-	return strategy.WrapStrategyResult(nil, &helpMess)
+	return strategy.WrapStrategyResult(nil, &helpMess, nil)
 }
 func TestHelpReporter_StartListening(t *testing.T) {
 	tests := []helpRepTest{

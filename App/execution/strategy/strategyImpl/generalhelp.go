@@ -58,7 +58,7 @@ func (s *generalHelpStrategy) Execute(ctx strategy.TestContext, channel chan str
 		helpMess := strategy.HelpStrategyResult{}
 		helpMess.AppendSection(sectionsArr)
 		helpMess.HelpHeader(name)
-		result := strategy.WrapStrategyResult(nil, &helpMess)
+		result := strategy.WrapStrategyResult(nil, &helpMess, nil)
 		channel <- result
 	}()
 }
