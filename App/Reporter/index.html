@@ -937,6 +937,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-printprocessinfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func printProcessInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-printtestresult" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1419,6 +1430,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-printprocessinfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func printProcessInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-printtestresult" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1790,6 +1812,7 @@
 <h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="#variables">Variables</a></li>
+<li><a href="#printProcessInfo">func printProcessInfo(info strategy.RequestInfo)</a></li>
 <li><a href="#printTestResult">func printTestResult(result Tests.TestResult)</a></li>
 <li><a href="#ConcreteResolver">type ConcreteResolver</a></li>
 <li><a href="#NewResolver">func NewResolver() *ConcreteResolver</a></li>
@@ -1801,9 +1824,9 @@
 <li><a href="#InitializeBackendReporter">func InitializeBackendReporter(channel chan strategy.ResultWrapper, backendURL string, testId string, target string, clientTimeOut int, retryDelay int) *backendReporter</a></li>
 <li><a href="#backendReporter.StartListening">func (b *backendReporter) StartListening() \&lt;-chan int</a></li>
 <li><a href="#backendReporter.handleRetryLogic">func (b *backendReporter) handleRetryLogic(response *http.Response) *Errors.Error</a></li>
-<li><a href="#backendReporter.prepareReqWithErrHandling">func (b *backendReporter) prepareReqWithErrHandling(result Tests.TestResultWrapper) (*http.Request, *Errors.Error)</a></li>
-<li><a href="#backendReporter.sendLastWithFlag">func (b *backendReporter) sendLastWithFlag(result Tests.TestResultWrapper, failedUploads *int)</a></li>
-<li><a href="#backendReporter.sendToBackend">func (b *backendReporter) sendToBackend(result Tests.TestResultWrapper) error</a></li>
+<li><a href="#backendReporter.prepareReqWithErrHandling">func (b *backendReporter) prepareReqWithErrHandling(result types.TestResultWrapper) (*http.Request, *Errors.Error)</a></li>
+<li><a href="#backendReporter.sendLastWithFlag">func (b *backendReporter) sendLastWithFlag(result types.TestResultWrapper, failedUploads *int)</a></li>
+<li><a href="#backendReporter.sendToBackend">func (b *backendReporter) sendToBackend(result types.TestResultWrapper) error</a></li>
 <li><a href="#backendReporter.tryToSendOrEnqueue">func (b *backendReporter) tryToSendOrEnqueue(result strategy.ResultWrapper, attNumber int, retryChan chan retryResult, retryWg *sync.WaitGroup, failedUploads *int)</a></li>
 <li><a href="#cliReporter">type cliReporter</a></li>
 <li><a href="#InitializeCliReporter">func InitializeCliReporter(channel chan strategy.ResultWrapper) *cliReporter</a></li>
@@ -1841,9 +1864,13 @@
 <p><a name="separator"></a>separator is a visual delimiter printed between test results in the console output. It helps distinguish individual test results and improves readability of the output when multiple tests are executed.</p>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">var</span><span class="w"> </span><span class="nx">separator</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">`---------------------------------------------`</span>
 </span></code></pre></div>
+<p><a name="printProcessInfo"></a></p>
+<h2 id="func-printprocessinfo">func printProcessInfo<a class="headerlink" href="#func-printprocessinfo" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">printProcessInfo</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">RequestInfo</span><span class="p">)</span>
+</span></code></pre></div>
 <p><a name="printTestResult"></a></p>
 <h2 id="func-printtestresult">func printTestResult<a class="headerlink" href="#func-printtestresult" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">printTestResult</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">printTestResult</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span><span class="p">)</span>
 </span></code></pre></div>
 <p>printTestResult formats and prints a single test result to stdout with structured formatting. This helper function provides consistent, human-readable output for all test results.</p>
 <p>Output format:</p>
@@ -1866,19 +1893,19 @@
 <li>result: The TestResult structure containing test execution data</li>
 </ul>
 <p>Example output:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Test name: HTTPS Protocol Verification
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Certainty: 100
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Threat level: 4
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Description: Connection uses insecure HTTP protocol - data is transmitted in plaintext
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>---------------------------------------------
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Test name: HTTPS Protocol Verification
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Certainty: 100
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Threat level: 4
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>Description: Connection uses insecure HTTP protocol - data is transmitted in plaintext
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>---------------------------------------------
 </span></code></pre></div>
 <p><a name="ConcreteResolver"></a></p>
 <h2 id="type-concreteresolver">type ConcreteResolver<a class="headerlink" href="#type-concreteresolver" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ConcreteResolver</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ConcreteResolver</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
 </span></code></pre></div>
 <p><a name="NewResolver"></a></p>
 <h3 id="func-newresolver">func NewResolver<a class="headerlink" href="#func-newresolver" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewResolver</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">ConcreteResolver</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewResolver</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">ConcreteResolver</span>
 </span></code></pre></div>
 <p>NewResolver initializes and returns a new instance of the ConcreteResolver struct.</p>
 <p>Returns:</p>
@@ -1887,7 +1914,7 @@
 </ul>
 <p><a name="ConcreteResolver.Resolve"></a></p>
 <h3 id="func-concreteresolver-resolve">func (*ConcreteResolver) Resolve<a class="headerlink" href="#func-concreteresolver-resolve" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ConcreteResolver</span><span class="p">)</span><span class="w"> </span><span class="nx">Resolve</span><span class="p">(</span><span class="nx">ch</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">taskId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">Reporter</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ConcreteResolver</span><span class="p">)</span><span class="w"> </span><span class="nx">Resolve</span><span class="p">(</span><span class="nx">ch</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">taskId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">Reporter</span>
 </span></code></pre></div>
 <p>Resolve determines and initializes the appropriate Reporter implementation based on the provided strategies and environment configuration.</p>
 <p>The resolution logic follows this priority order: 1. If strategies prefer a HelpReporter, it returns a new HelpReporter. 2. If the "BACK_URL" environment variable is set, it returns an initialized BackendReporter. 3. Otherwise, it defaults to returning an InitializeCliReporter.</p>
@@ -1906,7 +1933,7 @@
 </ul>
 <p><a name="ConcreteResolver.checkStrategies"></a></p>
 <h3 id="func-concreteresolver-checkstrategies">func (*ConcreteResolver) checkStrategies<a class="headerlink" href="#func-concreteresolver-checkstrategies" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ConcreteResolver</span><span class="p">)</span><span class="w"> </span><span class="nx">checkStrategies</span><span class="p">(</span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ReporterType</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">ConcreteResolver</span><span class="p">)</span><span class="w"> </span><span class="nx">checkStrategies</span><span class="p">(</span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ReporterType</span>
 </span></code></pre></div>
 <p>checkStrategies validates that all provided strategies share the same preferred reporter type.</p>
 <p>This helper method iterates through the provided strategies to ensure consistency. It will panic if the strategy list is empty or if there is a conflict in the preferred reporter type between different strategies.</p>
@@ -1942,74 +1969,74 @@
 <li>Implementations should handle graceful shutdown without data loss</li>
 </ul>
 <p>Example usage:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>// Create reporter based on configuration
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>var reporter Reporter
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>if backendURL != &quot;&quot; {
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    reporter = InitializeBackendReporter(resultChan, backendURL)
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>} else {
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    reporter = InitializeCliReporter(resultChan)
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>}
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
-</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>// Start processing
-</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>doneChan := reporter.StartListening()
-</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
-</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>// Send results to reporter...
-</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>for _, result := range testResults {
-</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    resultChan &lt;- result
-</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>}
-</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>close(resultChan)
-</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>
-</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>// Wait for completion
-</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>failureCount := &lt;-doneChan
-</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>if failureCount &gt; 0 {
-</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>    log.Printf(&quot;Warning: %d results failed to process&quot;, failureCount)
-</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>}
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>// Create reporter based on configuration
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>var reporter Reporter
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>if backendURL != &quot;&quot; {
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    reporter = InitializeBackendReporter(resultChan, backendURL)
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>} else {
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    reporter = InitializeCliReporter(resultChan)
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>}
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>// Start processing
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>doneChan := reporter.StartListening()
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>// Send results to reporter...
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>for _, result := range testResults {
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>    resultChan &lt;- result
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>}
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>close(resultChan)
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>// Wait for completion
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>failureCount := &lt;-doneChan
+</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>if failureCount &gt; 0 {
+</span><span id="__span-11-21"><a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>    log.Printf(&quot;Warning: %d results failed to process&quot;, failureCount)
+</span><span id="__span-11-22"><a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>}
 </span></code></pre></div>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Reporter</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="c1">// StartListening initiates asynchronous processing of test results from the reporter&#39;s</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="c1">// input channel. This method must be non-blocking and should spawn a goroutine for</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="c1">// background processing.</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="c1">// The method returns a receive-only channel that signals when all processing is complete.</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="c1">// The integer value sent on this channel represents the count of failed operations:</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="c1">//   - 0: All results processed successfully (or no failures possible, as in CLI reporter)</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="c1">//   - &gt;0: Number of results that failed to process (e.g., failed HTTP uploads)</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="c1">// Implementations must:</span>
-</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="c1">//   - Process all results until the input channel is closed</span>
-</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="c1">//   - Handle errors gracefully with appropriate retry logic if applicable</span>
-</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">    </span><span class="c1">//   - Ensure no data loss during shutdown</span>
-</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="c1">//   - Send exactly one value to the returned channel before closing it</span>
-</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="c1">// Returns:</span>
-</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">    </span><span class="c1">//   - &lt;-chan int: Completion signal channel with failure count</span>
-</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="w">    </span><span class="nx">StartListening</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">int</span>
-</span><span id="__span-11-20"><a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Reporter</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="c1">// StartListening initiates asynchronous processing of test results from the reporter&#39;s</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="c1">// input channel. This method must be non-blocking and should spawn a goroutine for</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="c1">// background processing.</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="c1">// The method returns a receive-only channel that signals when all processing is complete.</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="c1">// The integer value sent on this channel represents the count of failed operations:</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="c1">//   - 0: All results processed successfully (or no failures possible, as in CLI reporter)</span>
+</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="c1">//   - &gt;0: Number of results that failed to process (e.g., failed HTTP uploads)</span>
+</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="c1">// Implementations must:</span>
+</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="c1">//   - Process all results until the input channel is closed</span>
+</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="c1">//   - Handle errors gracefully with appropriate retry logic if applicable</span>
+</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="c1">//   - Ensure no data loss during shutdown</span>
+</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="c1">//   - Send exactly one value to the returned channel before closing it</span>
+</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="c1">// Returns:</span>
+</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="c1">//   - &lt;-chan int: Completion signal channel with failure count</span>
+</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">    </span><span class="nx">StartListening</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">int</span>
+</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="Resolver"></a></p>
 <h2 id="type-resolver">type Resolver<a class="headerlink" href="#type-resolver" title="Permanent link">&para;</a></h2>
 <p>Resolver defines the contract for determining and creating the appropriate Reporter instance based on the execution context and configuration.</p>
 <p>Implementations of this interface are responsible for analyzing the provided strategies and environment settings to decide which reporting mechanism (e.g., CLI, Backend, Help) should be used.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Resolver</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="c1">// Resolve instantiates and returns a concrete Reporter implementation.</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="c1">// It acts as a factory method that uses the provided strategies to determine</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="c1">// the correct reporting type and initializes it with the necessary context.</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="c1">// Parameters:</span>
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="c1">//  - ch: The channel used for transmitting result wrappers asynchronously</span>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="c1">//  - taskId: The unique identifier for the current task</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">    </span><span class="c1">//  - target: The target endpoint or system string</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">    </span><span class="c1">//  - clientTimeOut: The timeout duration for the client</span>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="c1">//  - retryDelay: The delay duration between retries</span>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">    </span><span class="c1">//  - strategies: A list of TestStrategy objects to derive the preferred reporter type</span>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="w">    </span><span class="c1">// Returns:</span>
-</span><span id="__span-12-17"><a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="w">    </span><span class="c1">//  - Reporter: An initialized reporter interface ready to handle results</span>
-</span><span id="__span-12-18"><a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="w">    </span><span class="nx">Resolve</span><span class="p">(</span><span class="nx">ch</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">taskId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
-</span><span id="__span-12-19"><a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="w">        </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">Reporter</span>
-</span><span id="__span-12-20"><a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">Resolver</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="c1">// Resolve instantiates and returns a concrete Reporter implementation.</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="c1">// It acts as a factory method that uses the provided strategies to determine</span>
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="c1">// the correct reporting type and initializes it with the necessary context.</span>
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="c1">// Parameters:</span>
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="c1">//  - ch: The channel used for transmitting result wrappers asynchronously</span>
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="c1">//  - taskId: The unique identifier for the current task</span>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">    </span><span class="c1">//  - target: The target endpoint or system string</span>
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">    </span><span class="c1">//  - clientTimeOut: The timeout duration for the client</span>
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">    </span><span class="c1">//  - retryDelay: The delay duration between retries</span>
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">    </span><span class="c1">//  - strategies: A list of TestStrategy objects to derive the preferred reporter type</span>
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">    </span><span class="c1">// Returns:</span>
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">    </span><span class="c1">//  - Reporter: An initialized reporter interface ready to handle results</span>
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="w">    </span><span class="nx">Resolve</span><span class="p">(</span><span class="nx">ch</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">taskId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="w">        </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">Reporter</span>
+</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="backendReporter"></a></p>
 <h2 id="type-backendreporter">type backendReporter<a class="headerlink" href="#type-backendreporter" title="Permanent link">&para;</a></h2>
@@ -2029,19 +2056,19 @@
 <li>maxRetries: Maximum retry attempts for failed submissions (default: 2)</li>
 <li>httpClient: HTTP client with configured timeout (default: 5 seconds)</li>
 </ul>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">backendReporter</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="nx">resultChannel</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nx">backendURL</span><span class="w">    </span><span class="kt">string</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="nx">testId</span><span class="w">        </span><span class="kt">string</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="nx">target</span><span class="w">        </span><span class="kt">string</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="nx">maxRetries</span><span class="w">    </span><span class="kt">int</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="nx">retryDelay</span><span class="w">    </span><span class="kt">int</span>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="nx">httpClient</span><span class="w">    </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">backendReporter</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nx">resultChannel</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nx">backendURL</span><span class="w">    </span><span class="kt">string</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nx">testId</span><span class="w">        </span><span class="kt">string</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="nx">target</span><span class="w">        </span><span class="kt">string</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="nx">maxRetries</span><span class="w">    </span><span class="kt">int</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="nx">retryDelay</span><span class="w">    </span><span class="kt">int</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="w">    </span><span class="nx">httpClient</span><span class="w">    </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span>
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="InitializeBackendReporter"></a></p>
 <h3 id="func-initializebackendreporter">func InitializeBackendReporter<a class="headerlink" href="#func-initializebackendreporter" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">InitializeBackendReporter</span><span class="p">(</span><span class="nx">channel</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">backendURL</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">testId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">InitializeBackendReporter</span><span class="p">(</span><span class="nx">channel</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">backendURL</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">testId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span>
 </span></code></pre></div>
 <p>InitializeBackendReporter creates and configures a new instance of backendReporter with sensible defaults for production use. The reporter is ready to start processing results immediately after initialization.</p>
 <p>Default configuration:</p>
@@ -2061,72 +2088,30 @@
 <li>*backendReporter: Configured reporter instance ready to start listening</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>resultChan := make(chan Tests.TestResult, 10)
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>reporter := InitializeBackendReporter(resultChan, &quot;http://api.example.com/results&quot;)
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>doneChan := reporter.StartListening()
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>// ... send results to resultChan ...
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>close(resultChan)
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>failedCount := &lt;-doneChan
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>fmt.Printf(&quot;Processing complete. Failed uploads: %d\n&quot;, failedCount)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>resultChan := make(chan Tests.TestResult, 10)
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>reporter := InitializeBackendReporter(resultChan, &quot;http://api.example.com/results&quot;)
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>doneChan := reporter.StartListening()
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>// ... send results to resultChan ...
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>close(resultChan)
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>failedCount := &lt;-doneChan
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>fmt.Printf(&quot;Processing complete. Failed uploads: %d\n&quot;, failedCount)
 </span></code></pre></div>
 <p><a name="backendReporter.StartListening"></a></p>
 <h3 id="func-backendreporter-startlistening">func (*backendReporter) StartListening<a class="headerlink" href="#func-backendreporter-startlistening" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">StartListening</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">int</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">StartListening</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">int</span>
 </span></code></pre></div>
-<p>StartListening initiates the asynchronous background processing loop that consumes test results and forwards them to the backend service. This method spawns a goroutine that handles both new results and retry attempts concurrently.</p>
-<p>Processing architecture:</p>
-<p>The method uses a select statement to handle two input sources:</p>
-<ol>
-<li>resultChannel: New test results from the Runner</li>
-<li>retryChan: Failed results waiting for retry after backoff delay</li>
-</ol>
-<p>Graceful shutdown sequence:</p>
-<ol>
-<li>Producer closes resultChannel signaling no more results</li>
-<li>Reporter processes all remaining results in the channel</li>
-<li>Reporter waits for all sleeping retry goroutines (via retryWg)</li>
-<li>Reporter processes any new retries added by sleeping goroutines</li>
-<li>Reporter sends final failure count and exits</li>
-</ol>
-<p>This ensures zero data loss during shutdown - all results are either successfully submitted or counted as failures.</p>
-<p>Retry mechanism:</p>
-<ul>
-<li>Buffered retry channel (capacity: 10) prevents blocking</li>
-<li>WaitGroup tracks sleeping retry goroutines</li>
-<li>2-second delay between retry attempts</li>
-<li>Retryable errors are re-queued up to maxRetries limit</li>
-</ul>
-<p>Returns:</p>
-<ul>
-<li>\&lt;-chan int: Read-only channel that receives the total count of failed uploads once all processing is complete (including retries)</li>
-</ul>
-<p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>reporter := InitializeBackendReporter(resultChan, &quot;http://api.example.com/results&quot;)
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>doneChan := reporter.StartListening()
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
-</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>// Send results...
-</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>for _, result := range testResults {
-</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    resultChan &lt;- result
-</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>}
-</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>close(resultChan)
-</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>
-</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>// Wait for completion
-</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>failedCount := &lt;-doneChan
-</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>if failedCount &gt; 0 {
-</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    log.Printf(&quot;Warning: %d results failed to upload&quot;, failedCount)
-</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>}
-</span></code></pre></div>
+<p>TODO rozróżnić kiedy jeden z wyników na kanale ma jakieś reqInfo</p>
 <p><a name="backendReporter.handleRetryLogic"></a></p>
 <h3 id="func-backendreporter-handleretrylogic">func (*backendReporter) handleRetryLogic<a class="headerlink" href="#func-backendreporter-handleretrylogic" title="Permanent link">&para;</a></h3>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">handleRetryLogic</span><span class="p">(</span><span class="nx">response</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">Errors</span><span class="p">.</span><span class="nx">Error</span>
 </span></code></pre></div>
 <p><a name="backendReporter.prepareReqWithErrHandling"></a></p>
 <h3 id="func-backendreporter-preparereqwitherrhandling">func (*backendReporter) prepareReqWithErrHandling<a class="headerlink" href="#func-backendreporter-preparereqwitherrhandling" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">prepareReqWithErrHandling</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">Errors</span><span class="p">.</span><span class="nx">Error</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">prepareReqWithErrHandling</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">TestResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">Errors</span><span class="p">.</span><span class="nx">Error</span><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="backendReporter.sendLastWithFlag"></a></p>
 <h3 id="func-backendreporter-sendlastwithflag">func (*backendReporter) sendLastWithFlag<a class="headerlink" href="#func-backendreporter-sendlastwithflag" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">sendLastWithFlag</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">failedUploads</span><span class="w"> </span><span class="o">*</span><span class="kt">int</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">sendLastWithFlag</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">TestResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">failedUploads</span><span class="w"> </span><span class="o">*</span><span class="kt">int</span><span class="p">)</span>
 </span></code></pre></div>
 <p>sendLastWithFlag sends a final request to the backend to signal that the engine has completed its work.</p>
 <p>This method sends an empty TestResult with EndFlag=true to the backend, indicating completion of all test processing. It handles both retryable and non-retryable errors: if the error is retryable, it waits 2 seconds and retries once more; otherwise, it increments the failedUploads counter.</p>
@@ -2137,7 +2122,7 @@
 </ul>
 <p><a name="backendReporter.sendToBackend"></a></p>
 <h3 id="func-backendreporter-sendtobackend">func (*backendReporter) sendToBackend<a class="headerlink" href="#func-backendreporter-sendtobackend" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">sendToBackend</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="w"> </span><span class="o">*</span><span class="nx">backendReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">sendToBackend</span><span class="p">(</span><span class="nx">result</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">TestResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
 </span></code></pre></div>
 <p>sendToBackend performs the actual HTTP POST request to the configured backend endpoint with comprehensive error handling and classification. This method executes the complete HTTP request lifecycle from marshaling to response validation.</p>
 <p>Request process:</p>
@@ -2359,7 +2344,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 7, 2026 09:24:14 UTC"><span class="timeago" datetime="2026-05-07T09:24:14+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 7, 2026 09:24:14 UTC">2026-05-07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 19:53:23 UTC"><span class="timeago" datetime="2026-05-08T19:53:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 19:53:23 UTC">2026-05-08</span>
   </span>
 
     
@@ -2369,7 +2354,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 7, 2026 09:24:14 UTC"><span class="timeago" datetime="2026-05-07T09:24:14+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 7, 2026 09:24:14 UTC">2026-05-07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 19:53:23 UTC"><span class="timeago" datetime="2026-05-08T19:53:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 19:53:23 UTC">2026-05-08</span>
   </span>
 
     

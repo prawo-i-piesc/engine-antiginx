@@ -2003,17 +2003,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#type-testresultwrapper" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        type TestResultWrapper
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#type-threatlevel" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3333,17 +3322,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#type-testresultwrapper" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        type TestResultWrapper
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#type-threatlevel" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3805,7 +3783,6 @@
 <li><a href="#SitemapAnalysis">type SitemapAnalysis</a></li>
 <li><a href="#analyzeSitemap">func analyzeSitemap(baseUrl string) SitemapAnalysis</a></li>
 <li><a href="#TestResult">type TestResult</a></li>
-<li><a href="#TestResultWrapper">type TestResultWrapper</a></li>
 <li><a href="#ThreatLevel">type ThreatLevel</a></li>
 <li><a href="#evaluateCSPThreatLevel">func evaluateCSPThreatLevel(analysis CSPAnalysis) ThreatLevel</a></li>
 <li><a href="#evaluateCookieThreatLevel">func evaluateCookieThreatLevel(analysis CookieSecurityAnalysis) ThreatLevel</a></li>
@@ -5532,22 +5509,6 @@
 </span><span id="__span-114-6"><a id="__codelineno-114-6" name="__codelineno-114-6" href="#__codelineno-114-6"></a><span class="w">    </span><span class="nx">Description</span><span class="w"> </span><span class="kt">string</span><span class="w">      </span><span class="s">`json:&quot;Description&quot;`</span><span class="w"> </span><span class="c1">// Human-readable findings explanation</span>
 </span><span id="__span-114-7"><a id="__codelineno-114-7" name="__codelineno-114-7" href="#__codelineno-114-7"></a><span class="p">}</span>
 </span></code></pre></div>
-<p><a name="TestResultWrapper"></a></p>
-<h2 id="type-testresultwrapper">type TestResultWrapper<a class="headerlink" href="#type-testresultwrapper" title="Permanent link">&para;</a></h2>
-<p>TestResultWrapper represents fully structured response sent to the backend Fields:</p>
-<ul>
-<li>Target: Given target</li>
-<li>TestId: id related to full scan</li>
-<li>Result: Core data of test</li>
-<li>EndFlag: Check if engine finished its job</li>
-</ul>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-115-1"><a id="__codelineno-115-1" name="__codelineno-115-1" href="#__codelineno-115-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TestResultWrapper</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-115-2"><a id="__codelineno-115-2" name="__codelineno-115-2" href="#__codelineno-115-2"></a><span class="w">    </span><span class="nx">Target</span><span class="w">  </span><span class="kt">string</span><span class="w">     </span><span class="s">`json:&quot;target&quot;`</span>
-</span><span id="__span-115-3"><a id="__codelineno-115-3" name="__codelineno-115-3" href="#__codelineno-115-3"></a><span class="w">    </span><span class="nx">TestId</span><span class="w">  </span><span class="kt">string</span><span class="w">     </span><span class="s">`json:&quot;testId&quot;`</span>
-</span><span id="__span-115-4"><a id="__codelineno-115-4" name="__codelineno-115-4" href="#__codelineno-115-4"></a><span class="w">    </span><span class="nx">Result</span><span class="w">  </span><span class="nx">TestResult</span><span class="w"> </span><span class="s">`json:&quot;result&quot;`</span>
-</span><span id="__span-115-5"><a id="__codelineno-115-5" name="__codelineno-115-5" href="#__codelineno-115-5"></a><span class="w">    </span><span class="nx">EndFlag</span><span class="w"> </span><span class="kt">bool</span><span class="w">       </span><span class="s">`json:&quot;endFlag&quot;`</span>
-</span><span id="__span-115-6"><a id="__codelineno-115-6" name="__codelineno-115-6" href="#__codelineno-115-6"></a><span class="p">}</span>
-</span></code></pre></div>
 <p><a name="ThreatLevel"></a></p>
 <h2 id="type-threatlevel">type ThreatLevel<a class="headerlink" href="#type-threatlevel" title="Permanent link">&para;</a></h2>
 <p>ThreatLevel represents the security threat classification for test results. It provides a standardized scale from None (no threat) to Critical (severe vulnerability) aligned with industry security standards and risk assessment frameworks.</p>
@@ -5558,7 +5519,7 @@
 <li>Risk-based decision making</li>
 <li>Compliance with security reporting standards</li>
 </ul>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-116-1"><a id="__codelineno-116-1" name="__codelineno-116-1" href="#__codelineno-116-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ThreatLevel</span><span class="w"> </span><span class="kt">int</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-115-1"><a id="__codelineno-115-1" name="__codelineno-115-1" href="#__codelineno-115-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ThreatLevel</span><span class="w"> </span><span class="kt">int</span>
 </span></code></pre></div>
 <p><a name="None"></a>ThreatLevel enumeration constants representing increasing levels of security concern. These levels align with CVSS severity ratings and common security frameworks.</p>
 <p>Level definitions:</p>
@@ -5570,28 +5531,28 @@
 <li>High (4): Serious vulnerabilities with significant security impact</li>
 <li>Critical (5): Severe vulnerabilities requiring immediate remediation</li>
 </ul>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-117-1"><a id="__codelineno-117-1" name="__codelineno-117-1" href="#__codelineno-117-1"></a><span class="kd">const</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-117-2"><a id="__codelineno-117-2" name="__codelineno-117-2" href="#__codelineno-117-2"></a><span class="w">    </span><span class="nx">None</span><span class="w">     </span><span class="nx">ThreatLevel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">iota</span><span class="w"> </span><span class="c1">// 0 - No security issues</span>
-</span><span id="__span-117-3"><a id="__codelineno-117-3" name="__codelineno-117-3" href="#__codelineno-117-3"></a><span class="w">    </span><span class="nx">Info</span><span class="w">                        </span><span class="c1">// 1 - Informational findings</span>
-</span><span id="__span-117-4"><a id="__codelineno-117-4" name="__codelineno-117-4" href="#__codelineno-117-4"></a><span class="w">    </span><span class="nx">Low</span><span class="w">                         </span><span class="c1">// 2 - Low severity issues</span>
-</span><span id="__span-117-5"><a id="__codelineno-117-5" name="__codelineno-117-5" href="#__codelineno-117-5"></a><span class="w">    </span><span class="nx">Medium</span><span class="w">                      </span><span class="c1">// 3 - Medium severity issues</span>
-</span><span id="__span-117-6"><a id="__codelineno-117-6" name="__codelineno-117-6" href="#__codelineno-117-6"></a><span class="w">    </span><span class="nx">High</span><span class="w">                        </span><span class="c1">// 4 - High severity vulnerabilities</span>
-</span><span id="__span-117-7"><a id="__codelineno-117-7" name="__codelineno-117-7" href="#__codelineno-117-7"></a><span class="w">    </span><span class="nx">Critical</span><span class="w">                    </span><span class="c1">// 5 - Critical vulnerabilities</span>
-</span><span id="__span-117-8"><a id="__codelineno-117-8" name="__codelineno-117-8" href="#__codelineno-117-8"></a><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-116-1"><a id="__codelineno-116-1" name="__codelineno-116-1" href="#__codelineno-116-1"></a><span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-116-2"><a id="__codelineno-116-2" name="__codelineno-116-2" href="#__codelineno-116-2"></a><span class="w">    </span><span class="nx">None</span><span class="w">     </span><span class="nx">ThreatLevel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="kc">iota</span><span class="w"> </span><span class="c1">// 0 - No security issues</span>
+</span><span id="__span-116-3"><a id="__codelineno-116-3" name="__codelineno-116-3" href="#__codelineno-116-3"></a><span class="w">    </span><span class="nx">Info</span><span class="w">                        </span><span class="c1">// 1 - Informational findings</span>
+</span><span id="__span-116-4"><a id="__codelineno-116-4" name="__codelineno-116-4" href="#__codelineno-116-4"></a><span class="w">    </span><span class="nx">Low</span><span class="w">                         </span><span class="c1">// 2 - Low severity issues</span>
+</span><span id="__span-116-5"><a id="__codelineno-116-5" name="__codelineno-116-5" href="#__codelineno-116-5"></a><span class="w">    </span><span class="nx">Medium</span><span class="w">                      </span><span class="c1">// 3 - Medium severity issues</span>
+</span><span id="__span-116-6"><a id="__codelineno-116-6" name="__codelineno-116-6" href="#__codelineno-116-6"></a><span class="w">    </span><span class="nx">High</span><span class="w">                        </span><span class="c1">// 4 - High severity vulnerabilities</span>
+</span><span id="__span-116-7"><a id="__codelineno-116-7" name="__codelineno-116-7" href="#__codelineno-116-7"></a><span class="w">    </span><span class="nx">Critical</span><span class="w">                    </span><span class="c1">// 5 - Critical vulnerabilities</span>
+</span><span id="__span-116-8"><a id="__codelineno-116-8" name="__codelineno-116-8" href="#__codelineno-116-8"></a><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="evaluateCSPThreatLevel"></a></p>
 <h3 id="func-evaluatecspthreatlevel">func evaluateCSPThreatLevel<a class="headerlink" href="#func-evaluatecspthreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-118-1"><a id="__codelineno-118-1" name="__codelineno-118-1" href="#__codelineno-118-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateCSPThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">CSPAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-117-1"><a id="__codelineno-117-1" name="__codelineno-117-1" href="#__codelineno-117-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateCSPThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">CSPAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateCSPThreatLevel determines the threat level based on CSP analysis</p>
 <p><a name="evaluateCookieThreatLevel"></a></p>
 <h3 id="func-evaluatecookiethreatlevel">func evaluateCookieThreatLevel<a class="headerlink" href="#func-evaluatecookiethreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-119-1"><a id="__codelineno-119-1" name="__codelineno-119-1" href="#__codelineno-119-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateCookieThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">CookieSecurityAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-118-1"><a id="__codelineno-118-1" name="__codelineno-118-1" href="#__codelineno-118-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateCookieThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">CookieSecurityAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateCookieThreatLevel determines threat level based on analysis</p>
 <p><a name="evaluateCrossOriginThreatLevel"></a></p>
 <h3 id="func-evaluatecrossoriginthreatlevel">func evaluateCrossOriginThreatLevel<a class="headerlink" href="#func-evaluatecrossoriginthreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-120-1"><a id="__codelineno-120-1" name="__codelineno-120-1" href="#__codelineno-120-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateCrossOriginThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-119-1"><a id="__codelineno-119-1" name="__codelineno-119-1" href="#__codelineno-119-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateCrossOriginThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateCrossOriginThreatLevel determines the security threat level based on cross-origin headers configuration and their security implications.</p>
 <p>Parameters:</p>
@@ -5604,7 +5565,7 @@
 </ul>
 <p><a name="evaluateHSTSThreatLevel"></a></p>
 <h3 id="func-evaluatehststhreatlevel">func evaluateHSTSThreatLevel<a class="headerlink" href="#func-evaluatehststhreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-121-1"><a id="__codelineno-121-1" name="__codelineno-121-1" href="#__codelineno-121-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateHSTSThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-120-1"><a id="__codelineno-120-1" name="__codelineno-120-1" href="#__codelineno-120-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateHSTSThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateHSTSThreatLevel determines the security threat level based on HSTS configuration quality. It applies industry best practices and security standards to classify the HSTS implementation strength.</p>
 <p>Threat level classification:</p>
@@ -5694,26 +5655,26 @@
 <li>ThreatLevel: Security classification (None, Info, Low, Medium, or High)</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-122-1"><a id="__codelineno-122-1" name="__codelineno-122-1" href="#__codelineno-122-1"></a>metadata := map[string]interface{}{
-</span><span id="__span-122-2"><a id="__codelineno-122-2" name="__codelineno-122-2" href="#__codelineno-122-2"></a>    &quot;max_age&quot;: 31536000,
-</span><span id="__span-122-3"><a id="__codelineno-122-3" name="__codelineno-122-3" href="#__codelineno-122-3"></a>    &quot;include_subdomains&quot;: true,
-</span><span id="__span-122-4"><a id="__codelineno-122-4" name="__codelineno-122-4" href="#__codelineno-122-4"></a>    &quot;preload&quot;: true,
-</span><span id="__span-122-5"><a id="__codelineno-122-5" name="__codelineno-122-5" href="#__codelineno-122-5"></a>}
-</span><span id="__span-122-6"><a id="__codelineno-122-6" name="__codelineno-122-6" href="#__codelineno-122-6"></a>level := evaluateHSTSThreatLevel(metadata)  // Returns: None (Excellent)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-121-1"><a id="__codelineno-121-1" name="__codelineno-121-1" href="#__codelineno-121-1"></a>metadata := map[string]interface{}{
+</span><span id="__span-121-2"><a id="__codelineno-121-2" name="__codelineno-121-2" href="#__codelineno-121-2"></a>    &quot;max_age&quot;: 31536000,
+</span><span id="__span-121-3"><a id="__codelineno-121-3" name="__codelineno-121-3" href="#__codelineno-121-3"></a>    &quot;include_subdomains&quot;: true,
+</span><span id="__span-121-4"><a id="__codelineno-121-4" name="__codelineno-121-4" href="#__codelineno-121-4"></a>    &quot;preload&quot;: true,
+</span><span id="__span-121-5"><a id="__codelineno-121-5" name="__codelineno-121-5" href="#__codelineno-121-5"></a>}
+</span><span id="__span-121-6"><a id="__codelineno-121-6" name="__codelineno-121-6" href="#__codelineno-121-6"></a>level := evaluateHSTSThreatLevel(metadata)  // Returns: None (Excellent)
 </span></code></pre></div>
 <p><a name="evaluateObfuscationThreat"></a></p>
 <h3 id="func-evaluateobfuscationthreat">func evaluateObfuscationThreat<a class="headerlink" href="#func-evaluateobfuscationthreat" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-123-1"><a id="__codelineno-123-1" name="__codelineno-123-1" href="#__codelineno-123-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateObfuscationThreat</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">JSObfuscationAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-122-1"><a id="__codelineno-122-1" name="__codelineno-122-1" href="#__codelineno-122-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateObfuscationThreat</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">JSObfuscationAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateObfuscationThreat determines threat level</p>
 <p><a name="evaluatePermissionsPolicyThreatLevel"></a></p>
 <h3 id="func-evaluatepermissionspolicythreatlevel">func evaluatePermissionsPolicyThreatLevel<a class="headerlink" href="#func-evaluatepermissionspolicythreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-124-1"><a id="__codelineno-124-1" name="__codelineno-124-1" href="#__codelineno-124-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluatePermissionsPolicyThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-123-1"><a id="__codelineno-123-1" name="__codelineno-123-1" href="#__codelineno-123-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluatePermissionsPolicyThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluatePermissionsPolicyThreatLevel determines the security threat level based on Permissions-Policy configuration.</p>
 <p><a name="evaluateReferrerPolicyThreatLevel"></a></p>
 <h3 id="func-evaluatereferrerpolicythreatlevel">func evaluateReferrerPolicyThreatLevel<a class="headerlink" href="#func-evaluatereferrerpolicythreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-125-1"><a id="__codelineno-125-1" name="__codelineno-125-1" href="#__codelineno-125-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateReferrerPolicyThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-124-1"><a id="__codelineno-124-1" name="__codelineno-124-1" href="#__codelineno-124-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateReferrerPolicyThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateReferrerPolicyThreatLevel determines the security threat level based on Referrer-Policy configuration quality. It applies privacy and security best practices to classify the referrer policy implementation strength.</p>
 <p>Threat level classification:</p>
@@ -5787,16 +5748,16 @@
 <li>ThreatLevel: Security classification (None, Info, Low, Medium, or High)</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-126-1"><a id="__codelineno-126-1" name="__codelineno-126-1" href="#__codelineno-126-1"></a>metadata := map[string]interface{}{
-</span><span id="__span-126-2"><a id="__codelineno-126-2" name="__codelineno-126-2" href="#__codelineno-126-2"></a>    &quot;effective_policy&quot;: &quot;strict-origin-when-cross-origin&quot;,
-</span><span id="__span-126-3"><a id="__codelineno-126-3" name="__codelineno-126-3" href="#__codelineno-126-3"></a>    &quot;has_unsafe&quot;: false,
-</span><span id="__span-126-4"><a id="__codelineno-126-4" name="__codelineno-126-4" href="#__codelineno-126-4"></a>}
-</span><span id="__span-126-5"><a id="__codelineno-126-5" name="__codelineno-126-5" href="#__codelineno-126-5"></a>level := evaluateReferrerPolicyThreatLevel(metadata)
-</span><span id="__span-126-6"><a id="__codelineno-126-6" name="__codelineno-126-6" href="#__codelineno-126-6"></a>// Returns: None (excellent configuration)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-125-1"><a id="__codelineno-125-1" name="__codelineno-125-1" href="#__codelineno-125-1"></a>metadata := map[string]interface{}{
+</span><span id="__span-125-2"><a id="__codelineno-125-2" name="__codelineno-125-2" href="#__codelineno-125-2"></a>    &quot;effective_policy&quot;: &quot;strict-origin-when-cross-origin&quot;,
+</span><span id="__span-125-3"><a id="__codelineno-125-3" name="__codelineno-125-3" href="#__codelineno-125-3"></a>    &quot;has_unsafe&quot;: false,
+</span><span id="__span-125-4"><a id="__codelineno-125-4" name="__codelineno-125-4" href="#__codelineno-125-4"></a>}
+</span><span id="__span-125-5"><a id="__codelineno-125-5" name="__codelineno-125-5" href="#__codelineno-125-5"></a>level := evaluateReferrerPolicyThreatLevel(metadata)
+</span><span id="__span-125-6"><a id="__codelineno-125-6" name="__codelineno-125-6" href="#__codelineno-125-6"></a>// Returns: None (excellent configuration)
 </span></code></pre></div>
 <p><a name="evaluateServerExposureThreatLevel"></a></p>
 <h3 id="func-evaluateserverexposurethreatlevel">func evaluateServerExposureThreatLevel<a class="headerlink" href="#func-evaluateserverexposurethreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-127-1"><a id="__codelineno-127-1" name="__codelineno-127-1" href="#__codelineno-127-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateServerExposureThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="o">*</span><span class="nx">ServerHeaderAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-126-1"><a id="__codelineno-126-1" name="__codelineno-126-1" href="#__codelineno-126-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateServerExposureThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="o">*</span><span class="nx">ServerHeaderAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateServerExposureThreatLevel calculates the security threat level based on server header information disclosure and known vulnerabilities.</p>
 <p>This function implements a sophisticated threat assessment algorithm that combines:</p>
@@ -5849,29 +5810,29 @@
 <li>ThreatLevel: Final calculated threat level (None/Info/Low/Medium/High/Critical)</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-128-1"><a id="__codelineno-128-1" name="__codelineno-128-1" href="#__codelineno-128-1"></a>// Minimal exposure, no CVEs
-</span><span id="__span-128-2"><a id="__codelineno-128-2" name="__codelineno-128-2" href="#__codelineno-128-2"></a>analysis := &amp;ServerHeaderAnalysis{
-</span><span id="__span-128-3"><a id="__codelineno-128-3" name="__codelineno-128-3" href="#__codelineno-128-3"></a>    total_exposures: 1,
-</span><span id="__span-128-4"><a id="__codelineno-128-4" name="__codelineno-128-4" href="#__codelineno-128-4"></a>    technologies: []string{&quot;Cloudflare&quot;},
-</span><span id="__span-128-5"><a id="__codelineno-128-5" name="__codelineno-128-5" href="#__codelineno-128-5"></a>}
-</span><span id="__span-128-6"><a id="__codelineno-128-6" name="__codelineno-128-6" href="#__codelineno-128-6"></a>level := evaluateServerExposureThreatLevel(analysis)
-</span><span id="__span-128-7"><a id="__codelineno-128-7" name="__codelineno-128-7" href="#__codelineno-128-7"></a>// Returns: Info
-</span><span id="__span-128-8"><a id="__codelineno-128-8" name="__codelineno-128-8" href="#__codelineno-128-8"></a>
-</span><span id="__span-128-9"><a id="__codelineno-128-9" name="__codelineno-128-9" href="#__codelineno-128-9"></a>// Multiple exposures with vulnerable technology
-</span><span id="__span-128-10"><a id="__codelineno-128-10" name="__codelineno-128-10" href="#__codelineno-128-10"></a>analysis := &amp;ServerHeaderAnalysis{
-</span><span id="__span-128-11"><a id="__codelineno-128-11" name="__codelineno-128-11" href="#__codelineno-128-11"></a>    total_exposures: 5,
-</span><span id="__span-128-12"><a id="__codelineno-128-12" name="__codelineno-128-12" href="#__codelineno-128-12"></a>    technologies: []string{&quot;Apache&quot;, &quot;PHP&quot;},  // Has known CVEs
-</span><span id="__span-128-13"><a id="__codelineno-128-13" name="__codelineno-128-13" href="#__codelineno-128-13"></a>}
-</span><span id="__span-128-14"><a id="__codelineno-128-14" name="__codelineno-128-14" href="#__codelineno-128-14"></a>level := evaluateServerExposureThreatLevel(analysis)
-</span><span id="__span-128-15"><a id="__codelineno-128-15" name="__codelineno-128-15" href="#__codelineno-128-15"></a>// Returns: Critical (due to CVE assessment)
-</span><span id="__span-128-16"><a id="__codelineno-128-16" name="__codelineno-128-16" href="#__codelineno-128-16"></a>
-</span><span id="__span-128-17"><a id="__codelineno-128-17" name="__codelineno-128-17" href="#__codelineno-128-17"></a>// Debug environment exposed
-</span><span id="__span-128-18"><a id="__codelineno-128-18" name="__codelineno-128-18" href="#__codelineno-128-18"></a>analysis := &amp;ServerHeaderAnalysis{
-</span><span id="__span-128-19"><a id="__codelineno-128-19" name="__codelineno-128-19" href="#__codelineno-128-19"></a>    total_exposures: 2,
-</span><span id="__span-128-20"><a id="__codelineno-128-20" name="__codelineno-128-20" href="#__codelineno-128-20"></a>    technologies: []string{&quot;Express-debug&quot;},
-</span><span id="__span-128-21"><a id="__codelineno-128-21" name="__codelineno-128-21" href="#__codelineno-128-21"></a>}
-</span><span id="__span-128-22"><a id="__codelineno-128-22" name="__codelineno-128-22" href="#__codelineno-128-22"></a>level := evaluateServerExposureThreatLevel(analysis)
-</span><span id="__span-128-23"><a id="__codelineno-128-23" name="__codelineno-128-23" href="#__codelineno-128-23"></a>// Returns: Critical (heuristic match)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-127-1"><a id="__codelineno-127-1" name="__codelineno-127-1" href="#__codelineno-127-1"></a>// Minimal exposure, no CVEs
+</span><span id="__span-127-2"><a id="__codelineno-127-2" name="__codelineno-127-2" href="#__codelineno-127-2"></a>analysis := &amp;ServerHeaderAnalysis{
+</span><span id="__span-127-3"><a id="__codelineno-127-3" name="__codelineno-127-3" href="#__codelineno-127-3"></a>    total_exposures: 1,
+</span><span id="__span-127-4"><a id="__codelineno-127-4" name="__codelineno-127-4" href="#__codelineno-127-4"></a>    technologies: []string{&quot;Cloudflare&quot;},
+</span><span id="__span-127-5"><a id="__codelineno-127-5" name="__codelineno-127-5" href="#__codelineno-127-5"></a>}
+</span><span id="__span-127-6"><a id="__codelineno-127-6" name="__codelineno-127-6" href="#__codelineno-127-6"></a>level := evaluateServerExposureThreatLevel(analysis)
+</span><span id="__span-127-7"><a id="__codelineno-127-7" name="__codelineno-127-7" href="#__codelineno-127-7"></a>// Returns: Info
+</span><span id="__span-127-8"><a id="__codelineno-127-8" name="__codelineno-127-8" href="#__codelineno-127-8"></a>
+</span><span id="__span-127-9"><a id="__codelineno-127-9" name="__codelineno-127-9" href="#__codelineno-127-9"></a>// Multiple exposures with vulnerable technology
+</span><span id="__span-127-10"><a id="__codelineno-127-10" name="__codelineno-127-10" href="#__codelineno-127-10"></a>analysis := &amp;ServerHeaderAnalysis{
+</span><span id="__span-127-11"><a id="__codelineno-127-11" name="__codelineno-127-11" href="#__codelineno-127-11"></a>    total_exposures: 5,
+</span><span id="__span-127-12"><a id="__codelineno-127-12" name="__codelineno-127-12" href="#__codelineno-127-12"></a>    technologies: []string{&quot;Apache&quot;, &quot;PHP&quot;},  // Has known CVEs
+</span><span id="__span-127-13"><a id="__codelineno-127-13" name="__codelineno-127-13" href="#__codelineno-127-13"></a>}
+</span><span id="__span-127-14"><a id="__codelineno-127-14" name="__codelineno-127-14" href="#__codelineno-127-14"></a>level := evaluateServerExposureThreatLevel(analysis)
+</span><span id="__span-127-15"><a id="__codelineno-127-15" name="__codelineno-127-15" href="#__codelineno-127-15"></a>// Returns: Critical (due to CVE assessment)
+</span><span id="__span-127-16"><a id="__codelineno-127-16" name="__codelineno-127-16" href="#__codelineno-127-16"></a>
+</span><span id="__span-127-17"><a id="__codelineno-127-17" name="__codelineno-127-17" href="#__codelineno-127-17"></a>// Debug environment exposed
+</span><span id="__span-127-18"><a id="__codelineno-127-18" name="__codelineno-127-18" href="#__codelineno-127-18"></a>analysis := &amp;ServerHeaderAnalysis{
+</span><span id="__span-127-19"><a id="__codelineno-127-19" name="__codelineno-127-19" href="#__codelineno-127-19"></a>    total_exposures: 2,
+</span><span id="__span-127-20"><a id="__codelineno-127-20" name="__codelineno-127-20" href="#__codelineno-127-20"></a>    technologies: []string{&quot;Express-debug&quot;},
+</span><span id="__span-127-21"><a id="__codelineno-127-21" name="__codelineno-127-21" href="#__codelineno-127-21"></a>}
+</span><span id="__span-127-22"><a id="__codelineno-127-22" name="__codelineno-127-22" href="#__codelineno-127-22"></a>level := evaluateServerExposureThreatLevel(analysis)
+</span><span id="__span-127-23"><a id="__codelineno-127-23" name="__codelineno-127-23" href="#__codelineno-127-23"></a>// Returns: Critical (heuristic match)
 </span></code></pre></div>
 <p>Security Context:</p>
 <p>The threat level indicates:</p>
@@ -5885,7 +5846,7 @@
 </ul>
 <p><a name="evaluateSitemapThreatLevel"></a></p>
 <h3 id="func-evaluatesitemapthreatlevel">func evaluateSitemapThreatLevel<a class="headerlink" href="#func-evaluatesitemapthreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-129-1"><a id="__codelineno-129-1" name="__codelineno-129-1" href="#__codelineno-129-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateSitemapThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">SitemapAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-128-1"><a id="__codelineno-128-1" name="__codelineno-128-1" href="#__codelineno-128-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateSitemapThreatLevel</span><span class="p">(</span><span class="nx">analysis</span><span class="w"> </span><span class="nx">SitemapAnalysis</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateSitemapThreatLevel determines the threat level based on dangerous path exposure.</p>
 <p>This function implements the threat assessment algorithm considering:</p>
@@ -5911,12 +5872,12 @@
 </ul>
 <p><a name="evaluateXContentTypeOptionsThreatLevel"></a></p>
 <h3 id="func-evaluatexcontenttypeoptionsthreatlevel">func evaluateXContentTypeOptionsThreatLevel<a class="headerlink" href="#func-evaluatexcontenttypeoptionsthreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-130-1"><a id="__codelineno-130-1" name="__codelineno-130-1" href="#__codelineno-130-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateXContentTypeOptionsThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-129-1"><a id="__codelineno-129-1" name="__codelineno-129-1" href="#__codelineno-129-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">evaluateXContentTypeOptionsThreatLevel</span><span class="p">(</span><span class="nx">metadata</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>evaluateXContentTypeOptionsThreatLevel determines the security threat level</p>
 <p><a name="mapCVEThreatLevel"></a></p>
 <h3 id="func-mapcvethreatlevel">func mapCVEThreatLevel<a class="headerlink" href="#func-mapcvethreatlevel" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-131-1"><a id="__codelineno-131-1" name="__codelineno-131-1" href="#__codelineno-131-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">mapCVEThreatLevel</span><span class="p">(</span><span class="nx">assessment</span><span class="w"> </span><span class="nx">CVE</span><span class="p">.</span><span class="nx">VulnerabilityAssessment</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-130-1"><a id="__codelineno-130-1" name="__codelineno-130-1" href="#__codelineno-130-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">mapCVEThreatLevel</span><span class="p">(</span><span class="nx">assessment</span><span class="w"> </span><span class="nx">CVE</span><span class="p">.</span><span class="nx">VulnerabilityAssessment</span><span class="p">)</span><span class="w"> </span><span class="nx">ThreatLevel</span>
 </span></code></pre></div>
 <p>mapCVEThreatLevel maps CVE vulnerability assessment results from the NIST NVD database to the Engine-AntiGinx ThreatLevel enumeration.</p>
 <p>This function translates CVSS (Common Vulnerability Scoring System) severity classifications into our internal threat level system, enabling consistent risk assessment across different vulnerability sources.</p>
@@ -5959,45 +5920,45 @@
 <li>ThreatLevel: Mapped threat level (None/Info/Low/Medium/High/Critical)</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-132-1"><a id="__codelineno-132-1" name="__codelineno-132-1" href="#__codelineno-132-1"></a>// High severity vulnerability present
-</span><span id="__span-132-2"><a id="__codelineno-132-2" name="__codelineno-132-2" href="#__codelineno-132-2"></a>assessment := CVE.VulnerabilityAssessment{
-</span><span id="__span-132-3"><a id="__codelineno-132-3" name="__codelineno-132-3" href="#__codelineno-132-3"></a>    CVECount: 8,
-</span><span id="__span-132-4"><a id="__codelineno-132-4" name="__codelineno-132-4" href="#__codelineno-132-4"></a>    HighSeverity: 2,
-</span><span id="__span-132-5"><a id="__codelineno-132-5" name="__codelineno-132-5" href="#__codelineno-132-5"></a>    MediumSeverity: 4,
-</span><span id="__span-132-6"><a id="__codelineno-132-6" name="__codelineno-132-6" href="#__codelineno-132-6"></a>    LowSeverity: 2,
-</span><span id="__span-132-7"><a id="__codelineno-132-7" name="__codelineno-132-7" href="#__codelineno-132-7"></a>}
-</span><span id="__span-132-8"><a id="__codelineno-132-8" name="__codelineno-132-8" href="#__codelineno-132-8"></a>level := mapCVEThreatLevel(assessment)
-</span><span id="__span-132-9"><a id="__codelineno-132-9" name="__codelineno-132-9" href="#__codelineno-132-9"></a>// Returns: Critical
-</span><span id="__span-132-10"><a id="__codelineno-132-10" name="__codelineno-132-10" href="#__codelineno-132-10"></a>
-</span><span id="__span-132-11"><a id="__codelineno-132-11" name="__codelineno-132-11" href="#__codelineno-132-11"></a>// Multiple medium severity vulnerabilities
-</span><span id="__span-132-12"><a id="__codelineno-132-12" name="__codelineno-132-12" href="#__codelineno-132-12"></a>assessment := CVE.VulnerabilityAssessment{
-</span><span id="__span-132-13"><a id="__codelineno-132-13" name="__codelineno-132-13" href="#__codelineno-132-13"></a>    CVECount: 7,
-</span><span id="__span-132-14"><a id="__codelineno-132-14" name="__codelineno-132-14" href="#__codelineno-132-14"></a>    HighSeverity: 0,
-</span><span id="__span-132-15"><a id="__codelineno-132-15" name="__codelineno-132-15" href="#__codelineno-132-15"></a>    MediumSeverity: 7,
-</span><span id="__span-132-16"><a id="__codelineno-132-16" name="__codelineno-132-16" href="#__codelineno-132-16"></a>    LowSeverity: 0,
-</span><span id="__span-132-17"><a id="__codelineno-132-17" name="__codelineno-132-17" href="#__codelineno-132-17"></a>}
-</span><span id="__span-132-18"><a id="__codelineno-132-18" name="__codelineno-132-18" href="#__codelineno-132-18"></a>level := mapCVEThreatLevel(assessment)
-</span><span id="__span-132-19"><a id="__codelineno-132-19" name="__codelineno-132-19" href="#__codelineno-132-19"></a>// Returns: High
-</span><span id="__span-132-20"><a id="__codelineno-132-20" name="__codelineno-132-20" href="#__codelineno-132-20"></a>
-</span><span id="__span-132-21"><a id="__codelineno-132-21" name="__codelineno-132-21" href="#__codelineno-132-21"></a>// Many low severity vulnerabilities
-</span><span id="__span-132-22"><a id="__codelineno-132-22" name="__codelineno-132-22" href="#__codelineno-132-22"></a>assessment := CVE.VulnerabilityAssessment{
-</span><span id="__span-132-23"><a id="__codelineno-132-23" name="__codelineno-132-23" href="#__codelineno-132-23"></a>    CVECount: 15,
-</span><span id="__span-132-24"><a id="__codelineno-132-24" name="__codelineno-132-24" href="#__codelineno-132-24"></a>    HighSeverity: 0,
-</span><span id="__span-132-25"><a id="__codelineno-132-25" name="__codelineno-132-25" href="#__codelineno-132-25"></a>    MediumSeverity: 0,
-</span><span id="__span-132-26"><a id="__codelineno-132-26" name="__codelineno-132-26" href="#__codelineno-132-26"></a>    LowSeverity: 15,
-</span><span id="__span-132-27"><a id="__codelineno-132-27" name="__codelineno-132-27" href="#__codelineno-132-27"></a>}
-</span><span id="__span-132-28"><a id="__codelineno-132-28" name="__codelineno-132-28" href="#__codelineno-132-28"></a>level := mapCVEThreatLevel(assessment)
-</span><span id="__span-132-29"><a id="__codelineno-132-29" name="__codelineno-132-29" href="#__codelineno-132-29"></a>// Returns: Medium
-</span><span id="__span-132-30"><a id="__codelineno-132-30" name="__codelineno-132-30" href="#__codelineno-132-30"></a>
-</span><span id="__span-132-31"><a id="__codelineno-132-31" name="__codelineno-132-31" href="#__codelineno-132-31"></a>// No vulnerabilities found
-</span><span id="__span-132-32"><a id="__codelineno-132-32" name="__codelineno-132-32" href="#__codelineno-132-32"></a>assessment := CVE.VulnerabilityAssessment{
-</span><span id="__span-132-33"><a id="__codelineno-132-33" name="__codelineno-132-33" href="#__codelineno-132-33"></a>    CVECount: 0,
-</span><span id="__span-132-34"><a id="__codelineno-132-34" name="__codelineno-132-34" href="#__codelineno-132-34"></a>    HighSeverity: 0,
-</span><span id="__span-132-35"><a id="__codelineno-132-35" name="__codelineno-132-35" href="#__codelineno-132-35"></a>    MediumSeverity: 0,
-</span><span id="__span-132-36"><a id="__codelineno-132-36" name="__codelineno-132-36" href="#__codelineno-132-36"></a>    LowSeverity: 0,
-</span><span id="__span-132-37"><a id="__codelineno-132-37" name="__codelineno-132-37" href="#__codelineno-132-37"></a>}
-</span><span id="__span-132-38"><a id="__codelineno-132-38" name="__codelineno-132-38" href="#__codelineno-132-38"></a>level := mapCVEThreatLevel(assessment)
-</span><span id="__span-132-39"><a id="__codelineno-132-39" name="__codelineno-132-39" href="#__codelineno-132-39"></a>// Returns: None
+<div class="language-text highlight"><pre><span></span><code><span id="__span-131-1"><a id="__codelineno-131-1" name="__codelineno-131-1" href="#__codelineno-131-1"></a>// High severity vulnerability present
+</span><span id="__span-131-2"><a id="__codelineno-131-2" name="__codelineno-131-2" href="#__codelineno-131-2"></a>assessment := CVE.VulnerabilityAssessment{
+</span><span id="__span-131-3"><a id="__codelineno-131-3" name="__codelineno-131-3" href="#__codelineno-131-3"></a>    CVECount: 8,
+</span><span id="__span-131-4"><a id="__codelineno-131-4" name="__codelineno-131-4" href="#__codelineno-131-4"></a>    HighSeverity: 2,
+</span><span id="__span-131-5"><a id="__codelineno-131-5" name="__codelineno-131-5" href="#__codelineno-131-5"></a>    MediumSeverity: 4,
+</span><span id="__span-131-6"><a id="__codelineno-131-6" name="__codelineno-131-6" href="#__codelineno-131-6"></a>    LowSeverity: 2,
+</span><span id="__span-131-7"><a id="__codelineno-131-7" name="__codelineno-131-7" href="#__codelineno-131-7"></a>}
+</span><span id="__span-131-8"><a id="__codelineno-131-8" name="__codelineno-131-8" href="#__codelineno-131-8"></a>level := mapCVEThreatLevel(assessment)
+</span><span id="__span-131-9"><a id="__codelineno-131-9" name="__codelineno-131-9" href="#__codelineno-131-9"></a>// Returns: Critical
+</span><span id="__span-131-10"><a id="__codelineno-131-10" name="__codelineno-131-10" href="#__codelineno-131-10"></a>
+</span><span id="__span-131-11"><a id="__codelineno-131-11" name="__codelineno-131-11" href="#__codelineno-131-11"></a>// Multiple medium severity vulnerabilities
+</span><span id="__span-131-12"><a id="__codelineno-131-12" name="__codelineno-131-12" href="#__codelineno-131-12"></a>assessment := CVE.VulnerabilityAssessment{
+</span><span id="__span-131-13"><a id="__codelineno-131-13" name="__codelineno-131-13" href="#__codelineno-131-13"></a>    CVECount: 7,
+</span><span id="__span-131-14"><a id="__codelineno-131-14" name="__codelineno-131-14" href="#__codelineno-131-14"></a>    HighSeverity: 0,
+</span><span id="__span-131-15"><a id="__codelineno-131-15" name="__codelineno-131-15" href="#__codelineno-131-15"></a>    MediumSeverity: 7,
+</span><span id="__span-131-16"><a id="__codelineno-131-16" name="__codelineno-131-16" href="#__codelineno-131-16"></a>    LowSeverity: 0,
+</span><span id="__span-131-17"><a id="__codelineno-131-17" name="__codelineno-131-17" href="#__codelineno-131-17"></a>}
+</span><span id="__span-131-18"><a id="__codelineno-131-18" name="__codelineno-131-18" href="#__codelineno-131-18"></a>level := mapCVEThreatLevel(assessment)
+</span><span id="__span-131-19"><a id="__codelineno-131-19" name="__codelineno-131-19" href="#__codelineno-131-19"></a>// Returns: High
+</span><span id="__span-131-20"><a id="__codelineno-131-20" name="__codelineno-131-20" href="#__codelineno-131-20"></a>
+</span><span id="__span-131-21"><a id="__codelineno-131-21" name="__codelineno-131-21" href="#__codelineno-131-21"></a>// Many low severity vulnerabilities
+</span><span id="__span-131-22"><a id="__codelineno-131-22" name="__codelineno-131-22" href="#__codelineno-131-22"></a>assessment := CVE.VulnerabilityAssessment{
+</span><span id="__span-131-23"><a id="__codelineno-131-23" name="__codelineno-131-23" href="#__codelineno-131-23"></a>    CVECount: 15,
+</span><span id="__span-131-24"><a id="__codelineno-131-24" name="__codelineno-131-24" href="#__codelineno-131-24"></a>    HighSeverity: 0,
+</span><span id="__span-131-25"><a id="__codelineno-131-25" name="__codelineno-131-25" href="#__codelineno-131-25"></a>    MediumSeverity: 0,
+</span><span id="__span-131-26"><a id="__codelineno-131-26" name="__codelineno-131-26" href="#__codelineno-131-26"></a>    LowSeverity: 15,
+</span><span id="__span-131-27"><a id="__codelineno-131-27" name="__codelineno-131-27" href="#__codelineno-131-27"></a>}
+</span><span id="__span-131-28"><a id="__codelineno-131-28" name="__codelineno-131-28" href="#__codelineno-131-28"></a>level := mapCVEThreatLevel(assessment)
+</span><span id="__span-131-29"><a id="__codelineno-131-29" name="__codelineno-131-29" href="#__codelineno-131-29"></a>// Returns: Medium
+</span><span id="__span-131-30"><a id="__codelineno-131-30" name="__codelineno-131-30" href="#__codelineno-131-30"></a>
+</span><span id="__span-131-31"><a id="__codelineno-131-31" name="__codelineno-131-31" href="#__codelineno-131-31"></a>// No vulnerabilities found
+</span><span id="__span-131-32"><a id="__codelineno-131-32" name="__codelineno-131-32" href="#__codelineno-131-32"></a>assessment := CVE.VulnerabilityAssessment{
+</span><span id="__span-131-33"><a id="__codelineno-131-33" name="__codelineno-131-33" href="#__codelineno-131-33"></a>    CVECount: 0,
+</span><span id="__span-131-34"><a id="__codelineno-131-34" name="__codelineno-131-34" href="#__codelineno-131-34"></a>    HighSeverity: 0,
+</span><span id="__span-131-35"><a id="__codelineno-131-35" name="__codelineno-131-35" href="#__codelineno-131-35"></a>    MediumSeverity: 0,
+</span><span id="__span-131-36"><a id="__codelineno-131-36" name="__codelineno-131-36" href="#__codelineno-131-36"></a>    LowSeverity: 0,
+</span><span id="__span-131-37"><a id="__codelineno-131-37" name="__codelineno-131-37" href="#__codelineno-131-37"></a>}
+</span><span id="__span-131-38"><a id="__codelineno-131-38" name="__codelineno-131-38" href="#__codelineno-131-38"></a>level := mapCVEThreatLevel(assessment)
+</span><span id="__span-131-39"><a id="__codelineno-131-39" name="__codelineno-131-39" href="#__codelineno-131-39"></a>// Returns: None
 </span></code></pre></div>
 <p>Security Standards Alignment:</p>
 <p>CVSS Severity Ranges:</p>
@@ -6015,7 +5976,7 @@
 </ul>
 <p><a name="ThreatLevel.MarshalJSON"></a></p>
 <h3 id="func-threatlevel-marshaljson">func (ThreatLevel) MarshalJSON<a class="headerlink" href="#func-threatlevel-marshaljson" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-133-1"><a id="__codelineno-133-1" name="__codelineno-133-1" href="#__codelineno-133-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="nx">ThreatLevel</span><span class="p">)</span><span class="w"> </span><span class="nx">MarshalJSON</span><span class="p">()</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-132-1"><a id="__codelineno-132-1" name="__codelineno-132-1" href="#__codelineno-132-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="nx">ThreatLevel</span><span class="p">)</span><span class="w"> </span><span class="nx">MarshalJSON</span><span class="p">()</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
 </span></code></pre></div>
 <p>MarshalJSON implements custom JSON marshaling for ThreatLevel, converting the enumeration value to its string representation in JSON output. This ensures human-readable JSON instead of numeric values.</p>
 <p>Without this method, ThreatLevel would serialize as integers (0, 1, 2, etc.). With this method, it serializes as strings ("None", "Info", "Low", etc.).</p>
@@ -6032,16 +5993,16 @@
 <li>error: Error from JSON marshaling (typically nil)</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-134-1"><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a>result := TestResult{
-</span><span id="__span-134-2"><a id="__codelineno-134-2" name="__codelineno-134-2" href="#__codelineno-134-2"></a>    Name: &quot;HTTPS Test&quot;,
-</span><span id="__span-134-3"><a id="__codelineno-134-3" name="__codelineno-134-3" href="#__codelineno-134-3"></a>    ThreatLevel: High,
-</span><span id="__span-134-4"><a id="__codelineno-134-4" name="__codelineno-134-4" href="#__codelineno-134-4"></a>}
-</span><span id="__span-134-5"><a id="__codelineno-134-5" name="__codelineno-134-5" href="#__codelineno-134-5"></a>jsonData, _ := json.Marshal(result)
-</span><span id="__span-134-6"><a id="__codelineno-134-6" name="__codelineno-134-6" href="#__codelineno-134-6"></a>// Output includes: &quot;ThreatLevel&quot;: &quot;High&quot; (not &quot;ThreatLevel&quot;: 4)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-133-1"><a id="__codelineno-133-1" name="__codelineno-133-1" href="#__codelineno-133-1"></a>result := TestResult{
+</span><span id="__span-133-2"><a id="__codelineno-133-2" name="__codelineno-133-2" href="#__codelineno-133-2"></a>    Name: &quot;HTTPS Test&quot;,
+</span><span id="__span-133-3"><a id="__codelineno-133-3" name="__codelineno-133-3" href="#__codelineno-133-3"></a>    ThreatLevel: High,
+</span><span id="__span-133-4"><a id="__codelineno-133-4" name="__codelineno-133-4" href="#__codelineno-133-4"></a>}
+</span><span id="__span-133-5"><a id="__codelineno-133-5" name="__codelineno-133-5" href="#__codelineno-133-5"></a>jsonData, _ := json.Marshal(result)
+</span><span id="__span-133-6"><a id="__codelineno-133-6" name="__codelineno-133-6" href="#__codelineno-133-6"></a>// Output includes: &quot;ThreatLevel&quot;: &quot;High&quot; (not &quot;ThreatLevel&quot;: 4)
 </span></code></pre></div>
 <p><a name="ThreatLevel.String"></a></p>
 <h3 id="func-threatlevel-string">func (ThreatLevel) String<a class="headerlink" href="#func-threatlevel-string" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-135-1"><a id="__codelineno-135-1" name="__codelineno-135-1" href="#__codelineno-135-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="nx">ThreatLevel</span><span class="p">)</span><span class="w"> </span><span class="nx">String</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-134-1"><a id="__codelineno-134-1" name="__codelineno-134-1" href="#__codelineno-134-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="nx">ThreatLevel</span><span class="p">)</span><span class="w"> </span><span class="nx">String</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
 </span></code></pre></div>
 <p>String converts a ThreatLevel value to its human-readable string representation. This method implements the Stringer interface enabling automatic string conversion for logging, display, and debugging purposes.</p>
 <p>String representations:</p>
@@ -6062,9 +6023,9 @@
 <li>Errors.Error: If the ThreatLevel value is invalid/unknown</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-136-1"><a id="__codelineno-136-1" name="__codelineno-136-1" href="#__codelineno-136-1"></a>level := High
-</span><span id="__span-136-2"><a id="__codelineno-136-2" name="__codelineno-136-2" href="#__codelineno-136-2"></a>fmt.Println(level.String())  // Output: &quot;High&quot;
-</span><span id="__span-136-3"><a id="__codelineno-136-3" name="__codelineno-136-3" href="#__codelineno-136-3"></a>fmt.Printf(&quot;Threat: %v\n&quot;, level)  // Output: &quot;Threat: High&quot;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-135-1"><a id="__codelineno-135-1" name="__codelineno-135-1" href="#__codelineno-135-1"></a>level := High
+</span><span id="__span-135-2"><a id="__codelineno-135-2" name="__codelineno-135-2" href="#__codelineno-135-2"></a>fmt.Println(level.String())  // Output: &quot;High&quot;
+</span><span id="__span-135-3"><a id="__codelineno-135-3" name="__codelineno-135-3" href="#__codelineno-135-3"></a>fmt.Printf(&quot;Threat: %v\n&quot;, level)  // Output: &quot;Threat: High&quot;
 </span></code></pre></div>
 <p>Generated by <a href="https://github.com/princjef/gomarkdoc">gomarkdoc</a></p>
 
@@ -6089,7 +6050,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 7, 2026 09:24:14 UTC"><span class="timeago" datetime="2026-05-07T09:24:14+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 7, 2026 09:24:14 UTC">2026-05-07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 19:53:23 UTC"><span class="timeago" datetime="2026-05-08T19:53:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 19:53:23 UTC">2026-05-08</span>
   </span>
 
     
@@ -6099,7 +6060,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 7, 2026 09:24:14 UTC"><span class="timeago" datetime="2026-05-07T09:24:14+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 7, 2026 09:24:14 UTC">2026-05-07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 19:53:23 UTC"><span class="timeago" datetime="2026-05-08T19:53:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 19:53:23 UTC">2026-05-08</span>
   </span>
 
     
