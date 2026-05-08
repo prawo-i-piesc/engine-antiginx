@@ -955,12 +955,12 @@
   <a href="#type-targetformatter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        type targetFormatter
+        type TargetFormatter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="type targetFormatter">
+    <nav class="md-nav" aria-label="type TargetFormatter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -978,7 +978,7 @@
   <a href="#func-targetformatter-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        func (*targetFormatter) Format
+        func (*TargetFormatter) Format
       
     </span>
   </a>
@@ -989,7 +989,7 @@
   <a href="#func-targetformatter-containsparam" class="md-nav__link">
     <span class="md-ellipsis">
       
-        func (*targetFormatter) containsParam
+        func (*TargetFormatter) containsParam
       
     </span>
   </a>
@@ -1449,12 +1449,12 @@
   <a href="#type-targetformatter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        type targetFormatter
+        type TargetFormatter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="type targetFormatter">
+    <nav class="md-nav" aria-label="type TargetFormatter">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1472,7 +1472,7 @@
   <a href="#func-targetformatter-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        func (*targetFormatter) Format
+        func (*TargetFormatter) Format
       
     </span>
   </a>
@@ -1483,7 +1483,7 @@
   <a href="#func-targetformatter-containsparam" class="md-nav__link">
     <span class="md-ellipsis">
       
-        func (*targetFormatter) containsParam
+        func (*TargetFormatter) containsParam
       
     </span>
   </a>
@@ -1585,10 +1585,10 @@
 <li><a href="#OSFileReader">type OSFileReader</a></li>
 <li><a href="#CreateFileReader">func CreateFileReader() *OSFileReader</a></li>
 <li><a href="#OSFileReader.ReadFileW">func (osf *OSFileReader) ReadFileW(filename string) ([]byte, error)</a></li>
-<li><a href="#targetFormatter">type targetFormatter</a></li>
-<li><a href="#InitializeTargetFormatter">func InitializeTargetFormatter() *targetFormatter</a></li>
-<li><a href="#targetFormatter.Format">func (t *targetFormatter) Format(target string, params []string) *string</a></li>
-<li><a href="#targetFormatter.containsParam">func (t *targetFormatter) containsParam(params []string, token string) bool</a></li>
+<li><a href="#TargetFormatter">type TargetFormatter</a></li>
+<li><a href="#InitializeTargetFormatter">func InitializeTargetFormatter() *TargetFormatter</a></li>
+<li><a href="#TargetFormatter.Format">func (t *TargetFormatter) Format(target string, params []string) *string</a></li>
+<li><a href="#TargetFormatter.containsParam">func (t *TargetFormatter) containsParam(params []string, token string) bool</a></li>
 </ul>
 <p><a name="AnyStringInSlice"></a></p>
 <h2 id="func-anystringinslice">func AnyStringInSlice<a class="headerlink" href="#func-anystringinslice" title="Permanent link">&para;</a></h2>
@@ -1732,9 +1732,9 @@
 <h3 id="func-osfilereader-readfilew">func (*OSFileReader) ReadFileW<a class="headerlink" href="#func-osfilereader-readfilew" title="Permanent link">&para;</a></h3>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">osf</span><span class="w"> </span><span class="o">*</span><span class="nx">OSFileReader</span><span class="p">)</span><span class="w"> </span><span class="nx">ReadFileW</span><span class="p">(</span><span class="nx">filename</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="kt">byte</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
 </span></code></pre></div>
-<p><a name="targetFormatter"></a></p>
-<h2 id="type-targetformatter">type targetFormatter<a class="headerlink" href="#type-targetformatter" title="Permanent link">&para;</a></h2>
-<p>targetFormatter is responsible for formatting target URLs by intelligently adding appropriate protocol prefixes (http:// or https://) based on the tests being executed.</p>
+<p><a name="TargetFormatter"></a></p>
+<h2 id="type-targetformatter">type TargetFormatter<a class="headerlink" href="#type-targetformatter" title="Permanent link">&para;</a></h2>
+<p>TargetFormatter is responsible for formatting target URLs by intelligently adding appropriate protocol prefixes (http:// or https://) based on the tests being executed.</p>
 <p>The formatter implements smart protocol selection:</p>
 <ul>
 <li>Uses HTTP protocol when testing HTTP-specific vulnerabilities (https, hsts tests)</li>
@@ -1742,26 +1742,26 @@
 <li>Validates that user hasn't already specified a protocol</li>
 </ul>
 <p>This ensures tests can properly assess protocol-level security issues without automatic browser redirects interfering with the analysis.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">targetFormatter</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TargetFormatter</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
 </span></code></pre></div>
 <p><a name="InitializeTargetFormatter"></a></p>
 <h3 id="func-initializetargetformatter">func InitializeTargetFormatter<a class="headerlink" href="#func-initializetargetformatter" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">InitializeTargetFormatter</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">targetFormatter</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">InitializeTargetFormatter</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span>
 </span></code></pre></div>
-<p>InitializeTargetFormatter creates a new instance of targetFormatter ready to format target URLs. This factory function provides the entry point for creating a formatter that intelligently selects protocols based on test requirements.</p>
+<p>InitializeTargetFormatter creates a new instance of TargetFormatter ready to format target URLs. This factory function provides the entry point for creating a formatter that intelligently selects protocols based on test requirements.</p>
 <p>The formatter is stateless and can be reused for multiple formatting operations if needed, though typically only one instance is created per test run.</p>
 <p>Returns:</p>
 <ul>
-<li>*targetFormatter: A new formatter instance ready to call Format()</li>
+<li>*TargetFormatter: A new formatter instance ready to call Format()</li>
 </ul>
 <p>Example:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>formatter := InitializeTargetFormatter()
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>targetURL := formatter.Format(&quot;example.com&quot;, []string{&quot;https&quot;, &quot;hsts&quot;})
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>// Returns: &quot;http://example.com&quot; (HTTP for protocol testing)
 </span></code></pre></div>
-<p><a name="targetFormatter.Format"></a></p>
-<h3 id="func-targetformatter-format">func (*targetFormatter) Format<a class="headerlink" href="#func-targetformatter-format" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">targetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">Format</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span>
+<p><a name="TargetFormatter.Format"></a></p>
+<h3 id="func-targetformatter-format">func (*TargetFormatter) Format<a class="headerlink" href="#func-targetformatter-format" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">Format</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span>
 </span></code></pre></div>
 <p>Format constructs a properly formatted target URL by adding the appropriate protocol prefix based on the tests being executed. It implements intelligent protocol selection to ensure tests can properly assess security configurations.</p>
 <p>Protocol selection logic:</p>
@@ -1814,9 +1814,9 @@
 </span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>url4 := formatter.Format(&quot;https://example.com&quot;, []string{&quot;https&quot;})
 </span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>// Panics with error code 100
 </span></code></pre></div>
-<p><a name="targetFormatter.containsParam"></a></p>
-<h3 id="func-targetformatter-containsparam">func (*targetFormatter) containsParam<a class="headerlink" href="#func-targetformatter-containsparam" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">targetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">containsParam</span><span class="p">(</span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
+<p><a name="TargetFormatter.containsParam"></a></p>
+<h3 id="func-targetformatter-containsparam">func (*TargetFormatter) containsParam<a class="headerlink" href="#func-targetformatter-containsparam" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">containsParam</span><span class="p">(</span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
 </span></code></pre></div>
 <p>containsParam is a helper function that performs a linear search to determine if a specific test ID (token) exists in the list of tests to be executed. This function is used internally by Format to implement protocol selection logic.</p>
 <p>The function uses simple iteration with O(n) time complexity, which is acceptable given that the params slice is typically small (usually 1-10 test IDs).</p>
@@ -1830,7 +1830,7 @@
 <li>bool: true if token is found in params, false otherwise</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>formatter := &amp;targetFormatter{}
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>formatter := &amp;TargetFormatter{}
 </span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>tests := []string{&quot;https&quot;, &quot;hsts&quot;, &quot;csp&quot;}
 </span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
 </span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>found1 := formatter.containsParam(tests, &quot;https&quot;)  // returns true
@@ -1859,7 +1859,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 19:53:23 UTC"><span class="timeago" datetime="2026-05-08T19:53:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 19:53:23 UTC">2026-05-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:34:59 UTC"><span class="timeago" datetime="2026-05-08T20:34:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:34:59 UTC">2026-05-08</span>
   </span>
 
     
@@ -1869,7 +1869,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 19:53:23 UTC"><span class="timeago" datetime="2026-05-08T19:53:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 19:53:23 UTC">2026-05-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:34:59 UTC"><span class="timeago" datetime="2026-05-08T20:34:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:34:59 UTC">2026-05-08</span>
   </span>
 
     
