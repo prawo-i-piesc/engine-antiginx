@@ -22,35 +22,38 @@ type scanFormatterTest struct {
 func TestScanFormatter_FormatParameters(t *testing.T) {
 	mockStrategy := &Runner.MockStrategy{Name: "--tests"}
 	mockAllStrategy := &Runner.MockStrategy{Name: "--all"}
+
+	targetParam := &types.CommandParameter{Name: "--target", Arguments: []string{"testTarget"}}
+	testsParam := &types.CommandParameter{Name: "--tests", Arguments: []string{"test"}}
+	taskIdParam := &types.CommandParameter{Name: "--taskId", Arguments: []string{"dummy taskId"}}
+	allParam := &types.CommandParameter{Name: "--all", Arguments: []string{}}
+
+	baseInput := []*types.CommandParameter{targetParam, testsParam}
+
+	expectedBaseOutput := func(taskId string) *execution.Plan {
+		return &execution.Plan{
+			Target:      "testTarget",
+			AntiBotFlag: false,
+			Strategies: []strategy.TestStrategy{
+				mockStrategy,
+			},
+			Contexts: map[string]strategy.TestContext{
+				"--tests": {
+					Target: "testTarget",
+					Args:   []string{"test"},
+				},
+			},
+			TaskId: taskId,
+			IsHelp: false,
+		}
+	}
+
 	tests := []scanFormatterTest{
 		{
 			Name:    "Happy path",
 			wantErr: false,
-			input: []*types.CommandParameter{
-				{
-					Name:      "--target",
-					Arguments: []string{"testTarget"},
-				},
-				{
-					Name:      "--tests",
-					Arguments: []string{"test"},
-				},
-			},
-			output: &execution.Plan{
-				Target:      "testTarget",
-				AntiBotFlag: false,
-				Strategies: []strategy.TestStrategy{
-					mockStrategy,
-				},
-				Contexts: map[string]strategy.TestContext{
-					"--tests": {
-						Target: "testTarget",
-						Args:   []string{"test"},
-					},
-				},
-				TaskId: "",
-				IsHelp: false,
-			},
+			input:   baseInput,
+			output:  expectedBaseOutput(""),
 			getStrategies: func(name string) (strategy.TestStrategy, bool) {
 				return mockStrategy, true
 			},
@@ -59,30 +62,8 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 		{
 			Name:    "TaskId param not set",
 			wantErr: true,
-			input: []*types.CommandParameter{
-				{
-					Name:      "--target",
-					Arguments: []string{"testTarget"},
-				},
-				{
-					Name:      "--tests",
-					Arguments: []string{"test"},
-				},
-			},
-			output: &execution.Plan{
-				Target:      "testTarget",
-				AntiBotFlag: false,
-				Strategies: []strategy.TestStrategy{
-					mockStrategy,
-				},
-				Contexts: map[string]strategy.TestContext{
-					"--tests": {
-						Target: "testTarget",
-						Args:   []string{"test"},
-					},
-				},
-				IsHelp: false,
-			},
+			input:   baseInput,
+			output:  expectedBaseOutput(""),
 			getStrategies: func(name string) (strategy.TestStrategy, bool) {
 				return mockStrategy, true
 			},
@@ -91,35 +72,8 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 		{
 			Name:    "Formatting with configured taskId",
 			wantErr: false,
-			input: []*types.CommandParameter{
-				{
-					Name:      "--target",
-					Arguments: []string{"testTarget"},
-				},
-				{
-					Name:      "--tests",
-					Arguments: []string{"test"},
-				},
-				{
-					Name:      "--taskId",
-					Arguments: []string{"dummy taskId"},
-				},
-			},
-			output: &execution.Plan{
-				Target:      "testTarget",
-				AntiBotFlag: false,
-				Strategies: []strategy.TestStrategy{
-					mockStrategy,
-				},
-				Contexts: map[string]strategy.TestContext{
-					"--tests": {
-						Target: "testTarget",
-						Args:   []string{"test"},
-					},
-				},
-				TaskId: "dummy taskId",
-				IsHelp: false,
-			},
+			input:   []*types.CommandParameter{targetParam, testsParam, taskIdParam},
+			output:  expectedBaseOutput("dummy taskId"),
 			getStrategies: func(name string) (strategy.TestStrategy, bool) {
 				if name == "--taskId" {
 					return nil, false
@@ -131,11 +85,7 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 		{
 			Name:    "Formatting with --all param",
 			wantErr: false,
-			input: []*types.CommandParameter{
-				{Name: "--target", Arguments: []string{"testTarget"}},
-				{Name: "--tests", Arguments: []string{"test"}},
-				{Name: "--all", Arguments: []string{}},
-			},
+			input:   []*types.CommandParameter{targetParam, testsParam, allParam},
 			output: &execution.Plan{
 				Target:      "testTarget",
 				AntiBotFlag: false,
