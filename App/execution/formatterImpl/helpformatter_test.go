@@ -5,7 +5,6 @@ import (
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
 	"Engine-AntiGinx/App/parser/config/types"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -126,8 +125,6 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 		t.Run(val.Name, func(t *testing.T) {
 			if val.backEnvSet {
 				t.Setenv("BACK_URL", "test")
-			} else {
-				os.Unsetenv("BACK_URL")
 			}
 
 			if val.wantErr {
