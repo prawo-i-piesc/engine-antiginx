@@ -8,12 +8,12 @@ import (
 )
 
 type allTestsStrategy struct {
-	loadWebsiteContent func(target string, useAntiBotDetection bool) *http.Response
+	loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo)
 	getAllTests        func() []*Tests.ResponseTest
 	format             func(target string, params []string) *string
 }
 
-func InitializeAllTestsStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) *http.Response,
+func InitializeAllTestsStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo),
 	getAllTests func() []*Tests.ResponseTest,
 	format func(target string, params []string) *string) *allTestsStrategy {
 	return &allTestsStrategy{

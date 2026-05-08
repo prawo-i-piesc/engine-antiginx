@@ -5,6 +5,7 @@ import (
 	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
+	"net/http"
 	"sync"
 )
 
@@ -12,14 +13,14 @@ import (
 // It is responsible for orchestrating header-based security assessments
 // by fetching target content and executing a suite of sub-tests concurrently.
 type headerTestStrategy struct {
-	loadWebsiteContent func(target string, useAntiBotDetection bool) *http.Response
+	loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo)
 	getTest            func(testId string) (*Tests.ResponseTest, bool)
 	format             func(target string, params []string) *string
 }
 
 // InitializeHeaderStrategy returns a pointer to a new headerTestStrategy.
 // It acts as the constructor for the header-based testing logic.
-func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) *http.Response,
+func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo),
 	getTest func(testId string) (*Tests.ResponseTest, bool),
 	format func(target string, params []string) *string) *headerTestStrategy {
 	return &headerTestStrategy{

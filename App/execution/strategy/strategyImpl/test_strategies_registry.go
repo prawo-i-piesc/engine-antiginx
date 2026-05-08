@@ -19,8 +19,8 @@ var helpStrategies = make(map[string]strategy.TestStrategy)
 // are available as soon as the application starts.
 func init() {
 	// Scan strategies initialization
-	registerStrategy(InitializeHeaderStrategy(loadWebsiteContent, Registry.GetTest, helpers.InitializeTargetFormatter().Format))
-	registerStrategy(InitializeAllTestsStrategy(loadWebsiteContent, Registry.GetAllTests, helpers.InitializeTargetFormatter().Format))
+	registerStrategy(InitializeHeaderStrategy(strategy.LoadWebsiteContent, Registry.GetTest, helpers.InitializeTargetFormatter().Format))
+	registerStrategy(InitializeAllTestsStrategy(strategy.LoadWebsiteContent, Registry.GetAllTests, helpers.InitializeTargetFormatter().Format))
 
 	// Help strategies initialization
 	registerHelpStrategy(NewGeneralHelpStrategy())
