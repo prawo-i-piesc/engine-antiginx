@@ -954,6 +954,112 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#type-mockreporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type MockReporter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="type MockReporter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#func-mockreporter-startlistening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockReporter) StartListening
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-mockresolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type MockResolver
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="type MockResolver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#func-mockresolver-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockResolver) Resolve
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-mockstrategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type MockStrategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="type MockStrategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#func-mockstrategy-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockStrategy) Execute
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#func-mockstrategy-getname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockStrategy) GetName
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#func-mockstrategy-getpreferredreportertype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockStrategy) GetPreferredReporterType
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#type-jobrunner" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1159,6 +1265,112 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#type-mockreporter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type MockReporter
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="type MockReporter">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#func-mockreporter-startlistening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockReporter) StartListening
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-mockresolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type MockResolver
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="type MockResolver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#func-mockresolver-resolve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockResolver) Resolve
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-mockstrategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type MockStrategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="type MockStrategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#func-mockstrategy-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockStrategy) Execute
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#func-mockstrategy-getname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockStrategy) GetName
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#func-mockstrategy-getpreferredreportertype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*MockStrategy) GetPreferredReporterType
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#type-jobrunner" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1292,10 +1504,54 @@
 </ul>
 <h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
 <ul>
+<li><a href="#MockReporter">type MockReporter</a></li>
+<li><a href="#MockReporter.StartListening">func (mr *MockReporter) StartListening() \&lt;-chan int</a></li>
+<li><a href="#MockResolver">type MockResolver</a></li>
+<li><a href="#MockResolver.Resolve">func (mRes *MockResolver) Resolve(ch chan strategy.ResultWrapper, taskId string, target string, clientTimeOut int, retryDelay int, strategies []strategy.TestStrategy) Reporter.Reporter</a></li>
+<li><a href="#MockStrategy">type MockStrategy</a></li>
+<li><a href="#MockStrategy.Execute">func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool)</a></li>
+<li><a href="#MockStrategy.GetName">func (m *MockStrategy) GetName() string</a></li>
+<li><a href="#MockStrategy.GetPreferredReporterType">func (m *MockStrategy) GetPreferredReporterType() strategy.ReporterType</a></li>
 <li><a href="#jobRunner">type jobRunner</a></li>
 <li><a href="#CreateJobRunner">func CreateJobRunner() *jobRunner</a></li>
 <li><a href="#jobRunner.Orchestrate">func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.Resolver)</a></li>
 </ul>
+<p><a name="MockReporter"></a></p>
+<h2 id="type-mockreporter">type MockReporter<a class="headerlink" href="#type-mockreporter" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">MockReporter</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nx">Ch</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><a name="MockReporter.StartListening"></a></p>
+<h3 id="func-mockreporter-startlistening">func (*MockReporter) StartListening<a class="headerlink" href="#func-mockreporter-startlistening" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">mr</span><span class="w"> </span><span class="o">*</span><span class="nx">MockReporter</span><span class="p">)</span><span class="w"> </span><span class="nx">StartListening</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;-</span><span class="kd">chan</span><span class="w"> </span><span class="kt">int</span>
+</span></code></pre></div>
+<p><a name="MockResolver"></a></p>
+<h2 id="type-mockresolver">type MockResolver<a class="headerlink" href="#type-mockresolver" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">MockResolver</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+</span></code></pre></div>
+<p><a name="MockResolver.Resolve"></a></p>
+<h3 id="func-mockresolver-resolve">func (*MockResolver) Resolve<a class="headerlink" href="#func-mockresolver-resolve" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">mRes</span><span class="w"> </span><span class="o">*</span><span class="nx">MockResolver</span><span class="p">)</span><span class="w"> </span><span class="nx">Resolve</span><span class="p">(</span><span class="nx">ch</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">taskId</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">clientTimeOut</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">retryDelay</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nx">strategies</span><span class="w"> </span><span class="p">[]</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">Reporter</span><span class="p">.</span><span class="nx">Reporter</span>
+</span></code></pre></div>
+<p><a name="MockStrategy"></a></p>
+<h2 id="type-mockstrategy">type MockStrategy<a class="headerlink" href="#type-mockstrategy" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">MockStrategy</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nx">Name</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">}</span>
+</span></code></pre></div>
+<p><a name="MockStrategy.Execute"></a></p>
+<h3 id="func-mockstrategy-execute">func (*MockStrategy) Execute<a class="headerlink" href="#func-mockstrategy-execute" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">MockStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">Execute</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestContext</span><span class="p">,</span><span class="w"> </span><span class="nx">channel</span><span class="w"> </span><span class="kd">chan</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">,</span><span class="w"> </span><span class="nx">antiBotFlag</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
+</span></code></pre></div>
+<p><a name="MockStrategy.GetName"></a></p>
+<h3 id="func-mockstrategy-getname">func (*MockStrategy) GetName<a class="headerlink" href="#func-mockstrategy-getname" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">MockStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">GetName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+</span></code></pre></div>
+<p><a name="MockStrategy.GetPreferredReporterType"></a></p>
+<h3 id="func-mockstrategy-getpreferredreportertype">func (*MockStrategy) GetPreferredReporterType<a class="headerlink" href="#func-mockstrategy-getpreferredreportertype" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">MockStrategy</span><span class="p">)</span><span class="w"> </span><span class="nx">GetPreferredReporterType</span><span class="p">()</span><span class="w"> </span><span class="nx">strategy</span><span class="p">.</span><span class="nx">ReporterType</span>
+</span></code></pre></div>
 <p><a name="jobRunner"></a></p>
 <h2 id="type-jobrunner">type jobRunner<a class="headerlink" href="#type-jobrunner" title="Permanent link">&para;</a></h2>
 <p>jobRunner is the central orchestrator responsible for coordinating the entire test execution lifecycle. It connects all major components of the application and manages their interactions.</p>
@@ -1309,11 +1565,11 @@
 <li>Graceful shutdown: Waits for all tests and reporting to complete</li>
 </ol>
 <p>The runner uses a fan-out concurrency pattern where a single HTTP response is shared among multiple test worker goroutines, enabling efficient parallel processing without redundant HTTP requests.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">jobRunner</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">jobRunner</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
 </span></code></pre></div>
 <p><a name="CreateJobRunner"></a></p>
 <h3 id="func-createjobrunner">func CreateJobRunner<a class="headerlink" href="#func-createjobrunner" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">CreateJobRunner</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">jobRunner</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">CreateJobRunner</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">jobRunner</span>
 </span></code></pre></div>
 <p>CreateJobRunner initializes and returns a new instance of jobRunner ready to orchestrate test execution. This factory function provides the entry point for creating the main application controller.</p>
 <p>The returned runner is stateless and can be used to orchestrate multiple test execution sessions if needed, though typically only one instance is created per application run.</p>
@@ -1322,12 +1578,12 @@
 <li>*jobRunner: A new runner instance ready to call Orchestrate()</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>runner := CreateJobRunner()
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>runner.Orchestrate(execPlan)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>runner := CreateJobRunner()
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>runner.Orchestrate(execPlan)
 </span></code></pre></div>
 <p><a name="jobRunner.Orchestrate"></a></p>
 <h3 id="func-jobrunner-orchestrate">func (*jobRunner) Orchestrate<a class="headerlink" href="#func-jobrunner-orchestrate" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">j</span><span class="w"> </span><span class="o">*</span><span class="nx">jobRunner</span><span class="p">)</span><span class="w"> </span><span class="nx">Orchestrate</span><span class="p">(</span><span class="nx">execPlan</span><span class="w"> </span><span class="o">*</span><span class="nx">execution</span><span class="p">.</span><span class="nx">Plan</span><span class="p">,</span><span class="w"> </span><span class="nx">repResolver</span><span class="w"> </span><span class="nx">Reporter</span><span class="p">.</span><span class="nx">Resolver</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">j</span><span class="w"> </span><span class="o">*</span><span class="nx">jobRunner</span><span class="p">)</span><span class="w"> </span><span class="nx">Orchestrate</span><span class="p">(</span><span class="nx">execPlan</span><span class="w"> </span><span class="o">*</span><span class="nx">execution</span><span class="p">.</span><span class="nx">Plan</span><span class="p">,</span><span class="w"> </span><span class="nx">repResolver</span><span class="w"> </span><span class="nx">Reporter</span><span class="p">.</span><span class="nx">Resolver</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Orchestrate is the main execution method that coordinates all components to perform security testing. It validates the execution plan, configures the reporting infrastructure, executes strategies, and manages a graceful shutdown of the concurrency pipeline.</p>
 <p>Execution Workflow:</p>
@@ -1371,13 +1627,13 @@
 <li>error.Error (Code 101): BACK_URL is set, but TaskId is missing or empty.</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>runner := CreateJobRunner()
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>plan := &amp;execution.Plan{
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    Target: &quot;example.com&quot;,
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    Strategies: []strategy.TestStrategy{headerStrat},
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    TaskId: &quot;uuid-123&quot;,
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>}
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>runner.Orchestrate(plan)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>runner := CreateJobRunner()
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>plan := &amp;execution.Plan{
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    Target: &quot;example.com&quot;,
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    Strategies: []strategy.TestStrategy{headerStrat},
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    TaskId: &quot;uuid-123&quot;,
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>}
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>runner.Orchestrate(plan)
 </span></code></pre></div>
 <p>Generated by <a href="https://github.com/princjef/gomarkdoc">gomarkdoc</a></p>
 
@@ -1402,7 +1658,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:34:59 UTC"><span class="timeago" datetime="2026-05-08T20:34:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:34:59 UTC">2026-05-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:58:45 UTC"><span class="timeago" datetime="2026-05-08T20:58:45+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:58:45 UTC">2026-05-08</span>
   </span>
 
     
@@ -1412,7 +1668,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:34:59 UTC"><span class="timeago" datetime="2026-05-08T20:34:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:34:59 UTC">2026-05-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:58:45 UTC"><span class="timeago" datetime="2026-05-08T20:58:45+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:58:45 UTC">2026-05-08</span>
   </span>
 
     
