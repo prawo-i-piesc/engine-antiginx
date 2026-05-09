@@ -4,20 +4,22 @@ import (
 	"Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
-	"Engine-AntiGinx/App/execution/strategy/strategyImpl"
 	"Engine-AntiGinx/App/parser/config/types"
 	"os"
 )
 
 type HelpFormatter struct {
+	getHelpStrategy func(name string) (strategy.TestStrategy, bool)
 }
 
 // NewHelpFormatter initializes and returns a new instance of the HelpFormatter.
 //
 // Returns:
 //   - *HelpFormatter: A pointer to the newly created HelpFormatter instance
-func NewHelpFormatter() *HelpFormatter {
-	return &HelpFormatter{}
+func NewHelpFormatter(getHelpStrategy func(name string) (strategy.TestStrategy, bool)) *HelpFormatter {
+	return &HelpFormatter{
+		getHelpStrategy: getHelpStrategy,
+	}
 }
 
 // FormatParameters processes the parsed command parameters to construct an execution plan
@@ -46,7 +48,7 @@ func (h *HelpFormatter) FormatParameters(params []*types.CommandParameter) *exec
 	}
 
 	if len(params) < 1 {
-		helpStrategy, ok := strategyImpl.GetHelpStrategy("")
+		helpStrategy, ok := h.getHelpStrategy("")
 		if !ok {
 			panic(Errors.Error{
 				Code: 102,
@@ -94,7 +96,7 @@ func (h *HelpFormatter) mapHelpStrategies(params []*types.CommandParameter) ([]s
 	mappedHelpStrategies := make([]strategy.TestStrategy, 0, len(params))
 	mappedHelpContexts := make(map[string]strategy.TestContext)
 	for _, val := range params {
-		strat, ok := strategyImpl.GetHelpStrategy(val.Name)
+		strat, ok := h.getHelpStrategy(val.Name)
 		if !ok {
 			panic(Errors.Error{
 				Code: 102,
