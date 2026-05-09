@@ -1202,7 +1202,7 @@
 <ul>
 <li><a href="#findParam">func findParam(params []*types.CommandParameter, paramToFind string) int</a></li>
 <li><a href="#HelpFormatter">type HelpFormatter</a></li>
-<li><a href="#NewHelpFormatter">func NewHelpFormatter() *HelpFormatter</a></li>
+<li><a href="#NewHelpFormatter">func NewHelpFormatter(getHelpStrategy func(name string) (strategy.TestStrategy, bool)) *HelpFormatter</a></li>
 <li><a href="#HelpFormatter.FormatParameters">func (h *HelpFormatter) FormatParameters(params []*types.CommandParameter) *execution.Plan</a></li>
 <li><a href="#HelpFormatter.mapHelpStrategies">func (h *HelpFormatter) mapHelpStrategies(params []*types.CommandParameter) ([]strategy.TestStrategy, map[string]strategy.TestContext)</a></li>
 <li><a href="#ScanFormatter">type ScanFormatter</a></li>
@@ -1218,11 +1218,12 @@
 <p><a name="HelpFormatter"></a></p>
 <h2 id="type-helpformatter">type HelpFormatter<a class="headerlink" href="#type-helpformatter" title="Permanent link">&para;</a></h2>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HelpFormatter</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p">}</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nx">getHelpStrategy</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="NewHelpFormatter"></a></p>
 <h3 id="func-newhelpformatter">func NewHelpFormatter<a class="headerlink" href="#func-newhelpformatter" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewHelpFormatter</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpFormatter</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">NewHelpFormatter</span><span class="p">(</span><span class="nx">getHelpStrategy</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">strategy</span><span class="p">.</span><span class="nx">TestStrategy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpFormatter</span>
 </span></code></pre></div>
 <p>NewHelpFormatter initializes and returns a new instance of the HelpFormatter.</p>
 <p>Returns:</p>
@@ -1323,7 +1324,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:58:45 UTC"><span class="timeago" datetime="2026-05-08T20:58:45+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:58:45 UTC">2026-05-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 9, 2026 18:46:18 UTC"><span class="timeago" datetime="2026-05-09T18:46:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 9, 2026 18:46:18 UTC">2026-05-09</span>
   </span>
 
     
@@ -1333,7 +1334,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 8, 2026 20:58:45 UTC"><span class="timeago" datetime="2026-05-08T20:58:45+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 8, 2026 20:58:45 UTC">2026-05-08</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="May 9, 2026 18:46:18 UTC"><span class="timeago" datetime="2026-05-09T18:46:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="May 9, 2026 18:46:18 UTC">2026-05-09</span>
   </span>
 
     
