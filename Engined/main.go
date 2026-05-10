@@ -197,6 +197,7 @@ OUTER:
 				if nackErr != nil {
 					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
 				}
+				continue
 			}
 			idParam := task.Parameters[taskId]
 
@@ -206,8 +207,9 @@ OUTER:
 				fmt.Printf("Too many requeing for task with id: %s\n", idParam)
 				nackErr := msg.Ack(false)
 				if nackErr != nil {
-					fmt.Printf("Warning: Failed to nack task %s\n", err.Error())
+					fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
 				}
+				continue
 			}
 
 			fmt.Printf("Consumer received a task with id: %s\n", idParam)
@@ -271,7 +273,7 @@ func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery, idParam types.
 		currRetries := getRetryCount(msg)
 		if errJSON.IsRetryable {
 			fmt.Printf("Error is retryable. Requeuing task with id: %s | Current retries: %d\n", idParam, currRetries)
-			nackErr := msg.Nack(false, true)
+			nackErr := msg.Nack(false, false)
 			if nackErr != nil {
 				fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
 			}
@@ -283,7 +285,7 @@ func handleScanError(stderrBuff *bytes.Buffer, msg amqp.Delivery, idParam types.
 			}
 		}
 	} else {
-		fmt.Printf("Fatal error: %s\n", stderrBuff.String())
+		fmt.Printf("Fatal error: %s\n", stderrBuff)
 		nackErr := msg.Ack(false)
 		if nackErr != nil {
 			fmt.Printf("Warning: Failed to nack task %s\n", nackErr.Error())
