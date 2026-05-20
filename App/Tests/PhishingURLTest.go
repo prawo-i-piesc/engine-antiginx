@@ -727,7 +727,7 @@ func isSingleEditDistance(a, b string) bool {
 
 // matchesReplacementVariant detects if a hostname matches a legitimate domain with common letter
 // replacements applied. These replacements represent phishing techniques where specific characters
-// are systematically replaced with lookalikes (e.g., 'm' replaced with 'rn', 'x' replaced with Cyrillic 'х').
+// are systematically replaced with lookalikes (e.g., 'm' replaced with 'rn', 'x' replaced with 'kz').
 //
 // Detection method:
 //   1. Extracts the first label (subdomain) from both hostnames
@@ -737,7 +737,7 @@ func isSingleEditDistance(a, b string) bool {
 //
 // Supported replacements include:
 //   - "m" → "rn", "nn" (looks like m when rendered)
-//   - "x" → "kz", "х" (Cyrillic x)
+//   - "x" → "kz"
 //   - "l" → "1", "i" (number 1, lowercase i)
 //   - "o" → "0" (number 0)
 //   - And many others defined in the letter replacement database
