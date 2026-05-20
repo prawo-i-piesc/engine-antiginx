@@ -754,18 +754,26 @@ func matchesReplacementVariant(host, legit string, replacements map[string][]str
 	if len(hostParts) < 2 || len(legitParts) < 2 {
 		return false
 	}
-
-	hostLabel := hostParts[0]
-	legitLabel := legitParts[0]
-	if hostLabel == legitLabel {
+	if len(hostParts) != len(legitParts) {
 		return false
 	}
 
-	variants := generateReplacementVariants(legitLabel, replacements)
-	for _, v := range variants {
-		candidate := v + "." + strings.Join(legitParts[1:], ".")
-		if candidate == host {
-			return true
+	// Check each non-TLD label so multi-label legitimate domains such as
+	// aws.amazon.com and cloud.google.com are also covered.
+	for labelIndex := 0; labelIndex < len(legitParts)-1; labelIndex++ {
+		hostLabel := hostParts[labelIndex]
+		legitLabel := legitParts[labelIndex]
+		if hostLabel == legitLabel {
+			continue
+		}
+
+		variants := generateReplacementVariants(legitLabel, replacements)
+		for _, v := range variants {
+			candidateParts := append([]string(nil), legitParts...)
+			candidateParts[labelIndex] = v
+			if strings.Join(candidateParts, ".") == host {
+				return true
+			}
 		}
 	}
 
