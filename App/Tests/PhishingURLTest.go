@@ -672,10 +672,10 @@ func isTranspositionVariant(host, legit string) bool {
 //   5. Counts total edits and rejects if more than one
 //
 // Examples:
-//   - "googlе.com" is 1 edit from "googie.com" (replacement: l→i)
+//   - "googie.com" is 1 edit from "google.com" (replacement: l→i)
 //   - "gogle.com" is 1 edit from "google.com" (deletion: o removed)
 //   - "googlee.com" is 1 edit from "google.com" (insertion: extra e)
-//   - "goglge.com" returns false (2+ edits needed)
+//   - "goolge.com" returns false (adjacent transposition requires 2 edits here)
 //
 // Parameters:
 //   - a: First string
