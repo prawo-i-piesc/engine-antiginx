@@ -19,7 +19,7 @@ known CVE vulnerabilities.`,
 	{
 		SectionName: "OPTIONS",
 		SectionData: `https, hsts, serv-h-a, csp, cookie-sec, js-obf, xframe, permission-policy, 
-x-content-type-options, referrer-policy, cross-origin-x`,
+x-content-type-options, referrer-policy, cross-origin-x, sitemap, phishing-url`,
 	},
 }
 
