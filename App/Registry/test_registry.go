@@ -42,6 +42,7 @@ var tests = make(map[string]*Tests.ResponseTest)
 //   - SSLCertificateSecurityTest: Analyzes SSL/TLS certificate security and configuration
 //   - CrossOriginTest: Analyzes Cross-Origin security headers (COEP, CORP, COOP) for cross-origin attack protection
 //   - SitemapSecurityTest: Analyzes sitemap.xml for dangerous path exposure to search engines
+//   - PhishingURLTest: Analyzes hostname similarity to popular domains for phishing indicators
 //
 // Additional tests can be registered by adding registerTest calls in this function.
 func init() {
@@ -58,6 +59,7 @@ func init() {
 	registerTest(Tests.NewSSLCertificateSecurityTest())
 	registerTest(Tests.NewCrossOriginTest())
 	registerTest(Tests.NewSitemapSecurityTest())
+	registerTest(Tests.NewPhishingURLTest())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.
