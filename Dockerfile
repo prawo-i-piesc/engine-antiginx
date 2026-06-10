@@ -80,5 +80,5 @@ USER ${USERNAME}
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "./$ENGINE_BINARY_DAEMON_NAME"]
+CMD ["/app/daemon"]
 # ---
