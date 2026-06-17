@@ -302,6 +302,7 @@ func NewPhishingURLTest() *ResponseTest {
 		Id:          "phishing-url",
 		Name:        "Phishing Domain Impersonation Analysis",
 		Description: "Analyzes the hostname for typo-squatting and homograph patterns that mimic popular domains",
+		Category:    "Phishing",
 		RunTest: func(params ResponseTestParams) TestResult {
 			host := strings.ToLower(strings.TrimSuffix(params.Response.Request.URL.Hostname(), "."))
 			if host == "" {

@@ -94,6 +94,7 @@ func NewHTTPSTest() *ResponseTest {
 		Id:          "https",
 		Name:        "HTTPS Protocol Verification",
 		Description: "Verifies if the website communication is secured with HTTPS protocol",
+		Category:    "Encryption",
 		RunTest: func(params ResponseTestParams) TestResult {
 
 			if params.Response.Request.URL.Scheme == "https" {

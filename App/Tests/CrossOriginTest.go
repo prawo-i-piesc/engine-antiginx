@@ -51,6 +51,7 @@ func NewCrossOriginTest() *ResponseTest {
 		Id:          "cross-origin-x",
 		Name:        "Cross-Origin Security Headers Analysis",
 		Description: "Analyzes Cross-Origin-Embedder-Policy, Cross-Origin-Resource-Policy, and Cross-Origin-Opener-Policy headers for cross-origin attack protection",
+		Category:    "Headers",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for Cross-Origin security headers
 			coepHeader := params.Response.Header.Get("Cross-Origin-Embedder-Policy")
