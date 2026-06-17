@@ -33,6 +33,7 @@ func NewXContentTypeOptionsTest() *ResponseTest {
 		Id:          "x-content-type-options",
 		Name:        "X-Content-Type-Options Header Analysis",
 		Description: "Checks for X-Content-Type-Options header to prevent MIME type sniffing attacks",
+		Category:    "Headers",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for X-Content-Type-Options header
 			xContentTypeHeader := params.Response.Header.Get("X-Content-Type-Options")

@@ -152,6 +152,7 @@ func NewSitemapSecurityTest() *ResponseTest {
 		Id:          "sitemap",
 		Name:        "Sitemap Security Analysis",
 		Description: "Analyzes sitemap.xml for dangerous paths that should not be exposed to search engines",
+		Category:    "App-Configuration",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Extract base URL from the response
 			baseUrl := params.Response.Request.URL.Scheme + "://" + params.Response.Request.URL.Host

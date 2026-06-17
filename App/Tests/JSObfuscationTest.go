@@ -61,6 +61,7 @@ func NewJSObfuscationTest() *ResponseTest {
 		Id:          "js-obf",
 		Name:        "JavaScript Obfuscation Detection",
 		Description: "Detects obfuscated JavaScript code that may indicate malicious activity or security evasion techniques",
+		Category:    "Phishing",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Read response body
 			bodyBytes, err := io.ReadAll(params.Response.Body)

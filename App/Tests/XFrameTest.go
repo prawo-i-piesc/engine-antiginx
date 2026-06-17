@@ -48,6 +48,7 @@ func NewXFrameTest() *ResponseTest {
 		Id:          "xframe",
 		Name:        "X-Frame-Options & CSP Frame Protection Analysis",
 		Description: "Analyzes X-Frame-Options header and CSP frame-ancestors directive to assess clickjacking protection and iframe embedding policies",
+		Category:    "Headers",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for both X-Frame-Options and CSP frame-ancestors
 			xframeHeader := params.Response.Header.Get("X-Frame-Options")

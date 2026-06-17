@@ -39,6 +39,7 @@ func NewSSLCertificateSecurityTest() *ResponseTest {
 		Id:          "ssl-cert",
 		Name:        "SSL Certificate Security Analysis",
 		Description: "Analyzes the SSL/TLS certificate of the target website for validity, expiration, and cryptographic strength.",
+		Category:    "Encryption",
 		RunTest: func(params ResponseTestParams) TestResult {
 			url := params.Response.Request.URL
 			if url.Scheme != "https" {
