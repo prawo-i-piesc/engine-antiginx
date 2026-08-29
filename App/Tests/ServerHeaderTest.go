@@ -197,6 +197,7 @@ func NewServerHeaderTest() *ResponseTest {
 		Id:          "serv-h-a",
 		Name:        "Server Technology Disclosure Analysis",
 		Description: "Analyzes HTTP headers for information disclosure about server technology, frameworks, and hosting services",
+		Category:    "App-Configuration",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Headers that commonly reveal server technology information
 			exposureHeaders := map[string]string{

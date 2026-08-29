@@ -37,6 +37,7 @@ func NewPermissionsPolicyTest() *ResponseTest {
 		Id:          "permissions-policy",
 		Name:        "Permissions-Policy Header Analysis",
 		Description: "Checks for Permissions-Policy header presence and configuration to assess browser feature access control",
+		Category:    "Headers",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for Permissions-Policy header
 			permissionsPolicyHeader := params.Response.Header.Get("Permissions-Policy")

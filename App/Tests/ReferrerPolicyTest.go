@@ -55,6 +55,7 @@ func NewReferrerPolicyTest() *ResponseTest {
 		Id:          "referrer-policy",
 		Name:        "Referrer-Policy Header Analysis",
 		Description: "Checks for Referrer-Policy header presence and configuration to assess referrer information control and privacy protection",
+		Category:    "Headers",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for Referrer-Policy header
 			referrerPolicyHeader := params.Response.Header.Get("Referrer-Policy")

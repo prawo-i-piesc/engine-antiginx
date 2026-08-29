@@ -113,6 +113,7 @@ type ResponseTest struct {
 	Id          string                                     // Unique test identifier (e.g., "https", "hsts", "csp")
 	Name        string                                     // Human-readable test name
 	Description string                                     // Detailed test description
+	Category	string                                     // Test category for organizational purposes (e.g., "Headers", "TLS", "CSP")
 	RunTest     func(params ResponseTestParams) TestResult // Test execution function
 }
 
@@ -136,6 +137,14 @@ func (brt *ResponseTest) GetName() string { return brt.Name }
 // Returns:
 //   - string: The test's detailed description
 func (brt *ResponseTest) GetDescription() string { return brt.Description }
+
+
+// GetCategory returns the category of the test for organizational purposes.
+// This method provides read-only access to the test's category.
+//
+// Returns:
+//   - string: The test's category (e.g., "Headers", "TLS", "CSP")
+func (brt *ResponseTest) GetCategory() string { return brt.Category }
 
 // Run executes the test logic against the provided HTTP response parameters and returns
 // the security analysis results. This is the main entry point for test execution.

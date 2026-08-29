@@ -55,6 +55,7 @@ func NewCSPTest() *ResponseTest {
 		Id:          "csp",
 		Name:        "Content Security Policy Analysis",
 		Description: "Analyzes Content-Security-Policy header configuration to assess protection against XSS, injection attacks, and resource loading security",
+		Category:    "Headers",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for CSP header
 			cspHeader := params.Response.Header.Get("Content-Security-Policy")

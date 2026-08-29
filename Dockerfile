@@ -12,7 +12,7 @@ ARG USER_GID=1001
 
 # Base images for stages
 FROM golang:1.26-alpine AS base
-FROM alpine:3.23 AS run
+FROM alpine:3.24 AS run
 # ---
 
 
@@ -80,5 +80,5 @@ USER ${USERNAME}
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "./$ENGINE_BINARY_DAEMON_NAME"]
+CMD ["/app/daemon"]
 # ---

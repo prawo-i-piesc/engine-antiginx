@@ -55,6 +55,7 @@ func NewCookieSecurityTest() *ResponseTest {
 		Id:          "cookie-sec",
 		Name:        "Cookie Security Analysis",
 		Description: "Analyzes Set-Cookie headers for security attributes including HttpOnly, Secure, SameSite, expiration times, and session fixation risks",
+		Category:    "App-Configuration",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Get all Set-Cookie headers
 			cookies := params.Response.Cookies()

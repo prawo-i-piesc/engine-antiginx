@@ -45,6 +45,7 @@ func NewHSTSTest() *ResponseTest {
 		Id:          "hsts",
 		Name:        "HSTS Header Analysis",
 		Description: "Checks for HTTP Strict Transport Security header presence and configuration",
+		Category:    "Encryption",
 		RunTest: func(params ResponseTestParams) TestResult {
 			// Check for HSTS header
 			hstsHeader := params.Response.Header.Get("Strict-Transport-Security")
