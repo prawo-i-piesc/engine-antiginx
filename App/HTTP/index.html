@@ -853,6 +853,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-detectprotectionheaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func detectProtectionHeaders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-detectprotectionvendors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func detectProtectionVendors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-formatprotectionlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func formatProtectionList
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-getantidetectionheaders" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1275,6 +1308,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-detectprotectionheaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func detectProtectionHeaders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-detectprotectionvendors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func detectProtectionVendors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-formatprotectionlist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func formatProtectionList
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-getantidetectionheaders" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1485,6 +1551,9 @@
 <h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="#defaultHeaders">func defaultHeaders() map[string]string</a></li>
+<li><a href="#detectProtectionHeaders">func detectProtectionHeaders(resp *http.Response) []string</a></li>
+<li><a href="#detectProtectionVendors">func detectProtectionVendors(body string) []string</a></li>
+<li><a href="#formatProtectionList">func formatProtectionList(protections []string) string</a></li>
 <li><a href="#getAntiDetectionHeaders">func getAntiDetectionHeaders() map[string]string</a></li>
 <li><a href="#getBrowserTLSConfig">func getBrowserTLSConfig() *tls.Config</a></li>
 <li><a href="#getRandomUserAgent">func getRandomUserAgent() string</a></li>
@@ -1506,9 +1575,49 @@
 <ul>
 <li>map[string]string: Default headers with User-Agent set to "AntiGinx/1.0"</li>
 </ul>
+<p><a name="detectProtectionHeaders"></a></p>
+<h2 id="func-detectprotectionheaders">func detectProtectionHeaders<a class="headerlink" href="#func-detectprotectionheaders" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">detectProtectionHeaders</span><span class="p">(</span><span class="nx">resp</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+</span></code></pre></div>
+<p>detectProtectionHeaders identifies bot protection products from response headers alone. It is used both for challenge responses, whose body never reaches the regular detection path, and as the header half of the strict-mode detection.</p>
+<p>Only vendor specific headers are considered, so a hit is reliable evidence that a commercial protection layer fronts the target rather than a guess based on wording.</p>
+<p>Parameters:</p>
+<ul>
+<li>resp: HTTP response whose headers should be inspected</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>[]string: Human-readable names of the detected protections (nil when none matched)</li>
+</ul>
+<p><a name="detectProtectionVendors"></a></p>
+<h2 id="func-detectprotectionvendors">func detectProtectionVendors<a class="headerlink" href="#func-detectprotectionvendors" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">detectProtectionVendors</span><span class="p">(</span><span class="nx">body</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+</span></code></pre></div>
+<p>detectProtectionVendors identifies bot protection products from vendor specific markers embedded in a response body, such as challenge cookies and challenge script names.</p>
+<p>Parameters:</p>
+<ul>
+<li>body: Response body to inspect</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>[]string: Human-readable names of the detected protections (nil when none matched)</li>
+</ul>
+<p><a name="formatProtectionList"></a></p>
+<h2 id="func-formatprotectionlist">func formatProtectionList<a class="headerlink" href="#func-formatprotectionlist" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">formatProtectionList</span><span class="p">(</span><span class="nx">protections</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">string</span>
+</span></code></pre></div>
+<p>formatProtectionList renders detected protections as a numbered, indented list for inclusion in an Error message.</p>
+<p>Parameters:</p>
+<ul>
+<li>protections: Detected protection names</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>string: Numbered list, one protection per line</li>
+</ul>
 <p><a name="getAntiDetectionHeaders"></a></p>
 <h2 id="func-getantidetectionheaders">func getAntiDetectionHeaders<a class="headerlink" href="#func-getantidetectionheaders" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">getAntiDetectionHeaders</span><span class="p">()</span><span class="w"> </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">getAntiDetectionHeaders</span><span class="p">()</span><span class="w"> </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
 </span></code></pre></div>
 <p>getAntiDetectionHeaders returns comprehensive browser headers with maximum stealth capabilities. This function provides the best security by including all browser characteristics, client hints, viewport information, device capabilities, and network conditions that match a real Chrome browser.</p>
 <p>Includes enhanced features for maximum protection:</p>
@@ -1525,7 +1634,7 @@
 </ul>
 <p><a name="getBrowserTLSConfig"></a></p>
 <h2 id="func-getbrowsertlsconfig">func getBrowserTLSConfig<a class="headerlink" href="#func-getbrowsertlsconfig" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">getBrowserTLSConfig</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">getBrowserTLSConfig</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span>
 </span></code></pre></div>
 <p>getBrowserTLSConfig returns a TLS configuration that mimics real browser behavior including cipher suites, curve preferences, and protocol versions that match Chrome/Firefox. This helps avoid TLS fingerprinting which is used by advanced bot detection systems.</p>
 <p>Configuration includes:</p>
@@ -1541,7 +1650,7 @@
 </ul>
 <p><a name="getRandomUserAgent"></a></p>
 <h2 id="func-getrandomuseragent">func getRandomUserAgent<a class="headerlink" href="#func-getrandomuseragent" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">getRandomUserAgent</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">getRandomUserAgent</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
 </span></code></pre></div>
 <p>getRandomUserAgent returns a random realistic user agent from a pool of current browser versions. This helps avoid fingerprinting by varying the user agent across requests, simulating traffic from different browsers and operating systems.</p>
 <p>Includes user agents for:</p>
@@ -1566,22 +1675,24 @@
 <li>200: Response body reading Error</li>
 <li>300: Bot protection detected</li>
 </ul>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HttpError</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nx">Url</span><span class="w">         </span><span class="kt">string</span><span class="w"> </span><span class="c1">// The URL that caused the Error</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nx">Code</span><span class="w">        </span><span class="kt">int</span><span class="w">    </span><span class="c1">// Error Code for categorization</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nx">Message</span><span class="w">     </span><span class="kt">string</span><span class="w"> </span><span class="c1">// Human-readable Error description</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nx">Error</span><span class="w">       </span><span class="kt">any</span><span class="w">    </span><span class="c1">// Original Error object or response</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">IsRetryable</span><span class="w"> </span><span class="kt">bool</span><span class="w">   </span><span class="c1">// Check if error is retryable</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">}</span>
+<p>Protections carries the names of commercial bot protection / WAF products that were positively identified from response headers or vendor cookies. It is only populated with strong, vendor-specific evidence, never with generic body keywords, because downstream logic uses it to reason about the target's legitimacy.</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HttpError</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nx">Url</span><span class="w">         </span><span class="kt">string</span><span class="w">   </span><span class="c1">// The URL that caused the Error</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nx">Code</span><span class="w">        </span><span class="kt">int</span><span class="w">      </span><span class="c1">// Error Code for categorization</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nx">Message</span><span class="w">     </span><span class="kt">string</span><span class="w">   </span><span class="c1">// Human-readable Error description</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nx">Error</span><span class="w">       </span><span class="kt">any</span><span class="w">      </span><span class="c1">// Original Error object or response</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nx">IsRetryable</span><span class="w"> </span><span class="kt">bool</span><span class="w">     </span><span class="c1">// Check if error is retryable</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nx">Protections</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="c1">// Vendor-identified bot protections, if any</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="WrapperOption"></a></p>
 <h2 id="type-wrapperoption">type WrapperOption<a class="headerlink" href="#type-wrapperoption" title="Permanent link">&para;</a></h2>
 <p>WrapperOption is a functional option type for configuring the HTTP wrapper. It allows flexible, composable configuration through functions like WithHeaders and WithAntiBotDetection.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">WrapperOption</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="o">*</span><span class="nx">httpWrapperConfig</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">WrapperOption</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="o">*</span><span class="nx">httpWrapperConfig</span><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="WithAntiBotDetection"></a></p>
 <h3 id="func-withantibotdetection">func WithAntiBotDetection<a class="headerlink" href="#func-withantibotdetection" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WithAntiBotDetection</span><span class="p">()</span><span class="w"> </span><span class="nx">WrapperOption</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WithAntiBotDetection</span><span class="p">()</span><span class="w"> </span><span class="nx">WrapperOption</span>
 </span></code></pre></div>
 <p>WithAntiBotDetection enables comprehensive anti-bot detection bypass with maximum protection. This option activates all available techniques including realistic headers, TLS fingerprint masking, cookie handling, random delays, and header ordering.</p>
 <p>When enabled, the client will:</p>
@@ -1599,11 +1710,11 @@
 <li>WrapperOption: Configuration function that enables anti-bot detection features</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>wrapper := CreateHttpWrapper(WithAntiBotDetection())
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>wrapper := CreateHttpWrapper(WithAntiBotDetection())
 </span></code></pre></div>
 <p><a name="WithHeaders"></a></p>
 <h3 id="func-withheaders">func WithHeaders<a class="headerlink" href="#func-withheaders" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WithHeaders</span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="nx">WrapperOption</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WithHeaders</span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="nx">WrapperOption</span>
 </span></code></pre></div>
 <p>WithHeaders creates a WrapperOption that adds or overrides HTTP headers in the client configuration. This option can be used both when creating the wrapper and on individual requests.</p>
 <p>Headers provided through this option will merge with existing headers, with new values overriding existing ones for the same header name.</p>
@@ -1616,22 +1727,22 @@
 <li>WrapperOption: Configuration function that applies the headers</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>wrapper := CreateHttpWrapper(WithHeaders(map[string]string{
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    "Authorization": "Bearer token123",
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    "Custom-Header": "value",
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>}))
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>wrapper := CreateHttpWrapper(WithHeaders(map[string]string{
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    "Authorization": "Bearer token123",
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    "Custom-Header": "value",
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>}))
 </span></code></pre></div>
 <p><a name="httpWrapper"></a></p>
 <h2 id="type-httpwrapper">type httpWrapper<a class="headerlink" href="#type-httpwrapper" title="Permanent link">&para;</a></h2>
 <p>httpWrapper wraps Go's standard http.Client with additional bot protection detection and anti-detection capabilities. It provides a higher-level interface for making HTTP requests while handling common security scanning challenges.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">httpWrapper</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="nx">client</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span><span class="w">      </span><span class="c1">// Underlying HTTP client</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nx">config</span><span class="w"> </span><span class="nx">httpWrapperConfig</span><span class="w"> </span><span class="c1">// Wrapper configuration including headers and settings</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">httpWrapper</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nx">client</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Client</span><span class="w">      </span><span class="c1">// Underlying HTTP client</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nx">config</span><span class="w"> </span><span class="nx">httpWrapperConfig</span><span class="w"> </span><span class="c1">// Wrapper configuration including headers and settings</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="CreateHttpWrapper"></a></p>
 <h3 id="func-createhttpwrapper">func CreateHttpWrapper<a class="headerlink" href="#func-createhttpwrapper" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">CreateHttpWrapper</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="p">...</span><span class="nx">WrapperOption</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">httpWrapper</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">CreateHttpWrapper</span><span class="p">(</span><span class="nx">opts</span><span class="w"> </span><span class="p">...</span><span class="nx">WrapperOption</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">httpWrapper</span>
 </span></code></pre></div>
 <p>CreateHttpWrapper creates a new HTTP wrapper instance with optional configuration. The wrapper can be configured with custom headers, anti-bot detection features, and other options through functional options.</p>
 <p>By default, the wrapper uses:</p>
@@ -1656,20 +1767,20 @@
 <li>*httpWrapper: Configured HTTP wrapper ready for use</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>// Basic wrapper
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>wrapper := CreateHttpWrapper()
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>// Wrapper with custom headers
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>wrapper := CreateHttpWrapper(WithHeaders(map[string]string{
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    "Authorization": "Bearer token",
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>}))
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>// Wrapper with stealth mode
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced"))
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>// Basic wrapper
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>wrapper := CreateHttpWrapper()
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>// Wrapper with custom headers
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>wrapper := CreateHttpWrapper(WithHeaders(map[string]string{
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    "Authorization": "Bearer token",
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>}))
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>// Wrapper with stealth mode
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>wrapper := CreateHttpWrapper(WithAntiBotDetection("advanced"))
 </span></code></pre></div>
 <p><a name="httpWrapper.Get"></a></p>
 <h3 id="func-httpwrapper-get">func (*httpWrapper) Get<a class="headerlink" href="#func-httpwrapper-get" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">hw</span><span class="w"> </span><span class="o">*</span><span class="nx">httpWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">Get</span><span class="p">(</span><span class="nx">url</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">opts</span><span class="w"> </span><span class="p">...</span><span class="nx">WrapperOption</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">hw</span><span class="w"> </span><span class="o">*</span><span class="nx">httpWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">Get</span><span class="p">(</span><span class="nx">url</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">opts</span><span class="w"> </span><span class="p">...</span><span class="nx">WrapperOption</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span>
 </span></code></pre></div>
 <p>Get performs an HTTP GET request with built-in bot protection detection and Error handling. This method implements comprehensive security scanning capabilities including detection of Cloudflare, CAPTCHA, and various bot protection mechanisms.</p>
 <p>The method supports per-request configuration overrides and includes:</p>
@@ -1707,22 +1818,22 @@
 <li>HttpError: On any Error condition with detailed Error information</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>wrapper := CreateHttpWrapper()
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>response := wrapper.Get("https://example.com")
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>fmt.Printf("Status: %s\n", response.Status)
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>// With per-request options
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>response := wrapper.Get("https://api.example.com", WithHeaders(map[string]string{
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    "Accept": "application/json",
-</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>}))
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>wrapper := CreateHttpWrapper()
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>response := wrapper.Get("https://example.com")
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>fmt.Printf("Status: %s\n", response.Status)
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>// With per-request options
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>response := wrapper.Get("https://api.example.com", WithHeaders(map[string]string{
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    "Accept": "application/json",
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>}))
 </span></code></pre></div>
 <p><a name="httpWrapperConfig"></a></p>
 <h2 id="type-httpwrapperconfig">type httpWrapperConfig<a class="headerlink" href="#type-httpwrapperconfig" title="Permanent link">&para;</a></h2>
 <p>httpWrapperConfig holds the configuration for the HTTP wrapper including custom headers and anti-bot detection settings. This structure is modified by WrapperOption functions to customize client behavior.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">httpWrapperConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="nx">headers</span><span class="w">          </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="w"> </span><span class="c1">// Custom HTTP headers to be sent with requests</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nx">antiBotDetection</span><span class="w"> </span><span class="kt">bool</span><span class="w">              </span><span class="c1">// Enable anti-bot detection bypass features</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">httpWrapperConfig</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="nx">headers</span><span class="w">          </span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="w"> </span><span class="c1">// Custom HTTP headers to be sent with requests</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="nx">antiBotDetection</span><span class="w"> </span><span class="kt">bool</span><span class="w">              </span><span class="c1">// Enable anti-bot detection bypass features</span>
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Generated by <a href="https://github.com/princjef/gomarkdoc">gomarkdoc</a></p>
 
@@ -1747,7 +1858,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 29, 2026 12:45:13 UTC"><span class="timeago" datetime="2026-08-29T12:45:13+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 29, 2026 12:45:13 UTC">2026-08-29</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
   </span>
 
     
@@ -1757,7 +1868,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 29, 2026 12:45:13 UTC"><span class="timeago" datetime="2026-08-29T12:45:13+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 29, 2026 12:45:13 UTC">2026-08-29</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
   </span>
 
     
