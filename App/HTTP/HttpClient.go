@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -28,12 +29,18 @@ import (
 //   - 102: HTTP status Error (non-200 responses)
 //   - 200: Response body reading Error
 //   - 300: Bot protection detected
+//
+// Protections carries the names of commercial bot protection / WAF products that were
+// positively identified from response headers or vendor cookies. It is only populated
+// with strong, vendor-specific evidence, never with generic body keywords, because
+// downstream logic uses it to reason about the target's legitimacy.
 type HttpError struct {
-	Url         string // The URL that caused the Error
-	Code        int    // Error Code for categorization
-	Message     string // Human-readable Error description
-	Error       any    // Original Error object or response
-	IsRetryable bool   // Check if error is retryable
+	Url         string   // The URL that caused the Error
+	Code        int      // Error Code for categorization
+	Message     string   // Human-readable Error description
+	Error       any      // Original Error object or response
+	IsRetryable bool     // Check if error is retryable
+	Protections []string // Vendor-identified bot protections, if any
 }
 
 // httpWrapperConfig holds the configuration for the HTTP wrapper including custom headers
@@ -469,12 +476,20 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 
 	// Handle HTTP Error status codes
 	if resp.StatusCode != 200 {
+		// A challenge page (403/503 from Cloudflare and friends) never reaches the body
+		// based detection below, so the vendor headers are inspected here instead.
+		headerProtections := detectProtectionHeaders(resp)
+		message := "HTTP Status Code not 200 (OK): " + strconv.Itoa(resp.StatusCode)
+		if len(headerProtections) > 0 {
+			message += "\nBot protection detected:\n" + formatProtectionList(headerProtections)
+		}
 		panic(HttpError{
 			Url:         url,
 			Code:        102,
-			Message:     "HTTP Status Code not 200 (OK): " + strconv.Itoa(resp.StatusCode),
+			Message:     message,
 			Error:       resp,
 			IsRetryable: false,
+			Protections: headerProtections,
 		})
 	}
 
@@ -498,23 +513,109 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 
 	// Enhanced bot protection detection
 	bodyStr := string(body)
-	var detectedProtections []string
 
-	// Check for Cloudflare headers and challenges
-	if resp.Header.Get("Server") == "cloudflare" {
-		detectedProtections = append(detectedProtections, "Cloudflare Server")
+	// Strong evidence: vendor specific headers and vendor cookies/scripts in the body.
+	// These identify an actual protection product sitting in front of the target.
+	strongProtections := detectProtectionHeaders(resp)
+	strongProtections = append(strongProtections, detectProtectionVendors(bodyStr)...)
+
+	// Weak evidence: generic challenge wording. Useful for explaining to the operator
+	// why the scan stopped, but far too ambiguous to be treated as vendor identification.
+	var challengeHits []string
+	challengeKeywords := []string{
+		"cloudflare", "captcha", "Attention Required", "challenge",
+		"verify you are human", "security check", "DDoS protection",
+		"Access denied", "blocked", "suspicious activity",
+		"bot detected", "automated traffic", "rate limited",
+		"javascript is required", "browser check",
 	}
-	if resp.Header.Get("CF-RAY") != "" {
-		detectedProtections = append(detectedProtections, "Cloudflare Ray ID: "+resp.Header.Get("CF-RAY"))
+
+	for _, keyword := range challengeKeywords {
+		if helpers.ContainsAnySubstring(bodyStr, []string{keyword}) {
+			challengeHits = append(challengeHits, "Content contains: "+keyword)
+		}
 	}
-	if resp.Header.Get("CF-Cache-Status") != "" {
-		detectedProtections = append(detectedProtections, "Cloudflare Cache: "+resp.Header.Get("CF-Cache-Status"))
+
+	detectedProtections := append(append([]string{}, strongProtections...), challengeHits...)
+
+	// Only panic if not using anti-bot detection (in strict mode)
+	if len(detectedProtections) > 0 && !cfg.antiBotDetection {
+		panic(HttpError{
+			Url:         url,
+			Code:        300,
+			Message:     "Bot protection detected:\n" + formatProtectionList(detectedProtections),
+			Error:       resp,
+			IsRetryable: false,
+			Protections: strongProtections,
+		})
+	}
+
+	return resp
+}
+
+// detectProtectionHeaders identifies bot protection products from response headers alone.
+// It is used both for challenge responses, whose body never reaches the regular detection
+// path, and as the header half of the strict-mode detection.
+//
+// Only vendor specific headers are considered, so a hit is reliable evidence that a
+// commercial protection layer fronts the target rather than a guess based on wording.
+//
+// Parameters:
+//   - resp: HTTP response whose headers should be inspected
+//
+// Returns:
+//   - []string: Human-readable names of the detected protections (nil when none matched)
+func detectProtectionHeaders(resp *http.Response) []string {
+	if resp == nil {
+		return nil
+	}
+
+	var protections []string
+
+	if strings.EqualFold(resp.Header.Get("Server"), "cloudflare") {
+		protections = append(protections, "Cloudflare Server")
+	}
+	if ray := resp.Header.Get("CF-RAY"); ray != "" {
+		protections = append(protections, "Cloudflare Ray ID: "+ray)
+	}
+	if cache := resp.Header.Get("CF-Cache-Status"); cache != "" {
+		protections = append(protections, "Cloudflare Cache: "+cache)
 	}
 	if resp.Header.Get("CF-CHL-BCODE") != "" {
-		detectedProtections = append(detectedProtections, "Cloudflare Challenge")
+		protections = append(protections, "Cloudflare Challenge")
+	}
+	if resp.Header.Get("CF-Mitigated") != "" {
+		protections = append(protections, "Cloudflare Mitigation")
 	}
 
-	// Check for various bot protection services
+	// Other vendors advertise themselves through their own headers.
+	headerVendors := map[string]string{
+		"X-Iinfo":              "Incapsula Protection",
+		"X-CDN":                "Incapsula Protection",
+		"X-Datadome":           "DataDome",
+		"X-DataDome-CID":       "DataDome",
+		"X-Px":                 "PerimeterX",
+		"X-Sucuri-ID":          "Sucuri Firewall",
+		"X-Akamai-Transformed": "Akamai",
+	}
+	for header, vendor := range headerVendors {
+		if resp.Header.Get(header) != "" {
+			protections = append(protections, vendor)
+		}
+	}
+
+	return protections
+}
+
+// detectProtectionVendors identifies bot protection products from vendor specific markers
+// embedded in a response body, such as challenge cookies and challenge script names.
+//
+// Parameters:
+//   - body: Response body to inspect
+//
+// Returns:
+//   - []string: Human-readable names of the detected protections (nil when none matched)
+func detectProtectionVendors(body string) []string {
 	protectionIndicators := map[string]string{
 		"cf-browser-verification": "Cloudflare Browser Verification",
 		"__cf_bm":                 "Cloudflare Bot Management",
@@ -526,42 +627,27 @@ func (hw *httpWrapper) Get(url string, opts ...WrapperOption) *http.Response {
 		"radware":                 "Radware",
 	}
 
+	var protections []string
 	for indicator, service := range protectionIndicators {
-		if helpers.ContainsAnySubstring(bodyStr, []string{indicator}) {
-			detectedProtections = append(detectedProtections, service+" detected")
+		if helpers.ContainsAnySubstring(body, []string{indicator}) {
+			protections = append(protections, service+" detected")
 		}
 	}
+	return protections
+}
 
-	// Enhanced content-based detection
-	challengeKeywords := []string{
-		"cloudflare", "captcha", "Attention Required", "challenge",
-		"verify you are human", "security check", "DDoS protection",
-		"Access denied", "blocked", "suspicious activity",
-		"bot detected", "automated traffic", "rate limited",
-		"javascript is required", "browser check",
+// formatProtectionList renders detected protections as a numbered, indented list for
+// inclusion in an Error message.
+//
+// Parameters:
+//   - protections: Detected protection names
+//
+// Returns:
+//   - string: Numbered list, one protection per line
+func formatProtectionList(protections []string) string {
+	var builder strings.Builder
+	for i, detection := range protections {
+		builder.WriteString(fmt.Sprintf("  %d. %s\n", i+1, detection))
 	}
-
-	for _, keyword := range challengeKeywords {
-		if helpers.ContainsAnySubstring(bodyStr, []string{keyword}) {
-			detectedProtections = append(detectedProtections, "Content contains: "+keyword)
-		}
-	}
-
-	// Only panic if not using anti-bot detection (in strict mode)
-	if len(detectedProtections) > 0 && !cfg.antiBotDetection {
-		detectionMsg := "Bot protection detected:\n"
-		for i, detection := range detectedProtections {
-			detectionMsg += fmt.Sprintf("  %d. %s\n", i+1, detection)
-		}
-
-		panic(HttpError{
-			Url:         url,
-			Code:        300,
-			Message:     detectionMsg,
-			Error:       resp,
-			IsRetryable: false,
-		})
-	}
-
-	return resp
+	return builder.String()
 }
