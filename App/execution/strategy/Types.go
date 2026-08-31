@@ -4,9 +4,19 @@ import (
 	"Engine-AntiGinx/App/Tests"
 )
 
+// RequestInfo describes the outcome of loading the target's content.
+//
+// Code 0 means the content was retrieved successfully. Any other Code carries the
+// HttpClient Error Code that stopped the scan.
+//
+// Protections lists commercial bot protection / WAF products that were positively
+// identified while the request failed. It is only populated from vendor specific
+// evidence (headers, vendor cookies), so an entry here means a real protection layer
+// fronts the target rather than that the response merely looked like a challenge page.
 type RequestInfo struct {
-	Message string `json:"Message"`
-	Code    int    `json:"Code"`
+	Message     string   `json:"Message"`
+	Code        int      `json:"Code"`
+	Protections []string `json:"Protections,omitempty"`
 }
 
 // ResultWrapper encapsulates the outcome of a strategy execution.

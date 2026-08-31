@@ -21,12 +21,16 @@ import (
 //   - Method: GET
 //   - Timeout: Configured in HttpClient wrapper (default: 30 seconds)
 //
-// The function may panic with httpError if:
-//   - Request creation fails (code 100)
-//   - Network error occurs (code 101)
-//   - Non-200 status code returned (code 102)
-//   - Response body reading fails (code 200)
+// Failures are recovered internally and returned as a RequestInfo rather than propagated
+// as a panic. The RequestInfo carries:
+//   - Request creation failure (code 100)
+//   - Network error (code 101)
+//   - Non-200 status code (code 102)
+//   - Response body reading failure (code 200)
 //   - Bot protection detected (code 300)
+//
+// When the failure came from an identified bot protection product, RequestInfo.Protections
+// names it. See WrapRequestFailure for how that changes the way the failure is reported.
 //
 // Parameters:
 //   - target: The fully qualified URL to request (e.g., "https://example.com")
@@ -61,8 +65,9 @@ func LoadWebsiteContent(target string, useAntiBotDetection bool) (*http.Response
 					switch val := r.(type) {
 					case HttpClient.HttpError:
 						reqInfo = &RequestInfo{
-							Message: val.Message,
-							Code:    val.Code,
+							Message:     val.Message,
+							Code:        val.Code,
+							Protections: val.Protections,
 						}
 						if !val.IsRetryable {
 							return
@@ -127,4 +132,39 @@ func PerformTest(test *Tests.ResponseTest, wg *sync.WaitGroup, results chan<- Re
 	testResult := test.Run(testParams)
 	wrapped := WrapStrategyResult(&testResult, nil, nil)
 	results <- wrapped
+}
+
+// WrapRequestFailure converts a failed content load into the wrapper that should be sent
+// to the reporting layer.
+//
+// Most failures are just that, and are forwarded as process information so the operator
+// sees why the scan stopped. A failure caused by an identified bot protection product is
+// different: it carries a real signal about the target and is forwarded as a security
+// verdict instead, so it appears in the report alongside ordinary findings.
+//
+// The two are mutually exclusive on purpose. Both reporters check for process information
+// first and skip the test result when it is present, so a verdict is only visible when the
+// process information is left out.
+//
+// Parameters:
+//   - info: The RequestInfo describing the failed content load
+//
+// Returns:
+//   - ResultWrapper: A verdict-bearing wrapper for an identified bot protection block,
+//     otherwise a process-information wrapper
+//
+// Example:
+//
+//	response, info := LoadWebsiteContent(target, antiBotFlag)
+//	if info.Code != 0 {
+//	    channel <- WrapRequestFailure(info)
+//	    return
+//	}
+func WrapRequestFailure(info *RequestInfo) ResultWrapper {
+	if info == nil || len(info.Protections) == 0 {
+		return WrapStrategyResult(nil, nil, info)
+	}
+
+	verdict := Tests.NewBotProtectionVerdict(info.Protections, info.Message, info.Code)
+	return WrapStrategyResult(&verdict, nil, nil)
 }

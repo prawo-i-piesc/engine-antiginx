@@ -1539,7 +1539,7 @@ func usesDangerousScheme(value string) bool {
 // Returns true when the value targets a different host.
 func isExternalRedirectTarget(currentHost string, value string) bool {
 	candidate := strings.TrimSpace(value)
-	if strings.HasPrefix(candidate, "//") {target
+	if strings.HasPrefix(candidate, "//") {
 		candidate = "http:" + candidate
 	}
 

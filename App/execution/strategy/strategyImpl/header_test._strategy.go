@@ -39,7 +39,9 @@ func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotD
 //
 // Logic Flow:
 //  1. Formats the target URL using the format helper.
-//  2. Fetches the raw website content (respecting the antiBotFlag).
+//  2. Fetches the raw website content (respecting the antiBotFlag). A failed fetch ends
+//     the strategy early, reported either as process information or, when an identified
+//     bot protection layer blocked it, as a security verdict.
 //  3. Iterates through ctx.Args to identify specific sub-tests in the Registry.
 //  4. Launches each valid sub-test in its own goroutine.
 //
@@ -54,7 +56,9 @@ func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan stra
 	result, reqInfo := h.loadWebsiteContent(*target, antiBotFlag)
 
 	if reqInfo.Code != 0 {
-		channel <- strategy.WrapStrategyResult(nil, nil, reqInfo)
+		// A failure caused by an identified bot protection layer is reported as a
+		// verdict rather than as a bare error, see strategy.WrapRequestFailure.
+		channel <- strategy.WrapRequestFailure(reqInfo)
 		return
 	}
 

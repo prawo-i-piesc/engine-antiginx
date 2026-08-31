@@ -28,7 +28,9 @@ func (a *allTestsStrategy) Execute(ctx strategy.TestContext, channel chan strate
 	result, reqInfo := a.loadWebsiteContent(*target, antiBotFlag)
 
 	if reqInfo.Code != 0 {
-		channel <- strategy.WrapStrategyResult(nil, nil, reqInfo)
+		// A failure caused by an identified bot protection layer is reported as a
+		// verdict rather than as a bare error, see strategy.WrapRequestFailure.
+		channel <- strategy.WrapRequestFailure(reqInfo)
 		return
 	}
 
