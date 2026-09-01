@@ -931,6 +931,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-gettestsbykind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func GetTestsByKind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-init" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1208,6 +1219,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-gettestsbykind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func GetTestsByKind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-init" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1302,7 +1324,7 @@
 <h1 id="registry">Registry<a class="headerlink" href="#registry" title="Permanent link">&para;</a></h1>
 <div class="language-go highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">"Engine-AntiGinx/App/Registry"</span>
 </span></code></pre></div>
-<p>Package Registry provides a thread-safe, centralized registry system for managing security test implementations. It acts as a repository for all available ResponseTest instances, enabling dynamic test retrieval and execution throughout the application.</p>
+<p>Package Registry provides a thread-safe, centralized registry system for managing security test implementations. It acts as a repository for all available tests of every kind, enabling dynamic test retrieval and execution throughout the application.</p>
 <p>The registry automatically initializes with default tests during package initialization and enforces uniqueness of test IDs to prevent conflicts. All tests are indexed by their string identifiers for fast O(1) lookup operations.</p>
 <p>Error codes:</p>
 <ul>
@@ -1311,33 +1333,40 @@
 <h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="#variables">Variables</a></li>
-<li><a href="#GetAllTests">func GetAllTests() []*Tests.ResponseTest</a></li>
-<li><a href="#GetTest">func GetTest(testId string) (*Tests.ResponseTest, bool)</a></li>
+<li><a href="#GetAllTests">func GetAllTests() []Tests.Test</a></li>
+<li><a href="#GetTest">func GetTest(testId string) (Tests.Test, bool)</a></li>
+<li><a href="#GetTestsByKind">func GetTestsByKind(kind Tests.TestKind) []Tests.Test</a></li>
 <li><a href="#init">func init()</a></li>
-<li><a href="#registerTest">func registerTest(t *Tests.ResponseTest)</a></li>
+<li><a href="#registerTest">func registerTest(t Tests.Test)</a></li>
 </ul>
 <h2 id="variables">Variables<a class="headerlink" href="#variables" title="Permanent link">&para;</a></h2>
 <p><a name="tests"></a>tests is the internal central storage for all registered response tests, indexed by their unique string ID. This map provides O(1) lookup performance for test retrieval operations.</p>
 <p>The map is populated during package initialization via the init() function and should not be modified directly outside of the registerTest function.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">var</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ResponseTest</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">var</span><span class="w"> </span><span class="nx">tests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="kt">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="GetAllTests"></a></p>
 <h2 id="func-getalltests">func GetAllTests<a class="headerlink" href="#func-getalltests" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">GetAllTests</span><span class="p">()</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ResponseTest</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">GetAllTests</span><span class="p">()</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span>
 </span></code></pre></div>
+<p>GetAllTests returns every registered test, of every kind, in unspecified order. The scheduler buckets them by kind, so the order they arrive in does not matter.</p>
+<p>Returns:</p>
+<ul>
+<li>[]Tests.Test: All registered tests</li>
+</ul>
 <p><a name="GetTest"></a></p>
 <h2 id="func-gettest">func GetTest<a class="headerlink" href="#func-gettest" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">GetTest</span><span class="p">(</span><span class="nx">testId</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ResponseTest</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">GetTest</span><span class="p">(</span><span class="nx">testId</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
 </span></code></pre></div>
-<p>GetTest retrieves a specific ResponseTest from the registry by its unique identifier. This is the primary method for accessing registered tests and provides thread-safe read access to the registry.</p>
+<p>GetTest retrieves a specific test from the registry by its unique identifier. This is the primary method for accessing registered tests and provides thread-safe read access to the registry.</p>
 <p>The function performs an O(1) map lookup and returns both the test instance and a boolean indicating whether the test was found. This pattern allows callers to distinguish between a missing test and other error conditions.</p>
 <p>Parameters:</p>
 <ul>
 <li>testId: The unique string identifier of the test to retrieve (e.g., "https-protocol-check", "hsts-check")</li>
 </ul>
+<p>The returned Test may be of any kind; callers schedule it by asking for its GetKind() rather than by knowing which concrete type it is.</p>
 <p>Returns:</p>
 <ul>
-<li>*Tests.ResponseTest: Pointer to the test instance if found, nil otherwise</li>
+<li>Tests.Test: The test instance if found, nil otherwise</li>
 <li>bool: true if the test exists in the registry, false if not found</li>
 </ul>
 <p>Example:</p>
@@ -1346,11 +1375,24 @@
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    log.Printf("Test not found: https-protocol-check")
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    return
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>}
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>result := test.Run(params)
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>result := test.Run(scanContext)
 </span></code></pre></div>
+<p><a name="GetTestsByKind"></a></p>
+<h2 id="func-gettestsbykind">func GetTestsByKind<a class="headerlink" href="#func-gettestsbykind" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">GetTestsByKind</span><span class="p">(</span><span class="nx">kind</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestKind</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span>
+</span></code></pre></div>
+<p>GetTestsByKind returns every registered test belonging to a single execution phase. It lets callers reason about one phase — for example to report which tests were skipped because the main request failed — without inspecting concrete types.</p>
+<p>Parameters:</p>
+<ul>
+<li>kind: The execution phase to filter by</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>[]Tests.Test: Registered tests of that kind, empty when none match</li>
+</ul>
 <p><a name="init"></a></p>
 <h2 id="func-init">func init<a class="headerlink" href="#func-init" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">init</span><span class="p">()</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">init</span><span class="p">()</span>
 </span></code></pre></div>
 <p>init automatically registers default security tests when the Registry package is initialized. This function runs once before main() and ensures all standard tests are available for immediate use throughout the application lifecycle.</p>
 <p>Currently registered tests:</p>
@@ -1369,26 +1411,27 @@
 <li>CrossOriginTest: Analyzes Cross-Origin security headers (COEP, CORP, COOP) for cross-origin attack protection</li>
 <li>SitemapSecurityTest: Analyzes sitemap.xml for dangerous path exposure to search engines</li>
 <li>PhishingURLTest: Analyzes hostname similarity to popular domains and URL parameters for phishing indicators</li>
+<li>BotProtectionTest: Identifies the bot protection, CDN or WAF layer in front of the target</li>
 </ul>
 <p>Additional tests can be registered by adding registerTest calls in this function.</p>
 <p><a name="registerTest"></a></p>
 <h2 id="func-registertest">func registerTest<a class="headerlink" href="#func-registertest" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">registerTest</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ResponseTest</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">registerTest</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">)</span>
 </span></code></pre></div>
 <p>registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement. This function is intended for internal use during package initialization via the init() function.</p>
 <p>The function performs validation to ensure no duplicate test IDs are registered, which could cause conflicts in test execution. If a duplicate is detected, it triggers a panic with detailed error information.</p>
 <p>Parameters:</p>
 <ul>
-<li>t: Pointer to the ResponseTest instance to register</li>
+<li>t: The Test instance to register, of any kind</li>
 </ul>
 <p>Panics:</p>
 <ul>
 <li>error.Error with code 100: If a test with the same ID already exists in the registry</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>func init() {
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    registerTest(Tests.NewCustomTest())
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>}
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>func init() {
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    registerTest(Tests.NewCustomTest())
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>}
 </span></code></pre></div>
 <p>Generated by <a href="https://github.com/princjef/gomarkdoc">gomarkdoc</a></p>
 
@@ -1413,7 +1456,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:37 UTC"><span class="timeago" datetime="2026-09-01T15:32:37+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:37 UTC">2026-09-01</span>
   </span>
 
     
@@ -1423,7 +1466,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:37 UTC"><span class="timeago" datetime="2026-09-01T15:32:37+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:37 UTC">2026-09-01</span>
   </span>
 
     

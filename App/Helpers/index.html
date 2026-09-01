@@ -975,6 +975,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#func-targetformatter-canonicalurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*TargetFormatter) CanonicalURL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#func-targetformatter-format" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1469,6 +1480,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#func-targetformatter-canonicalurl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func (*TargetFormatter) CanonicalURL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#func-targetformatter-format" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1587,6 +1609,7 @@
 <li><a href="#OSFileReader.ReadFileW">func (osf *OSFileReader) ReadFileW(filename string) ([]byte, error)</a></li>
 <li><a href="#TargetFormatter">type TargetFormatter</a></li>
 <li><a href="#InitializeTargetFormatter">func InitializeTargetFormatter() *TargetFormatter</a></li>
+<li><a href="#TargetFormatter.CanonicalURL">func (t *TargetFormatter) CanonicalURL(target string) *url.URL</a></li>
 <li><a href="#TargetFormatter.Format">func (t *TargetFormatter) Format(target string, params []string) *string</a></li>
 <li><a href="#TargetFormatter.containsParam">func (t *TargetFormatter) containsParam(params []string, token string) bool</a></li>
 </ul>
@@ -1759,9 +1782,27 @@
 </span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>targetURL := formatter.Format("example.com", []string{"https", "hsts"})
 </span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>// Returns: "http://example.com" (HTTP for protocol testing)
 </span></code></pre></div>
+<p><a name="TargetFormatter.CanonicalURL"></a></p>
+<h3 id="func-targetformatter-canonicalurl">func (*TargetFormatter) CanonicalURL<a class="headerlink" href="#func-targetformatter-canonicalurl" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">CanonicalURL</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">url</span><span class="p">.</span><span class="nx">URL</span>
+</span></code></pre></div>
+<p>CanonicalURL builds the target URL used by the PreResponse and Structure phases.</p>
+<p>It deliberately does not share Format's scheme selection. Format downgrades to http:// when the https or hsts test is selected, because those two tests exist to observe how a target behaves on a plain connection. That downgrade is meaningful only for the Response phase: applied to the other phases it would make the certificate test report "not applicable" against a target whose certificate is standing right there, and would hand the phishing analysis a scheme the operator never asked about.</p>
+<p>Parameters:</p>
+<ul>
+<li>target: Target host as provided by the operator, without a scheme</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>*url.URL: The target as https://\&lt;target&gt;</li>
+</ul>
+<p>Panics:</p>
+<ul>
+<li>Errors.Error with code 101: If the target cannot be parsed as a URL</li>
+</ul>
 <p><a name="TargetFormatter.Format"></a></p>
 <h3 id="func-targetformatter-format">func (*TargetFormatter) Format<a class="headerlink" href="#func-targetformatter-format" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">Format</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">Format</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span>
 </span></code></pre></div>
 <p>Format constructs a properly formatted target URL by adding the appropriate protocol prefix based on the tests being executed. It implements intelligent protocol selection to ensure tests can properly assess security configurations.</p>
 <p>Protocol selection logic:</p>
@@ -1796,27 +1837,27 @@
 <li>Errors.Error with code 100: If target already contains protocol prefix</li>
 </ul>
 <p>Examples:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>formatter := InitializeTargetFormatter()
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>// HTTPS test requires HTTP to check redirect behavior
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>url1 := formatter.Format("example.com", []string{"https", "csp"})
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>// Returns: "http://example.com"
-</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
-</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>// HSTS test requires HTTP to check HSTS header
-</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>url2 := formatter.Format("example.com", []string{"hsts"})
-</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>// Returns: "http://example.com"
-</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
-</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>// Other tests default to HTTPS
-</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>url3 := formatter.Format("example.com", []string{"csp", "xFrame"})
-</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>// Returns: "https://example.com"
-</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>
-</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>// Invalid: protocol already specified
-</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>url4 := formatter.Format("https://example.com", []string{"https"})
-</span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>// Panics with error code 100
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>formatter := InitializeTargetFormatter()
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>// HTTPS test requires HTTP to check redirect behavior
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>url1 := formatter.Format("example.com", []string{"https", "csp"})
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>// Returns: "http://example.com"
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>// HSTS test requires HTTP to check HSTS header
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>url2 := formatter.Format("example.com", []string{"hsts"})
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>// Returns: "http://example.com"
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>// Other tests default to HTTPS
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>url3 := formatter.Format("example.com", []string{"csp", "xFrame"})
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a>// Returns: "https://example.com"
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>// Invalid: protocol already specified
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a>url4 := formatter.Format("https://example.com", []string{"https"})
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>// Panics with error code 100
 </span></code></pre></div>
 <p><a name="TargetFormatter.containsParam"></a></p>
 <h3 id="func-targetformatter-containsparam">func (*TargetFormatter) containsParam<a class="headerlink" href="#func-targetformatter-containsparam" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">containsParam</span><span class="p">(</span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">TargetFormatter</span><span class="p">)</span><span class="w"> </span><span class="nx">containsParam</span><span class="p">(</span><span class="nx">params</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
 </span></code></pre></div>
 <p>containsParam is a helper function that performs a linear search to determine if a specific test ID (token) exists in the list of tests to be executed. This function is used internally by Format to implement protocol selection logic.</p>
 <p>The function uses simple iteration with O(n) time complexity, which is acceptable given that the params slice is typically small (usually 1-10 test IDs).</p>
@@ -1830,11 +1871,11 @@
 <li>bool: true if token is found in params, false otherwise</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>formatter := &amp;TargetFormatter{}
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>tests := []string{"https", "hsts", "csp"}
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
-</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>found1 := formatter.containsParam(tests, "https")  // returns true
-</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>found2 := formatter.containsParam(tests, "xFrame") // returns false
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>formatter := &amp;TargetFormatter{}
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>tests := []string{"https", "hsts", "csp"}
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>found1 := formatter.containsParam(tests, "https")  // returns true
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>found2 := formatter.containsParam(tests, "xFrame") // returns false
 </span></code></pre></div>
 <p>Generated by <a href="https://github.com/princjef/gomarkdoc">gomarkdoc</a></p>
 
@@ -1859,7 +1900,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:37 UTC"><span class="timeago" datetime="2026-09-01T15:32:37+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:37 UTC">2026-09-01</span>
   </span>
 
     
@@ -1869,7 +1910,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:37 UTC"><span class="timeago" datetime="2026-09-01T15:32:37+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:37 UTC">2026-09-01</span>
   </span>
 
     

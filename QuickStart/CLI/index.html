@@ -575,6 +575,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#execution-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⏱️ Execution Phases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1330,6 +1341,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#execution-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⏱️ Execution Phases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1620,60 +1642,126 @@
 <thead>
 <tr>
 <th>Test ID</th>
+<th>Phase</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>https</code></td>
+<td>Response</td>
 <td>HTTPS Protocol Verification</td>
 </tr>
 <tr>
 <td><code>hsts</code></td>
+<td>Response</td>
 <td>HSTS Header Analysis</td>
 </tr>
 <tr>
 <td><code>serv-h-a</code></td>
+<td>Response</td>
 <td>Server Header Analysis + security context</td>
 </tr>
 <tr>
 <td><code>csp</code></td>
+<td>Response</td>
 <td>Content Security Policy</td>
 </tr>
 <tr>
 <td><code>cookie-sec</code></td>
+<td>Response</td>
 <td>Cookie Security</td>
 </tr>
 <tr>
 <td><code>js-obf</code></td>
+<td>Response</td>
 <td>JavaScript Obfuscation Detection</td>
 </tr>
 <tr>
 <td><code>xframe</code></td>
+<td>Response</td>
 <td>Clickjacking Protection</td>
 </tr>
 <tr>
 <td><code>permissions-policy</code></td>
+<td>Response</td>
 <td>Browser Permission Control</td>
 </tr>
 <tr>
 <td><code>x-content-type-options</code></td>
+<td>Response</td>
 <td>MIME Sniffing Protection</td>
 </tr>
 <tr>
 <td><code>referrer-policy</code></td>
+<td>Response</td>
 <td>Referrer Policy</td>
 </tr>
 <tr>
+<td><code>cross-origin-x</code></td>
+<td>Response</td>
+<td>Cross-Origin Security Headers</td>
+</tr>
+<tr>
+<td><code>phishing-url</code></td>
+<td>PreResponse</td>
+<td>Typo-squatting, homograph and URL parameter analysis</td>
+</tr>
+<tr>
+<td><code>bot-protection</code></td>
+<td>PreResponse</td>
+<td>Bot protection / CDN / WAF layer in front of the target</td>
+</tr>
+<tr>
 <td><code>ssl-cert</code></td>
+<td>Structure</td>
 <td>SSL/TLS Certificate Security</td>
 </tr>
 <tr>
-<td><code>cross-origin-x</code></td>
-<td>Cross-Origin Security Headers</td>
+<td><code>sitemap</code></td>
+<td>Structure</td>
+<td>Dangerous paths exposed through sitemap.xml</td>
 </tr>
 </tbody>
 </table>
+<p><br></p>
+<h2 id="execution-phases">⏱️ Execution Phases<a class="headerlink" href="#execution-phases" title="Permanent link">&para;</a></h2>
+<p>Tests are grouped by the input they need, and the engine schedules each group separately.
+You never select a phase — it follows from the test IDs you pass.</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Needs</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PreResponse</strong></td>
+<td>The target URL only</td>
+<td>Runs immediately, in parallel with the page fetch</td>
+</tr>
+<tr>
+<td><strong>Response</strong></td>
+<td>The fetched page — headers and body</td>
+<td>The only phase that requires the request to succeed</td>
+</tr>
+<tr>
+<td><strong>Structure</strong></td>
+<td>The target's configuration</td>
+<td>Opens its own connections (TLS handshake, sitemap fetch)</td>
+</tr>
+</tbody>
+</table>
+<p>Two consequences worth knowing:</p>
+<ul>
+<li><strong>A blocked target still gets scanned.</strong> If the site sits behind a bot protection challenge,
+  only the Response tests are skipped. The report says which ones, and the PreResponse and
+  Structure findings are still there.</li>
+<li><strong>Structural scans skip the request.</strong> <code>--tests ssl-cert sitemap</code> never fetches the page,
+  because nothing in that selection needs it.</li>
+</ul>
 <p><strong>⚠️ Important:</strong>
 - Use these IDs exactly. Typos or old aliases will result in parser errors.</p>
 <p><br></p>
@@ -1749,7 +1837,7 @@ Useful when input comes from another process, API, or message queue.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="March 26, 2026 13:06:04 UTC"><span class="timeago" datetime="2026-03-26T13:06:04+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="March 26, 2026 13:06:04 UTC">2026-03-26</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:05 UTC"><span class="timeago" datetime="2026-09-01T15:32:05+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:05 UTC">2026-09-01</span>
   </span>
 
     

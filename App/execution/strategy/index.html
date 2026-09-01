@@ -1066,6 +1066,61 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-runphases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func RunPhases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-bucketbykind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func bucketByKind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-reportsbotprotection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func reportsBotProtection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-starttests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func startTests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-contentloader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type ContentLoader
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#type-helpsection" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1138,6 +1193,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#type-phaserun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type PhaseRun
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#type-reportertype" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1165,6 +1231,17 @@
     <span class="md-ellipsis">
       
         func LoadWebsiteContent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#func-withskippedtests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        func withSkippedTests
       
     </span>
   </a>
@@ -1305,18 +1382,25 @@
 </span></code></pre></div>
 <h2 id="index">Index<a class="headerlink" href="#index" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="#PerformTest">func PerformTest(test *Tests.ResponseTest, wg *sync.WaitGroup, results chan\&lt;- ResultWrapper, response *http.Response)</a></li>
+<li><a href="#PerformTest">func PerformTest(test Tests.Test, wg *sync.WaitGroup, results chan\&lt;- ResultWrapper, ctx Tests.ScanContext)</a></li>
+<li><a href="#RunPhases">func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup)</a></li>
+<li><a href="#bucketByKind">func bucketByKind(tests []Tests.Test) (pre, response, structure []Tests.Test)</a></li>
+<li><a href="#reportsBotProtection">func reportsBotProtection(tests []Tests.Test) bool</a></li>
+<li><a href="#startTests">func startTests(tests []Tests.Test, ctx Tests.ScanContext, channel chan ResultWrapper, wg *sync.WaitGroup)</a></li>
+<li><a href="#ContentLoader">type ContentLoader</a></li>
 <li><a href="#HelpSection">type HelpSection</a></li>
 <li><a href="#HelpStrategyResult">type HelpStrategyResult</a></li>
 <li><a href="#HelpStrategyResult.AppendSection">func (h *HelpStrategyResult) AppendSection(section []HelpSection)</a></li>
 <li><a href="#HelpStrategyResult.GetHelpHeader">func (h *HelpStrategyResult) GetHelpHeader() string</a></li>
 <li><a href="#HelpStrategyResult.GetSectionArray">func (h *HelpStrategyResult) GetSectionArray() []HelpSection</a></li>
 <li><a href="#HelpStrategyResult.HelpHeader">func (h *HelpStrategyResult) HelpHeader(name string)</a></li>
+<li><a href="#PhaseRun">type PhaseRun</a></li>
 <li><a href="#ReporterType">type ReporterType</a></li>
 <li><a href="#RequestInfo">type RequestInfo</a></li>
 <li><a href="#LoadWebsiteContent">func LoadWebsiteContent(target string, useAntiBotDetection bool) (*http.Response, *RequestInfo)</a></li>
+<li><a href="#withSkippedTests">func withSkippedTests(info *RequestInfo, skipped []Tests.Test) *RequestInfo</a></li>
 <li><a href="#ResultWrapper">type ResultWrapper</a></li>
-<li><a href="#WrapRequestFailure">func WrapRequestFailure(info *RequestInfo) ResultWrapper</a></li>
+<li><a href="#WrapRequestFailure">func WrapRequestFailure(info *RequestInfo, hasBotProtectionTest bool) ResultWrapper</a></li>
 <li><a href="#WrapStrategyResult">func WrapStrategyResult(testResult *Tests.TestResult, helpMessage *HelpStrategyResult, info *RequestInfo) ResultWrapper</a></li>
 <li><a href="#ResultWrapper.GetHelpMessage">func (w ResultWrapper) GetHelpMessage() (bool, *HelpStrategyResult)</a></li>
 <li><a href="#ResultWrapper.GetReqInfo">func (w ResultWrapper) GetReqInfo() (bool, *RequestInfo)</a></li>
@@ -1326,13 +1410,12 @@
 </ul>
 <p><a name="PerformTest"></a></p>
 <h2 id="func-performtest">func PerformTest<a class="headerlink" href="#func-performtest" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">PerformTest</span><span class="p">(</span><span class="nx">test</span><span class="w"> </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ResponseTest</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">,</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="kt">chan</span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">PerformTest</span><span class="p">(</span><span class="nx">test</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">,</span><span class="w"> </span><span class="nx">results</span><span class="w"> </span><span class="kt">chan</span><span class="o">&lt;-</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ScanContext</span><span class="p">)</span>
 </span></code></pre></div>
 <p>PerformTest executes a single security test in a separate goroutine and publishes the result to the shared results channel. This function is designed to be called as a goroutine and implements the worker pattern for concurrent test execution.</p>
 <p>Workflow:</p>
 <ol>
-<li>Wrap HTTP response in ResponseTestParams structure</li>
-<li>Execute the test's Run method with the parameters</li>
+<li>Execute the test's Run method against the scan context</li>
 <li>Send the TestResult to the results channel</li>
 <li>Signal completion via WaitGroup (deferred)</li>
 </ol>
@@ -1340,41 +1423,101 @@
 <p>Concurrency considerations:</p>
 <ul>
 <li>Thread-safe: Multiple goroutines can call this function concurrently</li>
-<li>Shared response: All tests receive the same HTTP response object (read-only)</li>
+<li>Shared context: Tests in one phase receive the same context object (read-only)</li>
 <li>Channel communication: Results are sent to buffered channel (non-blocking)</li>
 <li>Synchronization: WaitGroup ensures proper cleanup</li>
 </ul>
 <p>Parameters:</p>
 <ul>
-<li>test: Pointer to the ResponseTest to execute</li>
+<li>test: The test to execute, of any kind</li>
 <li>wg: WaitGroup for synchronizing test completion</li>
 <li>results: Send-only channel for publishing test results</li>
-<li>response: Shared HTTP response object to analyze</li>
+<li>ctx: Scan context providing the target and, in the Response phase, the response</li>
 </ul>
-<p>Example usage (called by Orchestrate):</p>
+<p>Example usage (called by RunPhases):</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>wg.Add(1)
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>go performTest(httpsTest, &amp;wg, resultChannel, httpResponse)
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>go PerformTest(httpsTest, &amp;wg, resultChannel, scanContext)
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>// Test runs concurrently, result sent to channel, WaitGroup decremented
+</span></code></pre></div>
+<p><a name="RunPhases"></a></p>
+<h2 id="func-runphases">func RunPhases<a class="headerlink" href="#func-runphases" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">RunPhases</span><span class="p">(</span><span class="nx">run</span><span class="w"> </span><span class="nx">PhaseRun</span><span class="p">,</span><span class="w"> </span><span class="nx">channel</span><span class="w"> </span><span class="kt">chan</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">)</span>
+</span></code></pre></div>
+<p>RunPhases schedules every selected test into the phase its kind calls for and starts it.</p>
+<p>The phases differ in one decisive respect: only the Response phase needs the main page. PreResponse and Structure tests reach their own conclusions from the target itself, so they are started first and run while the fetch is still in flight, and a fetch that fails takes down nothing but the Response phase. That is the whole point of the split: a target behind a bot protection challenge still gets its URL analysed and its certificate, sitemap and infrastructure inspected.</p>
+<p>The main page is fetched only when at least one Response test was actually selected, so a scan of nothing but structural tests never issues the request at all.</p>
+<p>The function returns once every test has been started and the WaitGroup has been incremented for each, so the caller can safely Wait on it. Results arrive on the channel asynchronously.</p>
+<p>Parameters:</p>
+<ul>
+<li>run: The scan to execute</li>
+<li>channel: Channel results are published to</li>
+<li>wg: WaitGroup incremented once per started test</li>
+</ul>
+<p><a name="bucketByKind"></a></p>
+<h2 id="func-bucketbykind">func bucketByKind<a class="headerlink" href="#func-bucketbykind" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">bucketByKind</span><span class="p">(</span><span class="nx">tests</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">pre</span><span class="p">,</span><span class="w"> </span><span class="nx">response</span><span class="p">,</span><span class="w"> </span><span class="nx">structure</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">)</span>
+</span></code></pre></div>
+<p>bucketByKind splits selected tests into one slice per execution phase.</p>
+<p>Parameters:</p>
+<ul>
+<li>tests: Tests to split, of any kind</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>[]Tests.Test: PreResponse tests</li>
+<li>[]Tests.Test: Response tests</li>
+<li>[]Tests.Test: Structure tests</li>
+</ul>
+<p><a name="reportsBotProtection"></a></p>
+<h2 id="func-reportsbotprotection">func reportsBotProtection<a class="headerlink" href="#func-reportsbotprotection" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">reportsBotProtection</span><span class="p">(</span><span class="nx">tests</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">)</span><span class="w"> </span><span class="kt">bool</span>
+</span></code></pre></div>
+<p>reportsBotProtection reports whether any of the given tests already covers the bot protection layer, so the failure path knows not to synthesize a competing verdict.</p>
+<p>The check is by category rather than by test id, so a future bot protection test is recognised without the scheduler having to learn its name.</p>
+<p>Parameters:</p>
+<ul>
+<li>tests: Tests selected for the scan</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>bool: true when at least one test carries the bot protection category</li>
+</ul>
+<p><a name="startTests"></a></p>
+<h2 id="func-starttests">func startTests<a class="headerlink" href="#func-starttests" title="Permanent link">&para;</a></h2>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">startTests</span><span class="p">(</span><span class="nx">tests</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">,</span><span class="w"> </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">Tests</span><span class="p">.</span><span class="nx">ScanContext</span><span class="p">,</span><span class="w"> </span><span class="nx">channel</span><span class="w"> </span><span class="kt">chan</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">)</span>
+</span></code></pre></div>
+<p>startTests launches one goroutine per test and increments the WaitGroup for each. The WaitGroup is incremented on the calling goroutine so the caller can Wait as soon as startTests returns.</p>
+<p>Parameters:</p>
+<ul>
+<li>tests: Tests to start</li>
+<li>ctx: Scan context handed to every one of them</li>
+<li>channel: Channel results are published to</li>
+<li>wg: WaitGroup incremented once per test</li>
+</ul>
+<p><a name="ContentLoader"></a></p>
+<h2 id="type-contentloader">type ContentLoader<a class="headerlink" href="#type-contentloader" title="Permanent link">&para;</a></h2>
+<p>ContentLoader fetches the target's main page. It matches LoadWebsiteContent and exists so strategies can inject a stub in tests without reaching the network.</p>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ContentLoader</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">useAntiBotDetection</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="HelpSection"></a></p>
 <h2 id="type-helpsection">type HelpSection<a class="headerlink" href="#type-helpsection" title="Permanent link">&para;</a></h2>
 <p>HelpSection defines a specific block of information within a help page. Examples include "USAGE", "OPTIONS", or "DESCRIPTION".</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HelpSection</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nx">SectionName</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nx">SectionData</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HelpSection</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nx">SectionName</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nx">SectionData</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="HelpStrategyResult"></a></p>
 <h2 id="type-helpstrategyresult">type HelpStrategyResult<a class="headerlink" href="#type-helpstrategyresult" title="Permanent link">&para;</a></h2>
 <p>HelpStrategyResult represents the structured content of a help command output. It is designed to be parsed by a HelpReporter to generate readable CLI documentation.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HelpStrategyResult</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nx">helpHeader</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nx">sectionArr</span><span class="w"> </span><span class="p">[]</span><span class="nx">HelpSection</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">HelpStrategyResult</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nx">helpHeader</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="nx">sectionArr</span><span class="w"> </span><span class="p">[]</span><span class="nx">HelpSection</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="HelpStrategyResult.AppendSection"></a></p>
 <h3 id="func-helpstrategyresult-appendsection">func (*HelpStrategyResult) AppendSection<a class="headerlink" href="#func-helpstrategyresult-appendsection" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">AppendSection</span><span class="p">(</span><span class="nx">section</span><span class="w"> </span><span class="p">[]</span><span class="nx">HelpSection</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">AppendSection</span><span class="p">(</span><span class="nx">section</span><span class="w"> </span><span class="p">[]</span><span class="nx">HelpSection</span><span class="p">)</span>
 </span></code></pre></div>
 <p>AppendSection adds one or more new sections to the help message.</p>
 <p>Parameters:</p>
@@ -1383,7 +1526,7 @@
 </ul>
 <p><a name="HelpStrategyResult.GetHelpHeader"></a></p>
 <h3 id="func-helpstrategyresult-gethelpheader">func (*HelpStrategyResult) GetHelpHeader<a class="headerlink" href="#func-helpstrategyresult-gethelpheader" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">GetHelpHeader</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">GetHelpHeader</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
 </span></code></pre></div>
 <p>GetHelpHeader retrieves the main title of the help message.</p>
 <p>Returns:</p>
@@ -1392,7 +1535,7 @@
 </ul>
 <p><a name="HelpStrategyResult.GetSectionArray"></a></p>
 <h3 id="func-helpstrategyresult-getsectionarray">func (*HelpStrategyResult) GetSectionArray<a class="headerlink" href="#func-helpstrategyresult-getsectionarray" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">GetSectionArray</span><span class="p">()</span><span class="w"> </span><span class="p">[]</span><span class="nx">HelpSection</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">GetSectionArray</span><span class="p">()</span><span class="w"> </span><span class="p">[]</span><span class="nx">HelpSection</span>
 </span></code></pre></div>
 <p>GetSectionArray returns the list of all help sections currently stored.</p>
 <p>Returns:</p>
@@ -1401,37 +1544,57 @@
 </ul>
 <p><a name="HelpStrategyResult.HelpHeader"></a></p>
 <h3 id="func-helpstrategyresult-helpheader">func (*HelpStrategyResult) HelpHeader<a class="headerlink" href="#func-helpstrategyresult-helpheader" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">HelpHeader</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">h</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span><span class="w"> </span><span class="nx">HelpHeader</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span>
 </span></code></pre></div>
 <p>HelpHeader sets the main title or header for the help message.</p>
 <p>Parameters:</p>
 <ul>
 <li>name: The string to be used as the header (e.g., "General Help")</li>
 </ul>
+<p><a name="PhaseRun"></a></p>
+<h2 id="type-phaserun">type PhaseRun<a class="headerlink" href="#type-phaserun" title="Permanent link">&para;</a></h2>
+<p>PhaseRun describes one scan: the tests selected for it and everything needed to feed each execution phase its input.</p>
+<p>Two targets are carried rather than one because the phases disagree about the scheme. ResponseTarget honours the operator's test selection, which downgrades to http:// when the https or hsts test is present. CanonicalTarget is always https:// and is what the PreResponse and Structure phases analyse.</p>
+<p>Fields:</p>
+<ul>
+<li>Tests: Tests selected for this scan, of any kind and in any order</li>
+<li>ResponseTarget: URL fetched for the Response phase</li>
+<li>CanonicalTarget: URL analysed by the PreResponse and Structure phases</li>
+<li>LoadContent: Fetches the main page, injected for testability</li>
+<li>AntiBotFlag: Whether to enable anti-bot detection on the main request</li>
+</ul>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">PhaseRun</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nx">Tests</span><span class="w">           </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nx">ResponseTarget</span><span class="w">  </span><span class="kt">string</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nx">CanonicalTarget</span><span class="w"> </span><span class="o">*</span><span class="nx">url</span><span class="p">.</span><span class="nx">URL</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="nx">LoadContent</span><span class="w">     </span><span class="nx">ContentLoader</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="nx">AntiBotFlag</span><span class="w">     </span><span class="kt">bool</span>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
+</span></code></pre></div>
 <p><a name="ReporterType"></a></p>
 <h2 id="type-reportertype">type ReporterType<a class="headerlink" href="#type-reportertype" title="Permanent link">&para;</a></h2>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ReporterType</span><span class="w"> </span><span class="kt">int</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ReporterType</span><span class="w"> </span><span class="kt">int</span>
 </span></code></pre></div>
 <p><a name="CLIReporter"></a></p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">const</span><span class="w"> </span><span class="p">(</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nx">CLIReporter</span><span class="w"> </span><span class="nx">ReporterType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">iota</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nx">HelpReporter</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="nx">CLIReporter</span><span class="w"> </span><span class="nx">ReporterType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">iota</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nx">HelpReporter</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="RequestInfo"></a></p>
 <h2 id="type-requestinfo">type RequestInfo<a class="headerlink" href="#type-requestinfo" title="Permanent link">&para;</a></h2>
 <p>RequestInfo describes the outcome of loading the target's content.</p>
 <p>Code 0 means the content was retrieved successfully. Any other Code carries the HttpClient Error Code that stopped the scan.</p>
 <p>Protections lists commercial bot protection / WAF products that were positively identified while the request failed. It is only populated from vendor specific evidence (headers, vendor cookies), so an entry here means a real protection layer fronts the target rather than that the response merely looked like a challenge page.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">RequestInfo</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="nx">Message</span><span class="w">     </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:"Message"`</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nx">Code</span><span class="w">        </span><span class="kt">int</span><span class="w">      </span><span class="s">`json:"Code"`</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="nx">Protections</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"Protections,omitempty"`</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">RequestInfo</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="nx">Message</span><span class="w">     </span><span class="kt">string</span><span class="w">   </span><span class="s">`json:"Message"`</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="nx">Code</span><span class="w">        </span><span class="kt">int</span><span class="w">      </span><span class="s">`json:"Code"`</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="nx">Protections</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="s">`json:"Protections,omitempty"`</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="LoadWebsiteContent"></a></p>
 <h3 id="func-loadwebsitecontent">func LoadWebsiteContent<a class="headerlink" href="#func-loadwebsitecontent" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">LoadWebsiteContent</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">useAntiBotDetection</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">LoadWebsiteContent</span><span class="p">(</span><span class="nx">target</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">useAntiBotDetection</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span>
 </span></code></pre></div>
 <p>LoadWebsiteContent fetches the target website content via HTTP GET request and returns the response for sharing across all test executions. This function performs a single HTTP request to avoid redundant network calls for each test.</p>
 <p>The function creates an HTTP client with custom headers to identify the scanner and executes a GET request against the target URL. The returned response object is then shared among all concurrent test goroutines.</p>
@@ -1459,45 +1622,54 @@
 <li>*http.Response: Raw HTTP response object to be shared across all tests</li>
 </ul>
 <p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>response := loadWebsiteContent("https://example.com", true)
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>// Response contains headers, body, status code, etc.
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>// This single response is analyzed by all tests
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>response := loadWebsiteContent("https://example.com", true)
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>// Response contains headers, body, status code, etc.
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>// This single response is analyzed by all tests
 </span></code></pre></div>
+<p><a name="withSkippedTests"></a></p>
+<h3 id="func-withskippedtests">func withSkippedTests<a class="headerlink" href="#func-withskippedtests" title="Permanent link">&para;</a></h3>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">withSkippedTests</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">,</span><span class="w"> </span><span class="nx">skipped</span><span class="w"> </span><span class="p">[]</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">Test</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span>
+</span></code></pre></div>
+<p>withSkippedTests annotates a failed request with the tests it cost, so the operator reads which findings are missing rather than inferring it from a shorter report.</p>
+<p>Parameters:</p>
+<ul>
+<li>info: The failure reported by the content loader</li>
+<li>skipped: Response tests that could not run because of it</li>
+</ul>
+<p>Returns:</p>
+<ul>
+<li>*RequestInfo: The failure with the skipped tests named in its message</li>
+</ul>
 <p><a name="ResultWrapper"></a></p>
 <h2 id="type-resultwrapper">type ResultWrapper<a class="headerlink" href="#type-resultwrapper" title="Permanent link">&para;</a></h2>
 <p>ResultWrapper encapsulates the outcome of a strategy execution.</p>
 <p>It serves as a unified transport object sent through the results channel, allowing the system to handle both standard security test results (e.g., vulnerabilities found) and help/usage information (e.g., manual pages) using a single data structure.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nx">testResult</span><span class="w">  </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nx">reqInfo</span><span class="w">     </span><span class="o">*</span><span class="nx">RequestInfo</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="nx">helpMessage</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="nx">testResult</span><span class="w">  </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="nx">reqInfo</span><span class="w">     </span><span class="o">*</span><span class="nx">RequestInfo</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="nx">helpMessage</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="WrapRequestFailure"></a></p>
 <h3 id="func-wraprequestfailure">func WrapRequestFailure<a class="headerlink" href="#func-wraprequestfailure" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WrapRequestFailure</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span><span class="w"> </span><span class="nx">ResultWrapper</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WrapRequestFailure</span><span class="p">(</span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">,</span><span class="w"> </span><span class="nx">hasBotProtectionTest</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span><span class="w"> </span><span class="nx">ResultWrapper</span>
 </span></code></pre></div>
 <p>WrapRequestFailure converts a failed content load into the wrapper that should be sent to the reporting layer.</p>
-<p>Most failures are just that, and are forwarded as process information so the operator sees why the scan stopped. A failure caused by an identified bot protection product is different: it carries a real signal about the target and is forwarded as a security verdict instead, so it appears in the report alongside ordinary findings.</p>
-<p>The two are mutually exclusive on purpose. Both reporters check for process information first and skip the test result when it is present, so a verdict is only visible when the process information is left out.</p>
+<p>Most failures are just that, and are forwarded as process information so the operator sees why the Response phase produced nothing. A failure caused by an identified bot protection product is different: it carries a real signal about the target and is forwarded as a security verdict instead, so it appears in the report alongside ordinary findings.</p>
+<p>That substitution only happens when the scan has no bot protection test of its own. With one selected, the dedicated test has already probed the target and reported a verdict from evidence, and synthesizing a second one from the failed request would put two findings with the same name and different conclusions in front of the operator.</p>
+<p>The two wrapper forms are mutually exclusive on purpose. Both reporters check for process information first and skip the test result when it is present, so a verdict is only visible when the process information is left out.</p>
 <p>Parameters:</p>
 <ul>
 <li>info: The RequestInfo describing the failed content load</li>
+<li>hasBotProtectionTest: Whether the scan already runs a bot protection test</li>
 </ul>
 <p>Returns:</p>
 <ul>
 <li>ResultWrapper: A verdict-bearing wrapper for an identified bot protection block, otherwise a process-information wrapper</li>
 </ul>
-<p>Example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>response, info := LoadWebsiteContent(target, antiBotFlag)
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>if info.Code != 0 {
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    channel &lt;- WrapRequestFailure(info)
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    return
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>}
-</span></code></pre></div>
 <p><a name="WrapStrategyResult"></a></p>
 <h3 id="func-wrapstrategyresult">func WrapStrategyResult<a class="headerlink" href="#func-wrapstrategyresult" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WrapStrategyResult</span><span class="p">(</span><span class="nx">testResult</span><span class="w"> </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span><span class="p">,</span><span class="w"> </span><span class="nx">helpMessage</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span><span class="w"> </span><span class="nx">ResultWrapper</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kd">func</span><span class="w"> </span><span class="nx">WrapStrategyResult</span><span class="p">(</span><span class="nx">testResult</span><span class="w"> </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span><span class="p">,</span><span class="w"> </span><span class="nx">helpMessage</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">,</span><span class="w"> </span><span class="nx">info</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span><span class="w"> </span><span class="nx">ResultWrapper</span>
 </span></code></pre></div>
 <p>WrapStrategyResult constructs a new ResultWrapper containing either a test result, a help message.</p>
 <p>This factory function is used by strategies to package their output before sending it to the reporting layer.</p>
@@ -1512,7 +1684,7 @@
 </ul>
 <p><a name="ResultWrapper.GetHelpMessage"></a></p>
 <h3 id="func-resultwrapper-gethelpmessage">func (ResultWrapper) GetHelpMessage<a class="headerlink" href="#func-resultwrapper-gethelpmessage" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">GetHelpMessage</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">GetHelpMessage</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">HelpStrategyResult</span><span class="p">)</span>
 </span></code></pre></div>
 <p>GetHelpMessage retrieves the underlying help strategy result from the wrapper.</p>
 <p>It provides a safe way to check if the result contains help documentation.</p>
@@ -1523,11 +1695,11 @@
 </ul>
 <p><a name="ResultWrapper.GetReqInfo"></a></p>
 <h3 id="func-resultwrapper-getreqinfo">func (ResultWrapper) GetReqInfo<a class="headerlink" href="#func-resultwrapper-getreqinfo" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">GetReqInfo</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">GetReqInfo</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">RequestInfo</span><span class="p">)</span>
 </span></code></pre></div>
 <p><a name="ResultWrapper.GetTestResult"></a></p>
 <h3 id="func-resultwrapper-gettestresult">func (ResultWrapper) GetTestResult<a class="headerlink" href="#func-resultwrapper-gettestresult" title="Permanent link">&para;</a></h3>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">GetTestResult</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span><span class="p">)</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">)</span><span class="w"> </span><span class="nx">GetTestResult</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">Tests</span><span class="p">.</span><span class="nx">TestResult</span><span class="p">)</span>
 </span></code></pre></div>
 <p>GetTestResult retrieves the underlying security test result from the wrapper.</p>
 <p>It provides a safe way to check for the existence of test data.</p>
@@ -1539,35 +1711,35 @@
 <p><a name="TestContext"></a></p>
 <h2 id="type-testcontext">type TestContext<a class="headerlink" href="#type-testcontext" title="Permanent link">&para;</a></h2>
 <p>TestContext encapsulates the specific data required for a TestStrategy to run. It separates the target environment configuration from the test's implementation.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TestContext</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="c1">// Target represents the base URL or host intended for the security scan.</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="nx">Target</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>
-</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">    </span><span class="c1">// Args holds a slice of sub-test identifiers or specific parameters</span>
-</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w">    </span><span class="c1">// passed by the user for this particular strategy.</span>
-</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">    </span><span class="nx">Args</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
-</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TestContext</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="c1">// Target represents the base URL or host intended for the security scan.</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">    </span><span class="nx">Target</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-27-4"><a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+</span><span id="__span-27-5"><a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">    </span><span class="c1">// Args holds a slice of sub-test identifiers or specific parameters</span>
+</span><span id="__span-27-6"><a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w">    </span><span class="c1">// passed by the user for this particular strategy.</span>
+</span><span id="__span-27-7"><a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w">    </span><span class="nx">Args</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
+</span><span id="__span-27-8"><a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="p">}</span>
 </span></code></pre></div>
 <p><a name="TestStrategy"></a></p>
 <h2 id="type-teststrategy">type TestStrategy<a class="headerlink" href="#type-teststrategy" title="Permanent link">&para;</a></h2>
 <p>TestStrategy defines the contract for a family of security testing algorithms. Any new security test (e.g., XSS, Headers, SSL) must implement this interface to be compatible with the application's Orchestrator and Registry.</p>
 <p>Concurrency: Implementations of Execute are expected to handle their own internal concurrency if necessary, and must signal completion via the provided sync.WaitGroup.</p>
-<div class="language-go highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TestStrategy</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="c1">// Execute runs the core logic of the security test.</span>
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="c1">//</span>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="c1">// Parameters:</span>
-</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="c1">//   - ctx: Contains the target URL and specific arguments for this test.</span>
-</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="c1">//   - channel: A thread-safe pipe to stream TestResult objects back to the UI.</span>
-</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">    </span><span class="c1">//   - wg: A synchronization primitive used to coordinate the completion of the test.</span>
-</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="c1">//   - antiBotFlag: A global setting to toggle evasion techniques during execution.</span>
-</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">    </span><span class="nx">Execute</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">TestContext</span><span class="p">,</span><span class="w"> </span><span class="nx">channel</span><span class="w"> </span><span class="kt">chan</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">,</span><span class="w"> </span><span class="nx">antiBotFlag</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
-</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>
-</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">    </span><span class="c1">// GetName returns the unique identifier for the strategy.</span>
-</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">    </span><span class="c1">// This string is used as the command-line flag (e.g., "--tests") and as</span>
-</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">    </span><span class="c1">// the key in the strategy registry.</span>
-</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="w">    </span><span class="nx">GetName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
-</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="w">    </span><span class="nx">GetPreferredReporterType</span><span class="p">()</span><span class="w"> </span><span class="nx">ReporterType</span>
-</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="p">}</span>
+<div class="language-go highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kd">type</span><span class="w"> </span><span class="nx">TestStrategy</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="c1">// Execute runs the core logic of the security test.</span>
+</span><span id="__span-28-3"><a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span><span class="c1">//</span>
+</span><span id="__span-28-4"><a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="c1">// Parameters:</span>
+</span><span id="__span-28-5"><a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">    </span><span class="c1">//   - ctx: Contains the target URL and specific arguments for this test.</span>
+</span><span id="__span-28-6"><a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w">    </span><span class="c1">//   - channel: A thread-safe pipe to stream TestResult objects back to the UI.</span>
+</span><span id="__span-28-7"><a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w">    </span><span class="c1">//   - wg: A synchronization primitive used to coordinate the completion of the test.</span>
+</span><span id="__span-28-8"><a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w">    </span><span class="c1">//   - antiBotFlag: A global setting to toggle evasion techniques during execution.</span>
+</span><span id="__span-28-9"><a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="w">    </span><span class="nx">Execute</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">TestContext</span><span class="p">,</span><span class="w"> </span><span class="nx">channel</span><span class="w"> </span><span class="kt">chan</span><span class="w"> </span><span class="nx">ResultWrapper</span><span class="p">,</span><span class="w"> </span><span class="nx">wg</span><span class="w"> </span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">,</span><span class="w"> </span><span class="nx">antiBotFlag</span><span class="w"> </span><span class="kt">bool</span><span class="p">)</span>
+</span><span id="__span-28-10"><a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a>
+</span><span id="__span-28-11"><a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="w">    </span><span class="c1">// GetName returns the unique identifier for the strategy.</span>
+</span><span id="__span-28-12"><a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="w">    </span><span class="c1">// This string is used as the command-line flag (e.g., "--tests") and as</span>
+</span><span id="__span-28-13"><a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="w">    </span><span class="c1">// the key in the strategy registry.</span>
+</span><span id="__span-28-14"><a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="w">    </span><span class="nx">GetName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span>
+</span><span id="__span-28-15"><a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="w">    </span><span class="nx">GetPreferredReporterType</span><span class="p">()</span><span class="w"> </span><span class="nx">ReporterType</span>
+</span><span id="__span-28-16"><a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Generated by <a href="https://github.com/princjef/gomarkdoc">gomarkdoc</a></p>
 
@@ -1592,7 +1764,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:37 UTC"><span class="timeago" datetime="2026-09-01T15:32:37+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:37 UTC">2026-09-01</span>
   </span>
 
     
@@ -1602,7 +1774,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="August 31, 2026 17:29:56 UTC"><span class="timeago" datetime="2026-08-31T17:29:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="August 31, 2026 17:29:56 UTC">2026-08-31</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 1, 2026 15:32:37 UTC"><span class="timeago" datetime="2026-09-01T15:32:37+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 1, 2026 15:32:37 UTC">2026-09-01</span>
   </span>
 
     
