@@ -5,7 +5,7 @@ import (
 	"Engine-AntiGinx/App/Tests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
-	"net/http"
+	"net/url"
 	"sync"
 )
 
@@ -13,20 +13,23 @@ import (
 // It is responsible for orchestrating header-based security assessments
 // by fetching target content and executing a suite of sub-tests concurrently.
 type headerTestStrategy struct {
-	loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo)
-	getTest            func(testId string) (*Tests.ResponseTest, bool)
+	loadWebsiteContent strategy.ContentLoader
+	getTest            func(testId string) (Tests.Test, bool)
 	format             func(target string, params []string) *string
+	canonicalize       func(target string) *url.URL
 }
 
 // InitializeHeaderStrategy returns a pointer to a new headerTestStrategy.
 // It acts as the constructor for the header-based testing logic.
-func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotDetection bool) (*http.Response, *strategy.RequestInfo),
-	getTest func(testId string) (*Tests.ResponseTest, bool),
-	format func(target string, params []string) *string) *headerTestStrategy {
+func InitializeHeaderStrategy(loadWebsiteContent strategy.ContentLoader,
+	getTest func(testId string) (Tests.Test, bool),
+	format func(target string, params []string) *string,
+	canonicalize func(target string) *url.URL) *headerTestStrategy {
 	return &headerTestStrategy{
 		loadWebsiteContent: loadWebsiteContent,
 		getTest:            getTest,
 		format:             format,
+		canonicalize:       canonicalize,
 	}
 }
 
@@ -51,17 +54,7 @@ func InitializeHeaderStrategy(loadWebsiteContent func(target string, useAntiBotD
 //	the function panics with an error.Error (code 100), which is caught by the
 //	global ErrorHandler.
 func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
-	// Using target formatter to properly build target URL
-	target := h.format(ctx.Target, ctx.Args)
-	result, reqInfo := h.loadWebsiteContent(*target, antiBotFlag)
-
-	if reqInfo.Code != 0 {
-		// A failure caused by an identified bot protection layer is reported as a
-		// verdict rather than as a bare error, see strategy.WrapRequestFailure.
-		channel <- strategy.WrapRequestFailure(reqInfo)
-		return
-	}
-
+	selected := make([]Tests.Test, 0, len(ctx.Args))
 	for _, val := range ctx.Args {
 		t, ok := h.getTest(val)
 		if !ok {
@@ -72,19 +65,18 @@ func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan stra
 				IsRetryable: false,
 			})
 		}
-
-		// Increment WaitGroup before launching the goroutine to ensure
-		// the orchestrator waits for this specific sub-test.
-		wg.Add(1)
-
-		// Launch the test asynchronously.
-		go strategy.PerformTest(t, wg, channel, result)
-
+		selected = append(selected, t)
 	}
+
+	strategy.RunPhases(strategy.PhaseRun{
+		Tests:           selected,
+		ResponseTarget:  *h.format(ctx.Target, ctx.Args),
+		CanonicalTarget: h.canonicalize(ctx.Target),
+		LoadContent:     h.loadWebsiteContent,
+		AntiBotFlag:     antiBotFlag,
+	}, channel, wg)
 }
 
-// GetName returns the command-line flag identifier associated with this strategy.
-// This name is used by the Registry to map the "--tests" parameter to this implementation.
 func (h *headerTestStrategy) GetName() string {
 	return "--tests"
 }

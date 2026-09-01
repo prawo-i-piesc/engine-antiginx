@@ -121,7 +121,7 @@ type SitemapAnalysis struct {
 // match dangerous patterns (e.g., /api-guide, /admin-contact).
 //
 // Returns:
-//   - *ResponseTest: Configured test instance ready for execution
+//   - *StructureTest: Configured test instance ready for execution
 //
 // Example:
 //
@@ -129,11 +129,7 @@ type SitemapAnalysis struct {
 //	sitemapTest := NewSitemapSecurityTest()
 //
 //	// Execute against target (via Runner)
-//	params := ResponseTestParams{
-//	    Response: httpResponse,
-//	    Url:      "https://example.com",
-//	}
-//	result := sitemapTest.Run(params)
+//	result := sitemapTest.Run(ScanContext{Target: target})
 //
 //	// No dangerous paths (secure)
 //	// result.ThreatLevel = None
@@ -147,15 +143,15 @@ type SitemapAnalysis struct {
 // Related Tests:
 //   - ServerHeaderTest: Analyzes server header information disclosure
 //   - JSObfuscationTest: Detects potential security threats in JavaScript
-func NewSitemapSecurityTest() *ResponseTest {
-	return &ResponseTest{
+func NewSitemapSecurityTest() *StructureTest {
+	return &StructureTest{
 		Id:          "sitemap",
 		Name:        "Sitemap Security Analysis",
 		Description: "Analyzes sitemap.xml for dangerous paths that should not be exposed to search engines",
 		Category:    "App-Configuration",
-		RunTest: func(params ResponseTestParams) TestResult {
-			// Extract base URL from the response
-			baseUrl := params.Response.Request.URL.Scheme + "://" + params.Response.Request.URL.Host
+		RunTest: func(params StructureTestParams) TestResult {
+			// Extract base URL from the target
+			baseUrl := params.Target.Scheme + "://" + params.Target.Host
 			
 			// Fetch sitemap.xml
 			analysis := analyzeSitemap(baseUrl)

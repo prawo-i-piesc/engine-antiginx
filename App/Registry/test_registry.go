@@ -1,6 +1,6 @@
 // Package Registry provides a thread-safe, centralized registry system for managing
-// security test implementations. It acts as a repository for all available ResponseTest
-// instances, enabling dynamic test retrieval and execution throughout the application.
+// security test implementations. It acts as a repository for all available tests of every
+// kind, enabling dynamic test retrieval and execution throughout the application.
 //
 // The registry automatically initializes with default tests during package initialization
 // and enforces uniqueness of test IDs to prevent conflicts. All tests are indexed by
@@ -22,7 +22,7 @@ import (
 //
 // The map is populated during package initialization via the init() function
 // and should not be modified directly outside of the registerTest function.
-var tests = make(map[string]*Tests.ResponseTest)
+var tests = make(map[string]Tests.Test)
 
 // init automatically registers default security tests when the Registry package is initialized.
 // This function runs once before main() and ensures all standard tests are available
@@ -43,6 +43,7 @@ var tests = make(map[string]*Tests.ResponseTest)
 //   - CrossOriginTest: Analyzes Cross-Origin security headers (COEP, CORP, COOP) for cross-origin attack protection
 //   - SitemapSecurityTest: Analyzes sitemap.xml for dangerous path exposure to search engines
 //   - PhishingURLTest: Analyzes hostname similarity to popular domains and URL parameters for phishing indicators
+//   - BotProtectionTest: Identifies the bot protection, CDN or WAF layer in front of the target
 //
 // Additional tests can be registered by adding registerTest calls in this function.
 func init() {
@@ -60,6 +61,7 @@ func init() {
 	registerTest(Tests.NewCrossOriginTest())
 	registerTest(Tests.NewSitemapSecurityTest())
 	registerTest(Tests.NewPhishingURLTest())
+	registerTest(Tests.NewBotProtectionTest())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.
@@ -70,7 +72,7 @@ func init() {
 // detailed error information.
 //
 // Parameters:
-//   - t: Pointer to the ResponseTest instance to register
+//   - t: The Test instance to register, of any kind
 //
 // Panics:
 //   - error.Error with code 100: If a test with the same ID already exists in the registry
@@ -80,19 +82,19 @@ func init() {
 //	func init() {
 //	    registerTest(Tests.NewCustomTest())
 //	}
-func registerTest(t *Tests.ResponseTest) {
-	if _, exists := tests[t.Id]; exists {
+func registerTest(t Tests.Test) {
+	if _, exists := tests[t.GetId()]; exists {
 		panic(error.Error{
 			Code:        100,
-			Message:     fmt.Sprintf("Registry error occurred. This could be due to:\n- test with Id %s already exists", t.Id),
+			Message:     fmt.Sprintf("Registry error occurred. This could be due to:\n- test with Id %s already exists", t.GetId()),
 			Source:      "Registry",
 			IsRetryable: false,
 		})
 	}
-	tests[t.Id] = t
+	tests[t.GetId()] = t
 }
 
-// GetTest retrieves a specific ResponseTest from the registry by its unique identifier.
+// GetTest retrieves a specific test from the registry by its unique identifier.
 // This is the primary method for accessing registered tests and provides thread-safe
 // read access to the registry.
 //
@@ -103,8 +105,11 @@ func registerTest(t *Tests.ResponseTest) {
 // Parameters:
 //   - testId: The unique string identifier of the test to retrieve (e.g., "https-protocol-check", "hsts-check")
 //
+// The returned Test may be of any kind; callers schedule it by asking for its GetKind()
+// rather than by knowing which concrete type it is.
+//
 // Returns:
-//   - *Tests.ResponseTest: Pointer to the test instance if found, nil otherwise
+//   - Tests.Test: The test instance if found, nil otherwise
 //   - bool: true if the test exists in the registry, false if not found
 //
 // Example:
@@ -114,16 +119,40 @@ func registerTest(t *Tests.ResponseTest) {
 //	    log.Printf("Test not found: https-protocol-check")
 //	    return
 //	}
-//	result := test.Run(params)
-func GetTest(testId string) (*Tests.ResponseTest, bool) {
+//	result := test.Run(scanContext)
+func GetTest(testId string) (Tests.Test, bool) {
 	t, ok := tests[testId]
 	return t, ok
 }
 
-func GetAllTests() []*Tests.ResponseTest {
-	values := make([]*Tests.ResponseTest, 0, len(tests))
+// GetAllTests returns every registered test, of every kind, in unspecified order.
+// The scheduler buckets them by kind, so the order they arrive in does not matter.
+//
+// Returns:
+//   - []Tests.Test: All registered tests
+func GetAllTests() []Tests.Test {
+	values := make([]Tests.Test, 0, len(tests))
 	for _, value := range tests {
 		values = append(values, value)
+	}
+	return values
+}
+
+// GetTestsByKind returns every registered test belonging to a single execution phase.
+// It lets callers reason about one phase — for example to report which tests were
+// skipped because the main request failed — without inspecting concrete types.
+//
+// Parameters:
+//   - kind: The execution phase to filter by
+//
+// Returns:
+//   - []Tests.Test: Registered tests of that kind, empty when none match
+func GetTestsByKind(kind Tests.TestKind) []Tests.Test {
+	values := make([]Tests.Test, 0, len(tests))
+	for _, value := range tests {
+		if value.GetKind() == kind {
+			values = append(values, value)
+		}
 	}
 	return values
 }

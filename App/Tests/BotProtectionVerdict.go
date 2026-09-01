@@ -47,6 +47,16 @@ const (
 // not a verified result, and no test was able to inspect the origin.
 const botProtectionCertainty = 45
 
+// botProtectionLegitimacyCaveat is the shared caveat appended to every bot protection
+// finding. It is stated identically by the standalone test and by the verdict synthesized
+// from a blocked request, because the inference and its limits are the same in both cases.
+const botProtectionLegitimacyCaveat = "A configured commercial protection layer has to be set up by whoever controls the domain, " +
+	"which phishing infrastructure rarely bothers with, so the target is more likely legitimate than not. " +
+	"Treat this as weak evidence only: free protection tiers are available to attackers too, " +
+	"a legitimate site can be compromised while keeping its protection in place, " +
+	"and nothing behind the protection layer was actually verified. " +
+	"Re-run with the anti-bot detection flag to attempt a real assessment."
+
 // BotProtectionMetadata carries the details of a blocked scan into the report.
 //
 // Fields:
@@ -134,13 +144,7 @@ func buildBotProtectionDescription(protections []string, httpErrorCode int) stri
 		)
 	}
 
-	return opening + " " +
-		"A configured commercial protection layer has to be set up by whoever controls the domain, " +
-		"which phishing infrastructure rarely bothers with, so the target is more likely legitimate than not. " +
-		"Treat this as weak evidence only: free protection tiers are available to attackers too, " +
-		"a legitimate site can be compromised while keeping its protection in place, " +
-		"and nothing behind the protection layer was actually verified. " +
-		"Re-run with the anti-bot detection flag to attempt a real assessment."
+	return opening + " " + botProtectionLegitimacyCaveat
 }
 
 // summarizeProtectionVendors reduces the raw detection strings to a readable list of
@@ -174,9 +178,17 @@ func summarizeProtectionVendors(protections []string) string {
 	return strings.Join(vendors, ", ")
 }
 
+// keywordIndicatorPrefix marks a detection that came from generic challenge wording in
+// the page rather than from a vendor fingerprint.
+const keywordIndicatorPrefix = "Content contains:"
+
 // extractVendorName pulls the vendor name out of a single detection string by keeping
-// the leading word, which is where every detection in the HTTP client places it
+// the leading word, which is where every vendor detection places it
 // ("Cloudflare Ray ID: ...", "DataDome", "Incapsula Protection detected").
+//
+// Detections built from generic challenge wording carry no vendor at all, and their
+// leading word is part of the sentence rather than a name, so they are skipped instead of
+// being reported as a vendor called "Content".
 //
 // Parameters:
 //   - protection: A single detection string
@@ -185,7 +197,7 @@ func summarizeProtectionVendors(protections []string) string {
 //   - string: The vendor name, or an empty string when the input carries none
 func extractVendorName(protection string) string {
 	trimmed := strings.TrimSpace(protection)
-	if trimmed == "" {
+	if trimmed == "" || strings.HasPrefix(trimmed, keywordIndicatorPrefix) {
 		return ""
 	}
 
