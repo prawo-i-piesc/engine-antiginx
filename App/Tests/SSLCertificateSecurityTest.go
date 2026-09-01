@@ -15,8 +15,12 @@ import (
 	"time"
 )
 
-// NewSSLCertificateSecurityTest creates a new ResponseTest that analyzes the SSL/TLS certificate
+// NewSSLCertificateSecurityTest creates a new StructureTest that analyzes the SSL/TLS certificate
 // of the target website for security best practices.
+//
+// The certificate is a property of how the target is configured, not of what it returned
+// for any particular request, so the test performs its own TLS handshake and runs
+// independently of the main scan request.
 //
 // The test evaluates:
 //   - Certificate validity (not expired, not yet valid)
@@ -33,59 +37,46 @@ import (
 //   - Critical (5): No certificate, self-signed, or invalid chain
 //
 // Returns:
-//   - *ResponseTest: Configured SSL certificate security test ready for execution
-func NewSSLCertificateSecurityTest() *ResponseTest {
-	return &ResponseTest{
+//   - *StructureTest: Configured SSL certificate security test ready for execution
+func NewSSLCertificateSecurityTest() *StructureTest {
+	return &StructureTest{
 		Id:          "ssl-cert",
 		Name:        "SSL Certificate Security Analysis",
 		Description: "Analyzes the SSL/TLS certificate of the target website for validity, expiration, and cryptographic strength.",
 		Category:    "Encryption",
-		RunTest: func(params ResponseTestParams) TestResult {
-			url := params.Response.Request.URL
-			if url.Scheme != "https" {
+		RunTest: func(params StructureTestParams) TestResult {
+			url := params.Target
+			host := url.Hostname()
+			port := url.Port()
+
+			if port == "" {
+				port = "443"
+			}
+
+			address := net.JoinHostPort(host, port)
+
+			conn, err := tls.DialWithDialer(&net.Dialer{
+				Timeout: 10 * time.Second,
+			}, "tcp", address, &tls.Config{
+				InsecureSkipVerify: true,
+			})
+
+			if err != nil {
 				return TestResult{
 					Name:        "SSL Certificate Security Analysis",
 					Certainty:   100,
-					ThreatLevel: Info,
+					ThreatLevel: Critical,
 					Metadata:    nil,
-					Description: "Connection is not HTTPS, SSL certificate analysis not applicable.",
+					Description: "Failed to establish TLS connection: " + err.Error(),
 				}
 			}
-
-			host := url.Hostname()
-			tlsState := params.Response.TLS
-			if tlsState == nil {
-				port := url.Port()
-
-				if port == "" {
-					port = "443"
+			defer func() {
+				if err := conn.Close(); err != nil {
+					fmt.Printf("SSLCertTest \nWarning: Failed to close connection channel: %s", err.Error())
 				}
-
-				address := net.JoinHostPort(host, port)
-
-				conn, err := tls.DialWithDialer(&net.Dialer{
-					Timeout: 10 * time.Second,
-				}, "tcp", address, &tls.Config{
-					InsecureSkipVerify: true,
-				})
-
-				if err != nil {
-					return TestResult{
-						Name:        "SSL Certificate Security Analysis",
-						Certainty:   100,
-						ThreatLevel: Critical,
-						Metadata:    nil,
-						Description: "Failed to establish TLS connection: " + err.Error(),
-					}
-				}
-				defer func() {
-					if err := conn.Close(); err != nil {
-						fmt.Printf("SSLCertTest \nWarning: Failed to close connection channel: %s", err.Error())
-					}
-				}()
-				state := conn.ConnectionState()
-				tlsState = &state
-			}
+			}()
+			state := conn.ConnectionState()
+			tlsState := &state
 
 			certs := tlsState.PeerCertificates
 

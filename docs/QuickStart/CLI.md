@@ -54,20 +54,46 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 
 
 ## 🛡️ Valid Test IDs (`--tests`)
-| Test ID | Description |
-|---|---|
-| `https` | HTTPS Protocol Verification |
-| `hsts` | HSTS Header Analysis |
-| `serv-h-a` | Server Header Analysis + security context |
-| `csp` | Content Security Policy |
-| `cookie-sec` | Cookie Security |
-| `js-obf` | JavaScript Obfuscation Detection |
-| `xframe` | Clickjacking Protection |
-| `permissions-policy` | Browser Permission Control |
-| `x-content-type-options` | MIME Sniffing Protection |
-| `referrer-policy` | Referrer Policy |
-| `ssl-cert` | SSL/TLS Certificate Security |
-| `cross-origin-x` | Cross-Origin Security Headers |
+| Test ID | Phase | Description |
+|---|---|---|
+| `https` | Response | HTTPS Protocol Verification |
+| `hsts` | Response | HSTS Header Analysis |
+| `serv-h-a` | Response | Server Header Analysis + security context |
+| `csp` | Response | Content Security Policy |
+| `cookie-sec` | Response | Cookie Security |
+| `js-obf` | Response | JavaScript Obfuscation Detection |
+| `xframe` | Response | Clickjacking Protection |
+| `permissions-policy` | Response | Browser Permission Control |
+| `x-content-type-options` | Response | MIME Sniffing Protection |
+| `referrer-policy` | Response | Referrer Policy |
+| `cross-origin-x` | Response | Cross-Origin Security Headers |
+| `phishing-url` | PreResponse | Typo-squatting, homograph and URL parameter analysis |
+| `bot-protection` | PreResponse | Bot protection / CDN / WAF layer in front of the target |
+| `ssl-cert` | Structure | SSL/TLS Certificate Security |
+| `sitemap` | Structure | Dangerous paths exposed through sitemap.xml |
+
+
+<br>
+
+
+## ⏱️ Execution Phases
+Tests are grouped by the input they need, and the engine schedules each group separately.
+You never select a phase — it follows from the test IDs you pass.
+
+| Phase | Needs | Behaviour |
+|---|---|---|
+| **PreResponse** | The target URL only | Runs immediately, in parallel with the page fetch |
+| **Response** | The fetched page — headers and body | The only phase that requires the request to succeed |
+| **Structure** | The target's configuration | Opens its own connections (TLS handshake, sitemap fetch) |
+
+Two consequences worth knowing:
+
+- **A blocked target still gets scanned.** If the site sits behind a bot protection challenge,
+  only the Response tests are skipped. The report says which ones, and the PreResponse and
+  Structure findings are still there.
+- **Structural scans skip the request.** `--tests ssl-cert sitemap` never fetches the page,
+  because nothing in that selection needs it.
+
 
 **⚠️ Important:**
 - Use these IDs exactly. Typos or old aliases will result in parser errors.

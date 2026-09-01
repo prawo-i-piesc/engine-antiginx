@@ -306,7 +306,7 @@ var confusableRuneDatabase = map[rune]rune{
 	'ʟ': 'l', // Latin small capital L
 }
 
-// NewPhishingURLTest creates and returns a new ResponseTest instance for phishing detection.
+// NewPhishingURLTest creates and returns a new PreResponseTest instance for phishing detection.
 // The test combines two independent analyses of the request URL:
 //
 //   - Hostname analysis: detects domain impersonation through typo-squatting
@@ -333,12 +333,14 @@ var confusableRuneDatabase = map[rune]rune{
 // may occasionally match (for example an OAuth "code" parameter on a genuine
 // authorization callback).
 //
-// Returns a configured ResponseTest ready for execution against HTTP responses.
+// Returns a configured PreResponseTest ready for execution against a target URL. The
+// analysis reads nothing but the URL itself, so it runs before and independently of the
+// main request and still produces a verdict for an unreachable target.
 //
 // Example:
 //
 //	phishingTest := NewPhishingURLTest()
-//	result := phishingTest.Run(ResponseTestParams{Response: httpResponse})
+//	result := phishingTest.Run(ScanContext{Target: target})
 //	if result.ThreatLevel != None {
 //	    fmt.Printf("Phishing risk detected: %s\n", result.Description)
 //	}
@@ -351,14 +353,14 @@ var confusableRuneDatabase = map[rune]rune{
 // Related Tests:
 //   - CookieSecurityTest: Analyzes session material carried in cookies
 //   - SSLCertificateSecurityTest: Analyzes the certificate presented by the host
-func NewPhishingURLTest() *ResponseTest {
-	return &ResponseTest{
+func NewPhishingURLTest() *PreResponseTest {
+	return &PreResponseTest{
 		Id:          "phishing-url",
 		Name:        "Phishing URL Analysis",
 		Description: "Analyzes the hostname for typo-squatting and homograph patterns and the URL parameters for embedded credentials, sensitive data and redirection abuse",
 		Category:    "Phishing",
-		RunTest: func(params ResponseTestParams) TestResult {
-			target := extractRequestURL(params)
+		RunTest: func(params PreResponseTestParams) TestResult {
+			target := params.Target
 			if target == nil {
 				return TestResult{
 					Name:        "Phishing URL Analysis",
@@ -368,7 +370,7 @@ func NewPhishingURLTest() *ResponseTest {
 						"url":  "",
 						"host": "",
 					},
-					Description: "Request URL is unavailable, phishing analysis could not be performed",
+					Description: "Target URL is unavailable, phishing analysis could not be performed",
 				}
 			}
 
@@ -1113,22 +1115,6 @@ const (
 
 // redactedPlaceholder replaces every secret rendered into the reported URL.
 const redactedPlaceholder = "[REDACTED]"
-
-// extractRequestURL safely retrieves the final request URL from the test parameters.
-// The response chain is validated step by step, because a response produced by a
-// failed or synthetic request may carry no request or no URL at all.
-//
-// Parameters:
-//   - params: ResponseTestParams containing the HTTP response to analyze
-//
-// Returns:
-//   - *url.URL: The request URL, or nil when it cannot be determined
-func extractRequestURL(params ResponseTestParams) *url.URL {
-	if params.Response == nil || params.Response.Request == nil {
-		return nil
-	}
-	return params.Response.Request.URL
-}
 
 // analyzeURLParameters performs the full phishing analysis of a URL.
 //

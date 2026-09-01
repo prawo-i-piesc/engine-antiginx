@@ -5,6 +5,7 @@ package helpers
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"net/url"
 	"strings"
 )
 
@@ -139,4 +140,35 @@ func (t *TargetFormatter) containsParam(params []string, token string) bool {
 		}
 	}
 	return false
+}
+
+// CanonicalURL builds the target URL used by the PreResponse and Structure phases.
+//
+// It deliberately does not share Format's scheme selection. Format downgrades to http://
+// when the https or hsts test is selected, because those two tests exist to observe how a
+// target behaves on a plain connection. That downgrade is meaningful only for the Response
+// phase: applied to the other phases it would make the certificate test report "not
+// applicable" against a target whose certificate is standing right there, and would hand
+// the phishing analysis a scheme the operator never asked about.
+//
+// Parameters:
+//   - target: Target host as provided by the operator, without a scheme
+//
+// Returns:
+//   - *url.URL: The target as https://<target>
+//
+// Panics:
+//   - Errors.Error with code 101: If the target cannot be parsed as a URL
+func (t *TargetFormatter) CanonicalURL(target string) *url.URL {
+	parsed, err := url.Parse("https://" + target)
+	if err != nil {
+		panic(Errors.Error{
+			Code: 101,
+			Message: `Target Formatter error occurred. This could be due to:
+				- target that cannot be parsed as a URL: ` + err.Error(),
+			Source:      "Target Formatter",
+			IsRetryable: false,
+		})
+	}
+	return parsed
 }

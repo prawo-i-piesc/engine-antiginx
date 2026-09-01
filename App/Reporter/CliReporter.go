@@ -207,7 +207,10 @@ func printTestResult(result Tests.TestResult) {
 }
 
 func printProcessInfo(info strategy.RequestInfo) {
-	fmt.Printf("Engine was unable to test this website\n")
+	// The wording stops short of "unable to test this website": a failed request now only
+	// costs the tests that need the page content, while the pre-response and structure
+	// phases have already reported their findings above.
+	fmt.Printf("Engine was unable to load this website's content\n")
 	fmt.Printf("\nTest process message: \n%s\n", info.Message)
 	fmt.Println(separator)
 }
