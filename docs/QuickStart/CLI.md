@@ -54,23 +54,23 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 
 
 ## 🛡️ Valid Test IDs (`--tests`)
-| Test ID | Phase | Description |
-|---|---|---|
-| `https` | Response | HTTPS Protocol Verification |
-| `hsts` | Response | HSTS Header Analysis |
-| `serv-h-a` | Response | Server Header Analysis + security context |
-| `csp` | Response | Content Security Policy |
-| `cookie-sec` | Response | Cookie Security |
-| `js-obf` | Response | JavaScript Obfuscation Detection |
-| `xframe` | Response | Clickjacking Protection |
-| `permissions-policy` | Response | Browser Permission Control |
-| `x-content-type-options` | Response | MIME Sniffing Protection |
-| `referrer-policy` | Response | Referrer Policy |
-| `cross-origin-x` | Response | Cross-Origin Security Headers |
-| `phishing-url` | PreResponse | Typo-squatting, homograph and URL parameter analysis |
-| `bot-protection` | PreResponse | Bot protection / CDN / WAF layer in front of the target |
-| `ssl-cert` | Structure | SSL/TLS Certificate Security |
-| `sitemap` | Structure | Dangerous paths exposed through sitemap.xml |
+| Test ID | Phase | Description | Details |
+|---|---|---|---|
+| `https` | Response | HTTPS Protocol Verification | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/HTTPSTest/README.md) |
+| `hsts` | Response | HSTS Header Analysis | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/HSTSTest/README.md) |
+| `serv-h-a` | Response | Server Header Analysis + security context | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/ServerHeaderTest/README.md) |
+| `csp` | Response | Content Security Policy | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/CSPTest/README.md) |
+| `cookie-sec` | Response | Cookie Security | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/CookieSecurityTest/README.md) |
+| `js-obf` | Response | JavaScript Obfuscation Detection | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/JSObfuscationTest/README.md) |
+| `xframe` | Response | Clickjacking Protection | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/XFrameTest/README.md) |
+| `permissions-policy` | Response | Browser Permission Control | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/PermissionsPolicyTest/README.md) |
+| `x-content-type-options` | Response | MIME Sniffing Protection | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/XContentTypeOptionsTest/README.md) |
+| `referrer-policy` | Response | Referrer Policy | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/ReferrerPolicyTest/README.md) |
+| `cross-origin-x` | Response | Cross-Origin Security Headers | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/CrossOriginTest/README.md) |
+| `phishing-url` | PreResponse | Typo-squatting, homograph and URL parameter analysis | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/PhishingURLTest/README.md) |
+| `bot-protection` | PreResponse | Bot protection / CDN / WAF layer in front of the target | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/BotProtectionTest/README.md) |
+| `ssl-cert` | Structure | SSL/TLS Certificate Security | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SSLCertificateSecurityTest/README.md) |
+| `sitemap` | Structure | Dangerous paths exposed through sitemap.xml | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SitemapSecurityTest/README.md) |
 
 
 <br>

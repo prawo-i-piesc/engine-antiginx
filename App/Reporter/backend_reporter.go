@@ -19,7 +19,7 @@ package Reporter
 import (
 	"Engine-AntiGinx/App/Errors"
 	"Engine-AntiGinx/App/Reporter/types"
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"bytes"
 	"encoding/json"
@@ -92,7 +92,7 @@ type retryResult struct {
 //
 // Example:
 //
-//	resultChan := make(chan Tests.TestResult, 10)
+//	resultChan := make(chan SiteTests.TestResult, 10)
 //	reporter := InitializeBackendReporter(resultChan, "http://api.example.com/results")
 //	doneChan := reporter.StartListening()
 //	// ... send results to resultChan ...
@@ -178,7 +178,7 @@ func (b *backendReporter) StartListening() <-chan int {
 							types.TestResultWrapper{
 								Target:  b.target,
 								TestId:  b.testId,
-								Result:  Tests.TestResult{},
+								Result:  SiteTests.TestResult{},
 								EndFlag: true,
 							}, &failedUploads)
 					}
@@ -199,7 +199,7 @@ func (b *backendReporter) StartListening() <-chan int {
 						types.TestResultWrapper{
 							Target:      b.target,
 							TestId:      b.testId,
-							Result:      Tests.TestResult{},
+							Result:      SiteTests.TestResult{},
 							EndFlag:     false,
 							ResultType:  types.Message,
 							ProcessInfo: *info,

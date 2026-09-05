@@ -1,7 +1,7 @@
 package strategy
 
 import (
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 )
 
 // RequestInfo describes the outcome of loading the target's content.
@@ -25,7 +25,7 @@ type RequestInfo struct {
 // the system to handle both standard security test results (e.g., vulnerabilities found)
 // and help/usage information (e.g., manual pages) using a single data structure.
 type ResultWrapper struct {
-	testResult  *Tests.TestResult
+	testResult  *SiteTests.TestResult
 	reqInfo     *RequestInfo
 	helpMessage *HelpStrategyResult
 }
@@ -56,7 +56,7 @@ type HelpSection struct {
 //
 // Returns:
 //   - ResultWrapper: The initialized wrapper struct
-func WrapStrategyResult(testResult *Tests.TestResult, helpMessage *HelpStrategyResult, info *RequestInfo) ResultWrapper {
+func WrapStrategyResult(testResult *SiteTests.TestResult, helpMessage *HelpStrategyResult, info *RequestInfo) ResultWrapper {
 	return ResultWrapper{
 		testResult:  testResult,
 		helpMessage: helpMessage,
@@ -70,8 +70,8 @@ func WrapStrategyResult(testResult *Tests.TestResult, helpMessage *HelpStrategyR
 //
 // Returns:
 //   - bool: True if a test result exists (is not nil), false otherwise
-//   - *Tests.TestResult: The pointer to the test result (or nil)
-func (w ResultWrapper) GetTestResult() (bool, *Tests.TestResult) {
+//   - *SiteTests.TestResult: The pointer to the test result (or nil)
+func (w ResultWrapper) GetTestResult() (bool, *SiteTests.TestResult) {
 	return w.testResult != nil, w.testResult
 }
 

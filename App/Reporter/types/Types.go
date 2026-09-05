@@ -1,7 +1,7 @@
 package types
 
 import (
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 )
 
@@ -21,7 +21,7 @@ const (
 type TestResultWrapper struct {
 	Target      string               `json:"target"`
 	TestId      string               `json:"testId"`
-	Result      Tests.TestResult     `json:"result"`
+	Result      SiteTests.TestResult `json:"result"`
 	EndFlag     bool                 `json:"endFlag"`
 	ResultType  ResultType           `json:"resultType"`
 	ProcessInfo strategy.RequestInfo `json:"message"`

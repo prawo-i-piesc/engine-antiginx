@@ -1,7 +1,7 @@
 package strategyImpl
 
 import (
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"net/http"
 	"net/http/httptest"
@@ -17,7 +17,7 @@ type HeaderStrategyTest struct {
 	Ctx             strategy.TestContext
 	expectedResults int
 	antiBotFlag     bool
-	getTest         func(testId string) (Tests.Test, bool)
+	getTest         func(testId string) (SiteTests.Test, bool)
 	loadContent     strategy.ContentLoader
 	wantLoadCalls   int32
 }
@@ -36,35 +36,35 @@ func setUp(t *testing.T) *httptest.Server {
 
 // stubTest builds a test of the requested kind that reports nothing, so assertions can
 // count results without depending on any real analysis.
-func stubTest(id string, kind Tests.TestKind) Tests.Test {
+func stubTest(id string, kind SiteTests.TestKind) SiteTests.Test {
 	switch kind {
-	case Tests.PreResponse:
-		return &Tests.PreResponseTest{
+	case SiteTests.PreResponse:
+		return &SiteTests.PreResponseTest{
 			Id: id, Name: id, Description: id,
-			RunTest: func(params Tests.PreResponseTestParams) Tests.TestResult {
-				return Tests.TestResult{Name: id}
+			RunTest: func(params SiteTests.PreResponseTestParams) SiteTests.TestResult {
+				return SiteTests.TestResult{Name: id}
 			},
 		}
-	case Tests.Structure:
-		return &Tests.StructureTest{
+	case SiteTests.Structure:
+		return &SiteTests.StructureTest{
 			Id: id, Name: id, Description: id,
-			RunTest: func(params Tests.StructureTestParams) Tests.TestResult {
-				return Tests.TestResult{Name: id}
+			RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
+				return SiteTests.TestResult{Name: id}
 			},
 		}
 	default:
-		return &Tests.ResponseTest{
+		return &SiteTests.ResponseTest{
 			Id: id, Name: id, Description: id,
-			RunTest: func(params Tests.ResponseTestParams) Tests.TestResult {
-				return Tests.TestResult{Name: id}
+			RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
+				return SiteTests.TestResult{Name: id}
 			},
 		}
 	}
 }
 
 // byKind resolves a test id to a stub of the kind registered for it.
-func byKind(kinds map[string]Tests.TestKind) func(string) (Tests.Test, bool) {
-	return func(testId string) (Tests.Test, bool) {
+func byKind(kinds map[string]SiteTests.TestKind) func(string) (SiteTests.Test, bool) {
+	return func(testId string) (SiteTests.Test, bool) {
 		kind, ok := kinds[testId]
 		if !ok {
 			return nil, false
@@ -97,7 +97,7 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 			},
 			expectedResults: 2,
 			antiBotFlag:     false,
-			getTest:         byKind(map[string]Tests.TestKind{"test": Tests.Response, "test1": Tests.Response}),
+			getTest:         byKind(map[string]SiteTests.TestKind{"test": SiteTests.Response, "test1": SiteTests.Response}),
 			loadContent:     okLoader,
 			wantLoadCalls:   1,
 		},
@@ -110,7 +110,7 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 			},
 			expectedResults: 0,
 			antiBotFlag:     false,
-			getTest:         byKind(map[string]Tests.TestKind{}),
+			getTest:         byKind(map[string]SiteTests.TestKind{}),
 			loadContent:     okLoader,
 		},
 		{
@@ -122,10 +122,10 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 			},
 			expectedResults: 3,
 			antiBotFlag:     false,
-			getTest: byKind(map[string]Tests.TestKind{
-				"pre":    Tests.PreResponse,
-				"resp":   Tests.Response,
-				"struct": Tests.Structure,
+			getTest: byKind(map[string]SiteTests.TestKind{
+				"pre":    SiteTests.PreResponse,
+				"resp":   SiteTests.Response,
+				"struct": SiteTests.Structure,
 			}),
 			loadContent:   okLoader,
 			wantLoadCalls: 1,
@@ -142,10 +142,10 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 			},
 			expectedResults: 3,
 			antiBotFlag:     false,
-			getTest: byKind(map[string]Tests.TestKind{
-				"pre":    Tests.PreResponse,
-				"resp":   Tests.Response,
-				"struct": Tests.Structure,
+			getTest: byKind(map[string]SiteTests.TestKind{
+				"pre":    SiteTests.PreResponse,
+				"resp":   SiteTests.Response,
+				"struct": SiteTests.Structure,
 			}),
 			loadContent:   blockedLoader,
 			wantLoadCalls: 1,
@@ -159,9 +159,9 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 			},
 			expectedResults: 2,
 			antiBotFlag:     false,
-			getTest: byKind(map[string]Tests.TestKind{
-				"pre":    Tests.PreResponse,
-				"struct": Tests.Structure,
+			getTest: byKind(map[string]SiteTests.TestKind{
+				"pre":    SiteTests.PreResponse,
+				"struct": SiteTests.Structure,
 			}),
 			loadContent:   okLoader,
 			wantLoadCalls: 0,

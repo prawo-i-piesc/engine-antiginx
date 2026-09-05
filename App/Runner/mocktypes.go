@@ -2,7 +2,7 @@ package Runner
 
 import (
 	"Engine-AntiGinx/App/Reporter"
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"sync"
 )
@@ -36,7 +36,7 @@ type MockStrategy struct {
 func (m *MockStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	wg.Add(1)
 	defer wg.Done()
-	testResult := Tests.TestResult{
+	testResult := SiteTests.TestResult{
 		Name:        "Mock test",
 		Certainty:   0,
 		ThreatLevel: 0,

@@ -1,7 +1,7 @@
 package Reporter
 
 import (
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +24,7 @@ func TestBackendReporter_StartListening(t *testing.T) {
 			expectedFailure: 0,
 			expectedCalls:   2,
 			testResult: strategy.WrapStrategyResult(
-				&Tests.TestResult{
+				&SiteTests.TestResult{
 					Name:        "Test scan",
 					Certainty:   0,
 					ThreatLevel: 0,
@@ -38,7 +38,7 @@ func TestBackendReporter_StartListening(t *testing.T) {
 			expectedFailure: 1,
 			expectedCalls:   3,
 			testResult: strategy.WrapStrategyResult(
-				&Tests.TestResult{
+				&SiteTests.TestResult{
 					Name:        "Test scan",
 					Certainty:   0,
 					ThreatLevel: 0,
@@ -52,7 +52,7 @@ func TestBackendReporter_StartListening(t *testing.T) {
 			expectedFailure: 1,
 			expectedCalls:   1,
 			testResult: strategy.WrapStrategyResult(
-				&Tests.TestResult{
+				&SiteTests.TestResult{
 					Name:        "Test scan",
 					Certainty:   0,
 					ThreatLevel: 0,

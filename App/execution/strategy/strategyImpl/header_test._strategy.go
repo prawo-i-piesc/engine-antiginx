@@ -2,7 +2,7 @@ package strategyImpl
 
 import (
 	error "Engine-AntiGinx/App/Errors"
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
 	"net/url"
@@ -14,7 +14,7 @@ import (
 // by fetching target content and executing a suite of sub-tests concurrently.
 type headerTestStrategy struct {
 	loadWebsiteContent strategy.ContentLoader
-	getTest            func(testId string) (Tests.Test, bool)
+	getTest            func(testId string) (SiteTests.Test, bool)
 	format             func(target string, params []string) *string
 	canonicalize       func(target string) *url.URL
 }
@@ -22,7 +22,7 @@ type headerTestStrategy struct {
 // InitializeHeaderStrategy returns a pointer to a new headerTestStrategy.
 // It acts as the constructor for the header-based testing logic.
 func InitializeHeaderStrategy(loadWebsiteContent strategy.ContentLoader,
-	getTest func(testId string) (Tests.Test, bool),
+	getTest func(testId string) (SiteTests.Test, bool),
 	format func(target string, params []string) *string,
 	canonicalize func(target string) *url.URL) *headerTestStrategy {
 	return &headerTestStrategy{
@@ -54,7 +54,7 @@ func InitializeHeaderStrategy(loadWebsiteContent strategy.ContentLoader,
 //	the function panics with an error.Error (code 100), which is caught by the
 //	global ErrorHandler.
 func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
-	selected := make([]Tests.Test, 0, len(ctx.Args))
+	selected := make([]SiteTests.Test, 0, len(ctx.Args))
 	for _, val := range ctx.Args {
 		t, ok := h.getTest(val)
 		if !ok {

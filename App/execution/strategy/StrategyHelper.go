@@ -2,7 +2,8 @@ package strategy
 
 import (
 	HttpClient "Engine-AntiGinx/App/HTTP"
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
+	"Engine-AntiGinx/App/SiteTests/BotProtectionTest"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -117,7 +118,7 @@ type ContentLoader func(target string, useAntiBotDetection bool) (*http.Response
 //   - LoadContent: Fetches the main page, injected for testability
 //   - AntiBotFlag: Whether to enable anti-bot detection on the main request
 type PhaseRun struct {
-	Tests           []Tests.Test
+	Tests           []SiteTests.Test
 	ResponseTarget  string
 	CanonicalTarget *url.URL
 	LoadContent     ContentLoader
@@ -148,7 +149,7 @@ func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup) {
 	preTests, responseTests, structureTests := bucketByKind(run.Tests)
 
 	// Started before the fetch so they overlap with it instead of queueing behind it.
-	targetContext := Tests.ScanContext{Target: run.CanonicalTarget}
+	targetContext := SiteTests.ScanContext{Target: run.CanonicalTarget}
 	startTests(preTests, targetContext, channel, wg)
 	startTests(structureTests, targetContext, channel, wg)
 
@@ -164,7 +165,7 @@ func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup) {
 
 	// The response's own URL is preferred over the requested one so tests see where the
 	// target actually redirected them.
-	responseContext := Tests.ScanContext{Target: run.CanonicalTarget, Response: response}
+	responseContext := SiteTests.ScanContext{Target: run.CanonicalTarget, Response: response}
 	if response.Request != nil && response.Request.URL != nil {
 		responseContext.Target = response.Request.URL
 	}
@@ -177,15 +178,15 @@ func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup) {
 //   - tests: Tests to split, of any kind
 //
 // Returns:
-//   - []Tests.Test: PreResponse tests
-//   - []Tests.Test: Response tests
-//   - []Tests.Test: Structure tests
-func bucketByKind(tests []Tests.Test) (pre, response, structure []Tests.Test) {
+//   - []SiteTests.Test: PreResponse tests
+//   - []SiteTests.Test: Response tests
+//   - []SiteTests.Test: Structure tests
+func bucketByKind(tests []SiteTests.Test) (pre, response, structure []SiteTests.Test) {
 	for _, test := range tests {
 		switch test.GetKind() {
-		case Tests.PreResponse:
+		case SiteTests.PreResponse:
 			pre = append(pre, test)
-		case Tests.Structure:
+		case SiteTests.Structure:
 			structure = append(structure, test)
 		default:
 			response = append(response, test)
@@ -203,7 +204,7 @@ func bucketByKind(tests []Tests.Test) (pre, response, structure []Tests.Test) {
 //   - ctx: Scan context handed to every one of them
 //   - channel: Channel results are published to
 //   - wg: WaitGroup incremented once per test
-func startTests(tests []Tests.Test, ctx Tests.ScanContext, channel chan ResultWrapper, wg *sync.WaitGroup) {
+func startTests(tests []SiteTests.Test, ctx SiteTests.ScanContext, channel chan ResultWrapper, wg *sync.WaitGroup) {
 	for _, test := range tests {
 		wg.Add(1)
 		go PerformTest(test, wg, channel, ctx)
@@ -219,7 +220,7 @@ func startTests(tests []Tests.Test, ctx Tests.ScanContext, channel chan ResultWr
 //
 // Returns:
 //   - *RequestInfo: The failure with the skipped tests named in its message
-func withSkippedTests(info *RequestInfo, skipped []Tests.Test) *RequestInfo {
+func withSkippedTests(info *RequestInfo, skipped []SiteTests.Test) *RequestInfo {
 	if info == nil || len(skipped) == 0 {
 		return info
 	}
@@ -265,7 +266,7 @@ func withSkippedTests(info *RequestInfo, skipped []Tests.Test) *RequestInfo {
 //	wg.Add(1)
 //	go PerformTest(httpsTest, &wg, resultChannel, scanContext)
 //	// Test runs concurrently, result sent to channel, WaitGroup decremented
-func PerformTest(test Tests.Test, wg *sync.WaitGroup, results chan<- ResultWrapper, ctx Tests.ScanContext) {
+func PerformTest(test SiteTests.Test, wg *sync.WaitGroup, results chan<- ResultWrapper, ctx SiteTests.ScanContext) {
 	defer wg.Done()
 	testResult := test.Run(ctx)
 	wrapped := WrapStrategyResult(&testResult, nil, nil)
@@ -302,7 +303,7 @@ func WrapRequestFailure(info *RequestInfo, hasBotProtectionTest bool) ResultWrap
 		return WrapStrategyResult(nil, nil, info)
 	}
 
-	verdict := Tests.NewBotProtectionVerdict(info.Protections, info.Message, info.Code)
+	verdict := BotProtectionTest.NewVerdict(info.Protections, info.Message, info.Code)
 	return WrapStrategyResult(&verdict, nil, nil)
 }
 
@@ -317,9 +318,9 @@ func WrapRequestFailure(info *RequestInfo, hasBotProtectionTest bool) ResultWrap
 //
 // Returns:
 //   - bool: true when at least one test carries the bot protection category
-func reportsBotProtection(tests []Tests.Test) bool {
+func reportsBotProtection(tests []SiteTests.Test) bool {
 	for _, test := range tests {
-		if test.GetCategory() == Tests.BotProtectionCategory {
+		if test.GetCategory() == BotProtectionTest.Category {
 			return true
 		}
 	}

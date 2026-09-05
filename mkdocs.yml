@@ -88,7 +88,33 @@ nav:
     - Registry: App/Registry/index.md
     - Reporter: App/Reporter/index.md
     - Runner: App/Runner/index.md
-    - Tests: App/Tests/index.md
+    - Site Tests:
+      - Framework: App/SiteTests/index.md
+      - Bot Protection: App/SiteTests/BotProtectionTest/index.md
+      - Content Security Policy: App/SiteTests/CSPTest/index.md
+      - Cookie Security:
+        - Test: App/SiteTests/CookieSecurityTest/index.md
+        - Modules: App/SiteTests/CookieSecurityTest/modules/index.md
+      - Cross-Origin: App/SiteTests/CrossOriginTest/index.md
+      - HSTS: App/SiteTests/HSTSTest/index.md
+      - HTTPS: App/SiteTests/HTTPSTest/index.md
+      - JS Obfuscation:
+        - Test: App/SiteTests/JSObfuscationTest/index.md
+        - Modules: App/SiteTests/JSObfuscationTest/modules/index.md
+      - Permissions Policy: App/SiteTests/PermissionsPolicyTest/index.md
+      - Phishing URL:
+        - Test: App/SiteTests/PhishingURLTest/index.md
+        - Modules: App/SiteTests/PhishingURLTest/modules/index.md
+      - Referrer Policy: App/SiteTests/ReferrerPolicyTest/index.md
+      - SSL Certificate: App/SiteTests/SSLCertificateSecurityTest/index.md
+      - Server Header:
+        - Test: App/SiteTests/ServerHeaderTest/index.md
+        - Modules: App/SiteTests/ServerHeaderTest/modules/index.md
+      - Sitemap Security:
+        - Test: App/SiteTests/SitemapSecurityTest/index.md
+        - Modules: App/SiteTests/SitemapSecurityTest/modules/index.md
+      - X-Content-Type-Options: App/SiteTests/XContentTypeOptionsTest/index.md
+      - X-Frame-Options: App/SiteTests/XFrameTest/index.md
   - Engined Documentation:
     - Daemon: Engined/index.md
 

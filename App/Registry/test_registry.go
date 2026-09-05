@@ -12,7 +12,22 @@ package Registry
 
 import (
 	error "Engine-AntiGinx/App/Errors"
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
+	"Engine-AntiGinx/App/SiteTests/BotProtectionTest"
+	"Engine-AntiGinx/App/SiteTests/CSPTest"
+	"Engine-AntiGinx/App/SiteTests/CookieSecurityTest"
+	"Engine-AntiGinx/App/SiteTests/CrossOriginTest"
+	"Engine-AntiGinx/App/SiteTests/HSTSTest"
+	"Engine-AntiGinx/App/SiteTests/HTTPSTest"
+	"Engine-AntiGinx/App/SiteTests/JSObfuscationTest"
+	"Engine-AntiGinx/App/SiteTests/PermissionsPolicyTest"
+	"Engine-AntiGinx/App/SiteTests/PhishingURLTest"
+	"Engine-AntiGinx/App/SiteTests/ReferrerPolicyTest"
+	"Engine-AntiGinx/App/SiteTests/SSLCertificateSecurityTest"
+	"Engine-AntiGinx/App/SiteTests/ServerHeaderTest"
+	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest"
+	"Engine-AntiGinx/App/SiteTests/XContentTypeOptionsTest"
+	"Engine-AntiGinx/App/SiteTests/XFrameTest"
 	"fmt"
 )
 
@@ -22,7 +37,7 @@ import (
 //
 // The map is populated during package initialization via the init() function
 // and should not be modified directly outside of the registerTest function.
-var tests = make(map[string]Tests.Test)
+var tests = make(map[string]SiteTests.Test)
 
 // init automatically registers default security tests when the Registry package is initialized.
 // This function runs once before main() and ensures all standard tests are available
@@ -47,21 +62,21 @@ var tests = make(map[string]Tests.Test)
 //
 // Additional tests can be registered by adding registerTest calls in this function.
 func init() {
-	registerTest(Tests.NewHTTPSTest())
-	registerTest(Tests.NewHSTSTest())
-	registerTest(Tests.NewServerHeaderTest())
-	registerTest(Tests.NewCSPTest())
-	registerTest(Tests.NewCookieSecurityTest())
-	registerTest(Tests.NewJSObfuscationTest())
-	registerTest(Tests.NewXFrameTest())
-	registerTest(Tests.NewReferrerPolicyTest())
-	registerTest(Tests.NewPermissionsPolicyTest())
-	registerTest(Tests.NewXContentTypeOptionsTest())
-	registerTest(Tests.NewSSLCertificateSecurityTest())
-	registerTest(Tests.NewCrossOriginTest())
-	registerTest(Tests.NewSitemapSecurityTest())
-	registerTest(Tests.NewPhishingURLTest())
-	registerTest(Tests.NewBotProtectionTest())
+	registerTest(HTTPSTest.New())
+	registerTest(HSTSTest.New())
+	registerTest(ServerHeaderTest.New())
+	registerTest(CSPTest.New())
+	registerTest(CookieSecurityTest.New())
+	registerTest(JSObfuscationTest.New())
+	registerTest(XFrameTest.New())
+	registerTest(ReferrerPolicyTest.New())
+	registerTest(PermissionsPolicyTest.New())
+	registerTest(XContentTypeOptionsTest.New())
+	registerTest(SSLCertificateSecurityTest.New())
+	registerTest(CrossOriginTest.New())
+	registerTest(SitemapSecurityTest.New())
+	registerTest(PhishingURLTest.New())
+	registerTest(BotProtectionTest.New())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.
@@ -80,9 +95,9 @@ func init() {
 // Example:
 //
 //	func init() {
-//	    registerTest(Tests.NewCustomTest())
+//	    registerTest(MyTest.New())
 //	}
-func registerTest(t Tests.Test) {
+func registerTest(t SiteTests.Test) {
 	if _, exists := tests[t.GetId()]; exists {
 		panic(error.Error{
 			Code:        100,
@@ -109,7 +124,7 @@ func registerTest(t Tests.Test) {
 // rather than by knowing which concrete type it is.
 //
 // Returns:
-//   - Tests.Test: The test instance if found, nil otherwise
+//   - SiteTests.Test: The test instance if found, nil otherwise
 //   - bool: true if the test exists in the registry, false if not found
 //
 // Example:
@@ -120,7 +135,7 @@ func registerTest(t Tests.Test) {
 //	    return
 //	}
 //	result := test.Run(scanContext)
-func GetTest(testId string) (Tests.Test, bool) {
+func GetTest(testId string) (SiteTests.Test, bool) {
 	t, ok := tests[testId]
 	return t, ok
 }
@@ -129,9 +144,9 @@ func GetTest(testId string) (Tests.Test, bool) {
 // The scheduler buckets them by kind, so the order they arrive in does not matter.
 //
 // Returns:
-//   - []Tests.Test: All registered tests
-func GetAllTests() []Tests.Test {
-	values := make([]Tests.Test, 0, len(tests))
+//   - []SiteTests.Test: All registered tests
+func GetAllTests() []SiteTests.Test {
+	values := make([]SiteTests.Test, 0, len(tests))
 	for _, value := range tests {
 		values = append(values, value)
 	}
@@ -146,9 +161,9 @@ func GetAllTests() []Tests.Test {
 //   - kind: The execution phase to filter by
 //
 // Returns:
-//   - []Tests.Test: Registered tests of that kind, empty when none match
-func GetTestsByKind(kind Tests.TestKind) []Tests.Test {
-	values := make([]Tests.Test, 0, len(tests))
+//   - []SiteTests.Test: Registered tests of that kind, empty when none match
+func GetTestsByKind(kind SiteTests.TestKind) []SiteTests.Test {
+	values := make([]SiteTests.Test, 0, len(tests))
 	for _, value := range tests {
 		if value.GetKind() == kind {
 			values = append(values, value)
