@@ -1,7 +1,7 @@
 package strategyImpl
 
 import (
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"net/url"
 	"sync"
@@ -9,13 +9,13 @@ import (
 
 type allTestsStrategy struct {
 	loadWebsiteContent strategy.ContentLoader
-	getAllTests        func() []Tests.Test
+	getAllTests        func() []SiteTests.Test
 	format             func(target string, params []string) *string
 	canonicalize       func(target string) *url.URL
 }
 
 func InitializeAllTestsStrategy(loadWebsiteContent strategy.ContentLoader,
-	getAllTests func() []Tests.Test,
+	getAllTests func() []SiteTests.Test,
 	format func(target string, params []string) *string,
 	canonicalize func(target string) *url.URL) *allTestsStrategy {
 	return &allTestsStrategy{

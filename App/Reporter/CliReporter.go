@@ -9,7 +9,7 @@ package Reporter
 
 import (
 	"Engine-AntiGinx/App/Errors"
-	"Engine-AntiGinx/App/Tests"
+	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
 )
@@ -77,7 +77,7 @@ type cliReporter struct {
 //
 // Example:
 //
-//	resultChan := make(chan Tests.TestResult, 10)
+//	resultChan := make(chan SiteTests.TestResult, 10)
 //	reporter := InitializeCliReporter(resultChan)
 //	doneChan := reporter.StartListening()
 //
@@ -198,7 +198,7 @@ func (c *cliReporter) StartListening() <-chan int {
 //	Threat level: 4
 //	Description: Connection uses insecure HTTP protocol - data is transmitted in plaintext
 //	---------------------------------------------
-func printTestResult(result Tests.TestResult) {
+func printTestResult(result SiteTests.TestResult) {
 	fmt.Printf("Test name: %s\n", result.Name)
 	fmt.Printf("Certanity: %d\n", result.Certainty)
 	fmt.Printf("Threat level %v\n", result.ThreatLevel)
