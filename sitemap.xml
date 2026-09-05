@@ -2,106 +2,186 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/CVE/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Detection/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Errors/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/GlobalHandler/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/HTTP/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Helpers/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Registry/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Reporter/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Reporter/types/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Runner/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
-         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/Tests/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/BotProtectionTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/CSPTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/CookieSecurityTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/CookieSecurityTest/modules/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/CrossOriginTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/HSTSTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/HTTPSTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/JSObfuscationTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/JSObfuscationTest/modules/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/PermissionsPolicyTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/PhishingURLTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/PhishingURLTest/modules/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/ReferrerPolicyTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/SSLCertificateSecurityTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/ServerHeaderTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/ServerHeaderTest/modules/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/SitemapSecurityTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/SitemapSecurityTest/modules/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/XContentTypeOptionsTest/</loc>
+         <lastmod>2026-09-05</lastmod>
+    </url>
+    <url>
+         <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/SiteTests/XFrameTest/</loc>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/execution/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/execution/formatterImpl/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/execution/strategy/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/execution/strategy/strategyImpl/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/parser/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/parser/config/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/parser/config/types/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/App/parser/impl/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/Engined/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/CLI/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/Docker/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
     <url>
          <loc>https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/QuickStart/</loc>
-         <lastmod>2026-09-01</lastmod>
+         <lastmod>2026-09-05</lastmod>
     </url>
 </urlset>
