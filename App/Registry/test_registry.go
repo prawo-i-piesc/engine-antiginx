@@ -17,6 +17,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests/CSPTest"
 	"Engine-AntiGinx/App/SiteTests/CookieSecurityTest"
 	"Engine-AntiGinx/App/SiteTests/CrossOriginTest"
+	"Engine-AntiGinx/App/SiteTests/DNSReputationTest"
 	"Engine-AntiGinx/App/SiteTests/HSTSTest"
 	"Engine-AntiGinx/App/SiteTests/HTTPSTest"
 	"Engine-AntiGinx/App/SiteTests/JSObfuscationTest"
@@ -77,6 +78,7 @@ func init() {
 	registerTest(SitemapSecurityTest.New())
 	registerTest(PhishingURLTest.New())
 	registerTest(BotProtectionTest.New())
+	registerTest(DNSReputationTest.New())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.
