@@ -96,6 +96,9 @@ nav:
         - Test: App/SiteTests/CookieSecurityTest/index.md
         - Modules: App/SiteTests/CookieSecurityTest/modules/index.md
       - Cross-Origin: App/SiteTests/CrossOriginTest/index.md
+      - DNS Reputation:
+        - Test: App/SiteTests/DNSReputationTest/index.md
+        - Modules: App/SiteTests/DNSReputationTest/modules/index.md
       - HSTS: App/SiteTests/HSTSTest/index.md
       - HTTPS: App/SiteTests/HTTPSTest/index.md
       - JS Obfuscation:
