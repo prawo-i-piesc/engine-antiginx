@@ -99,6 +99,9 @@ nav:
       - DNS Reputation:
         - Test: App/SiteTests/DNSReputationTest/index.md
         - Modules: App/SiteTests/DNSReputationTest/modules/index.md
+      - Favicon Origin:
+        - Test: App/SiteTests/FaviconOriginTest/index.md
+        - Modules: App/SiteTests/FaviconOriginTest/modules/index.md
       - HSTS: App/SiteTests/HSTSTest/index.md
       - HTTPS: App/SiteTests/HTTPSTest/index.md
       - JS Obfuscation:

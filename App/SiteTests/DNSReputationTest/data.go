@@ -12,25 +12,6 @@ const (
 	serviceKindDynamicDNS  = "dynamic-dns"  // Hostname handed out by a dynamic DNS provider
 )
 
-// multiLabelPublicSuffixes are the public suffixes made of more than one label that the engine
-// recognises locally, so that a hostname under one of them is reduced to the domain somebody
-// actually registered rather than to the suffix itself.
-var multiLabelPublicSuffixes = map[string]bool{
-	"co.uk": true, "org.uk": true, "ac.uk": true, "gov.uk": true, "me.uk": true, "net.uk": true, "sch.uk": true,
-	"com.pl": true, "net.pl": true, "org.pl": true, "edu.pl": true, "gov.pl": true, "info.pl": true, "waw.pl": true, "com.au": true,
-	"net.au": true, "org.au": true, "edu.au": true, "gov.au": true, "id.au": true,
-	"com.br": true, "net.br": true, "org.br": true, "gov.br": true,
-	"com.cn": true, "net.cn": true, "org.cn": true, "gov.cn": true, "edu.cn": true,
-	"co.jp": true, "or.jp": true, "ne.jp": true, "ac.jp": true, "go.jp": true,
-	"co.kr": true, "or.kr": true, "co.in": true, "net.in": true, "org.in": true, "gov.in": true,
-	"co.za": true, "org.za": true, "co.nz": true, "net.nz": true, "org.nz": true, "govt.nz": true,
-	"com.mx": true, "com.ar": true, "com.co": true, "com.tr": true, "gov.tr": true, "com.ua": true,
-	"com.sg": true, "com.hk": true, "com.tw": true, "com.my": true, "com.ph": true, "com.vn": true,
-	"co.il": true, "co.id": true, "com.sa": true, "com.eg": true, "com.ng": true, "com.pk": true,
-	"co.th": true, "in.th": true, "com.es": true, "com.pt": true, "com.gr": true, "com.ro": true,
-	"com.ru": true, "org.ru": true, "net.ru": true, "com.de": true, "com.it": true,
-}
-
 // managedServiceSuffixes maps the hostname suffixes of managed platforms to the category of
 // platform they belong to.
 var managedServiceSuffixes = map[string]string{

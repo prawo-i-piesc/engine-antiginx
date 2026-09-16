@@ -36,7 +36,6 @@ func newCollector() *modules.Collector {
 		MaxAddresses: maxInspectedAddresses,
 		Now:          time.Now,
 		Names: modules.Names{
-			PublicSuffixes:   multiLabelPublicSuffixes,
 			ManagedServices:  managedServiceSuffixes,
 			FreeDNSProviders: freeDNSProviderSuffixes,
 			DynamicMarkers:   dynamicReverseNameMarkers,

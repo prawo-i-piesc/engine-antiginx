@@ -5,6 +5,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/BotProtectionTest"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -165,11 +166,30 @@ func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup) {
 
 	// The response's own URL is preferred over the requested one so tests see where the
 	// target actually redirected them.
-	responseContext := SiteTests.ScanContext{Target: run.CanonicalTarget, Response: response}
+	responseContext := SiteTests.ScanContext{Target: run.CanonicalTarget, Response: response, Body: readBody(response)}
 	if response.Request != nil && response.Request.URL != nil {
 		responseContext.Target = response.Request.URL
 	}
 	startTests(responseTests, responseContext, channel, wg)
+}
+
+// readBody reads the main response body once, so every Response test can be handed a
+// reader of its own instead of competing for the single shared one.
+//
+// Parameters:
+//   - response: The main response, whose body the HTTP client has already buffered
+//
+// Returns:
+//   - []byte: The body, or nil when the response carries none
+func readBody(response *http.Response) []byte {
+	if response == nil || response.Body == nil {
+		return nil
+	}
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil
+	}
+	return body
 }
 
 // bucketByKind splits selected tests into one slice per execution phase.

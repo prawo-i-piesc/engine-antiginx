@@ -5,8 +5,10 @@ package SiteTests
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -71,6 +73,7 @@ func (k TestKind) MarshalJSON() ([]byte, error) {
 type ScanContext struct {
 	Target   *url.URL       // Target URL under analysis, never nil
 	Response *http.Response // Main HTTP response, nil outside the Response phase
+	Body     []byte         // Main response body read once, nil outside the Response phase
 }
 
 // Test is the common interface implemented by every security test regardless of its kind.
@@ -130,7 +133,19 @@ func (rt *ResponseTest) Run(ctx ScanContext) TestResult {
 	if rt.RunTest == nil {
 		panic("Run method not implemented")
 	}
-	return rt.RunTest(ResponseTestParams{Response: ctx.Response})
+	return rt.RunTest(ResponseTestParams{Response: ownResponse(ctx)})
+}
+
+// ownResponse hands a Response test a copy of the main response with a body reader of its
+// own. Response tests run concurrently, and a single shared reader would give the page to
+// whichever test read it first and nothing to the rest.
+func ownResponse(ctx ScanContext) *http.Response {
+	if ctx.Response == nil || ctx.Body == nil {
+		return ctx.Response
+	}
+	response := *ctx.Response
+	response.Body = io.NopCloser(bytes.NewReader(ctx.Body))
+	return &response
 }
 
 // PreResponseTest defines a security test that analyzes a target before, and independently of,
