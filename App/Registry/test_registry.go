@@ -18,6 +18,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests/CookieSecurityTest"
 	"Engine-AntiGinx/App/SiteTests/CrossOriginTest"
 	"Engine-AntiGinx/App/SiteTests/DNSReputationTest"
+	"Engine-AntiGinx/App/SiteTests/FaviconOriginTest"
 	"Engine-AntiGinx/App/SiteTests/HSTSTest"
 	"Engine-AntiGinx/App/SiteTests/HTTPSTest"
 	"Engine-AntiGinx/App/SiteTests/JSObfuscationTest"
@@ -60,6 +61,7 @@ var tests = make(map[string]SiteTests.Test)
 //   - SitemapSecurityTest: Analyzes sitemap.xml for dangerous path exposure to search engines
 //   - PhishingURLTest: Analyzes hostname similarity to popular domains and URL parameters for phishing indicators
 //   - BotProtectionTest: Identifies the bot protection, CDN or WAF layer in front of the target
+//   - FaviconOriginTest: Checks whether the page loads its favicon from another domain
 //
 // Additional tests can be registered by adding registerTest calls in this function.
 func init() {
@@ -79,6 +81,7 @@ func init() {
 	registerTest(PhishingURLTest.New())
 	registerTest(BotProtectionTest.New())
 	registerTest(DNSReputationTest.New())
+	registerTest(FaviconOriginTest.New())
 }
 
 // registerTest adds a new test instance to the internal registry with strict ID uniqueness enforcement.

@@ -13,31 +13,10 @@ type ReservedRange struct {
 
 // Names classifies hostnames, nameservers and addresses against the datasets the test owns.
 type Names struct {
-	PublicSuffixes   map[string]bool
 	ManagedServices  map[string]string
 	FreeDNSProviders []string
 	DynamicMarkers   []string
 	ReservedRanges   []ReservedRange
-}
-
-// RegistrableDomain reduces a hostname to the domain somebody registered, which is the name
-// registration data and zone level records are published for.
-func (n Names) RegistrableDomain(host string) string {
-	host = strings.ToLower(strings.Trim(strings.TrimSpace(host), "."))
-	if host == "" || net.ParseIP(host) != nil {
-		return host
-	}
-
-	labels := strings.Split(host, ".")
-	if len(labels) < 3 {
-		return host
-	}
-
-	lastTwo := strings.Join(labels[len(labels)-2:], ".")
-	if n.PublicSuffixes[lastTwo] {
-		return strings.Join(labels[len(labels)-3:], ".")
-	}
-	return lastTwo
 }
 
 // registrationCandidates lists the domains to try a registration lookup for, shortest first.

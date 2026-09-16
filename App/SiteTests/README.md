@@ -71,6 +71,7 @@ own — the point is to stop five slightly different header parsers from existin
 | `HighestThreatLevel(levels...)` | The most severe level given |
 | `EscalateThreatLevel(level)` | Raises a level by one, capped at `Critical` — how a test says several findings together mean more than the worst alone |
 | `FormatDuration(seconds)` | Renders seconds as the largest whole unit that fits |
+| `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered, so two hostnames can be compared as one site |
 
 Two things deliberately stay out. `CookieSecurityTest` keeps its own duration formatter
 because its wording differs (`1 year(s) 30 day(s)` against `1 year`), and unifying them

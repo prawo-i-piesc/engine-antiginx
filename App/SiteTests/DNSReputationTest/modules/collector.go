@@ -129,7 +129,7 @@ type Collector struct {
 // verdict is derived from.
 func (c *Collector) Collect(host string) DNSReputationMetadata {
 	host = strings.ToLower(strings.TrimSuffix(strings.TrimSpace(host), "."))
-	domain := c.Names.RegistrableDomain(host)
+	domain := SiteTests.RegistrableDomain(host)
 	service, serviceKind := c.Names.MatchManagedService(host)
 
 	var registration DomainRegistrationInfo
