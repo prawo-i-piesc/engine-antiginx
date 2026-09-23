@@ -1,77 +1,77 @@
 name: Documentation
 run-name: >-
-    ${{ 
-        github.event_name == 'push' 
-        && format('Generate and Deploy Docs: Merge -> {0} ', github.event.head_commit.message)
-    }} 
+  ${{
+      github.event_name == 'push'
+      && format('Generate and Deploy Docs: Merge -> {0} ', github.event.head_commit.message)
+  }}
 
 on:
-    push:
-        branches: [ "main" ]
+  push:
+    branches: ["main"]
 
 permissions:
-    contents: write
-    pages: write
+  contents: write
+  pages: write
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-    build-docs:
-        name: Build and Deploy Docs
-        runs-on: ubuntu-latest
-        timeout-minutes: 60
+  build-docs:
+    name: Build and Deploy Docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
 
-        steps:
-        - name: 📥 Git -- Checkout repository
-          uses: actions/checkout@v6
-          with:
-            fetch-depth: 0
+    steps:
+      - name: 📥 Git -- Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
-        - name: 📘 Go -- Set up
-          uses: actions/setup-go@v6
-          with:
-            go-version-file: 'go.mod'
-            cache: true
+      - name: 📘 Go -- Set up
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: "go.mod"
+          cache: true
 
-        - name: 🐍 Python -- Set up
-          uses: actions/setup-python@v6
-          with:
-            python-version: '3.14'
+      - name: 🐍 Python -- Set up
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
 
-        - name: 📦 Go/Pip -- Install dependencies
-          run: |
-            echo "⚙️ Installing dependencies..."
-            go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
-            pip install mkdocs-material mkdocs-git-revision-date-localized-plugin mkdocs-include-markdown-plugin
+      - name: 📦 Go/Pip -- Install dependencies
+        run: |
+          echo "⚙️ Installing dependencies..."
+          go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
+          pip install mkdocs-material mkdocs-git-revision-date-localized-plugin mkdocs-include-markdown-plugin
 
-        - name: 📝 Go -- Generate documentation
-          run: |
-            echo "⚙️ Generating documentation for project..."
-            if \
-            gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./App/... \
-            && \
-            gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./Engined/...; then
-                echo ""
-                echo "✅ Documentation generated successfully."
-            else
-                echo ""
-                echo "❌ Error generating documentation."
-                exit 1
-            fi
+      - name: 📝 Go -- Generate documentation
+        run: |
+          echo "⚙️ Generating documentation for project..."
+          if \
+          gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./App/... \
+          && \
+          gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./Engined/...; then
+              echo ""
+              echo "✅ Documentation generated successfully."
+          else
+              echo ""
+              echo "❌ Error generating documentation."
+              exit 1
+          fi
 
-        - name: 🚀 Mkdocs -- Deploy to GitHub Pages
-          run: |
-            echo "⚙️ Deploying documentation to GitHub Pages..."
-            git config user.name "GitHub Actions Bot"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            
-            if mkdocs gh-deploy --force; then
-                echo ""
-                echo "✅ Documentation deployed successfully."
-            else
-                echo ""
-                echo "❌ Error deploying documentation to GitHub Pages."
-                exit 1
-            fi
+      - name: 🚀 Mkdocs -- Deploy to GitHub Pages
+        run: |
+          echo "⚙️ Deploying documentation to GitHub Pages..."
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if mkdocs gh-deploy --force; then
+              echo ""
+              echo "✅ Documentation deployed successfully."
+          else
+              echo ""
+              echo "❌ Error deploying documentation to GitHub Pages."
+              exit 1
+          fi
