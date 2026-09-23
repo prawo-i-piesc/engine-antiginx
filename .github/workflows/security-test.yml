@@ -39,7 +39,7 @@ jobs:
 
       - name: 📦 Go -- Install dependencies
         run: |
-          go install golang.org/x/vuln/cmd/govulncheck@latest
+          go install golang.org/x/vuln/cmd/govulncheck@v1.8.0
 
       - name: 🧪 Go -- Test Vulnerability -> Modules
         run: |
@@ -54,7 +54,7 @@ jobs:
           fi
 
       - name: 🧪 Trivy -- Test Vuln, Secret, Misconfig -> File System
-        uses: aquasecurity/trivy-action@v0.36.0
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           scan-type: fs
           scan-ref: .

@@ -40,7 +40,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: 🧪 Trivy -- Test Vuln, Secret, Misconfig -> Container Image
-        uses: aquasecurity/trivy-action@v0.36.2
+        uses: aquasecurity/trivy-action@0.36.2
         with:
           scan-type: image
           image-ref: ${{ github.repository }}:pr-${{ github.event.pull_request.number }}-test
