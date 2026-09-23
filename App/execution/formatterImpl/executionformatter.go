@@ -13,8 +13,6 @@ type ScanFormatter struct {
 }
 
 // InitializeFormatter creates a new instance of the ScanFormatter.
-// It is used to prepare the environment for transforming raw command-line
-// arguments into a structured execution plan.
 func InitializeFormatter(getStrategy func(name string) (strategy.TestStrategy, bool)) *ScanFormatter {
 	return &ScanFormatter{
 		getStrategy: getStrategy,
@@ -22,21 +20,6 @@ func InitializeFormatter(getStrategy func(name string) (strategy.TestStrategy, b
 }
 
 // FormatParameters transforms a slice of CommandParameters into a cohesive Plan.
-// It extracts global flags (like anti-bot detection), maps specific command names
-// to their corresponding test strategies, and validates environment-specific
-// requirements such as TaskId.
-//
-// Arguments:
-//   - params: A slice of pointers to CommandParameter, usually provided by the parser.
-//
-// Panic Behavior:
-//
-//	If the environment variable "BACK_URL" is set, the function requires a "--taskId"
-//	parameter to be present. If missing, it panics with an error.Error (code 101).
-//
-// Returns:
-//
-//	A pointer to a Plan ready to be executed by the JobRunner.
 func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *execution.Plan {
 	target := params[0].Arguments[0]
 
@@ -71,13 +54,7 @@ func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *exec
 	}
 }
 
-// mapStrategies iterates through provided parameters to find matching implementations
-// in the strategy registry. It separates the logic of "what to do" (Strategy)
-// from "what data to use" (Context).
-//
-// Returns:
-//   - A slice of TestStrategy: The sequence of tests to be performed.
-//   - A map of TestContext: Data specific to each strategy, keyed by strategy name.
+// mapStrategies iterates through provided parameters to find matching implementations in the strategy registry.
 func (f *ScanFormatter) mapStrategies(params []*types.CommandParameter, target string) ([]strategy.TestStrategy, map[string]strategy.TestContext) {
 	maxCapacity := len(params) - 1
 	if maxCapacity <= 0 {
@@ -110,8 +87,6 @@ func (f *ScanFormatter) mapStrategies(params []*types.CommandParameter, target s
 	return mappedStrategies, mappedContexts
 }
 
-// findParam is a helper function that performs a linear search through parameters
-// to find a match by name. Returns the index of the parameter or -1 if not found.
 func findParam(params []*types.CommandParameter, paramToFind string) int {
 	for i := 1; i < len(params); i++ {
 		currPtr := params[i]

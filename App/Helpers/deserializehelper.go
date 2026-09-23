@@ -23,15 +23,7 @@ func DeserializeTests(bytes []byte) (*types.TestJson, *Errors.Error) {
 	return &testJson, nil
 }
 
-// CheckParameters iterates through the provided parameters and validates them
-// against the global Params whitelist.
-//
-// It performs several checks:
-//   - Checks for nil references.
-//   - Verifies if the parameter name exists in the whitelist.
-//   - Validates argument counts (min/max constraints).
-//   - Applies default values for optional parameters if arguments are missing.
-//   - Delegates specific argument validation to checkArgs.
+// CheckParameters iterates through the provided parameters and validates them against the global Params whitelist.
 func CheckParameters(givenParams []*types.CommandParameter) *Errors.Error {
 	usedParams := make(map[string]bool, len(givenParams))
 	for _, val := range givenParams {
@@ -103,12 +95,6 @@ func CheckParameters(givenParams []*types.CommandParameter) *Errors.Error {
 	return nil
 }
 
-// checkArgs verifies that the given arguments are allowed for a specific parameter.
-// It checks if the arguments exist in the 'args' whitelist and detects duplicates.
-//
-// Return error if:
-//   - An argument is not in the whitelist (Error 106).
-//   - An argument appears more than once (Error 107).
 func checkArgs(args []string, givenArgs []string) *Errors.Error {
 	validityMap := make(map[string]bool, len(args))
 	for _, val := range args {

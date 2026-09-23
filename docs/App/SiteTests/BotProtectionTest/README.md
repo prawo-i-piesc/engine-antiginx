@@ -65,4 +65,4 @@ A protection layer is reported at Low rather than as a vulnerability because it 
 
 ---
 
-The framework this test plugs into, and the conventions every test folder follows, are documented in [`App/SiteTests/Types.go`](../Types.go).
+The shared framework and test conventions are described in the [SiteTests overview](../README.md).

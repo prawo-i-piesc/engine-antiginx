@@ -1,18 +1,4 @@
-// Package Detection identifies bot protection and CDN/WAF layers sitting in front of a
-// target. It is shared by the HTTP transport, which annotates its results with what it
-// saw, and by the bot-protection security test, which probes a target on its own.
-//
-// The package draws a deliberate line between two very different findings:
-//
-//   - Presence: the target is served through a CDN or WAF. Headers such as Server:
-//     cloudflare, CF-RAY or CF-Cache-Status appear on every Cloudflare-proxied response,
-//     including a perfectly reachable one, so presence alone says nothing about whether
-//     the scan was obstructed. It never blocks anything.
-//   - Challenge: the target actually served an interstitial instead of its content.
-//     Only this justifies skipping tests that need the page body.
-//
-// Conflating the two is what made any Cloudflare-fronted target unscannable: a single
-// CF-RAY header on a healthy 200 response was enough to abort the whole run.
+// Package Detection distinguishes protection-layer presence from active challenges.
 package Detection
 
 import (
@@ -25,21 +11,17 @@ import (
 	"time"
 )
 
-// probeTimeout bounds a single detection probe. Protection layers that intend to
-// challenge a client answer fast; a slow target is a connectivity problem, not a verdict.
+// probeTimeout bounds the independent detection request.
 const probeTimeout = 15 * time.Second
 
-// maxProbeBody caps how much of a response body is scanned for fingerprints.
-// Interstitial pages are small, and every marker of interest lives near the top.
+// maxProbeBody limits how much of the response is inspected for markers.
 const maxProbeBody = 512 * 1024
 
-// probeUserAgent is a plain browser User-Agent. The probe deliberately does not try to
-// evade detection: its job is to observe how the target treats an ordinary visitor.
+// probeUserAgent represents an ordinary browser; probing does not attempt evasion.
 const probeUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
 	"(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
-// presenceHeaders maps a response header to the vendor it identifies. A hit means the
-// target is served through that vendor's infrastructure, nothing more.
+// presenceHeaders identifies a vendor without implying a blocked request.
 var presenceHeaders = map[string]string{
 	"CF-RAY":               "Cloudflare Ray ID",
 	"CF-Cache-Status":      "Cloudflare Cache",
@@ -52,16 +34,13 @@ var presenceHeaders = map[string]string{
 	"X-Akamai-Transformed": "Akamai",
 }
 
-// challengeHeaders maps a response header to the vendor whose challenge it signals.
-// Unlike presenceHeaders these are only ever set when the request was actively mitigated.
+// challengeHeaders identifies active mitigation headers.
 var challengeHeaders = map[string]string{
 	"CF-CHL-BCODE": "Cloudflare Challenge",
 	"CF-Mitigated": "Cloudflare Mitigation",
 }
 
-// presenceMarkers maps a body fragment to the vendor it identifies. These appear in the
-// markup of normally served pages — a bot management cookie name, a vendor script host —
-// so they are evidence of a protection layer, not of an obstructed scan.
+// presenceMarkers may also occur in normally served pages.
 var presenceMarkers = map[string]string{
 	"__cf_bm":                     "Cloudflare Bot Management",
 	"/cdn-cgi/challenge-platform": "Cloudflare Challenge Platform",
@@ -74,16 +53,8 @@ var presenceMarkers = map[string]string{
 	"radware":                     "Radware",
 }
 
-// challengeMarkers maps a body fragment to the challenge it identifies. Every entry is a
-// structural artefact that only an interstitial page carries, so a hit counts as a
-// challenge regardless of the status code.
-//
-// The bar for membership here is high, and deliberately excludes fragments that a vendor
-// also injects into healthy pages. /cdn-cgi/challenge-platform is the instructive case:
-// Cloudflare adds its script to ordinary 200 responses for passive JavaScript detection,
-// so treating it as a challenge would mark a perfectly reachable site as blocked. It lives
-// in presenceMarkers instead. Modern challenges answer with 403 or 503 anyway, which the
-// status-gated keyword path already covers.
+// challengeMarkers identifies interstitials regardless of status code.
+// /cdn-cgi/challenge-platform belongs in presenceMarkers: it also occurs on healthy pages.
 var challengeMarkers = map[string]string{
 	"cf-browser-verification":                "Cloudflare Browser Verification",
 	"attention required! | cloudflare":       "Cloudflare Block Page",
@@ -92,10 +63,7 @@ var challengeMarkers = map[string]string{
 	"geo.captcha-delivery.com":               "DataDome Captcha",
 }
 
-// challengeKeywords are weak, human-language hints of a block. They routinely appear in
-// legitimate content — an article about Cloudflare, a page with a contact-form captcha —
-// so they are only trusted when the target already refused to serve its content, that is
-// when the status code is not 200.
+// challengeKeywords require a non-200 response to avoid false positives on normal pages.
 var challengeKeywords = []string{
 	"captcha", "attention required", "verify you are human",
 	"security check", "ddos protection", "access denied",
@@ -104,36 +72,20 @@ var challengeKeywords = []string{
 	"enable javascript and cookies to continue",
 }
 
-// Report is the outcome of inspecting one response for protection layers.
-//
-// Fields:
-//   - Presence: Vendors identified in front of the target, harmless on their own
-//   - Challenge: Evidence that content was withheld behind an interstitial
-//   - StatusCode: Status code of the inspected response, 0 when none was obtained
+// Report separates protection presence from challenge evidence for one response.
 type Report struct {
 	Presence   []string `json:"Presence,omitempty"`
 	Challenge  []string `json:"Challenge,omitempty"`
 	StatusCode int      `json:"StatusCode"`
 }
 
-// IsBlocked reports whether the target withheld its content behind a challenge.
-// This is the only condition under which tests requiring a page body should be skipped.
-//
-// Returns:
-//   - bool: true when at least one challenge indicator was found
+// IsBlocked reports whether any challenge indicator was found.
 func (r Report) IsBlocked() bool { return len(r.Challenge) > 0 }
 
-// HasProtection reports whether any protection layer was identified at all,
-// whether or not it obstructed the scan.
-//
-// Returns:
-//   - bool: true when either presence or challenge indicators were found
+// HasProtection reports whether any presence or challenge indicator was found.
 func (r Report) HasProtection() bool { return len(r.Presence) > 0 || len(r.Challenge) > 0 }
 
-// All returns every indicator found, challenges first, for reporting purposes.
-//
-// Returns:
-//   - []string: Combined challenge and presence indicators, nil when none were found
+// All returns challenge indicators followed by presence indicators, or nil if empty.
 func (r Report) All() []string {
 	if !r.HasProtection() {
 		return nil
@@ -144,15 +96,7 @@ func (r Report) All() []string {
 	return combined
 }
 
-// FromResponse inspects an already-obtained response and its body for protection layers.
-// The body is passed separately because callers have usually consumed and restored it.
-//
-// Parameters:
-//   - resp: The response to inspect, may be nil
-//   - body: The response body as text, may be empty when it was not read
-//
-// Returns:
-//   - Report: Presence and challenge indicators found, empty when resp is nil
+// FromResponse inspects a response and separately supplied body for protection indicators.
 func FromResponse(resp *http.Response, body string) Report {
 	if resp == nil {
 		return Report{}
@@ -174,19 +118,7 @@ func FromResponse(resp *http.Response, body string) Report {
 	return report
 }
 
-// Probe performs an independent request against the target and reports what protection
-// layers front it. It is used by the bot-protection test, which must reach a verdict
-// without depending on the main scan request having succeeded.
-//
-// Unlike the scanner's HTTP wrapper, Probe never panics and treats a non-200 status as
-// data rather than as an error: a 403 challenge page is precisely what it looks for.
-//
-// Parameters:
-//   - target: The URL to probe
-//
-// Returns:
-//   - Report: Indicators found at the target
-//   - error: Non-nil only when the target could not be reached at all
+// Probe makes an independent request and inspects its response, including non-200 statuses.
 func Probe(target *url.URL) (Report, error) {
 	if target == nil {
 		return Report{}, fmt.Errorf("no target provided")
@@ -220,14 +152,7 @@ func Probe(target *url.URL) (Report, error) {
 	return FromResponse(resp, string(body)), nil
 }
 
-// FormatList renders indicators as a numbered, human-readable list for messages and
-// descriptions.
-//
-// Parameters:
-//   - items: Indicators to render
-//
-// Returns:
-//   - string: Numbered list, one indicator per line, empty when items is empty
+// FormatList renders indicators as a numbered list, one per line.
 func FormatList(items []string) string {
 	var builder strings.Builder
 	for i, item := range items {
@@ -237,12 +162,6 @@ func FormatList(items []string) string {
 }
 
 // presenceFromHeaders collects vendor fingerprints from response headers.
-//
-// Parameters:
-//   - header: Response headers to inspect
-//
-// Returns:
-//   - []string: Presence indicators, nil when none matched
 func presenceFromHeaders(header http.Header) []string {
 	var found []string
 	if strings.EqualFold(header.Get("Server"), "cloudflare") {
@@ -256,13 +175,7 @@ func presenceFromHeaders(header http.Header) []string {
 	return found
 }
 
-// challengeFromHeaders collects headers that are only set when a request was mitigated.
-//
-// Parameters:
-//   - header: Response headers to inspect
-//
-// Returns:
-//   - []string: Challenge indicators, nil when none matched
+// challengeFromHeaders collects mitigation indicators from response headers.
 func challengeFromHeaders(header http.Header) []string {
 	var found []string
 	for name, vendor := range challengeHeaders {
@@ -273,14 +186,7 @@ func challengeFromHeaders(header http.Header) []string {
 	return found
 }
 
-// markersIn collects the labels of every marker present in an already-lowercased body.
-//
-// Parameters:
-//   - lowerBody: Response body, lowercased by the caller
-//   - markers: Marker fragment to label mapping
-//
-// Returns:
-//   - []string: Labels of matched markers, nil when none matched
+// markersIn collects matching labels from an already-lowercased body.
 func markersIn(lowerBody string, markers map[string]string) []string {
 	if lowerBody == "" {
 		return nil
@@ -294,14 +200,7 @@ func markersIn(lowerBody string, markers map[string]string) []string {
 	return found
 }
 
-// keywordsIn collects weak challenge keywords present in an already-lowercased body.
-// Callers must only apply it to responses that did not return 200.
-//
-// Parameters:
-//   - lowerBody: Response body, lowercased by the caller
-//
-// Returns:
-//   - []string: Descriptions of matched keywords, nil when none matched
+// keywordsIn collects weak challenge hints; callers must gate it on non-200 status.
 func keywordsIn(lowerBody string) []string {
 	if lowerBody == "" {
 		return nil

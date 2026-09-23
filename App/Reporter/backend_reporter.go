@@ -1,19 +1,4 @@
-// Package Reporter provides asynchronous test result reporting functionality using the
-// producer-consumer pattern. It consumes TestResult objects from a channel and forwards
-// them to an external backend service via HTTP POST requests with intelligent retry logic.
-//
-// The reporter implements:
-//   - Non-blocking retry mechanism with exponential backoff
-//   - Graceful shutdown with no data loss
-//   - Error classification (retryable vs. fatal errors)
-//   - Concurrent processing of results and retries
-//   - Configurable retry limits and timeouts
-//
-// Error codes:
-//   - 100: JSON marshaling error (not retryable)
-//   - 101: HTTP request creation error (not retryable)
-//   - 102: Network error (retryable)
-//   - 103: HTTP status error (retryable for 5xx, not retryable for 4xx)
+// Package Reporter provides result consumers.
 package Reporter
 
 import (
@@ -31,25 +16,7 @@ import (
 	"time"
 )
 
-// backendReporter handles the consumption of test results and forwards them to an external
-// backend service via HTTP. It implements a robust producer-consumer pattern with a
-// non-blocking retry mechanism for handling transient failures.
-//
-// The reporter processes results asynchronously in a separate goroutine and applies
-// intelligent retry logic based on error types. Network errors and server errors (5xx)
-// are retried, while client errors (4xx) and marshaling errors are not.
-//
-// Architecture:
-//   - Main processing loop: Consumes from resultChannel
-//   - Retry queue: Buffered channel for failed submissions
-//   - Retry goroutines: Sleep-based backoff for rate limiting
-//
-// Fields:
-//   - resultChannel: Input channel for test results from the Runner
-//   - backendURL: Target HTTP endpoint for result submission
-//   - testId: ID of test from RabbitMQ
-//   - maxRetries: Maximum retry attempts for failed submissions (default: 2)
-//   - httpClient: HTTP client with configured timeout (default: 5 seconds)
+// backendReporter sends results to an HTTP endpoint.
 type backendReporter struct {
 	resultChannel chan strategy.ResultWrapper
 	backendURL    string
@@ -60,98 +27,20 @@ type backendReporter struct {
 	httpClient    *http.Client
 }
 
-// retryResult is an internal wrapper structure used to track the state of a failed submission
-// in the retry queue. It encapsulates both the original test result and metadata about
-// the retry attempt to enforce retry limits and prevent infinite retry loops.
-//
-// Fields:
-//   - result: The original TestResult that failed to submit
-//   - attNum: Current attempt number (0-based, incremented with each retry)
+// retryResult tracks a pending retry attempt.
 type retryResult struct {
 	result strategy.ResultWrapper
 	attNum int
 }
 
-// InitializeBackendReporter creates and configures a new instance of backendReporter
-// with sensible defaults for production use. The reporter is ready to start processing
-// results immediately after initialization.
-//
-// Default configuration:
-//   - HTTP timeout: 5 seconds
-//   - Max retries: 2 attempts
-//   - Retry delay: 2 seconds (hardcoded in tryToSendOrEnqueue)
-//
-// The reporter must be started by calling StartListening() to begin processing results.
-//
-// Parameters:
-//   - channel: The input channel where test results are published by the Runner
-//   - backendURL: The target HTTP endpoint for result submission (e.g., "http://api.example.com/results")
-//
-// Returns:
-//   - *backendReporter: Configured reporter instance ready to start listening
-//
-// Example:
-//
-//	resultChan := make(chan SiteTests.TestResult, 10)
-//	reporter := InitializeBackendReporter(resultChan, "http://api.example.com/results")
-//	doneChan := reporter.StartListening()
-//	// ... send results to resultChan ...
-//	close(resultChan)
-//	failedCount := <-doneChan
-//	fmt.Printf("Processing complete. Failed uploads: %d\n", failedCount)
+// InitializeBackendReporter configures HTTP reporting and retry timing.
 func InitializeBackendReporter(channel chan strategy.ResultWrapper, backendURL string, testId string, target string, clientTimeOut int, retryDelay int) *backendReporter {
 	return &backendReporter{channel, backendURL, testId, target, 2, retryDelay, &http.Client{
 		Timeout: time.Duration(clientTimeOut) * time.Second,
 	}}
 }
 
-// StartListening initiates the asynchronous background processing loop that consumes
-// test results and forwards them to the backend service. This method spawns a goroutine
-// that handles both new results and retry attempts concurrently.
-//
-// Processing architecture:
-//
-// The method uses a select statement to handle two input sources:
-//  1. resultChannel: New test results from the Runner
-//  2. retryChan: Failed results waiting for retry after backoff delay
-//
-// Graceful shutdown sequence:
-//  1. Producer closes resultChannel signaling no more results
-//  2. Reporter processes all remaining results in the channel
-//  3. Reporter waits for all sleeping retry goroutines (via retryWg)
-//  4. Reporter processes any new retries added by sleeping goroutines
-//  5. Reporter sends final failure count and exits
-//
-// This ensures zero data loss during shutdown - all results are either
-// successfully submitted or counted as failures.
-//
-// Retry mechanism:
-//   - Buffered retry channel (capacity: 10) prevents blocking
-//   - WaitGroup tracks sleeping retry goroutines
-//   - 2-second delay between retry attempts
-//   - Retryable errors are re-queued up to maxRetries limit
-//
-// Returns:
-//   - <-chan int: Read-only channel that receives the total count of failed uploads
-//     once all processing is complete (including retries)
-//
-// Example:
-//
-//	reporter := InitializeBackendReporter(resultChan, "http://api.example.com/results")
-//	doneChan := reporter.StartListening()
-//
-//	// Send results...
-//	for _, result := range testResults {
-//	    resultChan <- result
-//	}
-//	close(resultChan)
-//
-//	// Wait for completion
-//	failedCount := <-doneChan
-//	if failedCount > 0 {
-//	    log.Printf("Warning: %d results failed to upload", failedCount)
-//	}
-
+// StartListening consumes results and waits for pending retries.
 // TODO rozróżnić kiedy jeden z wyników na kanale ma jakieś reqInfo
 func (b *backendReporter) StartListening() <-chan int {
 	done := make(chan int)
@@ -219,33 +108,7 @@ func (b *backendReporter) StartListening() <-chan int {
 	return done
 }
 
-// tryToSendOrEnqueue attempts to send a test result to the backend and manages the retry
-// workflow based on the outcome. This method implements the core retry logic with
-// exponential backoff and retry limit enforcement.
-//
-// Workflow:
-//  1. Attempt to send the result via sendToBackend
-//  2. On success: return immediately
-//  3. On failure: check if error is retryable
-//  4. If retryable and under retry limit: spawn backoff goroutine
-//  5. If not retryable or limit exceeded: increment failure counter
-//
-// Retry behavior:
-//   - Network errors (code 102): Retried
-//   - Server errors 5xx (code 103): Retried
-//   - Client errors 4xx (code 103): Not retried
-//   - Marshaling errors (code 100): Not retried
-//   - Request creation errors (code 101): Not retried
-//
-// The retry goroutine sleeps for 2 seconds before re-queuing the result, preventing
-// rapid retry storms and giving the backend time to recover from transient issues.
-//
-// Parameters:
-//   - result: The test result to submit
-//   - attNumber: Current attempt number (0-based)
-//   - retryChan: Channel for re-queuing failed results
-//   - retryWg: WaitGroup for tracking sleeping retry goroutines
-//   - failedUploads: Pointer to counter for permanent failures
+// tryToSendOrEnqueue retries transient failures up to maxRetries.
 func (b *backendReporter) tryToSendOrEnqueue(result strategy.ResultWrapper, attNumber int, retryChan chan retryResult, retryWg *sync.WaitGroup, failedUploads *int) {
 	ok, val := result.GetTestResult()
 	if !ok {
@@ -291,48 +154,7 @@ func (b *backendReporter) tryToSendOrEnqueue(result strategy.ResultWrapper, attN
 	}
 }
 
-// sendToBackend performs the actual HTTP POST request to the configured backend endpoint
-// with comprehensive error handling and classification. This method executes the complete
-// HTTP request lifecycle from marshaling to response validation.
-//
-// Request process:
-//  1. Marshal the TestResult to JSON
-//  2. Create HTTP POST request with JSON payload
-//  3. Set Content-Type header to application/json
-//  4. Execute request with configured timeout (default: 5 seconds)
-//  5. Validate response status code
-//
-// Error classification:
-//   - Code 100 (JSON Marshal): Not retryable - indicates invalid test result structure
-//   - Code 101 (Request Creation): Not retryable - indicates programming error
-//   - Code 102 (Network Error): Retryable - transient network issues, DNS failures, timeouts
-//   - Code 103 (HTTP Status): Conditional retry based on status code:
-//   - 200-299: Success, no error
-//   - 400, 401, 403: Not retryable (client errors, auth issues)
-//   - 404, 405, etc.: Not retryable (client errors)
-//   - 500-599: Retryable (server errors, temporary outages)
-//
-// The method returns structured Errors.Error objects that include the IsRetryable flag,
-// allowing the retry logic to make intelligent decisions about whether to re-attempt
-// the submission.
-//
-// Parameters:
-//   - result: The TestResult to submit to the backend
-//
-// Returns:
-//   - error: nil on success (HTTP 2xx), *Errors.Error with retry information on failure
-//
-// Example error handling:
-//
-//	err := reporter.sendToBackend(testResult)
-//	if err != nil {
-//	    var customErr *Errors.Error
-//	    if errors.As(err, &customErr) && customErr.IsRetryable {
-//	        // Retry logic
-//	    } else {
-//	        // Permanent failure
-//	    }
-//	}
+// sendToBackend POSTs a JSON result and classifies failures.
 func (b *backendReporter) sendToBackend(result types.TestResultWrapper) error {
 	req, err := b.prepareReqWithErrHandling(result)
 	if err != nil {
@@ -401,15 +223,7 @@ func (b *backendReporter) prepareReqWithErrHandling(result types.TestResultWrapp
 	return req, nil
 }
 
-// sendLastWithFlag sends a final request to the backend to signal that the engine has completed its work.
-//
-// This method sends an empty TestResult with EndFlag=true to the backend, indicating completion of all test processing.
-// It handles both retryable and non-retryable errors: if the error is retryable, it waits 2 seconds and retries once more;
-// otherwise, it increments the failedUploads counter.
-//
-// Parameters:
-//   - result:        The TestResultWrapper to send. Typically, this should be an empty result with EndFlag set to true.
-//   - failedUploads: Pointer to an integer counter tracking the number of failed uploads. This will be incremented if the final request fails.
+// sendLastWithFlag sends a message or completion marker with one possible retry.
 func (b *backendReporter) sendLastWithFlag(result types.TestResultWrapper, failedUploads *int) {
 	err := b.sendToBackend(result)
 	if err == nil {

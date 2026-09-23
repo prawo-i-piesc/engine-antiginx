@@ -10,9 +10,7 @@ import (
 	"os"
 )
 
-// Resolver is responsible for selecting the appropriate Parser implementation
-// based on the command-line arguments provided by the user.
-// It acts as a router that directs execution to the specific worker (e.g., JsonParser, CommandParser).
+// Resolver selects a parser and formatter for a command.
 type Resolver struct{}
 
 // parserEntry is a wrapper struct used internally to hold a reference to a concrete Parser instance.
@@ -21,9 +19,7 @@ type parserEntry struct {
 	formatterReference execution.Formatter
 }
 
-// whiteList serves as a registry mapping command strings (e.g., "json", "test")
-// to their corresponding Parser implementations.
-// This map is initialized on startup and effectively acts as a strategy pattern registry.
+// whiteList maps commands to their parsers and formatters.
 var whiteList = map[string]parserEntry{
 
 	"test": {
@@ -52,17 +48,7 @@ func CreateResolver() *Resolver {
 	return &Resolver{}
 }
 
-// Resolve determines which Parser to use by inspecting the second argument (index 1)
-// of the provided parameters (usually os.Args).
-//
-// It performs the following checks:
-//   - Verifies that enough parameters are provided (requires at least 2: [executable, command]).
-//   - Looks up the command in the internal whitelist.
-//
-// Returns the matching Parser interface if successful.
-// Panics if:
-//   - Fewer than 2 arguments are provided (Error 100).
-//   - The requested worker/command is not found in the whitelist (Error 101).
+// Resolve selects the parser and formatter from the second input token.
 func (p *Resolver) Resolve(userParameters []string) (Parser, execution.Formatter) {
 	length := len(userParameters)
 	if length < 2 {
