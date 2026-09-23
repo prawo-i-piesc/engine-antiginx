@@ -4,12 +4,7 @@ import (
 	"Engine-AntiGinx/App/parser/config/types"
 )
 
-// Params is the static registry of all supported command-line parameters with their configurations.
-// Each parameter defines:
-//   - Arguments: Whitelist of allowed values (empty means any value accepted)
-//   - DefaultVal: Default value when parameter is provided without arguments
-//   - ArgRequired: Whether arguments are mandatory
-//   - ArgCount: Number of arguments (1 for single, -1 for multiple)
+// Params defines supported command-line parameters and validation rules.
 var Params = map[string]types.Parameter{
 	"--target": {
 		Arguments:   []string{},

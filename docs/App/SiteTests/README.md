@@ -139,8 +139,8 @@ unreachable reports lower still.
 
 1. Create `SiteTests/<Name>Test/`.
 2. Write `README.md`, `core.go`, `config.go` and — if it has data — `data.go`.
-3. Register the package's `New()` in [`App/Registry`](../Registry).
-4. Add the identifier to the `--tests` whitelist in [`App/parser/config`](../parser/config).
-5. Add the test to the table in [`docs/QuickStart/CLI.md`](../../docs/QuickStart/CLI.md) and
-   to the nav in [`mkdocs.yml`](../../mkdocs.yml) — the docs build runs with `strict: true`
-   and fails on a page that is not in the nav.
+3. Register the package's `New()` in [`App/Registry`](../Registry/README.md).
+4. Add the identifier to the `--tests` whitelist in [`App/parser`](../parser/README.md).
+5. Add the test to the table in [CLI guide](../../QuickStart/CLI.md) and
+   to the nav in [`mkdocs.yml`](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/mkdocs.yml) so the new page appears in the navigation.
+   The strict build fails for broken navigation entries and invalid documentation links.

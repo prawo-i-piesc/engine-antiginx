@@ -72,4 +72,4 @@ This is the only test that calls an external API during a scan. An NVD lookup th
 
 ---
 
-The framework this test plugs into, and the conventions every test folder follows, are documented in [`App/SiteTests/Types.go`](../Types.go).
+The shared framework and test conventions are described in the [SiteTests overview](../README.md).

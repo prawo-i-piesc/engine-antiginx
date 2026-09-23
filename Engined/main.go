@@ -1,48 +1,4 @@
-// Package main provides the Engine-AntiGinx daemon (Engined) that listens for
-// security scan tasks from a RabbitMQ message queue and executes them asynchronously.
-//
-// Engined acts as a background worker service that:
-//   - Connects to RabbitMQ and consumes messages from "scan_queue"
-//   - Parses incoming JSON task payloads containing target URLs
-//   - Spawns the Engine-AntiGinx scanner for each task
-//   - Handles graceful shutdown on interrupt signals (SIGINT)
-//
-// Architecture:
-//
-//	┌─────────────┐     ┌─────────────┐     ┌─────────────────┐
-//	│  Backend    │────▶│  RabbitMQ   │────▶│  Engined        │
-//	│  (Producer) │     │  scan_queue │     │  (Consumer)     │
-//	└─────────────┘     └─────────────┘     └────────┬────────┘
-//	                                                 │
-//	                                                 ▼
-//	                                        ┌─────────────────┐
-//	                                        │  Engine-AntiGinx│
-//	                                        │  Scanner (App)  │
-//	                                        └─────────────────┘
-//
-// Environment Variables:
-//   - RABBITMQ_URL: Connection string for RabbitMQ (required)
-//     Example: amqp://guest:guest@localhost:5672/
-//
-// Message Format (JSON):
-//
-//	{
-//	    "id": "task-uuid-123",
-//	    "target_url": "https://example.com"
-//	}
-//
-// Error Handling:
-//   - Invalid JSON messages are NACK'd without requeue
-//   - Scanner execution errors are NACK'd without requeue
-//   - Successful scans are ACK'd to remove from queue
-//
-// Graceful Shutdown:
-//
-// The daemon handles SIGINT (Ctrl+C) gracefully by:
-//  1. Setting shutdown flag to prevent new task processing
-//  2. Completing any in-progress task
-//  3. Closing RabbitMQ connections
-//  4. Exiting cleanly
+// Package main runs the Engine-AntiGinx RabbitMQ consumer.
 package main
 
 import (
@@ -60,46 +16,12 @@ import (
 	"github.com/streadway/amqp"
 )
 
-// EngineTask represents a security scan task received from the message queue.
-// It contains the necessary information to execute a security assessment
-// against a target URL.
-//
-// Fields:
-//   - Id: Unique identifier for the task, used for tracking and reporting
-//   - Target: The URL to scan (e.g., "https://example.com")
-//
-// JSON Example:
-//
-//	{
-//	    "id": "550e8400-e29b-41d4-a716-446655440000",
-//	    "target_url": "https://example.com"
-//	}
+// EngineTask is an unused id/target_url payload type; the consumer decodes types.TestJson.
 type EngineTask struct {
 	Id     string `json:"id"`
 	Target string `json:"target_url"`
 }
 
-// main is the entry point for the Engine-AntiGinx daemon.
-// It establishes a connection to RabbitMQ, sets up message consumption,
-// and enters an infinite loop to process incoming scan tasks.
-//
-// The daemon performs the following steps:
-//  1. Set up interrupt signal handling for graceful shutdown
-//  2. Read RABBITMQ_URL from environment variables
-//  3. Establish connection to RabbitMQ
-//  4. Create a channel and start consuming from "scan_queue"
-//  5. Process each message by spawning the scanner subprocess
-//  6. ACK/NACK messages based on processing success
-//  7. Handle graceful shutdown on SIGINT
-//
-// The main loop uses a select statement to handle:
-//   - Incoming messages from RabbitMQ
-//   - Interrupt signals for shutdown
-//
-// Environment Requirements:
-//   - RABBITMQ_URL must be set
-//   - RabbitMQ server must be accessible
-//   - "scan_queue" must exist in RabbitMQ
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -107,14 +29,11 @@ func main() {
 	}
 	fmt.Println("Engine Daemon starting....")
 
-	// Channel that notifies if any interruption occurred
 	closeChannel := make(chan os.Signal, 1)
 	signal.Notify(closeChannel, os.Interrupt)
 
-	// Entering infinite loop for listening to rabbitMQ
 	isShuttingDown := false
 
-	//	RabbitMQ connection
 	rabbitmqURL := os.Getenv("RABBITMQ_URL")
 	if rabbitmqURL == "" {
 		fmt.Println("Error: RABBITMQ_URL environment variable is not set")
@@ -258,8 +177,6 @@ func configureRabbitConnection(queueUrl string) (*RabbitConfig, error) {
 	}, nil
 }
 func runScan(messageBody []byte, stderrBuff *bytes.Buffer, engineCall string) error {
-	// Previous value
-	// "/engine-antiginx/App" , "rawjson"
 	cmd := exec.Command(engineCall, "rawjson")
 	cmd.Stdin = bytes.NewReader(messageBody)
 	cmd.Stderr = io.MultiWriter(os.Stderr, stderrBuff)

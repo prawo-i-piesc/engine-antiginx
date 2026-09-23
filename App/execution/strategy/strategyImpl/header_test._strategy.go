@@ -9,9 +9,6 @@ import (
 	"sync"
 )
 
-// headerTestStrategy implements the strategy.TestStrategy interface.
-// It is responsible for orchestrating header-based security assessments
-// by fetching target content and executing a suite of sub-tests concurrently.
 type headerTestStrategy struct {
 	loadWebsiteContent strategy.ContentLoader
 	getTest            func(testId string) (SiteTests.Test, bool)
@@ -20,7 +17,6 @@ type headerTestStrategy struct {
 }
 
 // InitializeHeaderStrategy returns a pointer to a new headerTestStrategy.
-// It acts as the constructor for the header-based testing logic.
 func InitializeHeaderStrategy(loadWebsiteContent strategy.ContentLoader,
 	getTest func(testId string) (SiteTests.Test, bool),
 	format func(target string, params []string) *string,
@@ -33,26 +29,7 @@ func InitializeHeaderStrategy(loadWebsiteContent strategy.ContentLoader,
 	}
 }
 
-// Execute performs the strategy logic by fetching the target website's content
-// and spawning asynchronous sub-tests for each provided argument.
-//
-// Concurrency Model:
-//   - It utilizes a sync.WaitGroup to track the lifecycle of spawned goroutines.
-//   - Results are streamed back to the orchestrator via the provided result channel.
-//
-// Logic Flow:
-//  1. Formats the target URL using the format helper.
-//  2. Fetches the raw website content (respecting the antiBotFlag). A failed fetch ends
-//     the strategy early, reported either as process information or, when an identified
-//     bot protection layer blocked it, as a security verdict.
-//  3. Iterates through ctx.Args to identify specific sub-tests in the Registry.
-//  4. Launches each valid sub-test in its own goroutine.
-//
-// Panic Behavior:
-//
-//	If an argument corresponds to a test ID that does not exist in the Registry,
-//	the function panics with an error.Error (code 100), which is caught by the
-//	global ErrorHandler.
+// Execute performs the strategy logic by fetching the target website's content and spawning asynchronous sub-tests for each provided argument.
 func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan strategy.ResultWrapper, wg *sync.WaitGroup, antiBotFlag bool) {
 	selected := make([]SiteTests.Test, 0, len(ctx.Args))
 	for _, val := range ctx.Args {
@@ -81,13 +58,7 @@ func (h *headerTestStrategy) GetName() string {
 	return "--tests"
 }
 
-// GetPreferredReporterType returns the default ReporterType that should be used when
-// running this strategy in the absence of any environment-based override.
-//
-// Centralized configuration (for example, environment variables such as BACK_URL)
-// may override this preference at runtime to route results to a different reporter,
-// but individual strategies should declare their preferred type to keep behavior
-// consistent as more reporter types are introduced.
+// GetPreferredReporterType returns the default ReporterType that should be used when running this strategy in the absence of any environment-based override.
 func (h *headerTestStrategy) GetPreferredReporterType() strategy.ReporterType {
 	return strategy.CLIReporter
 }

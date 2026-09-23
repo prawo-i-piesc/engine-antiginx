@@ -12,12 +12,7 @@ const (
 	Success
 )
 
-// TestResultWrapper represents fully structured response sent to the backend
-// Fields:
-//   - Target: Given target
-//   - TestId: id related to full scan
-//   - Result: Core data of test
-//   - EndFlag: Check if engine finished its job
+// TestResultWrapper is the JSON payload sent to the backend.
 type TestResultWrapper struct {
 	Target      string               `json:"target"`
 	TestId      string               `json:"testId"`

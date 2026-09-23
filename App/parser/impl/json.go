@@ -7,11 +7,7 @@ import (
 	"fmt"
 )
 
-// JsonParser is responsible for reading
-// configuration logic from a JSON file
-// and error handling.
-// Logic of deserialization and validation
-// moved to deserialize helper
+// JsonParser reads configuration from a JSON file.
 type JsonParser struct {
 	fileReader helpers.FileReader
 }
@@ -23,12 +19,7 @@ func CreateJsonParser(fileReader helpers.FileReader) *JsonParser {
 	}
 }
 
-// Parse orchestrates the parsing process. It expects userParameters to contain
-// the filename at index 2. It reads the file, validates parameters against
-// defined rules, and returns a consolidated list of CommandParameter objects.
-//
-// It prepends the target as a "--target" parameter to the final list.
-// This method panics if validation fails or the file cannot be read.
+// Parse reads, validates and converts file parameters.
 func (j *JsonParser) Parse(userParameters []string) []*types.CommandParameter {
 	length := len(userParameters)
 	if length < 3 {
@@ -63,8 +54,7 @@ func (j *JsonParser) Parse(userParameters []string) []*types.CommandParameter {
 	return finalList
 }
 
-// deserializeWithErrorHandling reads the file from the disk and unmarshalls it into a TestJson struct.
-// It handles file I/O errors and JSON syntax errors by triggering a panic with a descriptive message.
+// deserializeWithErrorHandling reads and deserializes a JSON file.
 func (j *JsonParser) deserializeWithErrorHandling(fileName string) *types.TestJson {
 	// Empty file name case
 	if fileName == "" {
@@ -92,8 +82,7 @@ func (j *JsonParser) deserializeWithErrorHandling(fileName string) *types.TestJs
 	return tests
 }
 
-// throwPanic is a helper method to construct and panic with a standard application Error.
-// This is used to interrupt the control flow when a validation or parsing error occurs.
+// throwPanic reports a parser error.
 func (j *JsonParser) throwPanic(code int, message string) {
 	panic(Errors.Error{
 		Code:        code,

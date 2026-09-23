@@ -60,4 +60,4 @@ go run ./App/main.go test --target example.com --tests cross-origin-x
 
 ---
 
-The framework this test plugs into, and the conventions every test folder follows, are documented in [`App/SiteTests/Types.go`](../Types.go).
+The shared framework and test conventions are described in the [SiteTests overview](../README.md).

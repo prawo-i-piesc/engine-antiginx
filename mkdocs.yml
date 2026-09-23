@@ -1,9 +1,8 @@
-site_name: Engine-Antiginx Documentation 
+site_name: Engine-Antiginx Documentation
 repo_name: prawo-i-piesc/engine-antiginx
 repo_url: https://github.com/prawo-i-piesc/engine-antiginx
 site_url: https://prawo-i-piesc.github.io/engine-antiginx/
 strict: true
-
 
 theme:
   name: material
@@ -44,10 +43,12 @@ theme:
     - content.code.copy
     - content.tooltips
 
-plugins: 
+plugins:
   - search
   - git-revision-date-localized:
-      enable_creation_date: true
+      enable_creation_date: false
+      enable_git_follow: false
+      strict: false
       type: timeago
   - include-markdown
 
@@ -70,59 +71,46 @@ markdown_extensions:
       toc_depth: 2-4
 
 nav:
-  - Engine Antiginx: index.md
-  - Quick Start: 
-    - Quick Start: QuickStart/QuickStart.md
-    - CLI: QuickStart/CLI.md
-    - Docker: QuickStart/Docker.md
-    - Docker-Compose: QuickStart/DockerCompose.md
-  - App Documentation:
-    - App: App/index.md
-    - CVE: App/CVE/index.md
-    - Errors: App/Errors/index.md
-    - Execution: App/execution/index.md
-    - GlobalHandler: App/GlobalHandler/index.md
-    - Helpers: App/Helpers/index.md
-    - HTTP: App/HTTP/index.md
-    - Parameter-Parser: App/parser/index.md
-    - Registry: App/Registry/index.md
-    - Reporter: App/Reporter/index.md
-    - Runner: App/Runner/index.md
-    - Site Tests:
-      - Framework: App/SiteTests/index.md
-      - Bot Protection: App/SiteTests/BotProtectionTest/index.md
-      - Content Security Policy: App/SiteTests/CSPTest/index.md
-      - Cookie Security:
-        - Test: App/SiteTests/CookieSecurityTest/index.md
-        - Modules: App/SiteTests/CookieSecurityTest/modules/index.md
-      - Cross-Origin: App/SiteTests/CrossOriginTest/index.md
-      - DNS Reputation:
-        - Test: App/SiteTests/DNSReputationTest/index.md
-        - Modules: App/SiteTests/DNSReputationTest/modules/index.md
-      - Favicon Origin:
-        - Test: App/SiteTests/FaviconOriginTest/index.md
-        - Modules: App/SiteTests/FaviconOriginTest/modules/index.md
-      - HSTS: App/SiteTests/HSTSTest/index.md
-      - HTTPS: App/SiteTests/HTTPSTest/index.md
-      - JS Obfuscation:
-        - Test: App/SiteTests/JSObfuscationTest/index.md
-        - Modules: App/SiteTests/JSObfuscationTest/modules/index.md
-      - Permissions Policy: App/SiteTests/PermissionsPolicyTest/index.md
-      - Phishing URL:
-        - Test: App/SiteTests/PhishingURLTest/index.md
-        - Modules: App/SiteTests/PhishingURLTest/modules/index.md
-      - Referrer Policy: App/SiteTests/ReferrerPolicyTest/index.md
-      - SSL Certificate: App/SiteTests/SSLCertificateSecurityTest/index.md
-      - Server Header:
-        - Test: App/SiteTests/ServerHeaderTest/index.md
-        - Modules: App/SiteTests/ServerHeaderTest/modules/index.md
-      - Sitemap Security:
-        - Test: App/SiteTests/SitemapSecurityTest/index.md
-        - Modules: App/SiteTests/SitemapSecurityTest/modules/index.md
-      - X-Content-Type-Options: App/SiteTests/XContentTypeOptionsTest/index.md
-      - X-Frame-Options: App/SiteTests/XFrameTest/index.md
+  - Engine Antiginx: README.md
+  - Quick Start:
+      - Quick Start: QuickStart/QuickStart.md
+      - CLI: QuickStart/CLI.md
+      - Docker: QuickStart/Docker.md
+      - Docker-Compose (Archived): QuickStart/DockerCompose.md
+  - CLI Documentation:
+      - App: App/README.md
+      - CVE: App/CVE/README.md
+      - Detection: App/Detection/README.md
+      - Errors: App/Errors/README.md
+      - Execution: App/execution/README.md
+      - GlobalHandler: App/GlobalHandler/README.md
+      - Helpers: App/Helpers/README.md
+      - HTTP: App/HTTP/README.md
+      - Parameter-Parser: App/parser/README.md
+      - Registry: App/Registry/README.md
+      - Reporter: App/Reporter/README.md
+      - Runner: App/Runner/README.md
+      - Site Tests:
+          - Introduction and framework: App/SiteTests/README.md
+          - Bot Protection: App/SiteTests/BotProtectionTest/README.md
+          - Content Security Policy: App/SiteTests/CSPTest/README.md
+          - Cookie Security: App/SiteTests/CookieSecurityTest/README.md
+          - Cross-Origin: App/SiteTests/CrossOriginTest/README.md
+          - DNS Reputation: App/SiteTests/DNSReputationTest/README.md
+          - Favicon Origin: App/SiteTests/FaviconOriginTest/README.md
+          - HSTS: App/SiteTests/HSTSTest/README.md
+          - HTTPS: App/SiteTests/HTTPSTest/README.md
+          - JS Obfuscation: App/SiteTests/JSObfuscationTest/README.md
+          - Permissions Policy: App/SiteTests/PermissionsPolicyTest/README.md
+          - Phishing URL: App/SiteTests/PhishingURLTest/README.md
+          - Referrer Policy: App/SiteTests/ReferrerPolicyTest/README.md
+          - SSL Certificate: App/SiteTests/SSLCertificateSecurityTest/README.md
+          - Server Header: App/SiteTests/ServerHeaderTest/README.md
+          - Sitemap Security: App/SiteTests/SitemapSecurityTest/README.md
+          - X-Content-Type-Options: App/SiteTests/XContentTypeOptionsTest/README.md
+          - X-Frame-Options: App/SiteTests/XFrameTest/README.md
   - Engined Documentation:
-    - Daemon: Engined/index.md
+      - Daemon: Engined/README.md
 
 copyright: "Copyright &copy; 2025 Antiginx Team. All rights reserved."
 

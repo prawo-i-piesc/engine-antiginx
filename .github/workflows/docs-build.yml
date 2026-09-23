@@ -10,8 +10,9 @@ on:
     branches: ["main"]
 
 permissions:
-  contents: write
+  contents: read
   pages: write
+  id-token: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -29,49 +30,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📘 Go -- Set up
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: "go.mod"
-          cache: true
-
       - name: 🐍 Python -- Set up
         uses: actions/setup-python@v7
         with:
           python-version: "3.14"
 
-      - name: 📦 Go/Pip -- Install dependencies
-        run: |
-          echo "⚙️ Installing dependencies..."
-          go install github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest
-          pip install mkdocs-material mkdocs-git-revision-date-localized-plugin mkdocs-include-markdown-plugin
+      - name: 📦 Pip -- Install dependencies
+        run: python -m pip install mkdocs-material mkdocs-git-revision-date-localized-plugin mkdocs-include-markdown-plugin
 
-      - name: 📝 Go -- Generate documentation
-        run: |
-          echo "⚙️ Generating documentation for project..."
-          if \
-          gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./App/... \
-          && \
-          gomarkdoc --include-unexported --output 'docs/{{.Dir}}/index.md' ./Engined/...; then
-              echo ""
-              echo "✅ Documentation generated successfully."
-          else
-              echo ""
-              echo "❌ Error generating documentation."
-              exit 1
-          fi
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
-      - name: 🚀 Mkdocs -- Deploy to GitHub Pages
-        run: |
-          echo "⚙️ Deploying documentation to GitHub Pages..."
-          git config user.name "GitHub Actions Bot"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Build documentation
+        run: mkdocs build --strict
 
-          if mkdocs gh-deploy --force; then
-              echo ""
-              echo "✅ Documentation deployed successfully."
-          else
-              echo ""
-              echo "❌ Error deploying documentation to GitHub Pages."
-              exit 1
-          fi
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/
+
+  deploy:
+    name: Deploy documentation
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
