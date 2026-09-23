@@ -231,7 +231,7 @@ func Probe(target *url.URL) (Report, error) {
 func FormatList(items []string) string {
 	var builder strings.Builder
 	for i, item := range items {
-		builder.WriteString(fmt.Sprintf("  %d. %s\n", i+1, item))
+		fmt.Fprintf(&builder, "  %d. %s\n", i+1, item)
 	}
 	return builder.String()
 }
