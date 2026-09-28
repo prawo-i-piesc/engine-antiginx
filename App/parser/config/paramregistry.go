@@ -31,7 +31,7 @@ var Params = map[string]types.Parameter{
 			ArgCount:    1,
 		},*/
 	"--tests": {
-		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "cookie-sec", "js-obf", "xframe", "permissions-policy", "x-content-type-options", "referrer-policy", "ssl-cert", "cross-origin-x", "sitemap", "phishing-url", "bot-protection", "dns-reputation", "favicon-origin"},
+		Arguments: []string{"https", "hsts", "serv-h-a", "csp", "cookie-sec", "js-obf", "xframe", "permissions-policy", "x-content-type-options", "referrer-policy", "ssl-cert", "cross-origin-x", "sitemap", "phishing-url", "bot-protection", "dns-reputation", "favicon-origin", "credential-form"},
 		/*"refererPol", "xxss", "featurePol", "listing", "openRedirect", "fCookies", "fHttpOnly"*/
 		DefaultVal:  "",
 		ArgRequired: true,

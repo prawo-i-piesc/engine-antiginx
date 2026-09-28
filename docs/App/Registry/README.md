@@ -1,6 +1,6 @@
 # Registry
 
-`App/Registry` holds the built-in `SiteTests.Test` implementations. Its `init()` registers 17 tests: HTTPS, HSTS, server header, CSP, cookie security, JavaScript obfuscation, X-Frame, referrer policy, permissions policy, X-Content-Type-Options, SSL certificate, cross-origin headers, sitemap security, phishing URL, bot protection, DNS reputation, and favicon origin. Each is created by its package's `New()` function. See [Site Tests](../SiteTests/README.md) for the test framework and execution phases.
+`App/Registry` holds the built-in `SiteTests.Test` implementations. Its `init()` registers 18 tests: HTTPS, HSTS, server header, CSP, cookie security, JavaScript obfuscation, X-Frame, referrer policy, permissions policy, X-Content-Type-Options, SSL certificate, cross-origin headers, sitemap security, phishing URL, bot protection, DNS reputation, favicon origin, and credential form. Each is created by its package's `New()` function. See [Site Tests](../SiteTests/README.md) for the test framework and execution phases.
 
 ## API and lifecycle
 

@@ -95,6 +95,7 @@ nav:
           - Bot Protection: App/SiteTests/BotProtectionTest/README.md
           - Content Security Policy: App/SiteTests/CSPTest/README.md
           - Cookie Security: App/SiteTests/CookieSecurityTest/README.md
+          - Credential Form: App/SiteTests/CredentialFormTest/README.md
           - Cross-Origin: App/SiteTests/CrossOriginTest/README.md
           - DNS Reputation: App/SiteTests/DNSReputationTest/README.md
           - Favicon Origin: App/SiteTests/FaviconOriginTest/README.md
