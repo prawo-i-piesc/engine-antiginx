@@ -3,6 +3,7 @@ package HttpClient
 
 import (
 	"Engine-AntiGinx/App/Detection"
+	"Engine-AntiGinx/App/SSRF"
 	"bytes"
 	"crypto/tls"
 	"fmt"
@@ -165,7 +166,7 @@ func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 	}
 
 	// Create transport with advanced configuration
-	transport := &http.Transport{}
+	transport := &http.Transport{DialContext: SSRF.DialContext}
 
 	// Configure TLS and other settings if anti-bot detection is enabled
 	if cfg.antiBotDetection {
@@ -179,8 +180,9 @@ func CreateHttpWrapper(opts ...WrapperOption) *httpWrapper {
 	}
 
 	client := &http.Client{
-		Transport: transport,
-		Timeout:   30 * time.Second,
+		Transport:     transport,
+		CheckRedirect: SSRF.CheckRedirect,
+		Timeout:       30 * time.Second,
 	}
 
 	// Add cookie jar if anti-bot detection is enabled

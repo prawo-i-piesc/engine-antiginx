@@ -3,6 +3,7 @@ package Detection
 
 import (
 	helpers "Engine-AntiGinx/App/Helpers"
+	"Engine-AntiGinx/App/SSRF"
 	"fmt"
 	"io"
 	"net/http"
@@ -132,7 +133,7 @@ func Probe(target *url.URL) (Report, error) {
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 
-	client := &http.Client{Timeout: probeTimeout}
+	client := SSRF.NewClient(probeTimeout)
 	resp, err := client.Do(req)
 	if err != nil {
 		return Report{}, fmt.Errorf("probe request failed: %w", err)

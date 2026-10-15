@@ -3,6 +3,7 @@
 package SSLCertificateSecurityTest
 
 import (
+	"Engine-AntiGinx/App/SSRF"
 	"Engine-AntiGinx/App/SiteTests"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -33,9 +34,7 @@ func New() *SiteTests.StructureTest {
 
 			address := net.JoinHostPort(host, port)
 
-			conn, err := tls.DialWithDialer(&net.Dialer{
-				Timeout: 10 * time.Second,
-			}, "tcp", address, &tls.Config{
+			conn, err := tls.DialWithDialer(SSRF.NewDialer(10*time.Second), "tcp", address, &tls.Config{
 				InsecureSkipVerify: true,
 			})
 
