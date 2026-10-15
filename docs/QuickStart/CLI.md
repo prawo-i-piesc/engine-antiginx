@@ -68,6 +68,7 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `referrer-policy` | Response | Referrer Policy | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/ReferrerPolicyTest/README.md) |
 | `cross-origin-x` | Response | Cross-Origin Security Headers | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/CrossOriginTest/README.md) |
 | `favicon-origin` | Response | Favicon loaded from another domain, especially a brand's | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/FaviconOriginTest/README.md) |
+| `cache-control` | Response | Session-cookie or password pages storable in shared caches (public, max-age, s-maxage without private/no-store), or protected only by Pragma: no-cache | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/docs/App/SiteTests/CacheControlTest/README.md) |
 | `phishing-url` | PreResponse | Typo-squatting, homograph and URL parameter analysis | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/PhishingURLTest/README.md) |
 | `bot-protection` | PreResponse | Bot protection / CDN / WAF layer in front of the target | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/BotProtectionTest/README.md) |
 | `dns-reputation` | PreResponse | Domain registration data, DNS configuration and address reputation | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/DNSReputationTest/README.md) |

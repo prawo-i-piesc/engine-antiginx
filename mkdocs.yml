@@ -98,6 +98,7 @@ nav:
           - Cross-Origin: App/SiteTests/CrossOriginTest/README.md
           - DNS Reputation: App/SiteTests/DNSReputationTest/README.md
           - Favicon Origin: App/SiteTests/FaviconOriginTest/README.md
+          - Cache-Control: App/SiteTests/CacheControlTest/README.md
           - HSTS: App/SiteTests/HSTSTest/README.md
           - HTTPS: App/SiteTests/HTTPSTest/README.md
           - JS Obfuscation: App/SiteTests/JSObfuscationTest/README.md
