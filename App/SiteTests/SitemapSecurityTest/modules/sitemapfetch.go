@@ -3,12 +3,13 @@
 package modules
 
 import (
+	"Engine-AntiGinx/App/SSRF"
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
 	"io"
-	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // Fetcher retrieves a target's sitemap and reports what it exposes.
@@ -40,7 +41,7 @@ func (f Fetcher) Analyze(baseUrl string) SitemapAnalysis {
 
 	// Fetch sitemap.xml
 
-	resp, err := http.Get(sitemapUrl)
+	resp, err := SSRF.NewClient(30 * time.Second).Get(sitemapUrl)
 	if err != nil {
 		return analysis
 	}

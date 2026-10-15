@@ -3,6 +3,7 @@ package helpers
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/SSRF"
 	"net/url"
 	"strings"
 )
@@ -26,6 +27,7 @@ func (t *TargetFormatter) Format(target string, params []string) *string {
 			IsRetryable: false,
 		})
 	}
+	rejectInternalTarget(target)
 	builder := strings.Builder{}
 	builder.Grow(len(target) + len("https://"))
 	if t.containsParam(params, "https") || t.containsParam(params, "hsts") {
@@ -60,5 +62,28 @@ func (t *TargetFormatter) CanonicalURL(target string) *url.URL {
 			IsRetryable: false,
 		})
 	}
+	if err := SSRF.ValidateURL(parsed); err != nil {
+		panicBlockedTarget(err)
+	}
 	return parsed
+}
+
+// rejectInternalTarget panics when a raw target would resolve inside the scanner's own network.
+func rejectInternalTarget(target string) {
+	parsed, err := url.Parse("https://" + target)
+	if err != nil {
+		return
+	}
+	if err := SSRF.ValidateURL(parsed); err != nil {
+		panicBlockedTarget(err)
+	}
+}
+
+func panicBlockedTarget(err error) {
+	panic(Errors.Error{
+		Code:        102,
+		Message:     "Target Formatter error occurred: " + err.Error(),
+		Source:      "Target Formatter",
+		IsRetryable: false,
+	})
 }
