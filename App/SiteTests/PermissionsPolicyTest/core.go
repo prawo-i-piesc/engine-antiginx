@@ -9,7 +9,7 @@ import (
 )
 
 // check wires this test's analysis stages into the shared single-header test shape.
-var check = SiteTests.HeaderTest[map[string]interface{}]{
+var check = SiteTests.HeaderTest[PermissionsPolicyAnalysis]{
 	Name:               TestName,
 	Header:             "Permissions-Policy",
 	MissingLevel:       SiteTests.High,
@@ -60,10 +60,23 @@ func isAllowlistRestricted(allowlist string) bool {
 	return false
 }
 
-// analyzePermissionsPolicyHeader parses the Permissions-Policy header value and extracts
-// feature directives into a structured metadata map.
+// PermissionsPolicyAnalysis is what the Permissions-Policy header declares, reported as the
+// result's metadata.
+// Fields are in the alphabetical order of their JSON names, the order the metadata map this
+// replaced was serialized in, so reports keep the same shape.
+type PermissionsPolicyAnalysis struct {
+	AllowedFeatures    []string `json:"allowed_features"`    // Other features opened beyond the page itself
+	DangerousAllowed   []string `json:"dangerous_allowed"`   // Dangerous features left unrestricted
+	RawHeader          string   `json:"raw_header"`          // The value as sent
+	RestrictedFeatures []string `json:"restricted_features"` // Dangerous or suspicious features limited to none or self
+	SuspiciousAllowed  []string `json:"suspicious_allowed"`  // Suspicious features left unrestricted
+	TotalDirectives    int      `json:"total_directives"`    // Comma-separated entries in the header, malformed ones included
+	WildcardFeatures   []string `json:"wildcard_features"`   // Features whose allowlist contains *
+}
 
-func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]interface{} {
+// analyzePermissionsPolicyHeader parses the Permissions-Policy header value and extracts
+// feature directives into an analysis.
+func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) PermissionsPolicyAnalysis {
 
 	// Split by comma and analyze each directive
 	directives := strings.Split(permissionsPolicyHeader, ",")
@@ -129,24 +142,24 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) map[string]i
 			}
 		}
 	}
-	return map[string]interface{}{
-		"allowed_features":    allowedFeatures,
-		"restricted_features": restrictedFeatures,
-		"wildcard_features":   wildcardFeatures,
-		"dangerous_allowed":   dangerousAllowed,
-		"suspicious_allowed":  suspiciousAllowed,
-		"total_directives":    len(directives),
-		"raw_header":          permissionsPolicyHeader,
+	return PermissionsPolicyAnalysis{
+		AllowedFeatures:    allowedFeatures,
+		DangerousAllowed:   dangerousAllowed,
+		RawHeader:          permissionsPolicyHeader,
+		RestrictedFeatures: restrictedFeatures,
+		SuspiciousAllowed:  suspiciousAllowed,
+		TotalDirectives:    len(directives),
+		WildcardFeatures:   wildcardFeatures,
 	}
 }
 
 // evaluatePermissionsPolicyThreatLevel determines the security threat level based on
 // Permissions-Policy configuration.
-func evaluatePermissionsPolicyThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLevel {
-	dangerousAllowed, _ := metadata["dangerous_allowed"].([]string)
-	suspiciousAllowed, _ := metadata["suspicious_allowed"].([]string)
-	wildcardFeatures, _ := metadata["wildcard_features"].([]string)
-	totalDirectives, _ := metadata["total_directives"].(int)
+func evaluatePermissionsPolicyThreatLevel(metadata PermissionsPolicyAnalysis) SiteTests.ThreatLevel {
+	dangerousAllowed := metadata.DangerousAllowed
+	suspiciousAllowed := metadata.SuspiciousAllowed
+	wildcardFeatures := metadata.WildcardFeatures
+	totalDirectives := metadata.TotalDirectives
 
 	// High threat if many dangerous features are unrestricted
 	if len(dangerousAllowed) >= 3 {
@@ -178,12 +191,12 @@ func evaluatePermissionsPolicyThreatLevel(metadata map[string]interface{}) SiteT
 
 // generatePermissionsPolicyDescription creates a human-readable description of the
 // Permissions-Policy analysis results.
-func generatePermissionsPolicyDescription(metadata map[string]interface{}) string {
-	dangerousAllowed, _ := metadata["dangerous_allowed"].([]string)
-	suspiciousAllowed, _ := metadata["suspicious_allowed"].([]string)
-	wildcardFeatures, _ := metadata["wildcard_features"].([]string)
-	restrictedFeatures, _ := metadata["restricted_features"].([]string)
-	totalDirectives, _ := metadata["total_directives"].(int)
+func generatePermissionsPolicyDescription(metadata PermissionsPolicyAnalysis) string {
+	dangerousAllowed := metadata.DangerousAllowed
+	suspiciousAllowed := metadata.SuspiciousAllowed
+	wildcardFeatures := metadata.WildcardFeatures
+	restrictedFeatures := metadata.RestrictedFeatures
+	totalDirectives := metadata.TotalDirectives
 
 	var description strings.Builder
 

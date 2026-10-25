@@ -56,8 +56,9 @@ go run ./App/main.go test --target example.com --tests permissions-policy
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `PermissionsPolicyAnalysis` it reports as metadata, and the analyze, evaluate and describe stages it plugs into the shared `SiteTests.HeaderTest`. |
 | `data.go` | The two feature lists the policy is graded against, split by what an unrestricted grant actually costs the visitor. |
+| `core_test.go` | Unit tests for grading and descriptions across valid, weak, invalid and missing values. |
 
 ---
 

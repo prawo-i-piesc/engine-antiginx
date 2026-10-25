@@ -9,7 +9,7 @@ import (
 )
 
 // check wires this test's analysis stages into the shared single-header test shape.
-var check = SiteTests.HeaderTest[map[string]interface{}]{
+var check = SiteTests.HeaderTest[HSTSAnalysis]{
 	Name:               TestName,
 	Header:             "Strict-Transport-Security",
 	MissingLevel:       SiteTests.Medium,
@@ -32,34 +32,40 @@ func New() *SiteTests.ResponseTest {
 	}
 }
 
+// HSTSAnalysis is what the Strict-Transport-Security header declares, reported as the
+// result's metadata.
+// Fields are in the alphabetical order of their JSON names, the order the metadata map this
+// replaced was serialized in, so reports keep the same shape.
+type HSTSAnalysis struct {
+	Directives        []string `json:"directives"`         // The optional directives present, in canonical spelling
+	IncludeSubdomains bool     `json:"include_subdomains"` // Whether includeSubDomains is set
+	MaxAge            int      `json:"max_age"`            // The max-age in seconds, 0 when missing or invalid
+	Preload           bool     `json:"preload"`            // Whether preload is set
+}
+
 // analyzeHSTSHeader parses the Strict-Transport-Security header value and extracts
-// configuration directives into a structured metadata map.
-func analyzeHSTSHeader(hstsHeader string) map[string]interface{} {
-	metadata := map[string]interface{}{
-		"include_subdomains": false,
-		"preload":            false,
-		"max_age":            0,
-		"directives":         []string{},
-	}
+// configuration directives into an analysis.
+func analyzeHSTSHeader(hstsHeader string) HSTSAnalysis {
+	metadata := HSTSAnalysis{Directives: []string{}}
 
 	// Convert to lowercase for case-insensitive parsing
 	headerLower := strings.ToLower(hstsHeader)
 
 	// Check for includeSubDomains directive
 	if strings.Contains(headerLower, "includesubdomains") {
-		metadata["include_subdomains"] = true
-		metadata["directives"] = append(metadata["directives"].([]string), "includeSubDomains")
+		metadata.IncludeSubdomains = true
+		metadata.Directives = append(metadata.Directives, "includeSubDomains")
 	}
 
 	// Check for preload directive
 	if strings.Contains(headerLower, "preload") {
-		metadata["preload"] = true
-		metadata["directives"] = append(metadata["directives"].([]string), "preload")
+		metadata.Preload = true
+		metadata.Directives = append(metadata.Directives, "preload")
 	}
 
 	// Extract max-age value
 	if maxAge := extractMaxAge(hstsHeader); maxAge > 0 {
-		metadata["max_age"] = maxAge
+		metadata.MaxAge = maxAge
 	}
 
 	return metadata
@@ -81,10 +87,10 @@ func extractMaxAge(hstsHeader string) int {
 
 // evaluateHSTSThreatLevel determines the security threat level based on HSTS configuration
 // quality.
-func evaluateHSTSThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLevel {
-	maxAge := metadata["max_age"].(int)
-	includeSubdomains := metadata["include_subdomains"].(bool)
-	preload := metadata["preload"].(bool)
+func evaluateHSTSThreatLevel(metadata HSTSAnalysis) SiteTests.ThreatLevel {
+	maxAge := metadata.MaxAge
+	includeSubdomains := metadata.IncludeSubdomains
+	preload := metadata.Preload
 
 	oneYear := 60 * 60 * 24 * 365
 	sixMonths := 60 * 60 * 24 * 30 * 6
@@ -115,11 +121,11 @@ func evaluateHSTSThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLe
 
 // generateHSTSDescription creates a human-readable description of the HSTS configuration
 // analysis including the configuration details and security assessment.
-func generateHSTSDescription(metadata map[string]interface{}) string {
-	maxAge := metadata["max_age"].(int)
-	includeSubdomains := metadata["include_subdomains"].(bool)
-	preload := metadata["preload"].(bool)
-	directives := metadata["directives"].([]string)
+func generateHSTSDescription(metadata HSTSAnalysis) string {
+	maxAge := metadata.MaxAge
+	includeSubdomains := metadata.IncludeSubdomains
+	preload := metadata.Preload
+	directives := metadata.Directives
 
 	if maxAge == 0 {
 		return "HSTS header present but missing or invalid max-age directive"

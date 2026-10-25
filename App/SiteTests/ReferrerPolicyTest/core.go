@@ -8,7 +8,7 @@ import (
 )
 
 // check wires this test's analysis stages into the shared single-header test shape.
-var check = SiteTests.HeaderTest[map[string]interface{}]{
+var check = SiteTests.HeaderTest[ReferrerPolicyAnalysis]{
 	Name:               TestName,
 	Header:             "Referrer-Policy",
 	MissingLevel:       SiteTests.Medium,
@@ -30,9 +30,22 @@ func New() *SiteTests.ResponseTest {
 	}
 }
 
+// ReferrerPolicyAnalysis is what the Referrer-Policy header declares, reported as the
+// result's metadata.
+// Fields are in the alphabetical order of their JSON names, the order the metadata map this
+// replaced was serialized in, so reports keep the same shape.
+type ReferrerPolicyAnalysis struct {
+	EffectivePolicy string   `json:"effective_policy"` // The last valid policy, which browsers apply
+	HasUnsafe       bool     `json:"has_unsafe"`       // Whether unsafe-url appears among the valid policies
+	InvalidPolicies []string `json:"invalid_policies"` // Values that are not a policy, as sent
+	Policies        []string `json:"policies"`         // The valid policies, normalized, in header order
+	PolicyCount     int      `json:"policy_count"`     // How many valid policies there are
+	RawHeader       string   `json:"raw_header"`       // The value as sent
+}
+
 // analyzeReferrerPolicyHeader parses the Referrer-Policy header value and extracts policy
-// directives into a structured metadata map.
-func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interface{} {
+// directives into an analysis.
+func analyzeReferrerPolicyHeader(referrerPolicyHeader string) ReferrerPolicyAnalysis {
 
 	// Split by comma and clean up whitespace
 	policyParts := strings.Split(referrerPolicyHeader, ",")
@@ -60,23 +73,23 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 		}
 	}
 
-	return map[string]interface{}{
-		"policies":         policies,
-		"effective_policy": effectivePolicy,
-		"policy_count":     len(policies),
-		"has_unsafe":       hasUnsafe,
-		"invalid_policies": invalidPolicies,
-		"raw_header":       referrerPolicyHeader,
+	return ReferrerPolicyAnalysis{
+		EffectivePolicy: effectivePolicy,
+		HasUnsafe:       hasUnsafe,
+		InvalidPolicies: invalidPolicies,
+		Policies:        policies,
+		PolicyCount:     len(policies),
+		RawHeader:       referrerPolicyHeader,
 	}
 }
 
 // evaluateReferrerPolicyThreatLevel determines the security threat level based on Referrer-
 // Policy configuration quality.
-func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLevel {
-	effectivePolicy, _ := metadata["effective_policy"].(string)
-	hasUnsafe, _ := metadata["has_unsafe"].(bool)
-	policyCount, _ := metadata["policy_count"].(int)
-	invalidPolicies, _ := metadata["invalid_policies"].([]string)
+func evaluateReferrerPolicyThreatLevel(metadata ReferrerPolicyAnalysis) SiteTests.ThreatLevel {
+	effectivePolicy := metadata.EffectivePolicy
+	hasUnsafe := metadata.HasUnsafe
+	policyCount := metadata.PolicyCount
+	invalidPolicies := metadata.InvalidPolicies
 
 	// If only invalid policies, it's highly vulnerable
 	if policyCount == 0 && len(invalidPolicies) > 0 {
@@ -131,12 +144,12 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) SiteTest
 
 // generateReferrerPolicyDescription creates a human-readable description of the Referrer-
 // Policy analysis results, including findings, risks, and recommendations.
-func generateReferrerPolicyDescription(metadata map[string]interface{}) string {
-	effectivePolicy, _ := metadata["effective_policy"].(string)
-	hasUnsafe, _ := metadata["has_unsafe"].(bool)
-	policyCount, _ := metadata["policy_count"].(int)
-	policies, _ := metadata["policies"].([]string)
-	invalidPolicies, _ := metadata["invalid_policies"].([]string)
+func generateReferrerPolicyDescription(metadata ReferrerPolicyAnalysis) string {
+	effectivePolicy := metadata.EffectivePolicy
+	hasUnsafe := metadata.HasUnsafe
+	policyCount := metadata.PolicyCount
+	policies := metadata.Policies
+	invalidPolicies := metadata.InvalidPolicies
 
 	var description strings.Builder
 

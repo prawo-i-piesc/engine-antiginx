@@ -57,7 +57,8 @@ require, so anything shorter cannot be preloaded even if the directive is presen
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `HSTSAnalysis` it reports as metadata, and the analyze, evaluate and describe stages it plugs into the shared `SiteTests.HeaderTest`. |
+| `core_test.go` | Unit tests for grading and descriptions across valid, weak, invalid and missing values. |
 
 ---
 
