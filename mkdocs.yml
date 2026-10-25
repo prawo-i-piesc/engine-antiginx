@@ -97,6 +97,7 @@ nav:
           - Cookie Security: App/SiteTests/CookieSecurityTest/README.md
           - Cross-Origin: App/SiteTests/CrossOriginTest/README.md
           - DNS Reputation: App/SiteTests/DNSReputationTest/README.md
+          - Directory Listing: App/SiteTests/DirectoryListingTest/README.md
           - Favicon Origin: App/SiteTests/FaviconOriginTest/README.md
           - Cache-Control: App/SiteTests/CacheControlTest/README.md
           - HSTS: App/SiteTests/HSTSTest/README.md
