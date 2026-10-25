@@ -8,6 +8,18 @@ import (
 	"strings"
 )
 
+// check wires this test's analysis stages into the shared single-header test shape.
+var check = SiteTests.HeaderTest[map[string]interface{}]{
+	Name:               TestName,
+	Header:             "Strict-Transport-Security",
+	MissingLevel:       SiteTests.Medium,
+	MissingDescription: missingDescription,
+	Certainty:          Certainty,
+	Analyze:            analyzeHSTSHeader,
+	Evaluate:           evaluateHSTSThreatLevel,
+	Describe:           generateHSTSDescription,
+}
+
 // New creates a new ResponseTest that analyzes HTTP Strict Transport Security (HSTS) header
 // configuration.
 func New() *SiteTests.ResponseTest {
@@ -16,37 +28,7 @@ func New() *SiteTests.ResponseTest {
 		Name:        TestName,
 		Description: TestDescription,
 		Category:    TestCategory,
-		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for HSTS header
-			hstsHeader := params.Response.Header.Get("Strict-Transport-Security")
-
-			if hstsHeader == "" {
-				return SiteTests.TestResult{
-					Name:        TestName,
-					Certainty:   100,
-					ThreatLevel: SiteTests.Medium,
-					Metadata:    nil,
-					Description: "Missing HSTS header - site vulnerable to protocol downgrade attacks and man-in-the-middle attacks",
-				}
-			}
-
-			// Parse HSTS header for security analysis
-			metadata := analyzeHSTSHeader(hstsHeader)
-
-			// Determine threat level based on HSTS configuration
-			threatLevel := evaluateHSTSThreatLevel(metadata)
-
-			// Generate description based on findings
-			description := generateHSTSDescription(metadata)
-
-			return SiteTests.TestResult{
-				Name:        TestName,
-				Certainty:   95,
-				ThreatLevel: threatLevel,
-				Metadata:    metadata,
-				Description: description,
-			}
-		},
+		RunTest:     check.Run,
 	}
 }
 

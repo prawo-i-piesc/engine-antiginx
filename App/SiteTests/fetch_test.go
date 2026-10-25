@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -97,5 +98,28 @@ func TestDescribeGroupsSortsCategories(t *testing.T) {
 	want := "• Alpha: 4 found\n  - p\n  - q\n  - r\n  ... and 1 more\n• Beta: 1 found\n  - x\n"
 	if got != want {
 		t.Errorf("got\n%s\nwant\n%s", got, want)
+	}
+}
+
+func TestHeaderTest(t *testing.T) {
+	check := HeaderTest[int]{
+		Name:               "Length",
+		Header:             "X-Value",
+		MissingLevel:       High,
+		MissingDescription: "missing",
+		Certainty:          80,
+		Analyze:            func(value string) int { return len(value) },
+		Evaluate:           func(length int) ThreatLevel { return ThreatLevel(length % 6) },
+		Describe:           func(length int) string { return strconv.Itoa(length) },
+	}
+
+	missing := check.Run(ResponseTestParams{Response: &http.Response{Header: http.Header{}}})
+	if missing.Certainty != 100 || missing.ThreatLevel != High || missing.Description != "missing" || missing.Metadata != nil {
+		t.Errorf("absent header gave %+v", missing)
+	}
+
+	present := check.Run(ResponseTestParams{Response: &http.Response{Header: http.Header{"X-Value": {"abc"}}}})
+	if present.Name != "Length" || present.Certainty != 80 || present.ThreatLevel != Medium || present.Description != "3" || present.Metadata != 3 {
+		t.Errorf("present header gave %+v", present)
 	}
 }

@@ -7,8 +7,21 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 )
+
+// check wires this test's analysis stages into the shared single-header test shape.
+var check = SiteTests.HeaderTest[CSPAnalysis]{
+	Name:               TestName,
+	Header:             "Content-Security-Policy",
+	MissingLevel:       SiteTests.Critical,
+	MissingDescription: missingDescription,
+	Certainty:          Certainty,
+	Analyze:            analyzeCSPHeader,
+	Evaluate:           evaluateCSPThreatLevel,
+	Describe:           generateCSPDescription,
+}
 
 // New creates a new ResponseTest that analyzes Content Security Policy (CSP) header
 // configuration.
@@ -18,37 +31,7 @@ func New() *SiteTests.ResponseTest {
 		Name:        TestName,
 		Description: TestDescription,
 		Category:    TestCategory,
-		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for CSP header
-			cspHeader := params.Response.Header.Get("Content-Security-Policy")
-
-			if cspHeader == "" {
-				return SiteTests.TestResult{
-					Name:        TestName,
-					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
-					Metadata:    nil,
-					Description: "Missing Content-Security-Policy header - site vulnerable to XSS attacks, data injection, and other script-based vulnerabilities. Implement CSP to restrict resource loading and script execution.",
-				}
-			}
-
-			// Parse CSP header for comprehensive security analysis
-			metadata := analyzeCSPHeader(cspHeader)
-
-			// Determine threat level based on CSP configuration
-			threatLevel := evaluateCSPThreatLevel(metadata)
-
-			// Generate description based on findings
-			description := generateCSPDescription(metadata)
-
-			return SiteTests.TestResult{
-				Name:        TestName,
-				Certainty:   100,
-				ThreatLevel: threatLevel,
-				Metadata:    metadata,
-				Description: description,
-			}
-		},
+		RunTest:     check.Run,
 	}
 }
 
@@ -173,11 +156,17 @@ func evaluateDirectiveCompliance(analysis *CSPAnalysis, directiveName string, va
 
 // checkMissingDirectives identifies important missing CSP directives
 func checkMissingDirectives(analysis *CSPAnalysis) {
+	// Sorted, so the report and the recommendations it leads with are the same on every run
+	directives := make([]string, 0, len(recommendedDirectives))
+	for directive := range recommendedDirectives {
+		directives = append(directives, directive)
+	}
+	sort.Strings(directives)
 
-	for directive, description := range recommendedDirectives {
+	for _, directive := range directives {
 		if _, exists := analysis.Directives[directive]; !exists {
 			analysis.MissingDirectives = append(analysis.MissingDirectives, directive)
-			analysis.RecommendedActions = append(analysis.RecommendedActions, fmt.Sprintf("Add %s directive: %s", directive, description))
+			analysis.RecommendedActions = append(analysis.RecommendedActions, fmt.Sprintf("Add %s directive: %s", directive, recommendedDirectives[directive]))
 		}
 	}
 }

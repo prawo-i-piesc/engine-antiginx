@@ -8,6 +8,18 @@ import (
 	"strings"
 )
 
+// check wires this test's analysis stages into the shared single-header test shape.
+var check = SiteTests.HeaderTest[map[string]interface{}]{
+	Name:               TestName,
+	Header:             "Permissions-Policy",
+	MissingLevel:       SiteTests.High,
+	MissingDescription: missingDescription,
+	Certainty:          Certainty,
+	Analyze:            analyzePermissionsPolicyHeader,
+	Evaluate:           evaluatePermissionsPolicyThreatLevel,
+	Describe:           generatePermissionsPolicyDescription,
+}
+
 // New creates a new ResponseTest that analyzes Permissions-Policy header configuration.
 func New() *SiteTests.ResponseTest {
 	return &SiteTests.ResponseTest{
@@ -15,37 +27,7 @@ func New() *SiteTests.ResponseTest {
 		Name:        TestName,
 		Description: TestDescription,
 		Category:    TestCategory,
-		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for Permissions-Policy header
-			permissionsPolicyHeader := params.Response.Header.Get("Permissions-Policy")
-
-			if permissionsPolicyHeader == "" {
-				return SiteTests.TestResult{
-					Name:        TestName,
-					Certainty:   100,
-					ThreatLevel: SiteTests.High,
-					Metadata:    nil,
-					Description: "Missing Permissions-Policy header - all browser features available to page and embedded content without restrictions",
-				}
-			}
-
-			// Parse Permissions-Policy header for security analysis
-			metadata := analyzePermissionsPolicyHeader(permissionsPolicyHeader)
-
-			// Determine threat level based on configuration
-			threatLevel := evaluatePermissionsPolicyThreatLevel(metadata)
-
-			// Generate description based on findings
-			description := generatePermissionsPolicyDescription(metadata)
-
-			return SiteTests.TestResult{
-				Name:        TestName,
-				Certainty:   90,
-				ThreatLevel: threatLevel,
-				Metadata:    metadata,
-				Description: description,
-			}
-		},
+		RunTest:     check.Run,
 	}
 }
 

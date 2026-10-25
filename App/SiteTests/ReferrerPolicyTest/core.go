@@ -7,6 +7,18 @@ import (
 	"strings"
 )
 
+// check wires this test's analysis stages into the shared single-header test shape.
+var check = SiteTests.HeaderTest[map[string]interface{}]{
+	Name:               TestName,
+	Header:             "Referrer-Policy",
+	MissingLevel:       SiteTests.Medium,
+	MissingDescription: missingDescription,
+	Certainty:          Certainty,
+	Analyze:            analyzeReferrerPolicyHeader,
+	Evaluate:           evaluateReferrerPolicyThreatLevel,
+	Describe:           generateReferrerPolicyDescription,
+}
+
 // New creates a new ResponseTest that analyzes Referrer-Policy header configuration.
 func New() *SiteTests.ResponseTest {
 	return &SiteTests.ResponseTest{
@@ -14,37 +26,7 @@ func New() *SiteTests.ResponseTest {
 		Name:        TestName,
 		Description: TestDescription,
 		Category:    TestCategory,
-		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for Referrer-Policy header
-			referrerPolicyHeader := params.Response.Header.Get("Referrer-Policy")
-
-			if referrerPolicyHeader == "" {
-				return SiteTests.TestResult{
-					Name:        TestName,
-					Certainty:   100,
-					ThreatLevel: SiteTests.Medium,
-					Metadata:    nil,
-					Description: "Missing Referrer-Policy header - using browser default policy (typically no-referrer-when-downgrade) which may leak referrer information on HTTPS to HTTP transitions",
-				}
-			}
-
-			// Parse Referrer-Policy header for security analysis
-			metadata := analyzeReferrerPolicyHeader(referrerPolicyHeader)
-
-			// Determine threat level based on Referrer-Policy configuration
-			threatLevel := evaluateReferrerPolicyThreatLevel(metadata)
-
-			// Generate description based on findings
-			description := generateReferrerPolicyDescription(metadata)
-
-			return SiteTests.TestResult{
-				Name:        TestName,
-				Certainty:   100,
-				ThreatLevel: threatLevel,
-				Metadata:    metadata,
-				Description: description,
-			}
-		},
+		RunTest:     check.Run,
 	}
 }
 

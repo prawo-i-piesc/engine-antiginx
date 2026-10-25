@@ -6,6 +6,18 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 )
 
+// check wires this test's analysis stages into the shared single-header test shape.
+var check = SiteTests.HeaderTest[map[string]interface{}]{
+	Name:               TestName,
+	Header:             "X-Content-Type-Options",
+	MissingLevel:       SiteTests.High,
+	MissingDescription: missingDescription,
+	Certainty:          Certainty,
+	Analyze:            analyzeXContentTypeOptionsHeader,
+	Evaluate:           evaluateXContentTypeOptionsThreatLevel,
+	Describe:           generateXContentTypeOptionsDescription,
+}
+
 // New creates a new ResponseTest that analyzes X-Content-Type-Options header configuration.
 func New() *SiteTests.ResponseTest {
 	return &SiteTests.ResponseTest{
@@ -13,37 +25,7 @@ func New() *SiteTests.ResponseTest {
 		Name:        TestName,
 		Description: TestDescription,
 		Category:    TestCategory,
-		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for X-Content-Type-Options header
-			xContentTypeHeader := params.Response.Header.Get("X-Content-Type-Options")
-
-			if xContentTypeHeader == "" {
-				return SiteTests.TestResult{
-					Name:        TestName,
-					Certainty:   100,
-					ThreatLevel: SiteTests.High,
-					Metadata:    nil,
-					Description: "Missing X-Content-Type-Options header - browsers may MIME-sniff content leading to potential XSS vulnerabilities",
-				}
-			}
-
-			// Parse header for analysis
-			metadata := analyzeXContentTypeOptionsHeader(xContentTypeHeader)
-
-			// Determine threat level based on configuration
-			threatLevel := evaluateXContentTypeOptionsThreatLevel(metadata)
-
-			// Generate description based on findings
-			description := generateXContentTypeOptionsDescription(metadata)
-
-			return SiteTests.TestResult{
-				Name:        TestName,
-				Certainty:   100,
-				ThreatLevel: threatLevel,
-				Metadata:    metadata,
-				Description: description,
-			}
-		},
+		RunTest:     check.Run,
 	}
 }
 

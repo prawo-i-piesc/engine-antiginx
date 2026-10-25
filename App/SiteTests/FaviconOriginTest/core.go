@@ -58,7 +58,7 @@ func New() *SiteTests.ResponseTest {
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
 			response := params.Response
 			if response == nil || response.Request == nil || response.Request.URL == nil {
-				return unreadableResult("The page address or content is unavailable, so its icon declarations could not be inspected.")
+				return unreadableResult("The page address is unavailable, so its icon declarations could not be resolved.")
 			}
 			if params.Body == nil {
 				return unreadableResult("The page content could not be read, so its icon declarations could not be inspected.")

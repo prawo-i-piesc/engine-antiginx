@@ -3,9 +3,9 @@
 Every security test the engine runs, plus the framework they plug into. "Site tests" to
 distinguish them from Go unit tests — these examine a target website, not this codebase.
 
-Three Go files sit in this directory and none is a test: `Types.go` is the framework —
-the types every test reports through — and `helpers.go` and `fetch.go` are the shared
-toolbox. Everything else is a test, in its own directory, in its own package — with one
+Four Go files sit in this directory and none is a test: `Types.go` is the framework —
+the types every test reports through — and `helpers.go`, `fetch.go` and `headertest.go`
+are the shared toolbox. Everything else is a test, in its own directory, in its own package — with one
 exception: `SensitivePaths/` is a data-only package, not a test. It holds the one list of
 known-sensitive files that `SitemapSecurityTest`, `RobotsTxtSecurityTest` and
 `SensitiveFilesTest` read, the dangerous-location fragments the sitemap and robots.txt
@@ -19,6 +19,7 @@ SiteTests/
 ├── Types.go                    the framework
 ├── helpers.go                  reusable functions for tests
 ├── fetch.go                    requests to the target, for tests that probe it themselves
+├── headertest.go               the shape of a test that grades one response header
 ├── README.md                   this file
 ├── HSTSTest/
 │   ├── README.md               what the test is for
@@ -94,6 +95,14 @@ closes a response body on its own:
 
 Pass an `SSRF.NewClient(timeout)` for requests to the scanned target; API lookups (URLhaus,
 RDAP) keep their own client.
+
+`headertest.go` holds `HeaderTest[M]`, the shape of a test that grades one response
+header — HSTS, CSP, Referrer-Policy, Permissions-Policy, X-Content-Type-Options. The test
+supplies the header name, the verdict and description for when it is absent, the certainty
+for when it is present, and its own `Analyze`, `Evaluate` and `Describe` stages; `New()`
+then sets `RunTest: check.Run`. An absent header is reported with certainty 100 and no
+metadata. A test reading several headers at once, such as CrossOriginTest or XFrameTest,
+keeps its own `RunTest`.
 
 A `Response` test never reads `params.Response.Body`: the scheduler reads the main body once
 and hands it over as `params.Body` (`nil` when it could not be read). A test that only needs
