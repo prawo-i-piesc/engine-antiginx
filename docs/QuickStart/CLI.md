@@ -75,6 +75,7 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `urlhaus` | PreResponse | Target URL and host looked up in the URLhaus malware URL database (needs `ANTIGINX_URLHAUS_AUTH_KEY`) | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/URLhausTest/README.md) |
 | `ssl-cert` | Structure | SSL/TLS Certificate Security | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SSLCertificateSecurityTest/README.md) |
 | `sitemap` | Structure | Dangerous paths exposed through sitemap.xml | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SitemapSecurityTest/README.md) |
+| `robots-txt` | Structure | Sensitive paths revealed or exposed through robots.txt | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/RobotsTxtSecurityTest/README.md) |
 
 
 <br>

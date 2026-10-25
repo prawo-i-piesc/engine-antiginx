@@ -59,7 +59,7 @@ left open rather than made silently during the restructure.
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
-| `data.go` | The path fragments treated as dangerous, each mapped to the category reported for it. Matching is by substring, so a fragment covers every path containing it. |
+| `data.go` | The path fragments treated as dangerous, each mapped to the category reported for it. Matching is by substring, so a fragment covers every path containing it. The table is exported as `DangerousPatterns` because the [robots.txt test](../RobotsTxtSecurityTest/README.md) builds on it. |
 | `modules/sitemapfetch.go` | Retrieval, XML parsing and the judgement. It holds the analysis type as well, whose fields are unexported, so the code that reads them has to sit beside it. |
 
 ## Notes
