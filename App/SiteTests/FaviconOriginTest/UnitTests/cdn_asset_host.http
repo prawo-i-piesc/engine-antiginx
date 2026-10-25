@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://candles-and-more.pl/
+
+<!doctype html>
+<html><head><title>Candles and more</title>
+<link rel="icon" href="//cdn.shopify.com/s/files/1/0001/favicon.png">
+</head><body></body></html>

@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://example.com:8443/app
+
+<html><body>HTTPS page on a non-standard port</body></html>

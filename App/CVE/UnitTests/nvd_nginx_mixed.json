@@ -1,0 +1,85 @@
+{
+  "resultsPerPage": 5,
+  "startIndex": 0,
+  "totalResults": 5,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-0001",
+        "sourceIdentifier": "fixture@antiginx.test",
+        "published": "2099-01-10T12:15:07.853",
+        "lastModified": "2099-02-01T09:00:00.000",
+        "vulnStatus": "Analyzed",
+        "descriptions": [
+          {"lang": "es", "value": "Descripcion preparada."},
+          {"lang": "en", "value": "Prepared fixture: remote code execution in the nginx resolver."}
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {"source": "nvd@nist.gov", "type": "Primary", "cvssData": {"version": "3.1", "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H", "baseScore": 9.8, "baseSeverity": "CRITICAL"}, "exploitabilityScore": 3.9, "impactScore": 5.9}
+          ],
+          "cvssMetricV2": [
+            {"source": "nvd@nist.gov", "type": "Primary", "cvssData": {"version": "2.0", "vectorString": "AV:N/AC:L/Au:N/C:P/I:P/A:P", "baseScore": 7.5}, "baseSeverity": "HIGH"}
+          ]
+        },
+        "references": [{"url": "https://fixture.antiginx.test/advisories/0001", "source": "fixture@antiginx.test"}]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0002",
+        "published": "2099-01-11T08:00:00.000",
+        "lastModified": "2099-01-11T08:00:00.000",
+        "descriptions": [{"lang": "en", "value": "Prepared fixture: information disclosure through a crafted request."}],
+        "metrics": {
+          "cvssMetricV31": [
+            {"source": "nvd@nist.gov", "type": "Primary", "cvssData": {"version": "3.1", "baseScore": 5.3, "baseSeverity": "MEDIUM"}}
+          ]
+        },
+        "references": []
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0003",
+        "published": "2099-01-12T08:00:00.000",
+        "lastModified": "2099-01-12T08:00:00.000",
+        "descriptions": [{"lang": "en", "value": "Prepared fixture: denial of service scored only under CVSS 3.0."}],
+        "metrics": {
+          "cvssMetricV30": [
+            {"source": "nvd@nist.gov", "type": "Primary", "cvssData": {"version": "3.0", "baseScore": 7.5, "baseSeverity": "HIGH"}}
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0004",
+        "published": "2099-01-13T08:00:00",
+        "lastModified": "2099-01-13T08:00:00",
+        "descriptions": [{"lang": "en", "value": "Prepared fixture: legacy vulnerability scored only under CVSS 2.0."}],
+        "metrics": {
+          "cvssMetricV2": [
+            {"source": "nvd@nist.gov", "type": "Primary", "cvssData": {"version": "2.0", "baseScore": 5.0}, "baseSeverity": "MEDIUM"}
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0005",
+        "published": "2099-01-14T08:00:00.000",
+        "lastModified": "2099-01-14T08:00:00.000",
+        "descriptions": [{"lang": "en", "value": "Prepared fixture: minor issue scored under CVSS 4.0."}],
+        "metrics": {
+          "cvssMetricV40": [
+            {"source": "nvd@nist.gov", "type": "Primary", "cvssData": {"version": "4.0", "baseScore": 2.1, "baseSeverity": "LOW"}}
+          ]
+        }
+      }
+    }
+  ]
+}

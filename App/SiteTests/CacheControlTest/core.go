@@ -68,7 +68,7 @@ func analyze(response *http.Response) CacheAnalysis {
 	}
 
 	for _, cookie := range response.Cookies() {
-		if SiteTests.ContainsAnyFold(cookie.Name, sessionCookieNames) {
+		if SiteTests.MatchesNameFragment(cookie.Name, sessionCookieNames) {
 			analysis.SessionCookies = append(analysis.SessionCookies, cookie.Name)
 		}
 	}

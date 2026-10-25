@@ -1,0 +1,140 @@
+{
+  "resultsPerPage": 5,
+  "startIndex": 0,
+  "totalResults": 5,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-0101",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: low severity issue number 1."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 3.1,
+                "baseSeverity": "LOW"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0102",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: low severity issue number 2."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 3.1,
+                "baseSeverity": "LOW"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0103",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: low severity issue number 3."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 3.1,
+                "baseSeverity": "LOW"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0104",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: low severity issue number 4."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 3.1,
+                "baseSeverity": "LOW"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0105",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: low severity issue number 5."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 3.1,
+                "baseSeverity": "LOW"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

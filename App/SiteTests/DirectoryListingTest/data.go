@@ -57,7 +57,9 @@ var listingSignatures = []modules.Signature{
 	{Server: "nginx", Markers: []string{"<title>index of /", "<h1>index of /", `<a href="../">../</a>`}},
 	{Server: "lighttpd", Markers: []string{"<title>index of /", `<div class="list">`}},
 	{Server: "IIS", Markers: []string{"[to parent directory]"}},
-	{Server: "IIS", Markers: []string{"<pre>", "&lt;dir&gt;"}},
+	// An IIS root listing has no parent link; its directories are "<dir>" followed by the
+	// link to them, which a page merely quoting dir output in a <pre> block does not have
+	{Server: "IIS", Markers: []string{"<pre>", "&lt;dir&gt; <a href="}},
 	{Server: "Tomcat", Markers: []string{"<title>directory listing for [/"}},
 	{Server: "Jetty", Markers: []string{"<title>directory: /"}},
 	{Server: "Python http.server", Markers: []string{"<title>directory listing for /"}},

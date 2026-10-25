@@ -1,0 +1,11 @@
+{
+  "query_status": "ok",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/host/surbl-host.test/",
+  "host": "surbl-host.test",
+  "firstseen": "2025-11-01 12:00:00 UTC",
+  "url_count": "1",
+  "blacklists": {"spamhaus_dbl": "not listed", "surbl": "listed"},
+  "urls": [
+    {"id": "2900000", "urlhaus_reference": "https://urlhaus.abuse.ch/url/2900000/", "url": "http://surbl-host.test/dl.php", "url_status": "offline", "date_added": "2025-11-01 12:00:00 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": null, "tags": []}
+  ]
+}

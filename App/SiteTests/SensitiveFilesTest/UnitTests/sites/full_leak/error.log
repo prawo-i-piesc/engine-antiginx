@@ -1,0 +1,2 @@
+[2026-01-01 10:00:00] production.ERROR: SQLSTATE[HY000] [2002] Connection refused (fixture log line)
+[2026-01-01 10:00:05] production.ERROR: Undefined variable $cart in /var/www/html/app/Cart.php:42

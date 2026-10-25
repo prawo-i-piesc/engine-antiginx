@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Paths that merely begin with a dangerous fragment: /test, /dev, /temp, /log, /control, /api -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://shop.example/</loc></url>
+  <url><loc>https://shop.example/testimonials</loc></url>
+  <url><loc>https://shop.example/devices</loc></url>
+  <url><loc>https://shop.example/templates/summer</loc></url>
+  <url><loc>https://shop.example/blog/logging-tips</loc></url>
+  <url><loc>https://shop.example/controls</loc></url>
+  <url><loc>https://shop.example/apiary</loc></url>
+</urlset>

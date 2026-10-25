@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!doctype html>
+<html><head><title>Shop</title>
+<script src="/static/app.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var button = document.getElementById("menu");
+    button.addEventListener("click", function () {
+      document.body.classList.toggle("menu-open");
+    });
+  });
+</script>
+</head><body><button id="menu">Menu</button></body></html>

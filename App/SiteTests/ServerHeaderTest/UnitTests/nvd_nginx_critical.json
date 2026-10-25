@@ -1,0 +1,62 @@
+{
+  "resultsPerPage": 2,
+  "startIndex": 0,
+  "totalResults": 2,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-1001",
+        "published": "2099-05-01T08:00:00.000",
+        "lastModified": "2099-05-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: heap overflow in the request parser of the disclosed nginx release."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 9.8,
+                "baseSeverity": "CRITICAL"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-1002",
+        "published": "2099-05-01T08:00:00.000",
+        "lastModified": "2099-05-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: header smuggling."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 5.3,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

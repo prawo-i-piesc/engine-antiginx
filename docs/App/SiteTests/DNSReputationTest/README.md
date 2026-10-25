@@ -66,7 +66,9 @@ Three sources are queried, two of them concurrently because neither feeds the ot
 2. **Zone.** Seven DNS queries are issued at once under a single deadline: addresses, the
    canonical name, nameservers, mail exchangers, the zone's TXT records for SPF, `_dmarc`
    for DMARC, and a wildcard probe — a random label nobody ever configured, which a zone
-   that resolves every possible name still answers.
+   that resolves every possible name still answers. The probe is skipped for `localhost`
+   and names under `.localhost`, which RFC 6761 reserves for loopback: every subdomain of
+   them resolves by definition, so an answer is not evidence of a wildcard zone.
 3. **Addresses.** Only then, because it needs what resolution produced. Up to four
    addresses are inspected in parallel — a large CDN returns a different subset of a very
    large pool on every query, so inspecting all of them would spend the time budget

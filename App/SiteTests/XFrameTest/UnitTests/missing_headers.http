@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body>Page that sets no frame protection at all</body></html>

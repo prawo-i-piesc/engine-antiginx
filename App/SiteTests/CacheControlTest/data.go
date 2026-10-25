@@ -2,8 +2,10 @@ package CacheControlTest
 
 import "regexp"
 
-// sessionCookieNames mark a cookie as one that ties the response to a user session.
-var sessionCookieNames = []string{"session", "sessid", "phpsessid", "jsessionid", "aspsessionid", "sid", "auth", "token", "jwt"}
+// sessionCookieNames mark a cookie as one that ties the response to a user session. They are
+// matched with SiteTests.MatchesNameFragment, so the short ones — "sid", "auth", "jwt" — count
+// only as a word of their own, and sidebar_state or author_pref do not make a page sensitive.
+var sessionCookieNames = []string{"session", "sessid", "phpsessid", "jsessionid", "aspsessionid", "sid", "auth", "aspxauth", "token", "jwt"}
 
 // passwordInput matches an input element whose type is password, in any attribute order and
 // quoting style.

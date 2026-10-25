@@ -37,7 +37,7 @@ go run ./App/main.go test --target example.com --tests serv-h-a
 
 | Field | Meaning |
 |---|---|
-| `exposed_headers` | Which of the watched headers disclosed something |
+| `exposed_headers` | Which of the watched headers disclosed something, in the order they are read |
 | `header_details` | Header name to value, as received |
 | `technologies` | Every technology named |
 | `technology_stack` | Technology to disclosed version |

@@ -1,0 +1,16 @@
+{
+  "query_status": "ok",
+  "id": "3112045",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/url/3112045/",
+  "url": "http://malware.test/bins/mozi.m",
+  "url_status": "online",
+  "host": "malware.test",
+  "date_added": "2026-10-20 08:14:03 UTC",
+  "threat": "malware_download",
+  "blacklists": {"spamhaus_dbl": "not listed", "surbl": "not listed"},
+  "reporter": "abuse_ch",
+  "larted": "true",
+  "takedown_time_seconds": null,
+  "tags": ["elf", "mozi"],
+  "payloads": []
+}

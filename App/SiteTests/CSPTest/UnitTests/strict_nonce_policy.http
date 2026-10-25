@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Security-Policy: default-src 'none'; script-src 'nonce-r4nd0mN0nc3'; object-src 'none'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+<html><body>Strict nonce-based policy covering every recommended directive</body></html>

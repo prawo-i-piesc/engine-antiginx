@@ -1,0 +1,12 @@
+{
+  "query_status": "ok",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/host/files.example-share.test/",
+  "host": "files.example-share.test",
+  "firstseen": "2019-02-11 10:00:00 UTC",
+  "url_count": "2",
+  "blacklists": {"spamhaus_dbl": "abused_legit_malware", "surbl": "not listed"},
+  "urls": [
+    {"id": "3110000", "urlhaus_reference": "https://urlhaus.abuse.ch/url/3110000/", "url": "https://files.example-share.test/d/abc123/invoice.zip", "url_status": "online", "date_added": "2026-10-18 10:00:00 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": null, "tags": ["zip"]},
+    {"id": "3000000", "urlhaus_reference": "https://urlhaus.abuse.ch/url/3000000/", "url": "https://files.example-share.test/d/def456/scan.exe", "url_status": "offline", "date_added": "2026-01-05 10:00:00 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": 7200, "tags": ["exe"]}
+  ]
+}

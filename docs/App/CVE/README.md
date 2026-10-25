@@ -6,7 +6,7 @@
 
 | Symbol | Purpose |
 |---|---|
-| `NewCVEClient() *CVEClient` | Creates an NVD client with a 30-second timeout and the endpoint `https://services.nvd.nist.gov/rest/json/cves/2.0`. |
+| `NewCVEClient() *CVEClient` | Creates an NVD client with a 30-second timeout and the endpoint `https://services.nvd.nist.gov/rest/json/cves/2.0`, or the one named by `ANTIGINX_NVD_URL` (`CVE.BaseURLEnv`) — an NVD mirror, or a local server serving prepared responses in tests. |
 | `(*CVEClient).AssessTechnologyVulnerabilities(technology, version string) (*VulnerabilityAssessment, error)` | Searches and summarizes the matches. Returns `nil` and an error if the request, response read, or JSON decoding fails, or if NVD returns a non-200 status. The assessment retains the original technology name and version. |
 | `GetThreatLevelFromAssessment(assessment *VulnerabilityAssessment) int` | Maps the assessment's `RiskLevel` to a numeric threat level. Pass a non-nil assessment. |
 
@@ -26,7 +26,7 @@ if err != nil {
 - `buildSearchQuery` joins the normalized name and version with a space. An empty version or the literal string `"detected"` searches by name alone. The request sets `keywordSearch`, `resultsPerPage=100`, `Accept: application/json`, and `User-Agent: AntiGinx-CVE-Client/1.0`.
 - This is a **keyword search**, not proof that a CVE affects the supplied version. The client does not check affected version ranges or fetch additional pages. `CVECount` is the number of results processed from the single response (at most 100), not NVD's `totalResults`.
 
-`NVDResponse` decodes the returned vulnerability list, pagination fields, dates, and selected CVSS metrics. The converter copies each CVE ID and dates, then tries to read the first English entry under `description.description_data`. CVE API 2.0 normally provides `descriptions` instead, so descriptions may be empty. The first CVSS v3.1 metric supplies the score and uppercase severity. If only CVSS v2 is present, severity is set to `MEDIUM` and the numeric score remains zero; without either metric, both fields retain their zero values. The converter does not populate `References`.
+`NVDResponse` decodes the CVE API 2.0 shape: the vulnerability list, pagination fields, the zone-less `published`/`lastModified` timestamps (read as UTC; an unreadable one becomes the zero time instead of failing the response), the `descriptions` array, `references` and the CVSS metrics. The converter takes the first English description, every reference URL, and the score and uppercase severity of the newest CVSS version the vulnerability was scored under — 4.0, then 3.1, 3.0 and 2.0, whose severity sits beside `cvssData` rather than in it. Without any metric, score and severity keep their zero values.
 
 ## Assessment and risk
 
@@ -43,3 +43,11 @@ Risk rules are evaluated in this order:
 | `NONE` | No CVEs returned. |
 
 `GetThreatLevelFromAssessment` maps `NONE` to `0`, `LOW` to `2`, `MEDIUM` to `3`, `HIGH` to `4`, and `CRITICAL` to `5`; an unknown label maps to `1`. Treat the result as a limited search signal, not a confirmed vulnerability in a particular installation.
+
+## Tests
+
+`App/CVE/UnitTests` runs the client against a local stand-in for the NVD API
+(`UnitTestKit.ServeNVD`) that answers with prepared responses in the CVE API 2.0 shape:
+vulnerabilities scored under every CVSS version, low- and medium-only result sets for the risk
+rules, an empty result, a truncated body and an unavailable service. No test reaches the real
+NVD. The CVE identifiers in the fixtures (`CVE-2099-…`) are invented.

@@ -1,0 +1,7 @@
+{
+  "name": "storefront",
+  "version": "1.4.2",
+  "private": true,
+  "scripts": { "build": "vite build" },
+  "dependencies": { "vue": "3.4.0" }
+}

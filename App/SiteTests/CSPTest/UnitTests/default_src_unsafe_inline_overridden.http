@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Security-Policy: default-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; style-src 'self'; frame-ancestors 'none'; base-uri 'self'
+
+<html><body>default-src allows inline code but script-src and style-src override it</body></html>

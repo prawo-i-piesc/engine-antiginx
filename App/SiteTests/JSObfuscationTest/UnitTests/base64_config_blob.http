@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!doctype html>
+<html><head><title>App</title>
+<script>
+  var settings = JSON.parse(atob("eyJ0aGVtZSI6ImRhcmsiLCJsYW5ndWFnZSI6InBsIiwiYmV0YSI6ZmFsc2V9"));
+</script>
+</head><body></body></html>

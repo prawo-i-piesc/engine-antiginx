@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -41,46 +42,75 @@ type VulnerabilityAssessment struct {
 	RiskLevel      string      `json:"risk_level"`
 }
 
-// NVDResponse maps the NVD CVE API response fields used by this client.
+// NVDResponse maps the NVD CVE API 2.0 response fields used by this client.
 type NVDResponse struct {
 	ResultsPerPage  int `json:"resultsPerPage"`
 	StartIndex      int `json:"startIndex"`
 	TotalResults    int `json:"totalResults"`
 	Vulnerabilities []struct {
 		CVE struct {
-			ID          string `json:"id"`
-			Description struct {
-				DescriptionData []struct {
-					Lang  string `json:"lang"`
-					Value string `json:"value"`
-				} `json:"description_data"`
-			} `json:"description"`
-			Published time.Time `json:"published"`
-			Modified  time.Time `json:"lastModified"`
-			Metrics   struct {
-				CVSSMetricV31 []struct {
-					CVSSData struct {
-						BaseScore    float64 `json:"baseScore"`
-						BaseSeverity string  `json:"baseSeverity"`
-					} `json:"cvssData"`
-				} `json:"cvssMetricV31"`
-				CVSSMetricV2 []struct {
-					CVSSData struct {
-						BaseScore string `json:"baseScore"`
-					} `json:"cvssData"`
-				} `json:"cvssMetricV2"`
+			ID           string `json:"id"`
+			Published    string `json:"published"`    // NVD timestamps carry no zone, see parseNVDTime
+			LastModified string `json:"lastModified"` // Same format as Published
+			Descriptions []struct {
+				Lang  string `json:"lang"`
+				Value string `json:"value"`
+			} `json:"descriptions"`
+			Metrics struct {
+				CVSSMetricV40 []nvdMetric `json:"cvssMetricV40"`
+				CVSSMetricV31 []nvdMetric `json:"cvssMetricV31"`
+				CVSSMetricV30 []nvdMetric `json:"cvssMetricV30"`
+				CVSSMetricV2  []nvdMetric `json:"cvssMetricV2"`
 			} `json:"metrics"`
+			References []struct {
+				URL string `json:"url"`
+			} `json:"references"`
 		} `json:"cve"`
 	} `json:"vulnerabilities"`
 }
 
-// NewCVEClient creates a client for the NVD CVE API.
+// nvdMetric is one CVSS scoring of a vulnerability. CVSS 3.x and 4.0 put the severity inside
+// cvssData; CVSS 2.0 puts it beside it.
+type nvdMetric struct {
+	CVSSData struct {
+		BaseScore    float64 `json:"baseScore"`
+		BaseSeverity string  `json:"baseSeverity"`
+	} `json:"cvssData"`
+	BaseSeverity string `json:"baseSeverity"`
+}
+
+// nvdTimeLayouts are the timestamp formats NVD uses, newest first.
+var nvdTimeLayouts = []string{"2006-01-02T15:04:05.000", "2006-01-02T15:04:05", time.RFC3339Nano}
+
+// parseNVDTime reads an NVD timestamp, which is UTC written without a zone, and returns the
+// zero time for one it cannot read rather than failing the whole response.
+func parseNVDTime(value string) time.Time {
+	for _, layout := range nvdTimeLayouts {
+		if parsed, err := time.Parse(layout, value); err == nil {
+			return parsed.UTC()
+		}
+	}
+	return time.Time{}
+}
+
+// defaultBaseURL is the public NVD CVE API endpoint.
+const defaultBaseURL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+
+// BaseURLEnv names the environment variable that redirects lookups at an NVD mirror, and tests
+// at a local server serving prepared responses.
+const BaseURLEnv = "ANTIGINX_NVD_URL"
+
+// NewCVEClient creates a client for the NVD CVE API, honouring the BaseURLEnv override.
 func NewCVEClient() *CVEClient {
+	baseURL := defaultBaseURL
+	if configured := strings.TrimSpace(os.Getenv(BaseURLEnv)); configured != "" {
+		baseURL = strings.TrimSuffix(configured, "/")
+	}
 	return &CVEClient{
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
-		baseURL: "https://services.nvd.nist.gov/rest/json/cves/2.0",
+		baseURL: baseURL,
 	}
 }
 
@@ -182,31 +212,41 @@ func normalizeTechnologyName(technology string) string {
 	return strings.ToLower(technology)
 }
 
-// convertNVDToCVEResults selects the fields used by the assessment.
+// convertNVDToCVEResults selects the fields used by the assessment. The newest CVSS version a
+// vulnerability was scored under decides its score and severity.
 func (c *CVEClient) convertNVDToCVEResults(nvdResp NVDResponse) []CVEResult {
 	var cves []CVEResult
 
 	for _, vuln := range nvdResp.Vulnerabilities {
 		cve := CVEResult{
 			ID:        vuln.CVE.ID,
-			Published: vuln.CVE.Published,
-			Modified:  vuln.CVE.Modified,
+			Published: parseNVDTime(vuln.CVE.Published),
+			Modified:  parseNVDTime(vuln.CVE.LastModified),
 		}
 
-		for _, desc := range vuln.CVE.Description.DescriptionData {
+		for _, desc := range vuln.CVE.Descriptions {
 			if desc.Lang == "en" {
 				cve.Description = desc.Value
 				break
 			}
 		}
 
-		if len(vuln.CVE.Metrics.CVSSMetricV31) > 0 {
-			cvss := vuln.CVE.Metrics.CVSSMetricV31[0].CVSSData
-			cve.Score = cvss.BaseScore
-			cve.Severity = strings.ToUpper(cvss.BaseSeverity)
-		} else if len(vuln.CVE.Metrics.CVSSMetricV2) > 0 {
-			// Fallback to CVSS v2 if v3.1 not available
-			cve.Severity = "MEDIUM" // Default for v2
+		metrics := vuln.CVE.Metrics
+		for _, scored := range [][]nvdMetric{metrics.CVSSMetricV40, metrics.CVSSMetricV31, metrics.CVSSMetricV30, metrics.CVSSMetricV2} {
+			if len(scored) == 0 {
+				continue
+			}
+			cve.Score = scored[0].CVSSData.BaseScore
+			severity := scored[0].CVSSData.BaseSeverity
+			if severity == "" {
+				severity = scored[0].BaseSeverity
+			}
+			cve.Severity = strings.ToUpper(severity)
+			break
+		}
+
+		for _, reference := range vuln.CVE.References {
+			cve.References = append(cve.References, reference.URL)
 		}
 
 		cves = append(cves, cve)

@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://www.example.com/
+
+<!doctype html>
+<html><head><title>Example</title>
+<link rel="shortcut icon" href="https://static.example.com/favicon.ico">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E">
+</head><body></body></html>

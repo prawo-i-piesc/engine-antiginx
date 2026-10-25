@@ -1,0 +1,62 @@
+{
+  "resultsPerPage": 2,
+  "startIndex": 0,
+  "totalResults": 2,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-1010",
+        "published": "2099-05-01T08:00:00.000",
+        "lastModified": "2099-05-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: cross-site scripting in a bundled extension."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 6.1,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-1011",
+        "published": "2099-05-01T08:00:00.000",
+        "lastModified": "2099-05-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: session fixation."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 5.5,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

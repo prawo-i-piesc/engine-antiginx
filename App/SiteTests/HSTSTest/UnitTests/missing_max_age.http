@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Strict-Transport-Security: includeSubDomains; preload
+
+<html><body>HSTS without the mandatory max-age</body></html>

@@ -38,7 +38,7 @@ The icon itself is never downloaded; the test only reads where the page says it 
 | `inline` | The icon is a `data:` URI embedded in the page |
 | `unresolvable` | Not an `http`/`https` URL, so no browser fetches it as an icon |
 | `same-host` | The page's own hostname |
-| `same-site` | Another hostname under the page's registered domain, e.g. `static.example.com` |
+| `same-site` | Another hostname under the page's registered domain, e.g. `static.example.com`. Hosting-platform suffixes such as `github.io` or `vercel.app` count as public suffixes, so two sites on one platform are not the same site |
 | `ip-address` | A bare IP address |
 | `asset-host` | A CDN or site platform from `assetHostSuffixes` — CloudFront, jsDelivr, Wix, Shopify… |
 | `same-organisation` | A domain of the brand that also runs the page, e.g. `fbcdn.net` on `facebook.com` |
@@ -67,9 +67,13 @@ comes from is a signal to weigh next to the other phishing tests (`phishing-url`
 
 | Level | When |
 |---|---|
-| **None** | No icon declared, or every icon is inline, on the page's own site or on another domain of the same brand |
+| **None** | No icon declared, or every icon is inline, on the page's own site, on another domain of the same brand, or unresolvable |
 | **Info** | An icon is served by a CDN or site platform, or from an unrelated domain |
 | **Low** | An icon is served from a bare IP address, or from a known brand's domain to a page that brand does not run |
+
+An unresolvable declaration (`javascript:`, an unparsable URL) is graded None, since no
+browser loads it, and the description names it as unresolvable rather than counting it among
+the icons loaded from the page's own site.
 
 Certainty is 100, because where an icon is loaded from is read straight from the page, except
 for a brand match, which is 85: the brand may run the page under a domain the dataset does not

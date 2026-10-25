@@ -12,6 +12,18 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
+			// Without the request the response answered there is no address to read the scheme
+			// from; say so rather than guess
+			if params.Response == nil || params.Response.Request == nil || params.Response.Request.URL == nil {
+				return SiteTests.TestResult{
+					Name:        TestName,
+					Certainty:   detectionCertainty,
+					ThreatLevel: SiteTests.Info,
+					Metadata:    nil,
+					Description: unknownAddressDescription,
+				}
+			}
+
 			if params.Response.Request.URL.Scheme == secureScheme {
 				return SiteTests.TestResult{
 					Name:        TestName,

@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: no-cache
+Set-Cookie: sessionid=77aa; Path=/; Secure; HttpOnly
+
+<!doctype html>
+<html><head><title>Inbox</title></head><body><p>3 unread messages</p></body></html>

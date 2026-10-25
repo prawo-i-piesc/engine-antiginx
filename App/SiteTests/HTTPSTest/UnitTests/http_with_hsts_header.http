@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: http://example.com/login
+Strict-Transport-Security: max-age=63072000
+
+<html><body>Plain HTTP page sending an HSTS header that browsers ignore</body></html>

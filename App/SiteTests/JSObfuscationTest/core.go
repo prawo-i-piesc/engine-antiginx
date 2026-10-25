@@ -39,7 +39,9 @@ func New() *SiteTests.ResponseTest {
 
 			// Check if response contains JavaScript
 			contentType := params.Response.Header.Get("Content-Type")
-			hasJavaScript := strings.Contains(contentType, "javascript") ||
+			isScript := strings.Contains(strings.ToLower(contentType), "javascript") ||
+				strings.Contains(strings.ToLower(contentType), "ecmascript")
+			hasJavaScript := isScript ||
 				strings.Contains(bodyStr, "<script") ||
 				strings.Contains(contentType, "html")
 
@@ -54,7 +56,14 @@ func New() *SiteTests.ResponseTest {
 			}
 
 			// Analyze JavaScript for obfuscation
-			analysis := detector.Analyze(bodyStr)
+			// A JavaScript file is one script as a whole; a page carries its scripts in
+			// <script> elements.
+			var analysis JSObfuscationAnalysis
+			if isScript {
+				analysis = detector.AnalyzeScript(bodyStr)
+			} else {
+				analysis = detector.Analyze(bodyStr)
+			}
 
 			// Determine threat level
 			threatLevel := evaluateObfuscationThreat(analysis)
@@ -90,8 +99,8 @@ func evaluateObfuscationThreat(analysis JSObfuscationAnalysis) SiteTests.ThreatL
 		return SiteTests.Medium
 	}
 
-	// Low: Light obfuscation
-	if analysis.ObfuscationScore >= 20 {
+	// Low: Light obfuscation, the point from which the page counts as obfuscated
+	if analysis.ObfuscationScore >= modules.ObfuscationThreshold {
 		return SiteTests.Low
 	}
 

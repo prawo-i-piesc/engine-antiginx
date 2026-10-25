@@ -26,7 +26,12 @@ go run ./App/main.go test --target example.com --tests cross-origin-x
    ones (`require-corp`, `same-origin`) or one of the permissive ones (`unsafe-none`,
    `cross-origin`).
 3. Count how many are configured strictly, and report whether the combination amounts to
-   cross-origin isolation — which needs COEP and COOP together, not either alone.
+   cross-origin isolation — which needs COEP `require-corp` or `credentialless` together with
+   COOP `same-origin`, not either alone. `same-origin-allow-popups` keeps popups in the
+   page's browsing context group, so it does not isolate.
+4. Excellent needs all three headers strict and isolation effective. Good needs all three
+   present and either isolation or all three strict. Otherwise the level follows how many
+   headers are strict — headers present with permissive values count for nothing.
 
 ## What it reports
 
@@ -37,7 +42,7 @@ go run ./App/main.go test --target example.com --tests cross-origin-x
 | `configuredHeaders` | How many of the three are set |
 | `missingHeaders` | Which are absent |
 | `isolationEffective` | Whether the combination achieves cross-origin isolation |
-| `protectionLevel` | `Excellent`, `Good`, `Basic` or `None` |
+| `protectionLevel` | `Excellent`, `Good`, `Moderate`, `Basic` or `None` |
 | `securityIssues` | What is wrong, in the operator's terms |
 | `recommendedActions` | What to set instead |
 
@@ -45,11 +50,11 @@ go run ./App/main.go test --target example.com --tests cross-origin-x
 
 | Level | When |
 |---|---|
-| **None** | All three headers set to strict values |
-| **Info** | Two headers configured securely |
-| **Low** | One header configured, or the values are less strict |
-| **Medium** | Headers present but permissive |
-| **High** | No cross-origin headers at all |
+| **None** | All three headers strict and the page cross-origin isolated |
+| **Info** | All three present and either isolated (e.g. CORP `cross-origin`) or all strict (e.g. COOP `same-origin-allow-popups`) |
+| **Low** | Two headers strict |
+| **Medium** | One header strict |
+| **High** | No header strict — absent or present with permissive values such as `unsafe-none` |
 
 ## Files
 

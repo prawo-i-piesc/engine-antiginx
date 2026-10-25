@@ -379,13 +379,21 @@ func (c *Collector) lookupZone(host string, domain string) (DomainResolutionInfo
 // the deadline of the batch it is issued with, because it depends on none of the other answers
 // and so has no reason to cost the scan a second timeout of its own.
 func (c *Collector) probeWildcard(ctx context.Context, domain string) bool {
-	if domain == "" {
+	if domain == "" || isSpecialUseLoopbackName(domain) {
 		return false
 	}
 
 	label := fmt.Sprintf("antiginx-probe-%d", rand.Int63())
 	addresses, err := c.Resolver.LookupHost(ctx, label+"."+domain)
 	return err == nil && len(addresses) > 0
+}
+
+// isSpecialUseLoopbackName reports whether a name is localhost or lies under it. RFC 6761
+// reserves these names for loopback, so every subdomain resolves by definition and a probe
+// answering says nothing about how a zone is configured.
+func isSpecialUseLoopbackName(name string) bool {
+	name = strings.ToLower(strings.TrimSuffix(name, "."))
+	return name == "localhost" || strings.HasSuffix(name, ".localhost")
 }
 
 // inspectAddresses gathers the network allocation and reverse names of the resolved addresses.

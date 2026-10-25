@@ -34,8 +34,8 @@ go run ./App/main.go test --target example.com --tests robots-txt
    `Disallow:` lines (which disallow nothing) and repeated rules are skipped. Other
    directives — `User-agent`, `Sitemap`, `Crawl-delay` — are ignored.
 3. Match each rule's path against the shared `SensitivePaths` list and
-   `SitemapSecurityTest.DangerousPatterns`, merged with the test's own `data.go`. Two
-   differences from the sitemap test:
+   `SitemapSecurityTest.DangerousPatterns`, merged with the test's own `data.go`, using
+   `SensitivePaths.Matcher` — the same matching the sitemap test uses:
    - A fragment must not be followed by a letter, so `/test` matches `/test/`, `/test.php`
      and `/test2` but not `/testimonials`, and `/log` does not match `/login`.
    - When several fragments match, the longest wins, so `/api-docs/` is reported as API

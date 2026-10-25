@@ -106,6 +106,8 @@ func analyzeCrossOriginHeaders(coepHeader, corpHeader, coopHeader string) map[st
 			analysis.SecurityIssues = append(analysis.SecurityIssues, "COOP header has invalid value - use 'same-origin', 'same-origin-allow-popups', or 'unsafe-none'")
 		} else if analysis.COOPValue == "unsafe-none" {
 			analysis.SecurityIssues = append(analysis.SecurityIssues, "COOP header allows unsafe cross-origin access - consider 'same-origin' for better security")
+		} else if analysis.COOPValue == "same-origin-allow-popups" {
+			analysis.SecurityIssues = append(analysis.SecurityIssues, "COOP same-origin-allow-popups keeps popups in the same browsing context group, so the page is not cross-origin isolated - use 'same-origin' for isolation")
 		}
 	} else {
 		analysis.MissingHeaders = append(analysis.MissingHeaders, "Cross-Origin-Opener-Policy")
@@ -113,23 +115,33 @@ func analyzeCrossOriginHeaders(coepHeader, corpHeader, coopHeader string) map[st
 		analysis.RecommendedActions = append(analysis.RecommendedActions, "Add Cross-Origin-Opener-Policy: same-origin header")
 	}
 
-	// Determine overall protection level
+	// Cross-origin isolation is what a browser grants only when the page both requires its
+	// subresources to opt in (COEP) and keeps its own browsing context group (COOP).
+	coepSecure := analysis.COEPValue == "require-corp" || analysis.COEPValue == "credentialless"
+	corpSecure := analysis.CORPValue == "same-origin" || analysis.CORPValue == "same-site"
+	coopSecure := analysis.COOPValue == "same-origin" || analysis.COOPValue == "same-origin-allow-popups"
+	analysis.IsolationEffective = coepSecure && analysis.COOPValue == "same-origin"
+
+	// Grade on the headers that actually protect: one present with a permissive or invalid
+	// value configures the header without gaining anything.
+	secureCount := 0
+	for _, secure := range []bool{coepSecure, corpSecure, coopSecure} {
+		if secure {
+			secureCount++
+		}
+	}
 	configuredCount := len(analysis.ConfiguredHeaders)
-	if configuredCount == 3 && len(analysis.SecurityIssues) == 0 {
+	switch {
+	case configuredCount == 3 && len(analysis.SecurityIssues) == 0 && analysis.IsolationEffective:
 		analysis.ProtectionLevel = "Excellent"
-		analysis.IsolationEffective = true
-	} else if configuredCount == 3 {
+	case configuredCount == 3 && (analysis.IsolationEffective || secureCount == 3):
 		analysis.ProtectionLevel = "Good"
-		analysis.IsolationEffective = true
-	} else if configuredCount == 2 {
+	case secureCount >= 2:
 		analysis.ProtectionLevel = "Moderate"
-		analysis.IsolationEffective = false
-	} else if configuredCount == 1 {
+	case secureCount == 1:
 		analysis.ProtectionLevel = "Basic"
-		analysis.IsolationEffective = false
-	} else {
+	default:
 		analysis.ProtectionLevel = "None"
-		analysis.IsolationEffective = false
 	}
 
 	// Add general recommendations if not all headers are configured optimally
@@ -160,22 +172,18 @@ func analyzeCrossOriginHeaders(coepHeader, corpHeader, coopHeader string) map[st
 // headers configuration and their security implications.
 func evaluateCrossOriginThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLevel {
 	protectionLevel := metadata["protectionLevel"].(string)
-	securityIssues := metadata["securityIssues"].([]string)
-	configuredHeaders := metadata["configuredHeaders"].([]string)
 
-	switch {
-	case protectionLevel == "Excellent":
+	switch protectionLevel {
+	case "Excellent":
 		return SiteTests.None
-	case protectionLevel == "Good" && len(securityIssues) <= 2:
+	case "Good":
 		return SiteTests.Info
-	case protectionLevel == "Moderate" || (protectionLevel == "Good" && len(securityIssues) > 2):
+	case "Moderate":
 		return SiteTests.Low
-	case protectionLevel == "Basic" || len(configuredHeaders) == 1:
+	case "Basic":
 		return SiteTests.Medium
-	case protectionLevel == "None":
-		return SiteTests.High
 	default:
-		return SiteTests.Medium
+		return SiteTests.High
 	}
 }
 
@@ -194,17 +202,19 @@ func generateCrossOriginDescription(metadata map[string]interface{}) string {
 	if len(configuredHeaders) == 0 {
 		description = "No cross-origin security headers found. Site is vulnerable to cross-origin attacks, resource embedding exploits, and lacks browser-level isolation protection against Spectre-like vulnerabilities. "
 	} else {
-		description = "Cross-origin security analysis: " + protectionLevel + " protection level. "
-		if len(configuredHeaders) > 0 {
-			description += "Configured headers: " + strings.Join(configuredHeaders, ", ") + ". "
+		if protectionLevel == "None" {
+			description = "Cross-origin security headers are present but none is set to a protective value. "
+		} else {
+			description = "Cross-origin security analysis: " + protectionLevel + " protection level. "
 		}
+		description += "Configured headers: " + strings.Join(configuredHeaders, ", ") + ". "
 	}
 
 	// Isolation effectiveness
 	if isolationEffective {
 		description += "Cross-origin isolation is effective with current configuration. "
 	} else if len(configuredHeaders) > 0 {
-		description += "Cross-origin isolation is incomplete - additional headers needed for full protection. "
+		description += "Cross-origin isolation is not effective - it requires Cross-Origin-Embedder-Policy require-corp or credentialless together with Cross-Origin-Opener-Policy same-origin. "
 	}
 
 	// Missing headers

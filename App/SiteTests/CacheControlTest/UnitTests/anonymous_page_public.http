@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: public, max-age=86400
+
+<!doctype html>
+<html><head><title>Blog</title></head><body><h1>Release notes</h1><p>Nothing personal on this page.</p></body></html>

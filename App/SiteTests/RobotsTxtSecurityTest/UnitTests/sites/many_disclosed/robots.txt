@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /backup/
+Disallow: /.git/
+Disallow: /api/
+Disallow: /phpmyadmin/
+Disallow: /*.sql$
+Disallow: /staging/
+Disallow: /private/
+Disallow: /cart

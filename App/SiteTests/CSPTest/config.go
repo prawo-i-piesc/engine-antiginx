@@ -7,3 +7,7 @@ const (
 	TestDescription = "Analyzes Content-Security-Policy header configuration to assess protection against XSS, injection attacks, and resource loading security"
 	TestCategory    = "Headers"
 )
+
+// criticalStrengthCap is the highest strength a policy with a critical vulnerability can
+// score: the top of the poor band.
+const criticalStrengthCap = 19

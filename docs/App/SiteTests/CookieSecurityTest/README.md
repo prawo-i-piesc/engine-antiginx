@@ -36,7 +36,9 @@ and loses points per missing protection, weighted by what the cookie is: the sam
 `HttpOnly` costs a session cookie far more than a preference cookie. The site's overall
 score is the aggregate, and the threat level is derived from it together with the two
 booleans that no score should be able to average away — an unprotected session cookie and a
-fixation risk.
+fixation risk. A predictable value is a fixation risk only on a cookie whose name marks it as
+a session identifier or a credential: a preference cookie such as `theme=dark` is meant to be
+guessable.
 
 ## What it reports
 
@@ -69,7 +71,7 @@ fixation risk.
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
-| `data.go` | The name fragments that mark a cookie as sensitive or as a session identifier. Matching is by substring, so `sessid` also covers `PHPSESSID`. |
+| `data.go` | The name fragments that mark a cookie as sensitive or as a session identifier, matched with `SiteTests.MatchesNameFragment`: `sessid` covers `PHPSESSID`, while the short `sid` and `auth` count only as a word of their own, so `sidebar_state` and `author_pref` are not sessions. |
 | `modules/cookieanalysis.go` | Reads what each cookie declares and collects the issues. |
 | `modules/scoring.go` | Turns those issues into a per-cookie and site-wide score. |
 

@@ -18,6 +18,12 @@ For sensitive responses the test reads `Cache-Control` and `Pragma`:
 
 Responses that are not sensitive are reported as `None`.
 
+A lone `Pragma: no-cache` never reaches the test as such: Go's `net/http`, which the scanner
+fetches pages with, adds `Cache-Control: no-cache` to any response that carries
+`Pragma: no-cache` and no `Cache-Control`. Such a page is therefore reported as `no-cache`
+without `no-store`/`private` (Low), and the Pragma-only finding fires only when `Pragma:
+no-cache` accompanies other `Cache-Control` directives, such as `max-age=0` or `public`.
+
 ## Certainty
 
 100 when the verdict rests on headers and cookies; 85 when it depends on finding a password field by scanning markup.

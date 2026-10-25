@@ -25,3 +25,7 @@ var recommendedDirectives = map[string]string{
 
 // importantDirectives are the directives counted when scoring how complete a policy is.
 var importantDirectives = []string{"default-src", "script-src", "object-src", "style-src", "frame-ancestors", "base-uri"}
+
+// defaultSrcFallbacks are the critical fetch directives that take their sources from
+// default-src when a policy does not set them.
+var defaultSrcFallbacks = []string{"script-src", "object-src", "style-src"}

@@ -7,6 +7,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -87,13 +88,31 @@ func analyzeCSPHeader(cspHeader string) CSPAnalysis {
 	calculatePolicyStrength(&analysis)
 	determineCSPProtectionLevel(&analysis)
 
+	sort.Strings(analysis.SecurityIssues)
+	sort.Strings(analysis.UnsafeDirectives)
+	sort.Strings(analysis.CriticalVulns)
+	sort.Strings(analysis.MissingDirectives)
+	sort.Strings(analysis.RecommendedActions)
+
 	return analysis
 }
 
 // analyzeDirectiveSecurity checks each directive for security issues
 func analyzeDirectiveSecurity(analysis *CSPAnalysis) {
+	names := make([]string, 0, len(analysis.Directives))
+	for directiveName := range analysis.Directives {
+		names = append(names, directiveName)
+	}
+	sort.Strings(names)
 
-	for directiveName, values := range analysis.Directives {
+	for _, directiveName := range names {
+		values := analysis.Directives[directiveName]
+		// The critical directives a policy leaves out take their sources from default-src, so
+		// an unsafe value there weakens each of them as if it had been written there.
+		governs := []string{directiveName}
+		if directiveName == "default-src" {
+			governs = inheritingDirectives(analysis.Directives)
+		}
 		// Check for unsafe values
 		for _, value := range values {
 			valueLower := strings.ToLower(value)
@@ -105,15 +124,17 @@ func analyzeDirectiveSecurity(analysis *CSPAnalysis) {
 					case "'unsafe-inline'":
 						analysis.SecurityIssues = append(analysis.SecurityIssues, fmt.Sprintf("%s allows unsafe-inline, negating XSS protection", directiveName))
 						if directiveName == "script-src" {
-							analysis.CriticalVulns = append(analysis.CriticalVulns, "script-src unsafe-inline allows any inline scripts")
+							addCriticalVuln(analysis, "script-src unsafe-inline allows any inline scripts")
+						} else if helpers.StringInSlice(governs, "script-src") {
+							addCriticalVuln(analysis, "script-src inherits unsafe-inline from default-src, allowing any inline scripts")
 						}
 					case "'unsafe-eval'":
 						analysis.SecurityIssues = append(analysis.SecurityIssues, fmt.Sprintf("%s allows unsafe-eval, enabling code injection", directiveName))
-						analysis.CriticalVulns = append(analysis.CriticalVulns, "unsafe-eval permits eval() and Function() constructors")
+						addCriticalVuln(analysis, "unsafe-eval permits eval() and Function() constructors")
 					case "*":
 						analysis.SecurityIssues = append(analysis.SecurityIssues, fmt.Sprintf("%s allows wildcard (*), permitting any source", directiveName))
 						if helpers.StringInSlice(criticalDirectives, directiveName) {
-							analysis.CriticalVulns = append(analysis.CriticalVulns, fmt.Sprintf("%s wildcard undermines security policy", directiveName))
+							addCriticalVuln(analysis, fmt.Sprintf("%s wildcard undermines security policy", directiveName))
 						}
 					}
 				}
@@ -122,6 +143,25 @@ func analyzeDirectiveSecurity(analysis *CSPAnalysis) {
 
 		// Evaluate directive compliance
 		evaluateDirectiveCompliance(analysis, directiveName, values)
+	}
+}
+
+// inheritingDirectives returns default-src followed by the critical fetch directives the
+// policy leaves out, which browsers resolve from default-src instead.
+func inheritingDirectives(directives map[string][]string) []string {
+	governs := []string{"default-src"}
+	for _, directive := range defaultSrcFallbacks {
+		if _, exists := directives[directive]; !exists {
+			governs = append(governs, directive)
+		}
+	}
+	return governs
+}
+
+// addCriticalVuln records a critical vulnerability once, however many directives show it.
+func addCriticalVuln(analysis *CSPAnalysis, vuln string) {
+	if !helpers.StringInSlice(analysis.CriticalVulns, vuln) {
+		analysis.CriticalVulns = append(analysis.CriticalVulns, vuln)
 	}
 }
 
@@ -218,8 +258,13 @@ func calculatePolicyStrength(analysis *CSPAnalysis) {
 	analysis.PolicyStrength = score
 }
 
-// determineCSPProtectionLevel sets overall protection assessment
+// determineCSPProtectionLevel sets overall protection assessment. A critical vulnerability
+// lets injected script run whatever else the policy restricts, so it caps the strength in the
+// poor band and the level reported agrees with the High verdict.
 func determineCSPProtectionLevel(analysis *CSPAnalysis) {
+	if len(analysis.CriticalVulns) > 0 && analysis.PolicyStrength > criticalStrengthCap {
+		analysis.PolicyStrength = criticalStrengthCap
+	}
 	if analysis.PolicyStrength >= 80 {
 		analysis.ProtectionLevel = "excellent"
 	} else if analysis.PolicyStrength >= 60 {

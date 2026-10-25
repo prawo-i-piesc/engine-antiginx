@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://example.com/
+
+<!doctype html>
+<html><head><title>Example</title>
+<!-- <link rel="icon" href="https://www.google.com/favicon.ico"> -->
+<link rel="icon" href="/favicon.ico">
+</head><body></body></html>

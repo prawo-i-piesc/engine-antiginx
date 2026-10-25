@@ -51,8 +51,24 @@ type JSObfuscationAnalysis struct {
 	Certainty           int      `json:"certainty"`        // 0-100
 }
 
-// Analyze performs comprehensive JavaScript obfuscation analysis
+// Analyze performs comprehensive JavaScript obfuscation analysis of the <script> elements of an
+// HTML page
 func (d Detector) Analyze(content string) JSObfuscationAnalysis {
+	return d.analyzeScripts(d.extractScriptContent(content))
+}
+
+// AnalyzeScript performs the same analysis on a response that is JavaScript source as a
+// whole, such as a file served as application/javascript, where there are no <script>
+// elements to extract.
+func (d Detector) AnalyzeScript(source string) JSObfuscationAnalysis {
+	if strings.TrimSpace(source) == "" {
+		return d.analyzeScripts(nil)
+	}
+	return d.analyzeScripts([]string{source})
+}
+
+// analyzeScripts runs every detector over the given script sources.
+func (d Detector) analyzeScripts(scripts []string) JSObfuscationAnalysis {
 	analysis := JSObfuscationAnalysis{
 		ObfuscationPatterns: []string{},
 		SuspiciousPatterns:  []string{},
@@ -61,8 +77,6 @@ func (d Detector) Analyze(content string) JSObfuscationAnalysis {
 		Certainty:           95,
 	}
 
-	// Extract script content
-	scripts := d.extractScriptContent(content)
 	if len(scripts) == 0 {
 		analysis.Certainty = 100
 		return analysis
@@ -86,7 +100,7 @@ func (d Detector) Analyze(content string) JSObfuscationAnalysis {
 	determineObfuscationLevel(&analysis)
 
 	// Check if obfuscation detected
-	analysis.HasObfuscation = analysis.ObfuscationScore > 20
+	analysis.HasObfuscation = analysis.ObfuscationScore >= ObfuscationThreshold
 
 	return analysis
 }

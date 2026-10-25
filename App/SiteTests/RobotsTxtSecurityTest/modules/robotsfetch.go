@@ -5,6 +5,7 @@ package modules
 import (
 	"Engine-AntiGinx/App/SSRF"
 	"Engine-AntiGinx/App/SiteTests"
+	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
 	"bufio"
 	"fmt"
 	"io"
@@ -21,7 +22,7 @@ const (
 
 // Fetcher retrieves a target's robots.txt and reports what it reveals.
 type Fetcher struct {
-	DangerousPatterns map[string]string
+	DangerousPatterns SensitivePaths.Matcher
 	Timeout           time.Duration
 	MaxBodyBytes      int64
 }
@@ -134,7 +135,7 @@ func (f Fetcher) match(rules []rawRule, analysis RobotsAnalysis) RobotsAnalysis 
 
 	disallowedSensitive := []string{}
 	for _, rule := range rules {
-		pattern, category, ok := f.bestPattern(rule.path)
+		pattern, category, ok := f.DangerousPatterns.Best(rule.path)
 		if !ok {
 			continue
 		}
@@ -170,51 +171,6 @@ func (f Fetcher) match(rules []rawRule, analysis RobotsAnalysis) RobotsAnalysis 
 
 	analysis.TotalDangerous = len(analysis.DangerousRules)
 	return analysis
-}
-
-// bestPattern returns the longest dangerous pattern the path contains, so /api-docs is
-// reported as API documentation rather than as an API endpoint. Ties go to the pattern
-// that sorts first, which keeps the result independent of map order.
-func (f Fetcher) bestPattern(path string) (string, string, bool) {
-	lowered := strings.ToLower(path)
-	best := ""
-	for pattern := range f.DangerousPatterns {
-		if !containsPathFragment(lowered, pattern) {
-			continue
-		}
-		if len(pattern) > len(best) || (len(pattern) == len(best) && pattern < best) {
-			best = pattern
-		}
-	}
-	if best == "" {
-		return "", "", false
-	}
-	return best, f.DangerousPatterns[best], true
-}
-
-// containsPathFragment reports whether a fragment occurs in the path and is not followed by
-// a letter, so /test matches /test/, /test.php and /test2 but not /testimonials.
-func containsPathFragment(path string, fragment string) bool {
-	if fragment == "" {
-		return false
-	}
-	offset := 0
-	for {
-		index := strings.Index(path[offset:], fragment)
-		if index < 0 {
-			return false
-		}
-		end := offset + index + len(fragment)
-		if end >= len(path) || !isLetter(path[end]) {
-			return true
-		}
-		offset += index + 1
-	}
-}
-
-// isLetter reports whether a byte is an ASCII letter.
-func isLetter(c byte) bool {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
 }
 
 // ruleBase is the literal prefix of a rule path, up to its first wildcard or end anchor.

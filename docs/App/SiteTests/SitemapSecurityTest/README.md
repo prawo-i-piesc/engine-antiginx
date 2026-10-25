@@ -22,11 +22,15 @@ go run ./App/main.go test --target example.com --tests sitemap
 
 ## How it works
 
-1. Request `/sitemap.xml` from the target, over its own connection.
-2. Parse the XML and collect every `<loc>` it declares.
-3. Match each URL's path against the fragment table in `data.go`, extended at startup with
-   the shared `SensitivePaths` list, recording which category
-   each match falls into.
+1. Request `/sitemap.xml` from the target, over its own connection, reading at most 10 MiB
+   of it (`MaxBodyBytes` in `config.go`).
+2. Parse the XML and collect every distinct `<loc>` it declares.
+3. Match the path of each URL — not its hostname, so `dev.example.com` or `api.example.com`
+   is not a finding — against the fragment table in `data.go`, extended at startup with the
+   shared `SensitivePaths` list. A fragment must not be followed by a letter, so `/test`
+   matches `/test/` and `/test.php` but not `/testimonials`. A URL matching several fragments
+   is reported once, under the longest (`/api-docs` is API documentation, not an API endpoint).
+   A `<loc>` that is not an absolute URL is matched as written.
 4. Grade on the count of dangerous paths, not on their categories — one exposed admin panel
    is a finding, thirty exposed paths is a site with no idea what it is publishing.
 
@@ -35,15 +39,12 @@ go run ./App/main.go test --target example.com --tests sitemap
 | Field | Meaning |
 |---|---|
 | `sitemap_accessible` | Whether a sitemap was found at all |
-| `total_urls` | How many URLs it declares |
-| `dangerous_paths` | The ones that matched |
-| `path_categories` | Each match mapped to its category |
+| `total_urls` | How many distinct URLs it declares |
+| `dangerous_paths` | The ones that matched, in sitemap order, each with its `url`, the `pattern` it matched and that pattern's `category` |
 | `total_dangerous` | How many matched |
 
-**Known issue:** these fields are unexported, so `encoding/json` skips them and the
-metadata reaches a backend report as `{}`. The finding's description carries the detail.
-Fixing it means exporting the fields, which changes what consumers receive — a decision
-left open rather than made silently during the restructure.
+The description groups the matches by category, in alphabetical order, with up to three
+example URLs per category.
 
 ## How the verdict is reached
 
@@ -59,10 +60,10 @@ left open rather than made silently during the restructure.
 
 | File | Holds |
 |---|---|
-| `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
+| `config.go` | What tunes it: identity constants and the retrieval limits. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
-| `data.go` | The path fragments treated as dangerous, each mapped to the category reported for it. Matching is by substring, so a fragment covers every path containing it. The table is exported as `DangerousPatterns` because the [robots.txt test](../RobotsTxtSecurityTest/README.md) builds on it. |
-| `modules/sitemapfetch.go` | Retrieval, XML parsing and the judgement. It holds the analysis type as well, whose fields are unexported, so the code that reads them has to sit beside it. |
+| `data.go` | The path fragments treated as dangerous, each mapped to the category reported for it. Matching is by path fragment through the shared `SensitivePaths.Matcher`: the longest fragment a path contains wins, and a fragment must not be followed by a letter. The table is exported as `DangerousPatterns` because the [robots.txt test](../RobotsTxtSecurityTest/README.md) builds on it. |
+| `modules/sitemapfetch.go` | Retrieval, XML parsing, matching and the judgement, and the exported analysis type reported as metadata. |
 
 ## Notes
 

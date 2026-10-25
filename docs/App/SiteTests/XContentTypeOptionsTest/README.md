@@ -19,8 +19,11 @@ go run ./App/main.go test --target example.com --tests x-content-type-options
 
 ## How it works
 
-Read the header, trim it, lowercase it, compare it to `nosniff`. That is the whole test —
-the header has exactly one meaningful value and no parameters.
+Read the header, take its first comma-separated value, trim it, lowercase it, compare it to
+`nosniff`. That is the whole test — the header has exactly one meaningful value and no
+parameters. Only the first value counts because that is what browsers act on (Fetch,
+"determine nosniff"), so `nosniff, nosniff` from a duplicating proxy still disables sniffing
+while `sniff, nosniff` does not.
 
 The middle band exists because a header with a wrong value is worse than an absent one in
 one specific way: it looks configured. Someone auditing the site sees the header present
@@ -35,7 +38,7 @@ it was wrong.
 
 | Level | When |
 |---|---|
-| **None** | `nosniff` is set |
+| **None** | `nosniff` is set (as the first value) |
 | **Medium** | Header present with a value browsers ignore |
 | **High** | Header absent, MIME sniffing left enabled |
 

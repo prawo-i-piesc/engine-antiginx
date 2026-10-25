@@ -4,9 +4,11 @@ package ServerHeaderTest
 
 import (
 	"Engine-AntiGinx/App/CVE"
-	helpers "Engine-AntiGinx/App/Helpers"
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/ServerHeaderTest/modules"
+	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -20,11 +22,21 @@ var technologyDetector = modules.TechnologyDetector{
 // ServerHeaderAnalysis represents the comprehensive analysis results of HTTP headers for
 // server technology information disclosure.
 type ServerHeaderAnalysis struct {
-	exposed_headers  []string
-	technologies     []string
-	total_exposures  int
-	header_details   map[string]string
-	technology_stack map[string]string
+	ExposedHeaders  []string          `json:"exposed_headers"`  // Headers that disclosed anything, in the order they are read
+	Technologies    []string          `json:"technologies"`     // Technologies recognised in them, without repeats
+	TotalExposures  int               `json:"total_exposures"`  // How many headers disclosed anything
+	HeaderDetails   map[string]string `json:"header_details"`   // Each exposed header mapped to its value
+	TechnologyStack map[string]string `json:"technology_stack"` // Each technology mapped to its version, or "detected"
+}
+
+// cveThreat grades the known vulnerabilities of one technology. It queries the NVD, which
+// tests point at a local stand-in through CVE.BaseURLEnv.
+var cveThreat = func(technology string) SiteTests.ThreatLevel {
+	assessment, err := CVE.NewCVEClient().AssessTechnologyVulnerabilities(technology, "")
+	if err != nil || assessment.CVECount == 0 {
+		return SiteTests.None
+	}
+	return modules.MapCVEThreat(*assessment)
 }
 
 // New creates a new security test that analyzes HTTP response headers for server technology
@@ -36,27 +48,14 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Headers that commonly reveal server technology information
-			exposureHeaders := make(map[string]string, len(exposureHeaderNames))
-			for _, name := range exposureHeaderNames {
-				exposureHeaders[name] = params.Response.Header.Get(name)
-			}
-
-			// Analyze the collected headers
-			analysis := analyzeServerHeaders(exposureHeaders)
-
-			// Determine threat level based on exposure
-			threatLevel := evaluateServerExposureThreatLevel(analysis)
-
-			// Generate description
-			description := generateServerExposureDescription(analysis)
+			analysis := analyzeServerHeaders(params.Response.Header)
 
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   95,
-				ThreatLevel: threatLevel,
+				ThreatLevel: evaluateServerExposureThreatLevel(analysis),
 				Metadata:    analysis,
-				Description: description,
+				Description: generateServerExposureDescription(analysis),
 			}
 		},
 	}
@@ -64,53 +63,50 @@ func New() *SiteTests.ResponseTest {
 
 // analyzeServerHeaders examines HTTP headers for technology disclosure patterns and constructs
 // a comprehensive analysis of exposed information.
-func analyzeServerHeaders(headers map[string]string) *ServerHeaderAnalysis {
+func analyzeServerHeaders(headers http.Header) *ServerHeaderAnalysis {
 	analysis := &ServerHeaderAnalysis{
-		exposed_headers:  []string{},
-		technologies:     []string{},
-		total_exposures:  0,
-		header_details:   map[string]string{},
-		technology_stack: map[string]string{},
+		ExposedHeaders:  []string{},
+		Technologies:    []string{},
+		HeaderDetails:   map[string]string{},
+		TechnologyStack: map[string]string{},
 	}
 
-	var exposedHeaders []string
-	var technologies []string
-	var techStack = make(map[string]string)
-	var headerDetails = make(map[string]string)
+	// Read in the fixed header order, so the report does not depend on map order
+	technologies := []string{}
+	for _, headerName := range exposureHeaderNames {
+		headerValue := headers.Get(headerName)
+		if headerValue == "" {
+			continue
+		}
+		analysis.ExposedHeaders = append(analysis.ExposedHeaders, headerName)
+		analysis.HeaderDetails[headerName] = headerValue
 
-	for headerName, headerValue := range headers {
-		if headerValue != "" {
-			exposedHeaders = append(exposedHeaders, headerName)
-			headerDetails[headerName] = headerValue
-
-			detectedTech := technologyDetector.Detect(headerName, headerValue)
-			for tech, version := range detectedTech {
-				technologies = append(technologies, tech)
-				if version != "" {
-					techStack[tech] = version
-				} else {
-					techStack[tech] = "detected"
-				}
+		detectedTech := technologyDetector.Detect(headerName, headerValue)
+		names := make([]string, 0, len(detectedTech))
+		for tech := range detectedTech {
+			names = append(names, tech)
+		}
+		sort.Strings(names)
+		for _, tech := range names {
+			technologies = append(technologies, tech)
+			if version := detectedTech[tech]; version != "" {
+				analysis.TechnologyStack[tech] = version
+			} else {
+				analysis.TechnologyStack[tech] = "detected"
 			}
 		}
 	}
 
-	// Calculate total exposures
-	totalExposures := len(exposedHeaders)
-
-	analysis.exposed_headers = exposedHeaders
-	analysis.technologies = helpers.RemoveDuplicates(technologies)
-	analysis.total_exposures = totalExposures
-	analysis.header_details = headerDetails
-	analysis.technology_stack = techStack
+	analysis.TotalExposures = len(analysis.ExposedHeaders)
+	analysis.Technologies = SiteTests.UniqueStrings(technologies)
 	return analysis
 }
 
 // evaluateServerExposureThreatLevel calculates the security threat level based on server
 // header information disclosure and known vulnerabilities.
 func evaluateServerExposureThreatLevel(analysis *ServerHeaderAnalysis) SiteTests.ThreatLevel {
-	totalExposures := analysis.total_exposures
-	technologies := analysis.technologies
+	totalExposures := analysis.TotalExposures
+	technologies := analysis.Technologies
 
 	// Base threat level assessment
 	baseThreatLevel := SiteTests.None
@@ -124,19 +120,11 @@ func evaluateServerExposureThreatLevel(analysis *ServerHeaderAnalysis) SiteTests
 
 	// Enhanced threat assessment with CVE vulnerability analysis
 	if len(technologies) > 0 {
-		cveClient := CVE.NewCVEClient()
 		highestThreatLevel := baseThreatLevel
 
+		// Assess CVE vulnerabilities for each detected technology
 		for _, tech := range technologies {
-			// Assess CVE vulnerabilities for detected technology
-			assessment, err := cveClient.AssessTechnologyVulnerabilities(tech, "")
-			if err == nil && assessment.CVECount > 0 {
-				// Map CVE severity to our threat levels
-				cveLevel := modules.MapCVEThreat(*assessment)
-				if cveLevel > highestThreatLevel {
-					highestThreatLevel = cveLevel
-				}
-			}
+			highestThreatLevel = SiteTests.HighestThreatLevel(highestThreatLevel, cveThreat(tech))
 		}
 
 		// Additional heuristic-based threat level enhancement
@@ -171,8 +159,8 @@ func evaluateServerExposureThreatLevel(analysis *ServerHeaderAnalysis) SiteTests
 // generateServerExposureDescription creates a human-readable description of server header
 // information disclosure findings.
 func generateServerExposureDescription(analysis *ServerHeaderAnalysis) string {
-	totalExposures := analysis.total_exposures
-	technologies := analysis.technologies
+	totalExposures := analysis.TotalExposures
+	technologies := analysis.Technologies
 
 	if totalExposures == 0 {
 		return "No server technology information disclosed in headers - good security practice"
@@ -182,7 +170,7 @@ func generateServerExposureDescription(analysis *ServerHeaderAnalysis) string {
 	if totalExposures == 1 {
 		description = "1 header exposes server information"
 	} else {
-		description = string(rune(totalExposures)) + " headers expose server information"
+		description = strconv.Itoa(totalExposures) + " headers expose server information"
 	}
 
 	if len(technologies) > 0 {

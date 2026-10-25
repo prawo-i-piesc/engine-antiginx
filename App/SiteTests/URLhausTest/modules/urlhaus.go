@@ -111,10 +111,14 @@ func (l Lookup) Check(target *url.URL) URLhausMetadata {
 		return metadata
 	}
 
-	// Credentials and fragments never leave the engine; the rest is what URLhaus indexes.
+	// Credentials and fragments never leave the engine. URLhaus stores URLs with the scheme
+	// and host in lower case, which are case-insensitive, while the path keeps its case.
 	queried := *target
 	queried.User = nil
 	queried.Fragment = ""
+	queried.RawFragment = ""
+	queried.Scheme = strings.ToLower(queried.Scheme)
+	queried.Host = strings.ToLower(queried.Host)
 	metadata.URL = queried.String()
 	metadata.Host = strings.ToLower(strings.TrimSuffix(target.Hostname(), "."))
 

@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: connect.sid=user42; Path=/; Secure; HttpOnly; SameSite=Strict
+
+<html><body>A session identifier anyone could guess</body></html>

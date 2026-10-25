@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body>Page without any cross-origin isolation headers</body></html>

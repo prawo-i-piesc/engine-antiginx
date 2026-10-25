@@ -14,7 +14,8 @@ go run ./App/main.go test --target example.com --tests js-obf
 
 ## What it checks
 
-- Script bodies extracted from the page's `<script>` elements.
+- Script bodies extracted from the page's `<script>` elements, or the whole response when it is
+  served as JavaScript (`Content-Type` naming `javascript` or `ecmascript`).
 - String-to-code entry points: `eval`, `Function`, and string arguments to `setTimeout`/`setInterval`.
 - Decoders — `atob`, `unescape`, `String.fromCharCode` — and especially a decoder feeding straight into `eval`.
 - Hex and Unicode escape sequences used in place of readable characters.
@@ -24,7 +25,8 @@ go run ./App/main.go test --target example.com --tests js-obf
 
 ## How it works
 
-1. Extract the body of every `<script>` element from the page.
+1. Extract the body of every `<script>` element from the page. A response served as JavaScript
+   is taken as one script as a whole.
 2. Run each detector in `modules/detectors.go` over the concatenated script source. Every
    detector reports both *whether* its technique appears and *how much*, because volume is
    what separates a bundler from a kit — one `\x41` escape is nothing, four hundred is a
@@ -39,7 +41,7 @@ go run ./App/main.go test --target example.com --tests js-obf
 
 | Field | Meaning |
 |---|---|
-| `hasObfuscation` | Whether anything was detected at all |
+| `hasObfuscation` | Whether the score reaches the obfuscation threshold (20), the same point where the level becomes `light` and the grade Low |
 | `obfuscationScore` | 0–100 |
 | `obfuscationLevel` | `none`, `light`, `moderate`, `heavy` or `extreme` |
 | `obfuscationPatterns` | Techniques found |
@@ -54,8 +56,8 @@ go run ./App/main.go test --target example.com --tests js-obf
 | Level | When |
 |---|---|
 | **None** | Clean, readable JavaScript |
-| **Info** | Minification or ordinary build output |
-| **Low** | Some patterns present but likely legitimate, such as a webpack bundle |
+| **Info** | Minification or ordinary build output (score 10–19, below the threshold, so `hasObfuscation` is false) |
+| **Low** | Score from 20 (`ObfuscationThreshold` in `modules/scoring.go`): some patterns present but likely legitimate, such as a webpack bundle |
 | **Medium** | Several suspicious patterns together |
 | **High** | Heavy obfuscation with clear intent to conceal |
 | **Critical** | Extreme obfuscation alongside malicious indicators |

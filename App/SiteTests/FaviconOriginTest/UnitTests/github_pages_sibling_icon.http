@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://account-verify.github.io/
+
+<!doctype html>
+<html><head><title>Sign in</title>
+<link rel="icon" href="https://some-other-project.github.io/favicon.ico">
+</head><body></body></html>

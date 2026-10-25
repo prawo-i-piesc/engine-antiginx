@@ -4,6 +4,7 @@ package XContentTypeOptionsTest
 
 import (
 	"Engine-AntiGinx/App/SiteTests"
+	"strings"
 )
 
 // New creates a new ResponseTest that analyzes X-Content-Type-Options header configuration.
@@ -47,9 +48,11 @@ func New() *SiteTests.ResponseTest {
 	}
 }
 
-// analyzeXContentTypeOptionsHeader parses the X-Content-Type-Options header value
+// analyzeXContentTypeOptionsHeader parses the X-Content-Type-Options header value. Browsers
+// split the header on commas and act on the first value only (Fetch, "determine nosniff"),
+// so a value repeated by a proxy or a second header line still counts.
 func analyzeXContentTypeOptionsHeader(xContentTypeHeader string) map[string]interface{} {
-	headerValue := SiteTests.NormalizeHeaderValue(xContentTypeHeader)
+	headerValue := SiteTests.NormalizeHeaderValue(strings.Split(xContentTypeHeader, ",")[0])
 
 	return map[string]interface{}{
 		"raw_header":   xContentTypeHeader,

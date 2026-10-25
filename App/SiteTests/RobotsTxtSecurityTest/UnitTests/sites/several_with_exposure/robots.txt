@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /backup/
+Disallow: /.git/
+Disallow: /api/internal/
+
+User-agent: Googlebot
+Allow: /swagger/

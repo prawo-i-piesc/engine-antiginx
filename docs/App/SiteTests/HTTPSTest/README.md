@@ -36,6 +36,7 @@ description, and there is no second fact worth carrying.
 | Level | When |
 |---|---|
 | **None** | The response arrived over `https` |
+| **Info** | The response carries no request URL, so the scheme cannot be verified |
 | **High** | The response arrived over `http`, so everything on the page travelled in the clear |
 
 ## Files

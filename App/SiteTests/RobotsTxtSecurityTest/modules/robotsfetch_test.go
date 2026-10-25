@@ -47,24 +47,6 @@ Crawl-delay: 10
 	}
 }
 
-func TestContainsPathFragmentRespectsWordBoundary(t *testing.T) {
-	cases := map[string]bool{
-		"/test":          true,
-		"/test/":         true,
-		"/test.php":      true,
-		"/test2":         true,
-		"/en/test-suite": true,
-		"/testimonials":  false,
-		"/contest":       false,
-		"/latest/test":   true,
-	}
-	for path, want := range cases {
-		if got := containsPathFragment(path, "/test"); got != want {
-			t.Errorf("containsPathFragment(%q, /test) = %v, want %v", path, got, want)
-		}
-	}
-}
-
 func TestMatchPrefersLongestPattern(t *testing.T) {
 	analysis := testFetcher.match(parseRobots("Disallow: /api-docs/\nDisallow: /api/v1/"), RobotsAnalysis{})
 	if analysis.TotalDangerous != 2 {

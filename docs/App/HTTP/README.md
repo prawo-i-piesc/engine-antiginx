@@ -21,3 +21,11 @@ The default header is `User-Agent: AntiGinx/1.0`. `WithHeaders(map[string]string
 | `300` | Challenge detected on a 200 response while anti-bot mode is off. | `false` |
 
 `HttpError` carries `Url`, `Code`, `Message`, the original `Error`, `IsRetryable`, and `Protections`. Detection identifies providers and challenges; the HTTP wrapper decides whether to return or reject the response. Strategies use these fields when reporting skipped response tests and possible bot-protection findings; see [execution](../execution/README.md).
+
+## Tests
+
+`App/HTTP/UnitTests` fetches pages from a local site served out of prepared files
+(`UnitTests/site/`): an ordinary page, a healthy page behind a CDN, a challenge interstitial
+served with 200, a mitigated block page, a 404, an unreachable server and an invalid address.
+Each failure is checked for the `HttpError` code it is reported with, and the SSRF protection
+is checked to refuse the local address unless a test lifts it.

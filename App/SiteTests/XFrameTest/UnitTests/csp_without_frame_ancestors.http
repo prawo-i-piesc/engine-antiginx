@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: default-src 'self'
+
+<html><body>CSP without frame-ancestors next to X-Frame-Options</body></html>

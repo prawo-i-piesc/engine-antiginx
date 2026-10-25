@@ -29,7 +29,9 @@ go run ./App/main.go test --target example.com --tests dir-listing
 3. Compare the body against the signatures in `data.go`. A signature matches when all of
    its markers appear, case-insensitively; the first match names the server, and a bare
    `<title>Index of /` is the generic fallback. Recognised: Apache, nginx, lighttpd, IIS,
-   Tomcat, Jetty, Python `http.server` and Node `serve`.
+   Tomcat, Jetty, Python `http.server` and Node `serve`. An IIS listing without a parent link (the
+   web root) is recognised by its `<dir>` entries followed by their links, so a page that
+   only quotes `dir` output in a `<pre>` block is not mistaken for one.
 4. For each listing, extract the entries it links to — leaving out the parent directory,
    Apache's column-sorting links and anything outside the listed directory — and keep up
    to 10 of them as evidence.

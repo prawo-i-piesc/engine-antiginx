@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Frame-Options: sameorigin
+
+<html><body>X-Frame-Options allowing framing by the own origin</body></html>

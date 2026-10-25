@@ -1,0 +1,18 @@
+{
+  "objectClassName": "domain",
+  "handle": "D100200300-TEST",
+  "ldhName": "localhost",
+  "status": ["active"],
+  "events": [{"eventAction": "registration", "eventDate": "{{days:-3650}}"}, {"eventAction": "expiration", "eventDate": "{{days:200}}"}, {"eventAction": "last changed", "eventDate": "{{days:-100}}"}],
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "handle": "9999",
+      "roles": ["registrar"],
+      "publicIds": [{"type": "IANA Registrar ID", "identifier": "9999"}],
+      "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["fn", {}, "text", "Example Registrar, Inc."], ["adr", {"cc": "US"}, "text", ["", "", "", "", "", "", ""]]]]
+    }
+  ],
+  "nameservers": [{"objectClassName": "nameserver", "ldhName": "NS1.EXAMPLE-DNS.TEST"}, {"objectClassName": "nameserver", "ldhName": "NS2.EXAMPLE-DNS.TEST"}],
+  "secureDNS": {"delegationSigned": false}
+}

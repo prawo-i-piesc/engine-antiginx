@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!doctype html>
+<html><head><title>Loading</title>
+<script>
+  eval(atob(atob("WTI5dWMyOXNaUzVzYjJjb0ltbHVaWEowSWlrNw==")));
+</script>
+</head><body></body></html>

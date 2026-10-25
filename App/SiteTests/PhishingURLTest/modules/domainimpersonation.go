@@ -5,6 +5,7 @@ package modules
 import (
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
+	"sort"
 	"strings"
 	"unicode/utf8"
 )
@@ -52,8 +53,11 @@ func (a DomainAnalyzer) Analyze(host string) map[string]any {
 		return match
 	}
 
-	for brand, domains := range popularDomains {
-		for _, legit := range domains {
+	// A hostname can resemble domains of more than one brand. Brands are compared in sorted
+	// order so that such a hostname is always attributed to the same one, rather than to
+	// whichever the map iteration happens to visit first.
+	for _, brand := range sortedBrands(popularDomains) {
+		for _, legit := range popularDomains[brand] {
 			patterns := []string{}
 
 			if hasSameSuffix(host, legit) && isSingleEditDistance(host, legit) {
@@ -88,6 +92,16 @@ func (a DomainAnalyzer) Analyze(host string) map[string]any {
 	}
 
 	return match
+}
+
+// sortedBrands returns the brands of the popular domain dataset in alphabetical order.
+func sortedBrands(popular map[string][]string) []string {
+	brands := make([]string, 0, len(popular))
+	for brand := range popular {
+		brands = append(brands, brand)
+	}
+	sort.Strings(brands)
+	return brands
 }
 
 // EvaluateDomainThreat determines the security threat classification based on the detected

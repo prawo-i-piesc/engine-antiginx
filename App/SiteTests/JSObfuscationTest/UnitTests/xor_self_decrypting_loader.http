@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!doctype html>
+<html><head><title>Loading</title>
+<script>
+  var blob = atob("Q0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGVmZ2hp");
+  var out = "";
+  for (var i = 0; i < blob.length; i++) { out += String.fromCharCode(blob.charCodeAt(i) ^ 0x2a); }
+  var note = "\x6e\x6f\x74\x68\x69\x6e\x67\x20\x74\x6f\x20\x73\x65\x65";
+  console.log(out.length, note);
+</script>
+</head><body></body></html>

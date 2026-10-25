@@ -29,6 +29,10 @@ The two dimensions run independently, one per file in `modules/`.
 - homograph detection: characters are normalised through the confusable map and re-compared,
   so a Cyrillic `а` in `pаypal.com` is caught even though the two strings differ in every byte
 
+Brands are compared in alphabetical order and the first lookalike match wins, so a hostname
+that resembles domains of two brands (`mea.com` is one edit from both `me.com` and `ea.com`)
+is always attributed to the same brand, here `apple`.
+
 **Parameters** (`urlparameters.go`) walks the query string, the userinfo and the path,
 matching parameter names against four databases and their values against the dangerous
 scheme list. Base64-looking values are decoded and re-examined, which is what catches a

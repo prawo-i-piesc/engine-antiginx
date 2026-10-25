@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: PHPSESSID=8f14e45fceea167a5a36dedd4bea2543; Path=/; Secure; HttpOnly
+
+<html><body>The session cookie can be sent with cross-site requests: CSRF</body></html>

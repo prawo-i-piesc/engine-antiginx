@@ -32,6 +32,13 @@ go run ./App/main.go test --target example.com --tests csp
 5. Score policy strength from coverage and strictness, and map the score to a protection
    level.
 
+`script-src`, `object-src` and `style-src` take their sources from `default-src` when the
+policy leaves them out, so `default-src 'self' 'unsafe-inline'` without a `script-src` lets
+inline script run and is graded exactly like `script-src 'unsafe-inline'`. A critical issue
+caps the strength at 19, the top of the `poor` band, so the level stated in the report
+agrees with the High verdict. Missing directives, recommendations and findings are listed in
+sorted order, so the same policy always produces the same report.
+
 `frame-ancestors` is checked here as well as in the `xframe` test, because it belongs to
 both stories: it is part of the policy's completeness and it is the clickjacking defence.
 
@@ -49,7 +56,7 @@ that score maps to (`excellent`, `good`, `acceptable`, `weak`, `poor`).
 | **Info** | Well configured, minor improvements possible |
 | **Low** | Basic policy with some weaknesses |
 | **Medium** | Present but with significant weaknesses |
-| **High** | Present but severely misconfigured, protecting little |
+| **High** | A critical issue — `'unsafe-inline'` reaching `script-src` (directly or through `default-src`), `'unsafe-eval'`, or `*` in a critical directive — or a policy protecting little |
 | **Critical** | No policy at all |
 
 ## Files

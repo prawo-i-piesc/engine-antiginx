@@ -18,11 +18,16 @@ SiteTests/
 ├── Types.go                    the framework
 ├── helpers.go                  reusable functions for tests
 ├── README.md                   this file
+├── UnitTestKit/                runs tests against prepared data
 ├── HSTSTest/
 │   ├── README.md               what the test is for
 │   ├── core.go                 the test itself
 │   ├── config.go               what tunes it
-│   └── data.go                 what it knows
+│   ├── data.go                 what it knows
+│   └── UnitTests/              prepared data and the tests that use it
+│       ├── weak_max_age.http
+│       ├── …
+│       └── hsts_test.go
 └── PhishingURLTest/
     ├── README.md
     ├── core.go
@@ -71,11 +76,13 @@ own — the point is to stop five slightly different header parsers from existin
 | `ContainsAnyFold(haystack, needles)` | Whether any needle appears, ignoring case |
 | `FindAllFold(haystack, needles)` | Which needles appear, ignoring case, in the order given |
 | `ContainsStandaloneToken(haystack, token)` | Whether a token appears delimited by non-alphanumerics, so `google` does not match inside `googleapis` |
+| `MatchesNameFragment(name, fragments)` | Whether a name (a cookie's) contains a fragment, ignoring case. Fragments of five characters or more match anywhere (`session` in `laravel_session`); shorter ones only as a word of their own (`sid` in `connect.sid`, not in `sidebar_state`) |
 | `UniqueStrings(values)` | Deduplicates, preserving first-seen order |
 | `HighestThreatLevel(levels...)` | The most severe level given |
 | `EscalateThreatLevel(level)` | Raises a level by one, capped at `Critical` — how a test says several findings together mean more than the worst alone |
 | `FormatDuration(seconds)` | Renders seconds as the largest whole unit that fits |
-| `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered, so two hostnames can be compared as one site |
+| `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered with a registry — what RDAP knows about |
+| `SiteDomain(host)` | Reduces a hostname to the site it belongs to: the registrable domain, except on hosting platforms that give each customer a subdomain (`github.io`, `vercel.app`…), where `alice.github.io` and `bob.github.io` are different sites |
 
 Two things deliberately stay out. `CookieSecurityTest` keeps its own duration formatter
 because its wording differs (`1 year(s) 30 day(s)` against `1 year`), and unifying them
@@ -139,10 +146,41 @@ type TestResult struct {
 reports 100 whatever it found; a heuristic reports lower, and a test whose sources were
 unreachable reports lower still.
 
+## Unit tests
+
+Every test keeps prepared data specific to it in its own `UnitTests/` directory, next to Go
+tests that run it through its public `New()` — the same `Run` the scheduler calls during a
+scan — and check the verdict, the description and the metadata. They need no network: sites
+are served locally and external services are replaced by stand-ins.
+
+| Kind of test | Prepared data | Run with |
+|---|---|---|
+| `Response` | `.http` files: a raw HTTP response as it travels on the wire — status line, headers, blank line, body. An optional `X-Fixture-URL:` pseudo-header names the address it was served from. | `UnitTestKit.RunResponse(t, X.New(), "weak_max_age.http")` |
+| `Structure` | A directory per scenario laid out as a website (`sites/exposed_env/.env`, `sites/apache_uploads/uploads/index.html`) | `UnitTestKit.ServeSite(t, dir, options...)`, then `UnitTestKit.RunTarget(t, X.New(), server.URL)` |
+| `PreResponse` | Target URLs, and prepared answers of the external service the test consults (RDAP, URLhaus) | `UnitTestKit.RunTarget(t, X.New(), address)` against a local stand-in named through the test's environment variable |
+
+`UnitTestKit` also provides `Expect(t, result, level, fragments...)`, `Metadata(t, result)` —
+the metadata as the JSON a report carries — and `ServeNVD`, a stand-in for the NVD API used by
+the server-header and CVE tests. `ServeSite` lifts the SSRF protection for the duration of the
+test only.
+
+A fixture is named after what it represents (`missing_header.http`, `soft_not_found/`) and
+carries a line of body text saying so. Fixtures that look like what a scanner hunts for are obviously fake
+(`DB_PASSWORD=fixture-not-a-real-password`, `CVE-2099-…`). Where the repository's `.gitignore`
+would drop a fixture (`*.pem`, `.env`), a `.gitignore` next to it re-includes it; a `.git`
+directory cannot be committed at all, so that site stores it as `dot-git/` and the test copies
+it under its real name before serving. Tests assert what the test *should* report: a
+behaviour that is a bug is left out and reported, never written down as expected.
+
+```bash
+go test ./App/...
+```
+
 ## Adding a test
 
 1. Create `SiteTests/<Name>Test/`.
-2. Write `README.md`, `core.go`, `config.go` and — if it has data — `data.go`.
+2. Write `README.md`, `core.go`, `config.go` and — if it has data — `data.go`, and prepared
+   data with its tests in `UnitTests/`.
 3. Register the package's `New()` in [`App/Registry`](../Registry/README.md).
 4. Add the identifier to the `--tests` whitelist in [`App/parser`](../parser/README.md).
 5. Add the test to the table in [CLI guide](../../QuickStart/CLI.md) and

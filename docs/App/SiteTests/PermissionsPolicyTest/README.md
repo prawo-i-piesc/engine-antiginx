@@ -29,12 +29,18 @@ go run ./App/main.go test --target example.com --tests permissions-policy
    lists in `data.go`.
 4. Grade on what remains reachable, weighted by which list it came from.
 
+Only well-formed `feature=allowlist` pairs count as directives; empty parts (a trailing
+comma) and anything else are skipped. A header with no valid directive at all — for example
+the legacy Feature-Policy syntax `camera 'none'` — is ignored by browsers and graded like a
+missing header. The description calls a policy excellent only when it is graded None, and
+good only when it is graded Info.
+
 ## What it reports
 
 | Key | Meaning |
 |---|---|
 | `raw_header` | The header as received |
-| `total_directives` | How many features the policy names |
+| `total_directives` | How many well-formed directives the policy contains |
 | `restricted_features` | Features whose allowlist actually restricts |
 | `allowed_features` | Features left reachable |
 | `dangerous_allowed` | Of those, the ones reaching hardware or location |
@@ -49,7 +55,7 @@ go run ./App/main.go test --target example.com --tests permissions-policy
 | **Info** | Policy present with minor gaps |
 | **Low** | Basic policy, some features left open |
 | **Medium** | Policy present but dangerous features are unrestricted |
-| **High** | No policy header at all |
+| **High** | No policy header, a header with no valid directive, or three or more dangerous features unrestricted |
 
 ## Files
 

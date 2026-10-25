@@ -1,0 +1,88 @@
+{
+  "resultsPerPage": 3,
+  "startIndex": 0,
+  "totalResults": 3,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-0110",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: medium severity issue number 10."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 6.1,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0111",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: medium severity issue number 11."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 6.1,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2099-0112",
+        "published": "2099-03-01T08:00:00.000",
+        "lastModified": "2099-03-01T08:00:00.000",
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Prepared fixture: medium severity issue number 12."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "baseScore": 6.1,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

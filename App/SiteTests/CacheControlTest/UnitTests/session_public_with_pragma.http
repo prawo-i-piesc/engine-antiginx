@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: public
+Pragma: no-cache
+Set-Cookie: jwt=eyJ0eXAi; Path=/; Secure; HttpOnly
+
+<!doctype html>
+<html><head><title>Settings</title></head><body><p>Account settings</p></body></html>

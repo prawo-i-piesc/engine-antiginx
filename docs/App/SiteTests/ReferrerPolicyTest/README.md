@@ -46,11 +46,10 @@ the middle rather than at the bottom.
 
 | Level | When |
 |---|---|
-| **None** | `strict-origin-when-cross-origin`, `strict-origin` or `no-referrer` |
+| **None** | `strict-origin-when-cross-origin`, `strict-origin`, `same-origin` (nothing sent to other origins) or `no-referrer` |
 | **Info** | `origin-when-cross-origin` or `origin` |
-| **Low** | `same-origin` |
-| **Medium** | `no-referrer-when-downgrade`, which is the browser default and leaks the full URL to other sites |
-| **High** | `unsafe-url`, or no header at all |
+| **Medium** | `no-referrer-when-downgrade`, the default of older browsers, which leaks the full URL to other sites; or no header at all |
+| **High** | `unsafe-url`, or only values no browser recognises |
 
 ## Files
 
