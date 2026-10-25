@@ -8,7 +8,7 @@ import (
 )
 
 // fetcher wires the pattern table owned by this package into the retrieval stage.
-var fetcher = modules.Fetcher{DangerousPatterns: dangerousPatterns}
+var fetcher = modules.Fetcher{DangerousPatterns: DangerousPatterns}
 
 // New creates a new security test that analyzes sitemap.xml for dangerous path exposure
 // vulnerabilities.
