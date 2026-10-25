@@ -17,9 +17,12 @@ go run ./App/main.go test --target example.com --tests robots-txt
 - Whether a `robots.txt` exists and is reachable at all.
 - Every `Allow` and `Disallow` rule it declares, across all `User-agent` groups.
 - Rule paths matching known-dangerous fragments — the whole
-  [sitemap](../SitemapSecurityTest/README.md) table, extended with what robots files
-  typically name: login pages, installers, server internals, credentials, uploads, and
-  file-type wildcards such as `/*.sql$`.
+  [sitemap](../SitemapSecurityTest/README.md) table, the shared
+  [`SensitivePaths`](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SensitivePaths/paths.go)
+  file list (the same files the [sensitive-files test](../SensitiveFilesTest/README.md)
+  requests from the server), and what robots files typically name on top of those: login
+  pages, installers, server internals, credentials, uploads, and file-type wildcards such
+  as `/*.sql$`.
 - Whether a matching `Allow` rule actively exposes a sensitive path, or only carves an
   exception out of a disallowed one.
 
@@ -30,8 +33,9 @@ go run ./App/main.go test --target example.com --tests robots-txt
 2. Parse it line by line: comments are dropped, directive names are case-insensitive, empty
    `Disallow:` lines (which disallow nothing) and repeated rules are skipped. Other
    directives — `User-agent`, `Sitemap`, `Crawl-delay` — are ignored.
-3. Match each rule's path against `SitemapSecurityTest.DangerousPatterns` merged with the
-   test's own `data.go`. Two differences from the sitemap test:
+3. Match each rule's path against the shared `SensitivePaths` list and
+   `SitemapSecurityTest.DangerousPatterns`, merged with the test's own `data.go`. Two
+   differences from the sitemap test:
    - A fragment must not be followed by a letter, so `/test` matches `/test/`, `/test.php`
      and `/test2` but not `/testimonials`, and `/log` does not match `/login`.
    - When several fragments match, the longest wins, so `/api-docs/` is reported as API
@@ -78,9 +82,12 @@ Any exposed `Allow` raises the level by one, capped at Critical.
 
 ## Notes
 
-An unreachable robots.txt is not a finding — there are no rules to reveal anything. To add
-a fragment to both tests, put it in the sitemap's `data.go`; to add one only here, put it
-in this test's `data.go`.
+An unreachable robots.txt is not a finding — there are no rules to reveal anything.
+
+Where to add a path: a sensitive **file** goes in the shared `SensitivePaths` list, which
+this test, the sitemap test and the sensitive-files test all read. A dangerous **location**
+fragment shared with the sitemap test goes in the sitemap's `data.go`; one only robots.txt
+should flag goes in this test's `data.go`.
 
 ---
 

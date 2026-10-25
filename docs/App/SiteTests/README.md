@@ -5,7 +5,11 @@ distinguish them from Go unit tests — these examine a target website, not this
 
 Two Go files sit in this directory and neither is a test: `Types.go` is the framework —
 the types every test reports through — and `helpers.go` is the shared toolbox. Everything
-else is a test, in its own directory, in its own package.
+else is a test, in its own directory, in its own package — with one exception:
+`SensitivePaths/` is a data-only package, not a test. It holds the one list of
+known-sensitive files that both `SitemapSecurityTest` and `SensitiveFilesTest` read, so the
+definition of "sensitive file" lives in a single place. It declares no `New()` and is not
+registered.
 
 ## Directory layout
 

@@ -4,11 +4,26 @@ package SitemapSecurityTest
 
 import (
 	"Engine-AntiGinx/App/SiteTests"
+	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest/modules"
 )
 
-// fetcher wires the pattern table owned by this package into the retrieval stage.
-var fetcher = modules.Fetcher{DangerousPatterns: DangerousPatterns}
+// fetcher wires the pattern table into the retrieval stage: this package's own fragments
+// for dangerous locations, plus every file from the shared SensitivePaths list, so a
+// sensitive file a sitemap declares is flagged by the same definition SensitiveFilesTest
+// probes the server with.
+var fetcher = modules.Fetcher{DangerousPatterns: withSensitiveFiles(DangerousPatterns)}
+
+// withSensitiveFiles returns the dangerous-pattern table extended with the shared sensitive
+// files. A local fragment already present is kept, since this package's wording is more
+// specific than the shared category.
+func withSensitiveFiles(patterns map[string]string) map[string]string {
+	merged := SensitivePaths.AsPatterns()
+	for pattern, category := range patterns {
+		merged[pattern] = category
+	}
+	return merged
+}
 
 // New creates a new security test that analyzes sitemap.xml for dangerous path exposure
 // vulnerabilities.
