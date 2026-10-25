@@ -2,10 +2,12 @@ package strategy
 
 import (
 	HttpClient "Engine-AntiGinx/App/HTTP"
+	"Engine-AntiGinx/App/Metrics"
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/BotProtectionTest"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -15,6 +17,8 @@ import (
 
 // LoadWebsiteContent fetches the target website content via HTTP GET request and returns the response for sharing across all test executions.
 func LoadWebsiteContent(target string, useAntiBotDetection bool) (*http.Response, *RequestInfo) {
+	slog.Info("Loading website content", slog.String("target", target))
+
 	opts := []HttpClient.WrapperOption{
 		HttpClient.WithHeaders(map[string]string{
 			"User-Agent": "AntiGinx-TestClient/1.0",
@@ -23,18 +27,25 @@ func LoadWebsiteContent(target string, useAntiBotDetection bool) (*http.Response
 	if useAntiBotDetection {
 		opts = append(opts, HttpClient.WithAntiBotDetection())
 	}
+
 	httpClient := HttpClient.CreateHttpWrapper(opts...)
 	var content *http.Response
 	var reqInfo *RequestInfo
 
 	for i := 0; i < 2; i++ {
+		slog.Debug("Attempting to load content", slog.Int("attempt", i+1))
 		panicTriggerred := false
+
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
 					panicTriggerred = true
 					switch val := r.(type) {
 					case HttpClient.HttpError:
+						slog.Warn("HTTP Error encountered during content load",
+							slog.String("message", val.Message),
+							slog.Int("code", val.Code))
+
 						reqInfo = &RequestInfo{
 							Message:     val.Message,
 							Code:        val.Code,
@@ -44,6 +55,7 @@ func LoadWebsiteContent(target string, useAntiBotDetection bool) (*http.Response
 							return
 						}
 					default:
+						slog.Error("Unknown error occurred during content load", slog.Any("error", val))
 						reqInfo = &RequestInfo{
 							Message: "Unknown error occurred",
 							Code:    999,
@@ -51,18 +63,25 @@ func LoadWebsiteContent(target string, useAntiBotDetection bool) (*http.Response
 					}
 				}
 			}()
+
 			content = httpClient.Get(target)
 		}()
+
 		if !panicTriggerred {
+			slog.Info("Content loaded successfully")
 			return content, &RequestInfo{
 				Message: "Content loaded successfully",
 				Code:    0,
 			}
 		}
+
 		if i < 1 {
+			slog.Debug("Sleeping before retry", slog.Int("seconds", 2))
 			time.Sleep(time.Second * 2)
 		}
 	}
+
+	slog.Warn("Failed to load content after retries")
 	return nil, reqInfo
 }
 
@@ -80,19 +99,36 @@ type PhaseRun struct {
 
 // RunPhases schedules every selected test into the phase its kind calls for and starts it.
 func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup) {
+	slog.Info("Starting test phases", slog.Int("totalTests", len(run.Tests)))
 	preTests, responseTests, structureTests := bucketByKind(run.Tests)
+
+	slog.Debug("Bucketed tests",
+		slog.Int("preResponse", len(preTests)),
+		slog.Int("response", len(responseTests)),
+		slog.Int("structure", len(structureTests)))
 
 	// Started before the fetch so they overlap with it instead of queueing behind it.
 	targetContext := SiteTests.ScanContext{Target: run.CanonicalTarget}
-	startTests(preTests, targetContext, channel, wg)
-	startTests(structureTests, targetContext, channel, wg)
+
+	if len(preTests) > 0 {
+		slog.Debug("Starting PreResponse tests")
+		startTests(preTests, targetContext, channel, wg)
+	}
+
+	if len(structureTests) > 0 {
+		slog.Debug("Starting Structure tests")
+		startTests(structureTests, targetContext, channel, wg)
+	}
 
 	if len(responseTests) == 0 {
+		slog.Debug("No Response tests requested, skipping content load")
 		return
 	}
 
 	response, reqInfo := run.LoadContent(run.ResponseTarget, run.AntiBotFlag)
+
 	if reqInfo.Code != 0 {
+		slog.Warn("Skipping Response tests due to failed content load", slog.Int("skippedCount", len(responseTests)))
 		channel <- WrapRequestFailure(withSkippedTests(reqInfo, responseTests), reportsBotProtection(preTests))
 		return
 	}
@@ -103,6 +139,8 @@ func RunPhases(run PhaseRun, channel chan ResultWrapper, wg *sync.WaitGroup) {
 	if response.Request != nil && response.Request.URL != nil {
 		responseContext.Target = response.Request.URL
 	}
+
+	slog.Debug("Starting Response tests")
 	startTests(responseTests, responseContext, channel, wg)
 }
 
@@ -112,6 +150,7 @@ func readBody(response *http.Response) []byte {
 	}
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
+		slog.Warn("Failed to read response body", slog.String("error", err.Error()))
 		return nil
 	}
 	return body
@@ -149,7 +188,8 @@ func withSkippedTests(info *RequestInfo, skipped []SiteTests.Test) *RequestInfo 
 	annotated := *info
 	annotated.Message += fmt.Sprintf(
 		"\nSkipped %d test(s) that need the page content: %s",
-		len(ids), strings.Join(ids, ", "),
+		len(ids),
+		strings.Join(ids, ", "),
 	)
 	return &annotated
 }
@@ -157,7 +197,17 @@ func withSkippedTests(info *RequestInfo, skipped []SiteTests.Test) *RequestInfo 
 // PerformTest runs one test and publishes its result; the caller starts the goroutine.
 func PerformTest(test SiteTests.Test, wg *sync.WaitGroup, results chan<- ResultWrapper, ctx SiteTests.ScanContext) {
 	defer wg.Done()
+	slog.Debug("Executing test")
+
+	start := time.Now()
+	defer func() {
+		Metrics.ObserveTestDurationTime(test.GetName(), time.Since(start).Seconds())
+	}()
+
 	testResult := test.Run(ctx)
+
+	Metrics.IncVulnerabilitiesTotal(testResult.ThreatLevel.String(), testResult.Name, 1)
+
 	wrapped := WrapStrategyResult(&testResult, nil, nil)
 	results <- wrapped
 }
@@ -167,7 +217,6 @@ func WrapRequestFailure(info *RequestInfo, hasBotProtectionTest bool) ResultWrap
 	if info == nil || len(info.Protections) == 0 || hasBotProtectionTest {
 		return WrapStrategyResult(nil, nil, info)
 	}
-
 	verdict := BotProtectionTest.NewVerdict(info.Protections, info.Message, info.Code)
 	return WrapStrategyResult(&verdict, nil, nil)
 }

@@ -3,12 +3,22 @@ package GlobalHandler
 import (
 	"Engine-AntiGinx/App/Errors"
 	HttpClient "Engine-AntiGinx/App/HTTP"
+	"Engine-AntiGinx/App/Metrics"
 	"Engine-AntiGinx/App/Reporter"
+	"Engine-AntiGinx/App/Reporter/types"
 	"Engine-AntiGinx/App/Runner"
 	parameterparser "Engine-AntiGinx/App/parser"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
+	"time"
+)
+
+const (
+	logChannelSize     = 500
+	metricsChannelSize = 100
 )
 
 // ErrorHandler serves as the global safety net and execution controller for the application.
@@ -27,6 +37,7 @@ func InitializeErrorHandler(cliMode bool) *ErrorHandler {
 func (e *ErrorHandler) RunSafe() {
 	defer func() {
 		if r := recover(); r != nil {
+			slog.Error("Critical panic recovered", slog.Any("error", r))
 			switch val := r.(type) {
 			case Errors.Error:
 				e.printError(val)
@@ -52,14 +63,39 @@ func (e *ErrorHandler) RunSafe() {
 			os.Exit(1)
 		}
 	}()
+
+	metricsChannel := make(chan Metrics.MetricsEvent, metricsChannelSize)
+	Metrics.SetChannel(metricsChannel)
+	start := time.Now()
+	defer func() {
+		Metrics.ObserveScanDurationTime(time.Since(start).Seconds())
+		close(metricsChannel)
+	}()
 	args := os.Args
 	resolver := parameterparser.CreateResolver()
 	parser, formatter := resolver.Resolve(args)
 	parsedParams := parser.Parse(args)
 	execPlan := formatter.FormatParameters(parsedParams)
+
+	logChannel := make(chan types.LogEvent, logChannelSize)
+	e.setupHandler(logChannel, execPlan.TaskId)
+	slog.Info("AntiGinx Engine initialized", slog.String("taskId", execPlan.TaskId))
+
 	runner := Runner.CreateJobRunner()
 	repResolver := Reporter.NewResolver()
-	runner.Orchestrate(execPlan, repResolver)
+	runner.Orchestrate(execPlan, repResolver, logChannel, metricsChannel)
+}
+
+func (e *ErrorHandler) setupHandler(log chan<- types.LogEvent, taskId string) {
+	var handler slog.Handler
+
+	if _, exists := os.LookupEnv("PIPE_COMMUNICATION"); exists {
+		handler = Reporter.NewLogHandler(log, taskId, slog.Level(-4))
+	} else {
+		handler = slog.NewTextHandler(io.Discard, nil)
+	}
+
+	slog.SetDefault(slog.New(handler))
 }
 
 // printError writes the formatted error details to standard error (os.Stderr).

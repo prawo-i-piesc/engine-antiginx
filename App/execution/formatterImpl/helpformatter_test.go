@@ -16,7 +16,7 @@ type helpFormatterTest struct {
 	input           []*types.CommandParameter
 	output          *execution.Plan
 	getHelpStrategy func(name string) (strategy.TestStrategy, bool)
-	backEnvSet      bool
+	pipeEnvSet      bool
 }
 
 func TestHelpFormatter_FormatParameters(t *testing.T) {
@@ -30,11 +30,11 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 
 	tests := []helpFormatterTest{
 		{
-			Name:       "Panic when BACK_URL is set",
+			Name:       "Panic when PIPE_COMMUNICATION is set",
 			wantErr:    true,
 			input:      []*types.CommandParameter{help1Param},
 			output:     nil,
-			backEnvSet: true,
+			pipeEnvSet: true,
 			getHelpStrategy: func(name string) (strategy.TestStrategy, bool) {
 				return mockHelpStrategy1, true
 			},
@@ -43,7 +43,7 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 			Name:       "Empty params (default help) - Happy path",
 			wantErr:    false,
 			input:      []*types.CommandParameter{},
-			backEnvSet: false,
+			pipeEnvSet: false,
 			output: &execution.Plan{
 				Target:      "",
 				AntiBotFlag: false,
@@ -65,7 +65,7 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 			Name:       "Empty params (default help) - Strategy not found",
 			wantErr:    true,
 			input:      []*types.CommandParameter{},
-			backEnvSet: false,
+			pipeEnvSet: false,
 			output:     nil,
 			getHelpStrategy: func(name string) (strategy.TestStrategy, bool) {
 				return nil, false
@@ -75,7 +75,7 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 			Name:       "Provided multiple help params - Happy path",
 			wantErr:    false,
 			input:      []*types.CommandParameter{help1Param, help2Param},
-			backEnvSet: false,
+			pipeEnvSet: false,
 			output: &execution.Plan{
 				Target:      "",
 				AntiBotFlag: false,
@@ -110,7 +110,7 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 			Name:       "Provided help params - Invalid param passed",
 			wantErr:    true,
 			input:      []*types.CommandParameter{help1Param, invalidHelpParam},
-			backEnvSet: false,
+			pipeEnvSet: false,
 			output:     nil,
 			getHelpStrategy: func(name string) (strategy.TestStrategy, bool) {
 				if name == "--help1" {
@@ -123,8 +123,8 @@ func TestHelpFormatter_FormatParameters(t *testing.T) {
 
 	for _, val := range tests {
 		t.Run(val.Name, func(t *testing.T) {
-			if val.backEnvSet {
-				t.Setenv("BACK_URL", "test")
+			if val.pipeEnvSet {
+				t.Setenv("PIPE_COMMUNICATION", "test")
 			}
 
 			if val.wantErr {

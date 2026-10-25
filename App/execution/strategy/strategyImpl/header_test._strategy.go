@@ -5,6 +5,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sync"
 )
@@ -35,6 +36,7 @@ func (h *headerTestStrategy) Execute(ctx strategy.TestContext, channel chan stra
 	for _, val := range ctx.Args {
 		t, ok := h.getTest(val)
 		if !ok {
+			slog.Error("Requested test does not exist in registry")
 			panic(error.Error{
 				Code:        100,
 				Message:     fmt.Sprintf("Parsing error occurred. This could be due to:\n- test with Id %s does not exists", val),

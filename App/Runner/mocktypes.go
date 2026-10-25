@@ -1,7 +1,9 @@
 package Runner
 
 import (
+	"Engine-AntiGinx/App/Metrics"
 	"Engine-AntiGinx/App/Reporter"
+	"Engine-AntiGinx/App/Reporter/types"
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/execution/strategy"
 	"sync"
@@ -25,7 +27,7 @@ func (mr *MockReporter) StartListening() <-chan int {
 type MockResolver struct{}
 
 func (mRes *MockResolver) Resolve(ch chan strategy.ResultWrapper, taskId string,
-	target string, clientTimeOut int, retryDelay int, strategies []strategy.TestStrategy) Reporter.Reporter {
+	target string, strategies []strategy.TestStrategy, logChan chan types.LogEvent, metricsChan chan Metrics.MetricsEvent) Reporter.Reporter {
 	return &MockReporter{ch}
 }
 

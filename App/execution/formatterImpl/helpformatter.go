@@ -21,7 +21,7 @@ func NewHelpFormatter(getHelpStrategy func(name string) (strategy.TestStrategy, 
 
 // FormatParameters processes the parsed command parameters to construct an execution plan specifically for help operations.
 func (h *HelpFormatter) FormatParameters(params []*types.CommandParameter) *execution.Plan {
-	if _, exists := os.LookupEnv("BACK_URL"); exists {
+	if _, exists := os.LookupEnv("PIPE_COMMUNICATION"); exists {
 		panic(Errors.Error{
 			Code: 100,
 			Message: `Help Formatter error occurred. This could be due to:
