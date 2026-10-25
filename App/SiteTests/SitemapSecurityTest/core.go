@@ -8,14 +8,14 @@ import (
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest/modules"
 )
 
-// fetcher wires the pattern table into the retrieval stage: every file from the shared
-// SensitivePaths list, so a sensitive file a sitemap declares is flagged by the same
-// definition SensitiveFilesTest probes the server with, then this package's own fragments
-// for dangerous locations, which win on a shared key since their wording is more specific.
+// fetcher wires the pattern table and the limits from config.go into the retrieval stage:
+// every file from the shared SensitivePaths list, so a sensitive file a sitemap declares is
+// flagged by the same definition SensitiveFilesTest probes the server with, then the shared
+// dangerous-location fragments, whose more specific wording wins on a shared key.
 var fetcher = modules.Fetcher{
-	Matcher:      SensitivePaths.Matcher(SensitivePaths.Merge(SensitivePaths.AsPatterns(), DangerousPatterns)),
-	Timeout:      FetchTimeout,
-	MaxBodyBytes: MaxBodyBytes,
+	DangerousPatterns: SensitivePaths.Merge(SensitivePaths.AsPatterns(), SensitivePaths.Locations),
+	Timeout:           FetchTimeout,
+	MaxBodyBytes:      MaxBodyBytes,
 }
 
 // New creates a new security test that analyzes sitemap.xml for dangerous path exposure
@@ -27,14 +27,12 @@ func New() *SiteTests.StructureTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
-			// Extract base URL from the target
-			baseUrl := params.Target.Scheme + "://" + params.Target.Host
-
-			analysis := fetcher.Analyze(baseUrl)
+			// Fetch sitemap.xml
+			analysis := fetcher.Analyze(SiteTests.BaseURL(params.Target))
 
 			return SiteTests.TestResult{
 				Name:        TestName,
-				Certainty:   90,
+				Certainty:   Certainty,
 				ThreatLevel: modules.EvaluateThreat(analysis),
 				Metadata:    analysis,
 				Description: modules.Describe(analysis),

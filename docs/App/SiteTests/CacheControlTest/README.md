@@ -4,7 +4,7 @@ A Response test that checks whether a page tied to a user session can end up in 
 
 ## What it checks
 
-A response is **sensitive** when it sets a session-related cookie (`session`, `sessid`, `phpsessid`, `jsessionid`, `sid`, `auth`, `token`, `jwt`) or its body contains `<input type="password">`.
+A response is **sensitive** when it sets a session-related cookie — one whose name contains, case-insensitively, a fragment from `sessionCookieNames` such as `sess`, `sid`, `auth`, `token`, `jwt` or `remember` — or its body contains `<input type="password">`.
 
 For sensitive responses the test reads `Cache-Control` and `Pragma`:
 

@@ -17,7 +17,7 @@ func run(headers map[string]string, cookie string, body string) SiteTests.TestRe
 		h.Add("Set-Cookie", cookie+"=abc; Path=/")
 	}
 	resp := &http.Response{Header: h, Body: io.NopCloser(strings.NewReader(body))}
-	return New().RunTest(SiteTests.ResponseTestParams{Response: resp})
+	return New().RunTest(SiteTests.ResponseTestParams{Response: resp, Body: []byte(body)})
 }
 
 func TestCacheControl(t *testing.T) {

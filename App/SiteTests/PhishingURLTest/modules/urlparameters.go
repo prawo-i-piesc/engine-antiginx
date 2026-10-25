@@ -25,27 +25,35 @@ type ParameterAnalyzer struct {
 	RedactedPlaceholder   string
 }
 
+// ParameterAnalysis is what the path, query and userinfo of a URL carry. Fields are in the
+// alphabetical order of their JSON names, the order the metadata map this replaced was
+// serialized in, so reports keep the same shape.
+type ParameterAnalysis struct {
+	AnalyzedParameters         []string `json:"analyzed_parameters"`          // Every query parameter name, sorted
+	BrandKeywordsInURL         []string `json:"brand_keywords_in_url"`        // Brands named in the path or query but not the host
+	CredentialParameters       []string `json:"credential_parameters"`        // Parameters named like a password or secret
+	CredentialValuesPresent    bool     `json:"credential_values_present"`    // Whether any credential actually carries a value
+	DangerousSchemeParameters  []string `json:"dangerous_scheme_parameters"`  // Parameters whose value is a javascript:, data: or similar URL
+	DetectedPatterns           []string `json:"detected_patterns"`            // Every finding, worded for the report
+	EmbeddedCredentials        bool     `json:"embedded_credentials"`         // Whether the URL has a user:password@ part
+	EncodedPayloadParameters   []string `json:"encoded_payload_parameters"`   // Parameters hiding a base64 encoded URL or address
+	ExternalRedirectParameters []string `json:"external_redirect_parameters"` // Redirect parameters pointing at another host
+	IdentityParameters         []string `json:"identity_parameters"`          // Parameters pre-filling the victim's identity
+	IsSuspicious               bool     `json:"is_suspicious"`                // Whether anything was found
+	ParameterCount             int      `json:"parameter_count"`              // Distinct query parameter names
+	SensitiveParameters        []string `json:"sensitive_parameters"`         // Parameters named like a card number or token
+	StructuralIndicators       []string `json:"structural_indicators"`        // Shape findings: IP host, path keywords, length
+	URL                        string   `json:"url"`                          // The URL with parameter values redacted
+}
+
 // Analyze performs the full phishing analysis of a URL.
-func (a ParameterAnalyzer) Analyze(target *url.URL) map[string]any {
+func (a ParameterAnalyzer) Analyze(target *url.URL) ParameterAnalysis {
 	host := strings.ToLower(strings.TrimSuffix(target.Hostname(), "."))
 	query := target.Query()
 
-	analysis := map[string]any{
-		"url":                          a.RedactURL(target),
-		"is_suspicious":                false,
-		"embedded_credentials":         false,
-		"credential_values_present":    false,
-		"parameter_count":              len(query),
-		"analyzed_parameters":          []string{},
-		"credential_parameters":        []string{},
-		"sensitive_parameters":         []string{},
-		"identity_parameters":          []string{},
-		"external_redirect_parameters": []string{},
-		"encoded_payload_parameters":   []string{},
-		"dangerous_scheme_parameters":  []string{},
-		"brand_keywords_in_url":        []string{},
-		"structural_indicators":        []string{},
-		"detected_patterns":            []string{},
+	analysis := ParameterAnalysis{
+		URL:            a.RedactURL(target),
+		ParameterCount: len(query),
 	}
 
 	names := []string{}
@@ -61,7 +69,7 @@ func (a ParameterAnalyzer) Analyze(target *url.URL) map[string]any {
 	// Userinfo credentials are the most explicit form of credential exposure and
 	// are additionally used to hide the real host behind an "@" in the URL.
 	if target.User != nil && target.User.Username() != "" {
-		analysis["embedded_credentials"] = true
+		analysis.EmbeddedCredentials = true
 		patterns = append(patterns, "credentials embedded in the URL userinfo")
 		if password, hasPassword := target.User.Password(); hasPassword && password != "" {
 			credentialValuePresent = true
@@ -113,40 +121,39 @@ func (a ParameterAnalyzer) Analyze(target *url.URL) map[string]any {
 	structural := a.detectStructuralIndicators(host, target, len(query))
 	patterns = append(patterns, structural...)
 
-	analysis["credential_values_present"] = credentialValuePresent
-	analysis["analyzed_parameters"] = names
-	analysis["credential_parameters"] = SiteTests.UniqueStrings(credentials)
-	analysis["sensitive_parameters"] = SiteTests.UniqueStrings(sensitive)
-	analysis["identity_parameters"] = SiteTests.UniqueStrings(identity)
-	analysis["external_redirect_parameters"] = SiteTests.UniqueStrings(externalRedirects)
-	analysis["encoded_payload_parameters"] = SiteTests.UniqueStrings(encodedPayloads)
-	analysis["dangerous_scheme_parameters"] = SiteTests.UniqueStrings(dangerousSchemes)
-	analysis["brand_keywords_in_url"] = brands
-	analysis["structural_indicators"] = structural
-	analysis["detected_patterns"] = SiteTests.UniqueStrings(patterns)
-	analysis["is_suspicious"] = len(patterns) > 0
+	analysis.CredentialValuesPresent = credentialValuePresent
+	analysis.AnalyzedParameters = names
+	analysis.CredentialParameters = SiteTests.UniqueStrings(credentials)
+	analysis.SensitiveParameters = SiteTests.UniqueStrings(sensitive)
+	analysis.IdentityParameters = SiteTests.UniqueStrings(identity)
+	analysis.ExternalRedirectParameters = SiteTests.UniqueStrings(externalRedirects)
+	analysis.EncodedPayloadParameters = SiteTests.UniqueStrings(encodedPayloads)
+	analysis.DangerousSchemeParameters = SiteTests.UniqueStrings(dangerousSchemes)
+	analysis.BrandKeywordsInURL = brands
+	analysis.StructuralIndicators = structural
+	analysis.DetectedPatterns = SiteTests.UniqueStrings(patterns)
+	analysis.IsSuspicious = len(patterns) > 0
 
 	return analysis
 }
 
 // EvaluateParameterThreat determines the security threat classification based on the
 // indicators collected by Analyze.
-func EvaluateParameterThreat(metadata map[string]any) SiteTests.ThreatLevel {
-	isSuspicious, _ := metadata["is_suspicious"].(bool)
-	if !isSuspicious {
+func EvaluateParameterThreat(analysis ParameterAnalysis) SiteTests.ThreatLevel {
+	if !analysis.IsSuspicious {
 		return SiteTests.None
 	}
 
-	embedded, _ := metadata["embedded_credentials"].(bool)
-	credentialValues, _ := metadata["credential_values_present"].(bool)
-	credentials, _ := metadata["credential_parameters"].([]string)
-	sensitive, _ := metadata["sensitive_parameters"].([]string)
-	identity, _ := metadata["identity_parameters"].([]string)
-	redirects, _ := metadata["external_redirect_parameters"].([]string)
-	encoded, _ := metadata["encoded_payload_parameters"].([]string)
-	schemes, _ := metadata["dangerous_scheme_parameters"].([]string)
-	brands, _ := metadata["brand_keywords_in_url"].([]string)
-	structural, _ := metadata["structural_indicators"].([]string)
+	embedded := analysis.EmbeddedCredentials
+	credentialValues := analysis.CredentialValuesPresent
+	credentials := analysis.CredentialParameters
+	sensitive := analysis.SensitiveParameters
+	identity := analysis.IdentityParameters
+	redirects := analysis.ExternalRedirectParameters
+	encoded := analysis.EncodedPayloadParameters
+	schemes := analysis.DangerousSchemeParameters
+	brands := analysis.BrandKeywordsInURL
+	structural := analysis.StructuralIndicators
 
 	// Credentials travelling inside the URL or an executable scheme in a value
 	// are unambiguous - no additional confirmation is required.
@@ -202,47 +209,44 @@ func EvaluateParameterThreat(metadata map[string]any) SiteTests.ThreatLevel {
 }
 
 // DescribeParameters creates a human-readable summary of the analysis.
-func DescribeParameters(metadata map[string]any) string {
-	isSuspicious, _ := metadata["is_suspicious"].(bool)
-	if !isSuspicious {
-		count, _ := metadata["parameter_count"].(int)
-		if count == 0 {
+func DescribeParameters(analysis ParameterAnalysis) string {
+	if !analysis.IsSuspicious {
+		if analysis.ParameterCount == 0 {
 			return "URL carries no query parameters and no phishing indicators were detected"
 		}
-		return fmt.Sprintf("No phishing indicators detected in the %d URL parameter(s)", count)
+		return fmt.Sprintf("No phishing indicators detected in the %d URL parameter(s)", analysis.ParameterCount)
 	}
 
 	sections := []string{}
 
-	if embedded, _ := metadata["embedded_credentials"].(bool); embedded {
+	if analysis.EmbeddedCredentials {
 		sections = append(sections, "credentials are embedded directly in the URL")
 	}
-	sections = appendParameterSection(sections, metadata, "credential_parameters", "credential parameter(s)")
-	sections = appendParameterSection(sections, metadata, "sensitive_parameters", "sensitive data parameter(s)")
-	sections = appendParameterSection(sections, metadata, "dangerous_scheme_parameters", "parameter(s) with a dangerous scheme")
-	sections = appendParameterSection(sections, metadata, "external_redirect_parameters", "external redirect parameter(s)")
-	sections = appendParameterSection(sections, metadata, "encoded_payload_parameters", "parameter(s) hiding encoded data")
-	sections = appendParameterSection(sections, metadata, "identity_parameters", "victim identity parameter(s)")
+	sections = appendParameterSection(sections, analysis.CredentialParameters, "credential parameter(s)")
+	sections = appendParameterSection(sections, analysis.SensitiveParameters, "sensitive data parameter(s)")
+	sections = appendParameterSection(sections, analysis.DangerousSchemeParameters, "parameter(s) with a dangerous scheme")
+	sections = appendParameterSection(sections, analysis.ExternalRedirectParameters, "external redirect parameter(s)")
+	sections = appendParameterSection(sections, analysis.EncodedPayloadParameters, "parameter(s) hiding encoded data")
+	sections = appendParameterSection(sections, analysis.IdentityParameters, "victim identity parameter(s)")
 
-	if brands, _ := metadata["brand_keywords_in_url"].([]string); len(brands) > 0 {
+	if brands := analysis.BrandKeywordsInURL; len(brands) > 0 {
 		sections = append(sections, fmt.Sprintf("brand keyword(s) used outside the hostname: %s", strings.Join(brands, ", ")))
 	}
 
-	if structural, _ := metadata["structural_indicators"].([]string); len(structural) > 0 {
+	if structural := analysis.StructuralIndicators; len(structural) > 0 {
 		sections = append(sections, strings.Join(structural, "; "))
 	}
 
 	return fmt.Sprintf(
 		"Suspicious URL detected: %s. Analyzed URL: %s",
 		strings.Join(sections, "; "),
-		metadata["url"],
+		analysis.URL,
 	)
 }
 
 // appendParameterSection appends a description fragment for one metadata category, but only
 // when that category actually contains parameters.
-func appendParameterSection(sections []string, metadata map[string]any, key string, label string) []string {
-	values, _ := metadata[key].([]string)
+func appendParameterSection(sections []string, values []string, label string) []string {
 	if len(values) == 0 {
 		return sections
 	}

@@ -26,11 +26,14 @@ go run ./App/main.go test --target example.com --tests sitemap
    of it (`MaxBodyBytes` in `config.go`).
 2. Parse the XML and collect every distinct `<loc>` it declares.
 3. Match the path of each URL — not its hostname, so `dev.example.com` or `api.example.com`
-   is not a finding — against the fragment table in `data.go`, extended at startup with the
-   shared `SensitivePaths` list. A fragment must not be followed by a letter, so `/test`
-   matches `/test/` and `/test.php` but not `/testimonials`. A URL matching several fragments
-   is reported once, under the longest (`/api-docs` is API documentation, not an API endpoint).
-   A `<loc>` that is not an absolute URL is matched as written.
+   is not a finding — against the shared `SensitivePaths` files and `SensitivePaths.Locations`
+   fragments, using the same `SensitivePaths.Matcher` as the robots.txt test:
+   - A fragment must not be followed by a letter, so `/test` matches `/test/`, `/test.php`
+     and `/test2` but not `/testimonials`, and `/log` does not match `/login`.
+   - When several fragments match, the longest wins, so `/api-docs/` is reported as API
+     documentation rather than as an API endpoint, whatever the map order.
+   A URL declared twice is reported once, and a `<loc>` that is not an absolute URL is
+   matched as written.
 4. Grade Low when any dangerous path is declared. How many there are is reported, not graded.
 
 ## What it reports
@@ -61,10 +64,13 @@ Calibrated to CWE-200 information disclosure, one band above robots.txt (Info) b
 
 | File | Holds |
 |---|---|
-| `config.go` | What tunes it: identity constants and the retrieval limits. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
-| `data.go` | The path fragments treated as dangerous, each mapped to the category reported for it. Matching is by path fragment through the shared `SensitivePaths.Matcher`: the longest fragment a path contains wins, and a fragment must not be followed by a letter. The table is exported as `DangerousPatterns` because the [robots.txt test](../RobotsTxtSecurityTest/README.md) builds on it. |
+| `config.go` | Identity constants, the fetch timeout and 10 MiB size limit, and the certainty. |
+| `core.go` | The test itself: `New()`, merging the shared tables, and the assembled verdict. |
 | `modules/sitemapfetch.go` | Retrieval, XML parsing, matching and the judgement, and the exported analysis type reported as metadata. |
+| `modules/sitemapfetch_test.go` | Unit tests for matching, metadata, grading and the description, plus a fetch against a local server. |
+
+The test owns no dataset: the fragments it flags live in the shared
+[`SensitivePaths`](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SensitivePaths/locations.go) package, which the robots.txt test reads too.
 
 ## Notes
 

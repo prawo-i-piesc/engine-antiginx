@@ -39,7 +39,7 @@ go run ./App/main.go test --target example.com --tests cross-origin-x
 |---|---|
 | `hasCOEP` / `hasCORP` / `hasCOOP` | Whether each header is present |
 | `coepValue` / `corpValue` / `coopValue` | The values as received |
-| `configuredHeaders` | How many of the three are set |
+| `configuredHeaders` | Which of the three are set |
 | `missingHeaders` | Which are absent |
 | `isolationEffective` | Whether the combination achieves cross-origin isolation |
 | `protectionLevel` | `Excellent`, `Good`, `Moderate`, `Basic` or `None` |
@@ -61,7 +61,8 @@ Calibrated to OWASP ZAP alert 90004 (Insufficient Site Isolation Against Spectre
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `CrossOriginAnalysis` it reports as metadata, the analysis and the assembled verdict. |
+| `core_test.go` | Unit tests for grading, protection levels and the description. |
 
 ---
 

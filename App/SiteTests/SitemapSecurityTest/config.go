@@ -19,3 +19,7 @@ const (
 	// hostile target from streaming an endless body.
 	MaxBodyBytes = 10 * 1024 * 1024
 )
+
+// Certainty reported with every result. Matching is by path fragment, so a hit is very
+// likely, but not certain, to point at something sensitive.
+const Certainty = 90

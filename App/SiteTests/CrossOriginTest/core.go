@@ -31,7 +31,7 @@ func New() *SiteTests.ResponseTest {
 
 			return SiteTests.TestResult{
 				Name:        TestName,
-				Certainty:   100,
+				Certainty:   Certainty,
 				ThreatLevel: threatLevel,
 				Metadata:    metadata,
 				Description: description,
@@ -41,26 +41,28 @@ func New() *SiteTests.ResponseTest {
 }
 
 // CrossOriginAnalysis represents the parsed and analyzed cross-origin security headers
-// configuration
+// configuration, reported as the result's metadata. Fields are in the alphabetical order of
+// their JSON names, the order the metadata map this replaced was serialized in, so reports
+// keep the same shape.
 type CrossOriginAnalysis struct {
-	HasCOEP            bool     `json:"hasCOEP"`
-	HasCORP            bool     `json:"hasCORP"`
-	HasCOOP            bool     `json:"hasCOOP"`
 	COEPValue          string   `json:"coepValue"`
-	CORPValue          string   `json:"corpValue"`
-	COOPValue          string   `json:"coopValue"`
-	SecurityIssues     []string `json:"securityIssues"`
 	ConfiguredHeaders  []string `json:"configuredHeaders"`
+	COOPValue          string   `json:"coopValue"`
+	CORPValue          string   `json:"corpValue"`
+	HasCOEP            bool     `json:"hasCOEP"`
+	HasCOOP            bool     `json:"hasCOOP"`
+	HasCORP            bool     `json:"hasCORP"`
+	IsolationEffective bool     `json:"isolationEffective"`
 	MissingHeaders     []string `json:"missingHeaders"`
 	ProtectionLevel    string   `json:"protectionLevel"`
 	RecommendedActions []string `json:"recommendedActions"`
-	IsolationEffective bool     `json:"isolationEffective"`
+	SecurityIssues     []string `json:"securityIssues"`
 }
 
 // analyzeCrossOriginHeaders parses and analyzes all three cross-origin security headers to
 // determine the overall security posture and isolation effectiveness.
-func analyzeCrossOriginHeaders(coepHeader, corpHeader, coopHeader string) map[string]interface{} {
-	analysis := &CrossOriginAnalysis{
+func analyzeCrossOriginHeaders(coepHeader, corpHeader, coopHeader string) CrossOriginAnalysis {
+	analysis := CrossOriginAnalysis{
 		HasCOEP:            coepHeader != "",
 		HasCORP:            corpHeader != "",
 		HasCOOP:            coopHeader != "",
@@ -151,27 +153,13 @@ func analyzeCrossOriginHeaders(coepHeader, corpHeader, coopHeader string) map[st
 		analysis.RecommendedActions = append(analysis.RecommendedActions, "Consider using Content-Security-Policy in combination for enhanced security")
 	}
 
-	// Convert to map for metadata
-	return map[string]interface{}{
-		"hasCOEP":            analysis.HasCOEP,
-		"hasCORP":            analysis.HasCORP,
-		"hasCOOP":            analysis.HasCOOP,
-		"coepValue":          analysis.COEPValue,
-		"corpValue":          analysis.CORPValue,
-		"coopValue":          analysis.COOPValue,
-		"securityIssues":     analysis.SecurityIssues,
-		"configuredHeaders":  analysis.ConfiguredHeaders,
-		"missingHeaders":     analysis.MissingHeaders,
-		"protectionLevel":    analysis.ProtectionLevel,
-		"recommendedActions": analysis.RecommendedActions,
-		"isolationEffective": analysis.IsolationEffective,
-	}
+	return analysis
 }
 
 // evaluateCrossOriginThreatLevel determines the security threat level based on cross-origin
 // headers configuration and their security implications.
-func evaluateCrossOriginThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLevel {
-	protectionLevel := metadata["protectionLevel"].(string)
+func evaluateCrossOriginThreatLevel(metadata CrossOriginAnalysis) SiteTests.ThreatLevel {
+	protectionLevel := metadata.ProtectionLevel
 
 	switch protectionLevel {
 	case "Excellent":
@@ -187,12 +175,12 @@ func evaluateCrossOriginThreatLevel(metadata map[string]interface{}) SiteTests.T
 
 // generateCrossOriginDescription creates a detailed description of the cross-origin security
 // headers analysis results, including findings and recommendations.
-func generateCrossOriginDescription(metadata map[string]interface{}) string {
-	protectionLevel := metadata["protectionLevel"].(string)
-	securityIssues := metadata["securityIssues"].([]string)
-	configuredHeaders := metadata["configuredHeaders"].([]string)
-	missingHeaders := metadata["missingHeaders"].([]string)
-	isolationEffective := metadata["isolationEffective"].(bool)
+func generateCrossOriginDescription(metadata CrossOriginAnalysis) string {
+	protectionLevel := metadata.ProtectionLevel
+	securityIssues := metadata.SecurityIssues
+	configuredHeaders := metadata.ConfiguredHeaders
+	missingHeaders := metadata.MissingHeaders
+	isolationEffective := metadata.IsolationEffective
 
 	description := ""
 

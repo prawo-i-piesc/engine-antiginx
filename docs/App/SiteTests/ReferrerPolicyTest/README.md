@@ -57,8 +57,9 @@ Calibrated to OWASP ZAP passive scan rule 200005-16 (Referrer-Policy, Low); see 
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `ReferrerPolicyAnalysis` it reports as metadata, and the analyze, evaluate and describe stages it plugs into the shared `SiteTests.HeaderTest`. |
 | `data.go` | The policy tokens the header is allowed to carry. A header naming anything else is not a weak policy but a broken one: browsers ignore an unrecognised token and fall back to their default. |
+| `core_test.go` | Unit tests for grading and descriptions across valid, weak, invalid and missing values. |
 
 ---
 

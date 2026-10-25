@@ -47,11 +47,12 @@ Calibrated to OWASP ZAP alert 10106 (HTTP only site, Medium) and CWE-319 clearte
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
-| `data.go` | The two verdict texts, kept out of the logic so their wording can be reviewed without touching the code that picks between them. |
+| `data.go` | The verdict texts, kept out of the logic so their wording can be reviewed without touching the code that picks between them. |
+| `core_test.go` | Unit tests for each verdict. |
 
 ## Notes
 
-Certainty is always 100%: the scheme either is `https` or it is not, so there is no case where this test is only partly sure.
+Certainty is always 100%: the scheme either is `https` or it is not, so there is no case where this test is only partly sure. It reads the scheme of the request behind the final response, so a redirect from `http` to `https` counts as `https`.
 
 ---
 

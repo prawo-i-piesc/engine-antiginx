@@ -7,7 +7,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
 	"fmt"
-	"io"
+	"net/http"
 	"net/url"
 	"regexp"
 	"sort"
@@ -17,19 +17,20 @@ import (
 
 // Fetcher retrieves a target's sitemap and reports what it exposes.
 type Fetcher struct {
-	Matcher      SensitivePaths.Matcher
-	Timeout      time.Duration
-	MaxBodyBytes int64
+	DangerousPatterns SensitivePaths.Matcher
+	Timeout           time.Duration
+	MaxBodyBytes      int64
 }
 
-// SitemapPath is one declared URL whose path matched a dangerous pattern.
+// SitemapPath is one URL declared in the sitemap whose path matched a dangerous pattern.
 type SitemapPath struct {
 	URL      string `json:"url"`
 	Pattern  string `json:"pattern"`
 	Category string `json:"category"`
 }
 
-// SitemapAnalysis represents the analysis results of sitemap.xml for dangerous path exposure.
+// SitemapAnalysis represents the comprehensive analysis results of sitemap.xml for dangerous
+// path exposure.
 type SitemapAnalysis struct {
 	SitemapAccessible bool          `json:"sitemap_accessible"`
 	TotalURLs         int           `json:"total_urls"`
@@ -37,48 +38,59 @@ type SitemapAnalysis struct {
 	TotalDangerous    int           `json:"total_dangerous"`
 }
 
-// locPattern matches <loc>URL</loc> tags, allowing newlines inside the <loc> content.
+// locPattern matches <loc>URL</loc> tags, allowing newlines inside <loc> content.
 var locPattern = regexp.MustCompile(`(?s)<loc>(.*?)</loc>`)
 
 // Analyze fetches and analyzes the sitemap.xml file for dangerous path exposures.
 func (f Fetcher) Analyze(baseUrl string) SitemapAnalysis {
 	analysis := SitemapAnalysis{DangerousPaths: []SitemapPath{}}
 
-	resp, err := SSRF.NewClient(f.Timeout).Get(baseUrl + "/sitemap.xml")
-	if err != nil {
-		return analysis
-	}
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", cerr.Error())
-		}
-	}()
+	// Fetch sitemap.xml
+	page, err := SiteTests.Fetch(SSRF.NewClient(f.Timeout), baseUrl+"/sitemap.xml", f.MaxBodyBytes)
 
 	// If sitemap doesn't exist or is inaccessible, return safe result
-	if resp.StatusCode != 200 {
+	if err != nil || page.Status != http.StatusOK {
 		return analysis
 	}
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, f.MaxBodyBytes))
-	if err != nil {
-		return analysis
-	}
 	analysis.SitemapAccessible = true
+	return f.match(extractUrlsFromSitemap(string(page.Body)), analysis)
+}
 
-	urls := extractUrlsFromSitemap(string(body))
+// match checks every declared URL against the dangerous patterns and fills in the analysis.
+// Each URL is reported once, under its most specific pattern.
+func (f Fetcher) match(urls []string, analysis SitemapAnalysis) SitemapAnalysis {
 	analysis.TotalURLs = len(urls)
 
-	// Each URL is reported once, under the best pattern its path matches
+	seen := map[string]struct{}{}
 	for _, declared := range urls {
-		pattern, category, ok := f.Matcher.Best(declaredPath(declared))
+		if _, repeated := seen[declared]; repeated {
+			continue
+		}
+		seen[declared] = struct{}{}
+
+		pattern, category, ok := f.DangerousPatterns.Best(urlPath(declared))
 		if !ok {
 			continue
 		}
-		analysis.DangerousPaths = append(analysis.DangerousPaths, SitemapPath{URL: declared, Pattern: pattern, Category: category})
+		analysis.DangerousPaths = append(analysis.DangerousPaths, SitemapPath{
+			URL:      declared,
+			Pattern:  pattern,
+			Category: category,
+		})
 	}
 	analysis.TotalDangerous = len(analysis.DangerousPaths)
-
 	return analysis
+}
+
+// urlPath is the path of a declared URL, so the hostname cannot match a pattern the way
+// test.example.com would match /test. A value that is not an absolute URL is matched as is.
+func urlPath(declared string) string {
+	parsed, err := url.Parse(declared)
+	if err != nil || parsed.Host == "" {
+		return declared
+	}
+	return parsed.EscapedPath()
 }
 
 // extractUrlsFromSitemap extracts the distinct URL entries from sitemap XML content, in the
@@ -96,17 +108,6 @@ func extractUrlsFromSitemap(content string) []string {
 	}
 
 	return urls
-}
-
-// declaredPath is the part of a declared URL that is matched: its path, so a hostname such
-// as dev.example.com or api.example.com is not mistaken for a dangerous location. A value
-// that is not an absolute URL is matched as it is.
-func declaredPath(declared string) string {
-	parsed, err := url.Parse(declared)
-	if err != nil || !parsed.IsAbs() {
-		return declared
-	}
-	return parsed.EscapedPath()
 }
 
 // EvaluateThreat grades what the sitemap lets an attacker do: a dangerous path it declares
@@ -144,18 +145,5 @@ func Describe(analysis SitemapAnalysis) string {
 	description := fmt.Sprintf("Sitemap.xml exposes %d dangerous paths that should not be indexed by search engines (out of %d total URLs):\n\n",
 		analysis.TotalDangerous, analysis.TotalURLs)
 
-	for _, category := range categories {
-		paths := categoryGroups[category]
-		description += fmt.Sprintf("• %s: %d exposed\n", category, len(paths))
-
-		// Show first 3 examples from each category
-		for _, path := range paths[:min(len(paths), 3)] {
-			description += fmt.Sprintf("  - %s\n", path)
-		}
-		if len(paths) > 3 {
-			description += fmt.Sprintf("  ... and %d more\n", len(paths)-3)
-		}
-	}
-
-	return description
+	return description + SiteTests.DescribeGroups(categoryGroups, "exposed", 3)
 }

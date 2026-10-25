@@ -4,7 +4,6 @@ package CacheControlTest
 
 import (
 	"Engine-AntiGinx/App/SiteTests"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,7 +17,7 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			analysis := analyze(params.Response)
+			analysis := analyze(params.Response, params.Body)
 			level, description := grade(&analysis)
 
 			certainty := cacheFactCertainty
@@ -37,7 +36,7 @@ func New() *SiteTests.ResponseTest {
 }
 
 // analyze reads the caching headers, the session cookies and the password fields of a response.
-func analyze(response *http.Response) CacheAnalysis {
+func analyze(response *http.Response, body []byte) CacheAnalysis {
 	analysis := CacheAnalysis{MaxAge: -1, SharedMaxAge: -1, Issues: []string{}}
 
 	analysis.CacheControl = strings.Join(response.Header.Values("Cache-Control"), ", ")
@@ -73,12 +72,7 @@ func analyze(response *http.Response) CacheAnalysis {
 		}
 	}
 
-	if response.Body != nil {
-		body, err := io.ReadAll(io.LimitReader(response.Body, maxScannedBody))
-		if err == nil {
-			analysis.HasPasswordField = passwordInput.Match(body)
-		}
-	}
+	analysis.HasPasswordField = passwordInput.Match(body[:min(len(body), maxScannedBody)])
 
 	analysis.Sensitive = len(analysis.SessionCookies) > 0 || analysis.HasPasswordField
 

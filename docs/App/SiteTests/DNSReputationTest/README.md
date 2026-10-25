@@ -39,7 +39,9 @@ go run ./App/main.go test --target example.com --tests dns-reputation
 - The nameservers serving the zone
 - Whether the zone answers for names nobody configured (a wildcard)
 - Whether the hostname was handed out by a tunnelling service, a dynamic DNS provider or a
-  free hosting platform rather than being a domain somebody registered
+  free hosting platform rather than being a domain somebody registered — only a name *below* the
+  platform's suffix counts, so scanning the platform's own site (`wordpress.com`) is not
+  reported as one of its customers
 
 **Networks**, for every resolved address:
 
@@ -126,6 +128,7 @@ lookup can never be read as "registered today".
 | `modules/collector.go` | The metadata types and the acquisition: RDAP and DNS |
 | `modules/rdap.go` | RDAP wire format decoding, including the jCard contact encoding |
 | `modules/naming.go` | Classifying hostnames, nameservers and addresses against the datasets |
+| `modules/naming_test.go` | Unit tests for platform suffix matching and access-network name markers |
 
 ## Notes
 

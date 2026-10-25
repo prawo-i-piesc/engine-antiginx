@@ -43,7 +43,9 @@ func topLevelDomain(domain string) string {
 	return strings.ToLower(labels[len(labels)-1])
 }
 
-// MatchManagedService reports which managed platform a hostname belongs to, if any.
+// MatchManagedService reports which managed platform a hostname belongs to, if any. Only a
+// name below the suffix counts: a platform hands out subdomains, and its own domain is the
+// platform's site, not one of its customers'.
 func (n Names) MatchManagedService(host string) (string, string) {
 	host = strings.ToLower(strings.Trim(strings.TrimSpace(host), "."))
 	if host == "" {
@@ -53,7 +55,7 @@ func (n Names) MatchManagedService(host string) (string, string) {
 	bestSuffix := ""
 	bestKind := ""
 	for suffix, kind := range n.ManagedServices {
-		if host != suffix && !strings.HasSuffix(host, "."+suffix) {
+		if !strings.HasSuffix(host, "."+suffix) {
 			continue
 		}
 		if len(suffix) > len(bestSuffix) {

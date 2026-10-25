@@ -8,8 +8,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
 	"bufio"
 	"fmt"
-	"io"
-	"sort"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -58,29 +57,15 @@ func (f Fetcher) Analyze(baseUrl string) RobotsAnalysis {
 
 	analysis := RobotsAnalysis{DangerousRules: []RobotsRule{}}
 
-	resp, err := SSRF.NewClient(f.Timeout).Get(robotsUrl)
-	if err != nil {
-		return analysis
-	}
-
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", cerr.Error())
-		}
-	}()
+	page, err := SiteTests.Fetch(SSRF.NewClient(f.Timeout), robotsUrl, f.MaxBodyBytes)
 
 	// If robots.txt doesn't exist or is inaccessible, return safe result
-	if resp.StatusCode != 200 {
-		return analysis
-	}
-
-	body, err := io.ReadAll(io.LimitReader(resp.Body, f.MaxBodyBytes))
-	if err != nil {
+	if err != nil || page.Status != http.StatusOK {
 		return analysis
 	}
 
 	analysis.RobotsAccessible = true
-	return f.match(parseRobots(string(body)), analysis)
+	return f.match(parseRobots(string(page.Body)), analysis)
 }
 
 // parseRobots extracts the Allow and Disallow rules from robots.txt content, dropping
@@ -208,15 +193,10 @@ func Describe(analysis RobotsAnalysis) string {
 	}
 
 	// Group dangerous rules by category
-	categoryGroups := make(map[string][]RobotsRule)
+	categoryGroups := make(map[string][]string)
 	for _, rule := range analysis.DangerousRules {
-		categoryGroups[rule.Category] = append(categoryGroups[rule.Category], rule)
+		categoryGroups[rule.Category] = append(categoryGroups[rule.Category], rule.Directive+": "+rule.Path)
 	}
-	categories := make([]string, 0, len(categoryGroups))
-	for category := range categoryGroups {
-		categories = append(categories, category)
-	}
-	sort.Strings(categories)
 
 	description := fmt.Sprintf("Robots.txt names %d sensitive paths (out of %d Allow/Disallow rules). The file is public, so a Disallow rule does not protect a path - it tells anyone reading it where to look.\n",
 		analysis.TotalDangerous, analysis.TotalRules)
@@ -226,20 +206,5 @@ func Describe(analysis RobotsAnalysis) string {
 	}
 	description += "\n"
 
-	// Add category breakdown
-	for _, category := range categories {
-		rules := categoryGroups[category]
-		description += fmt.Sprintf("• %s: %d found\n", category, len(rules))
-
-		// Show first 3 examples from each category
-		exampleCount := min(len(rules), 3)
-		for i := 0; i < exampleCount; i++ {
-			description += fmt.Sprintf("  - %s: %s\n", rules[i].Directive, rules[i].Path)
-		}
-		if len(rules) > 3 {
-			description += fmt.Sprintf("  ... and %d more\n", len(rules)-3)
-		}
-	}
-
-	return description
+	return description + SiteTests.DescribeGroups(categoryGroups, "found", 3)
 }

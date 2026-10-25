@@ -14,7 +14,7 @@ go run ./App/main.go test --target example.com --tests serv-h-a
 
 ## What it checks
 
-- Twelve headers that commonly name the stack, from `Server` and `X-Powered-By` to `X-Generator` and `X-Drupal-Cache`.
+- Thirty-five headers that name the stack, from `Server` and `X-Powered-By` to CMS, build-server, cache and gateway headers such as `X-Drupal-Cache`, `X-Jenkins`, `X-Litespeed-Cache` and `X-Envoy-Upstream-Service-Time`. Request identifiers and generic proxy headers are left out, since every watched header counts towards the grade.
 - Which technology each header names, and the version it publishes alongside it.
 - Known CVEs for every technology and version pair, retrieved from the NIST NVD API.
 - Debug and diagnostic headers, which say more than a version number does.
@@ -76,6 +76,7 @@ description says the CVEs could not be checked.
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core_test.go` | Unit tests for grading, the description and the metadata, with the NVD lookup replaced so they run offline. |
 | `data.go` | The header list and the signature tables that map a header value to a technology. Teaching the engine a new framework is a matter of adding a row here. |
 | `modules/cveseverity.go` | Translates an NVD vulnerability assessment into a threat level. |
 | `modules/technologydetection.go` | Matches header values against the signature tables and extracts version numbers from the formats vendors actually use (`nginx/1.18.0`, `PHP-7.4.3`, `Apache v2.4.41`). |

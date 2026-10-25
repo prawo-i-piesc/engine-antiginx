@@ -65,8 +65,9 @@ Calibrated to OWASP ZAP alerts 10038 (CSP header not set, Medium) and 10055 (CSP
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `CSPAnalysis` it reports as metadata, and the analyze, evaluate and describe stages it plugs into the shared `SiteTests.HeaderTest`. |
 | `data.go` | The directive vocabulary: which directives are critical for injection, which values are unsafe, which directives a complete policy sets, and what each of them is for. |
+| `core_test.go` | Unit tests for grading and descriptions across valid, weak, invalid and missing values. |
 
 ---
 

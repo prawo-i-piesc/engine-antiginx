@@ -6,7 +6,6 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/JSObfuscationTest/modules"
 	"fmt"
-	"io"
 	"strings"
 )
 
@@ -24,9 +23,8 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Read response body
-			bodyBytes, err := io.ReadAll(params.Response.Body)
-			if err != nil {
+			bodyBytes := params.Body
+			if bodyBytes == nil {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   50,

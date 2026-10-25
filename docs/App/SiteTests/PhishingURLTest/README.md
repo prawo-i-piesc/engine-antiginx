@@ -67,11 +67,12 @@ Grades the evidence that the target is malicious, not a weakness of the site, so
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `PhishingAnalysis` it reports as metadata, and how the two dimensions combine. |
+| `core_test.go` | Unit tests for grading, certainty and redaction across hostname and parameter findings. |
 | `data.go` | The brand and domain datasets, the letter-replacement table, the confusable-character map and the parameter name databases. This is the part of the test that dates fastest and is meant to be edited often. |
-| `modules/domainimpersonation.go` | The hostname dimension. |
-| `modules/shared.go` | Helpers both dimensions use. |
-| `modules/urlparameters.go` | The parameter dimension. |
+| `modules/domainimpersonation.go` | The hostname dimension and its `DomainAnalysis`. Brands are compared in alphabetical order, so a hostname close to two brands is always reported against the same one. |
+| `modules/domainimpersonation_test.go` | Unit tests for brand selection and known domains. |
+| `modules/urlparameters.go` | The parameter dimension and its `ParameterAnalysis`. |
 
 ## Notes
 

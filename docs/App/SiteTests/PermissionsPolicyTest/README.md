@@ -43,7 +43,7 @@ good only when it is graded Info.
 | `total_directives` | How many well-formed directives the policy contains |
 | `restricted_features` | Features whose allowlist actually restricts |
 | `allowed_features` | Features left reachable |
-| `dangerous_allowed` | Of those, the ones reaching hardware or location |
+| `dangerous_allowed` | Of those, the ones reaching hardware, location, the screen, credentials or local data |
 | `suspicious_allowed` | Of those, the ones used for tracking and fingerprinting |
 | `wildcard_features` | Features granted to everything with `*` |
 
@@ -62,8 +62,9 @@ Calibrated to OWASP ZAP alert 10063 (Permissions Policy header not set, Low); se
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `PermissionsPolicyAnalysis` it reports as metadata, and the analyze, evaluate and describe stages it plugs into the shared `SiteTests.HeaderTest`. |
 | `data.go` | The two feature lists the policy is graded against, split by what an unrestricted grant actually costs the visitor. |
+| `core_test.go` | Unit tests for grading and descriptions across valid, weak, invalid and missing values. |
 
 ---
 

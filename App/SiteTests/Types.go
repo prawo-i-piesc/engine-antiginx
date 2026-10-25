@@ -101,6 +101,7 @@ type StructureTestParams struct {
 // ResponseTestParams encapsulates the parameters passed to a ResponseTest for execution.
 type ResponseTestParams struct {
 	Response *http.Response // HTTP response to analyze for security issues
+	Body     []byte         // Main response body read once by the scheduler, nil when it could not be read
 }
 
 // ResponseTest defines a security test that analyzes an HTTP response for vulnerabilities,
@@ -135,7 +136,7 @@ func (rt *ResponseTest) Run(ctx ScanContext) TestResult {
 	if rt.RunTest == nil {
 		panic("Run method not implemented")
 	}
-	return rt.RunTest(ResponseTestParams{Response: ownResponse(ctx)})
+	return rt.RunTest(ResponseTestParams{Response: ownResponse(ctx), Body: ctx.Body})
 }
 
 // ownResponse hands a Response test a copy of the main response with a body reader of its

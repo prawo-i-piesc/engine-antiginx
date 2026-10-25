@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math/rand"
 	"net"
 	"net/http"
@@ -488,28 +487,20 @@ func (c *Collector) fetchRDAP(path string, out any) error {
 	request.Header.Set("Accept", "application/rdap+json, application/json")
 	request.Header.Set("User-Agent", "AntiGinx/1.0")
 
-	response, err := c.HTTPClient.Do(request)
-	if err != nil {
+	page, err := SiteTests.FetchRequest(c.HTTPClient, request, maxRDAPResponseSize)
+	if page.Status == 0 {
 		return fmt.Errorf("registration lookup failed: %w", err)
 	}
-	defer func() {
-		if cerr := response.Body.Close(); cerr != nil {
-			fmt.Printf("DNSReputationTest \nWarning: Failed to close response body: %s", cerr.Error())
-		}
-	}()
-
-	if response.StatusCode == http.StatusNotFound {
+	if page.Status == http.StatusNotFound {
 		return errRDAPNotFound
 	}
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("registration service answered with status %d", response.StatusCode)
+	if page.Status != http.StatusOK {
+		return fmt.Errorf("registration service answered with status %d", page.Status)
 	}
-
-	body, err := io.ReadAll(io.LimitReader(response.Body, maxRDAPResponseSize))
 	if err != nil {
 		return fmt.Errorf("registration record could not be read: %w", err)
 	}
-	if err := json.Unmarshal(body, out); err != nil {
+	if err := json.Unmarshal(page.Body, out); err != nil {
 		return fmt.Errorf("registration record could not be decoded: %w", err)
 	}
 	return nil

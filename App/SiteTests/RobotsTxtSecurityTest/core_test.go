@@ -16,12 +16,12 @@ func TestSharedSensitiveFilesAreInPatternTable(t *testing.T) {
 		}
 	}
 
-	// A fragment this package adds itself, and one it inherits from the sitemap test, must
-	// both survive the merge.
+	// A fragment this package adds itself, and one it inherits from the shared locations,
+	// must both survive the merge.
 	if _, ok := fetcher.DangerousPatterns["/wp-login"]; !ok {
 		t.Error("local pattern /wp-login was lost when merging the shared list")
 	}
 	if _, ok := fetcher.DangerousPatterns["/admin"]; !ok {
-		t.Error("inherited sitemap pattern /admin was lost when merging the shared list")
+		t.Error("inherited shared location /admin was lost when merging the shared list")
 	}
 }

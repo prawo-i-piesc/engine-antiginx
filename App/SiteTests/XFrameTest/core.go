@@ -16,84 +16,85 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for both X-Frame-Options and CSP frame-ancestors
-			xframeHeader := params.Response.Header.Get("X-Frame-Options")
-			cspHeader := params.Response.Header.Get("Content-Security-Policy")
-
-			// Analyze frame protection
-			hasXFrame := xframeHeader != ""
-			var xframeDirective string
-			var xframeValid bool
-
-			if hasXFrame {
-				xframeDirective = strings.ToUpper(strings.TrimSpace(xframeHeader))
-				switch xframeDirective {
-				case "DENY", "SAMEORIGIN":
-					xframeValid = true
-				default:
-					if strings.HasPrefix(xframeDirective, "ALLOW-FROM ") {
-						xframeValid = true
-					} else {
-						xframeValid = false
-					}
-				}
-			}
-
-			// Check CSP frame-ancestors. A directive present with no sources is an empty source
-			// list, which matches no ancestor at all and so blocks framing like 'none'.
-			var cspFrameValue string
-			hasCSPFrameAncestors := false
-			if cspHeader != "" {
-				cspFrameValue, hasCSPFrameAncestors = SiteTests.DirectiveValue(cspHeader, "frame-ancestors")
-				if hasCSPFrameAncestors && strings.TrimSpace(cspFrameValue) == "" {
-					cspFrameValue = "'none'"
-				}
-			}
-
-			// ALLOW-FROM is the only protection when frame-ancestors does not take over, and
-			// current browsers ignore it.
-			allowFromIgnored := !hasCSPFrameAncestors && isAllowFrom(xframeDirective)
-
-			// Determine protection level
-			protectionLevel := determineProtectionLevel(xframeDirective, cspFrameValue, xframeValid)
-
-			// Evaluate threat level
-			var threatLevel SiteTests.ThreatLevel
-			switch protectionLevel {
-			case "excellent":
-				threatLevel = SiteTests.None
-			case "good":
-				threatLevel = SiteTests.Info
-			case "limited":
-				threatLevel = SiteTests.Low
-			case "weak":
-				threatLevel = SiteTests.Low
-			case "vulnerable":
-				threatLevel = SiteTests.Medium
-			default:
-				threatLevel = SiteTests.Medium
-			}
-
-			// Generate description
-			canBeEmbedded := assessEmbeddingCapability(xframeDirective, cspFrameValue, xframeValid)
-			description := generateDescription(protectionLevel, hasXFrame, hasCSPFrameAncestors, canBeEmbedded, allowFromIgnored)
+			analysis := analyzeFrameProtection(
+				params.Response.Header.Get("X-Frame-Options"),
+				params.Response.Header.Get("Content-Security-Policy"),
+			)
 
 			return SiteTests.TestResult{
 				Name:        TestName,
-				Certainty:   100,
-				ThreatLevel: threatLevel,
-				Metadata:    nil,
-				Description: description,
+				Certainty:   Certainty,
+				ThreatLevel: evaluateFrameThreatLevel(analysis),
+				Metadata:    analysis,
+				Description: generateDescription(analysis),
 			}
 		},
 	}
 }
 
-// extractFrameAncestorsValue parses the Content-Security-Policy header to extract the frame-
-// ancestors directive value.
-func extractFrameAncestorsValue(cspHeader string) string {
-	value, _ := SiteTests.DirectiveValue(cspHeader, "frame-ancestors")
-	return value
+// FrameAnalysis is what the two frame-protection mechanisms declare and what they add up to,
+// reported as the result's metadata.
+type FrameAnalysis struct {
+	HasXFrameOptions  bool   `json:"has_x_frame_options"` // Whether X-Frame-Options was sent at all
+	XFrameOptions     string `json:"x_frame_options"`     // Its value, trimmed and uppercased
+	XFrameValid       bool   `json:"x_frame_valid"`       // Whether that value is DENY, SAMEORIGIN or ALLOW-FROM
+	HasFrameAncestors bool   `json:"has_frame_ancestors"` // Whether the CSP names frame-ancestors
+	FrameAncestors    string `json:"frame_ancestors"`     // The frame-ancestors sources as written, 'none' for an empty list
+	AllowFromIgnored  bool   `json:"allow_from_ignored"`  // ALLOW-FROM is the only protection, and browsers ignore it
+	ProtectionLevel   string `json:"protection_level"`    // excellent, good, limited, weak or vulnerable
+	Embedding         string `json:"embedding"`           // blocked, same-origin, limited or allowed
+}
+
+// analyzeFrameProtection reads X-Frame-Options and the CSP frame-ancestors directive and
+// works out how far the page can be framed.
+func analyzeFrameProtection(xframeHeader, cspHeader string) FrameAnalysis {
+	analysis := FrameAnalysis{HasXFrameOptions: xframeHeader != ""}
+
+	if analysis.HasXFrameOptions {
+		analysis.XFrameOptions = strings.ToUpper(strings.TrimSpace(xframeHeader))
+		switch analysis.XFrameOptions {
+		case "DENY", "SAMEORIGIN":
+			analysis.XFrameValid = true
+		default:
+			analysis.XFrameValid = strings.HasPrefix(analysis.XFrameOptions, "ALLOW-FROM ")
+		}
+	}
+
+	// A directive present with no sources is an empty source list, which matches no ancestor
+	// at all and so blocks framing like 'none'
+	if cspHeader != "" {
+		analysis.FrameAncestors, analysis.HasFrameAncestors = SiteTests.DirectiveValue(cspHeader, "frame-ancestors")
+		if analysis.HasFrameAncestors && strings.TrimSpace(analysis.FrameAncestors) == "" {
+			analysis.FrameAncestors = "'none'"
+		}
+	}
+
+	// ALLOW-FROM is the only protection when frame-ancestors does not take over, and current
+	// browsers ignore it
+	analysis.AllowFromIgnored = !analysis.HasFrameAncestors && isAllowFrom(analysis.XFrameOptions)
+
+	analysis.ProtectionLevel = determineProtectionLevel(analysis.XFrameOptions, analysis.FrameAncestors, analysis.XFrameValid)
+	analysis.Embedding = assessEmbeddingCapability(analysis.XFrameOptions, analysis.FrameAncestors, analysis.XFrameValid)
+	return analysis
+}
+
+// protectionThreat grades each protection level. A page anyone can frame is open to
+// clickjacking, which OWASP ZAP rates Medium (alert 10020); anything unrecognised is graded
+// the same.
+var protectionThreat = map[string]SiteTests.ThreatLevel{
+	"excellent":  SiteTests.None,
+	"good":       SiteTests.Info,
+	"limited":    SiteTests.Low,
+	"weak":       SiteTests.Low,
+	"vulnerable": SiteTests.Medium,
+}
+
+// evaluateFrameThreatLevel grades the analysis by its protection level.
+func evaluateFrameThreatLevel(analysis FrameAnalysis) SiteTests.ThreatLevel {
+	if level, known := protectionThreat[analysis.ProtectionLevel]; known {
+		return level
+	}
+	return SiteTests.Medium
 }
 
 // determineProtectionLevel assesses the overall frame protection strength based on configured
@@ -165,7 +166,13 @@ func assessEmbeddingCapability(xframeDirective, cspFrameValue string, xframeVali
 }
 
 // generateDescription creates a description based on protection analysis
-func generateDescription(protectionLevel string, hasXFrame, hasCSP bool, canBeEmbedded string, allowFromIgnored bool) string {
+func generateDescription(analysis FrameAnalysis) string {
+	protectionLevel := analysis.ProtectionLevel
+	hasXFrame := analysis.HasXFrameOptions
+	hasCSP := analysis.HasFrameAncestors
+	canBeEmbedded := analysis.Embedding
+	allowFromIgnored := analysis.AllowFromIgnored
+
 	var description strings.Builder
 
 	// Primary assessment
