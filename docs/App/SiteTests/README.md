@@ -77,6 +77,22 @@ own — the point is to stop five slightly different header parsers from existin
 | `FormatDuration(seconds)` | Renders seconds as the largest whole unit that fits |
 | `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered, so two hostnames can be compared as one site |
 
+`fetch.go` holds the one way a test talks to the network itself, so no test opens, reads or
+closes a response body on its own:
+
+| Function | Does |
+|---|---|
+| `BaseURL(target)` | The target's `scheme://host`, which tests probing fixed paths (`/robots.txt`, `/.env`) append to |
+| `Fetch(client, url, maxBytes)` | GETs a URL and returns a `FetchedPage` (status, headers, at most `maxBytes` of body) with the connection already closed |
+| `FetchRequest(client, request, maxBytes)` | The same for a prepared request — a POST, extra headers, a context. A failed request returns an empty page; a failed body read still returns the status and headers alongside the error |
+
+Pass an `SSRF.NewClient(timeout)` for requests to the scanned target; API lookups (URLhaus,
+RDAP) keep their own client.
+
+A `Response` test never reads `params.Response.Body`: the scheduler reads the main body once
+and hands it over as `params.Body` (`nil` when it could not be read). A test that only needs
+the start of the page slices it, `params.Body[:min(len(params.Body), limit)]`.
+
 Two things deliberately stay out. `CookieSecurityTest` keeps its own duration formatter
 because its wording differs (`1 year(s) 30 day(s)` against `1 year`), and unifying them
 would change what reports say. Anything that encodes one test's judgement — its thresholds,

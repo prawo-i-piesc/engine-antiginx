@@ -8,11 +8,15 @@ import (
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest/modules"
 )
 
-// fetcher wires the pattern table into the retrieval stage: this package's own fragments
-// for dangerous locations, plus every file from the shared SensitivePaths list, so a
-// sensitive file a sitemap declares is flagged by the same definition SensitiveFilesTest
-// probes the server with.
-var fetcher = modules.Fetcher{DangerousPatterns: withSensitiveFiles(DangerousPatterns)}
+// fetcher wires the pattern table and the limits from config.go into the retrieval stage:
+// this package's own fragments for dangerous locations, plus every file from the shared
+// SensitivePaths list, so a sensitive file a sitemap declares is flagged by the same
+// definition SensitiveFilesTest probes the server with.
+var fetcher = modules.Fetcher{
+	DangerousPatterns: withSensitiveFiles(DangerousPatterns),
+	Timeout:           FetchTimeout,
+	MaxBodyBytes:      MaxBodyBytes,
+}
 
 // withSensitiveFiles returns the dangerous-pattern table extended with the shared sensitive
 // files. A local fragment already present is kept, since this package's wording is more
@@ -34,11 +38,8 @@ func New() *SiteTests.StructureTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
-			// Extract base URL from the target
-			baseUrl := params.Target.Scheme + "://" + params.Target.Host
-
 			// Fetch sitemap.xml
-			analysis := fetcher.Analyze(baseUrl)
+			analysis := fetcher.Analyze(SiteTests.BaseURL(params.Target))
 
 			// Determine threat level based on dangerous paths found
 			threatLevel := modules.EvaluateThreat(analysis)

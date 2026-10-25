@@ -6,7 +6,6 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"slices"
@@ -169,24 +168,14 @@ func (l Lookup) query(endpoint string, form url.Values, answer any) error {
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Auth-Key", l.AuthKey)
 
-	response, err := l.HTTPClient.Do(request)
+	page, err := SiteTests.FetchRequest(l.HTTPClient, request, l.MaxResponseSize)
+	if page.Status != 0 && page.Status != http.StatusOK {
+		return fmt.Errorf("URLhaus answered HTTP %d", page.Status)
+	}
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if cerr := response.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", cerr.Error())
-		}
-	}()
-
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("URLhaus answered HTTP %d", response.StatusCode)
-	}
-
-	body, err := io.ReadAll(io.LimitReader(response.Body, l.MaxResponseSize))
-	if err != nil {
-		return err
-	}
+	body := page.Body
 	if err := json.Unmarshal(body, answer); err != nil {
 		return fmt.Errorf("unreadable URLhaus answer: %w", err)
 	}

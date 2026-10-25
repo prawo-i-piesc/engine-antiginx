@@ -6,7 +6,7 @@ import (
 	"Engine-AntiGinx/App/SSRF"
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
-	"io"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -15,6 +15,8 @@ import (
 // Fetcher retrieves a target's sitemap and reports what it exposes.
 type Fetcher struct {
 	DangerousPatterns map[string]string
+	Timeout           time.Duration
+	MaxBodyBytes      int64
 }
 
 // SitemapAnalysis represents the comprehensive analysis results of sitemap.xml for dangerous
@@ -40,32 +42,15 @@ func (f Fetcher) Analyze(baseUrl string) SitemapAnalysis {
 	}
 
 	// Fetch sitemap.xml
-
-	resp, err := SSRF.NewClient(30 * time.Second).Get(sitemapUrl)
-	if err != nil {
-		return analysis
-	}
-
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", err.Error())
-		}
-	}()
+	page, err := SiteTests.Fetch(SSRF.NewClient(f.Timeout), sitemapUrl, f.MaxBodyBytes)
 
 	// If sitemap doesn't exist or is inaccessible, return safe result
-	if resp.StatusCode != 200 {
+	if err != nil || page.Status != http.StatusOK {
 		return analysis
 	}
 
 	analysis.sitemap_accessible = true
-
-	// Read sitemap content
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return analysis
-	}
-
-	content := string(body)
+	content := string(page.Body)
 
 	// Extract URLs from sitemap (basic XML parsing)
 	urls := extractUrlsFromSitemap(content)

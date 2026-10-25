@@ -6,7 +6,6 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/FaviconOriginTest/modules"
 	"fmt"
-	"io"
 	"strings"
 )
 
@@ -58,14 +57,13 @@ func New() *SiteTests.ResponseTest {
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
 			response := params.Response
-			if response == nil || response.Request == nil || response.Request.URL == nil || response.Body == nil {
+			if response == nil || response.Request == nil || response.Request.URL == nil {
 				return unreadableResult("The page address or content is unavailable, so its icon declarations could not be inspected.")
 			}
-
-			body, err := io.ReadAll(io.LimitReader(response.Body, maxScannedBody))
-			if err != nil {
+			if params.Body == nil {
 				return unreadableResult("The page content could not be read, so its icon declarations could not be inspected.")
 			}
+			body := params.Body[:min(len(params.Body), maxScannedBody)]
 
 			page := response.Request.URL
 			analysis := FaviconOriginAnalysis{

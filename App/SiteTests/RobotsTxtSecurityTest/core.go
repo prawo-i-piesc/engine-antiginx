@@ -35,11 +35,8 @@ func New() *SiteTests.StructureTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
-			// Extract base URL from the target
-			baseUrl := params.Target.Scheme + "://" + params.Target.Host
-
 			// Fetch and parse robots.txt
-			analysis := fetcher.Analyze(baseUrl)
+			analysis := fetcher.Analyze(SiteTests.BaseURL(params.Target))
 
 			return SiteTests.TestResult{
 				Name:        TestName,

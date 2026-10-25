@@ -33,10 +33,7 @@ func New() *SiteTests.StructureTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
-			// Extract base URL from the target
-			baseUrl := params.Target.Scheme + "://" + params.Target.Host
-
-			analysis := prober.Sweep(baseUrl, candidates)
+			analysis := prober.Sweep(SiteTests.BaseURL(params.Target), candidates)
 
 			certainty := noExposureCertainty
 			if len(analysis.Exposures) > 0 {

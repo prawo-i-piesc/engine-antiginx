@@ -6,7 +6,6 @@ import (
 	"Engine-AntiGinx/App/SSRF"
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
-	"io"
 	"net/http"
 	"regexp"
 	"sort"
@@ -117,29 +116,15 @@ func (s Scanner) Scan(baseUrl string, probes []Probe) ListingAnalysis {
 // fetch requests one directory and returns its body when it answered 200 with a document a
 // listing could be in.
 func (s Scanner) fetch(client *http.Client, target string) (string, bool) {
-	resp, err := client.Get(target)
-	if err != nil {
+	page, err := SiteTests.Fetch(client, target, s.MaxBodyBytes)
+	if err != nil || page.Status != http.StatusOK {
 		return "", false
 	}
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", cerr.Error())
-		}
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", false
-	}
-	contentType := strings.ToLower(resp.Header.Get("Content-Type"))
+	contentType := strings.ToLower(page.Header.Get("Content-Type"))
 	if contentType != "" && !strings.Contains(contentType, "html") && !strings.HasPrefix(contentType, "text/") {
 		return "", false
 	}
-
-	body, err := io.ReadAll(io.LimitReader(resp.Body, s.MaxBodyBytes))
-	if err != nil {
-		return "", false
-	}
-	return string(body), true
+	return string(page.Body), true
 }
 
 // Detect returns the server whose listing signature the body matches, if any.

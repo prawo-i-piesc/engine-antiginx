@@ -7,7 +7,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"bufio"
 	"fmt"
-	"io"
+	"net/http"
 	"sort"
 	"strings"
 	"time"
@@ -57,29 +57,15 @@ func (f Fetcher) Analyze(baseUrl string) RobotsAnalysis {
 
 	analysis := RobotsAnalysis{DangerousRules: []RobotsRule{}}
 
-	resp, err := SSRF.NewClient(f.Timeout).Get(robotsUrl)
-	if err != nil {
-		return analysis
-	}
-
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", cerr.Error())
-		}
-	}()
+	page, err := SiteTests.Fetch(SSRF.NewClient(f.Timeout), robotsUrl, f.MaxBodyBytes)
 
 	// If robots.txt doesn't exist or is inaccessible, return safe result
-	if resp.StatusCode != 200 {
-		return analysis
-	}
-
-	body, err := io.ReadAll(io.LimitReader(resp.Body, f.MaxBodyBytes))
-	if err != nil {
+	if err != nil || page.Status != http.StatusOK {
 		return analysis
 	}
 
 	analysis.RobotsAccessible = true
-	return f.match(parseRobots(string(body)), analysis)
+	return f.match(parseRobots(string(page.Body)), analysis)
 }
 
 // parseRobots extracts the Allow and Disallow rules from robots.txt content, dropping
