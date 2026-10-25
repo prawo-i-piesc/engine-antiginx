@@ -21,6 +21,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests/SSLCertificateSecurityTest"
 	"Engine-AntiGinx/App/SiteTests/ServerHeaderTest"
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest"
+	"Engine-AntiGinx/App/SiteTests/URLhausTest"
 	"Engine-AntiGinx/App/SiteTests/XContentTypeOptionsTest"
 	"Engine-AntiGinx/App/SiteTests/XFrameTest"
 	"fmt"
@@ -48,6 +49,7 @@ func init() {
 	registerTest(PhishingURLTest.New())
 	registerTest(BotProtectionTest.New())
 	registerTest(DNSReputationTest.New())
+	registerTest(URLhausTest.New())
 	registerTest(FaviconOriginTest.New())
 	registerTest(CacheControlTest.New())
 }
