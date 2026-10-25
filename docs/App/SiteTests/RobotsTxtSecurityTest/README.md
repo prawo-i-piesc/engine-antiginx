@@ -33,9 +33,9 @@ go run ./App/main.go test --target example.com --tests robots-txt
 2. Parse it line by line: comments are dropped, directive names are case-insensitive, empty
    `Disallow:` lines (which disallow nothing) and repeated rules are skipped. Other
    directives — `User-agent`, `Sitemap`, `Crawl-delay` — are ignored.
-3. Match each rule's path against the shared `SensitivePaths` list and
-   `SitemapSecurityTest.DangerousPatterns`, merged with the test's own `data.go`. Two
-   differences from the sitemap test:
+3. Match each rule's path against the shared `SensitivePaths` files and
+   `SensitivePaths.Locations` fragments, merged with the test's own `data.go`, using the
+   same `SensitivePaths.Matcher` as the sitemap test:
    - A fragment must not be followed by a letter, so `/test` matches `/test/`, `/test.php`
      and `/test2` but not `/testimonials`, and `/log` does not match `/login`.
    - When several fragments match, the longest wins, so `/api-docs/` is reported as API
@@ -55,9 +55,6 @@ go run ./App/main.go test --target example.com --tests robots-txt
 | `total_dangerous` | How many matched |
 | `total_exposed` | How many of them are exposing Allow rules |
 
-Unlike the sitemap test, the fields are exported, so the metadata reaches a backend report
-in full.
-
 ## How the verdict is reached
 
 | Level | When |
@@ -75,8 +72,8 @@ Any exposed `Allow` raises the level by one, capped at Critical.
 | File | Holds |
 |---|---|
 | `config.go` | Identity constants, the fetch timeout and size limit, the grading thresholds and the certainty. |
-| `core.go` | The test itself: `New()`, merging the sitemap table with this test's own, and the assembled verdict. |
-| `data.go` | The fragments added on top of the sitemap table, each mapped to its category. An entry here overrides a sitemap entry with the same fragment. |
+| `core.go` | The test itself: `New()`, merging the shared tables with this test's own, and the assembled verdict. |
+| `data.go` | The fragments added on top of the shared locations, each mapped to its category. An entry here overrides a shared entry with the same fragment. |
 | `modules/robotsfetch.go` | Retrieval, parsing, matching and the judgement. |
 | `modules/robotsfetch_test.go` | Unit tests for parsing, matching, carve-outs and grading, plus fetches against a local server. |
 
@@ -86,8 +83,8 @@ An unreachable robots.txt is not a finding — there are no rules to reveal anyt
 
 Where to add a path: a sensitive **file** goes in the shared `SensitivePaths` list, which
 this test, the sitemap test and the sensitive-files test all read. A dangerous **location**
-fragment shared with the sitemap test goes in the sitemap's `data.go`; one only robots.txt
-should flag goes in this test's `data.go`.
+fragment shared with the sitemap test goes in `SensitivePaths/locations.go`; one only
+robots.txt should flag goes in this test's `data.go`.
 
 ---
 

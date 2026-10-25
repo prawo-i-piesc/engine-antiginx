@@ -18,3 +18,14 @@ const (
 	// but the paths worth reporting show up long before that.
 	MaxBodyBytes = 10 * 1024 * 1024
 )
+
+// Thresholds on the number of dangerous paths, each the highest count graded at that level.
+const (
+	LowMaxPaths    = 2
+	MediumMaxPaths = 5
+	HighMaxPaths   = 10
+)
+
+// Certainty reported with every result. Matching is by path fragment, so a hit is very
+// likely, but not certain, to point at something sensitive.
+const Certainty = 90

@@ -2,6 +2,7 @@ package SiteTests
 
 import (
 	"net"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -134,6 +135,64 @@ func EscalateThreatLevel(level ThreatLevel) ThreatLevel {
 		return Critical
 	}
 	return level + 1
+}
+
+// CountThresholds grades a number of findings. Each field is the highest count graded at
+// that level; anything above HighMax is Critical, and no findings at all is None.
+type CountThresholds struct {
+	LowMax    int
+	MediumMax int
+	HighMax   int
+}
+
+// Grade returns the threat level a number of findings falls into.
+func (t CountThresholds) Grade(count int) ThreatLevel {
+	switch {
+	case count <= 0:
+		return None
+	case count <= t.LowMax:
+		return Low
+	case count <= t.MediumMax:
+		return Medium
+	case count <= t.HighMax:
+		return High
+	default:
+		return Critical
+	}
+}
+
+// ExampleLines renders up to limit examples as indented list lines, followed by how many of
+// the total were left out. The total may exceed len(examples) when the caller only kept a
+// sample of what it found.
+func ExampleLines(examples []string, total int, limit int) string {
+	shown := examples[:min(len(examples), limit)]
+	lines := ""
+	for _, example := range shown {
+		lines += "  - " + example + "\n"
+	}
+	if hidden := total - len(shown); hidden > 0 {
+		lines += "  ... and " + strconv.Itoa(hidden) + " more\n"
+	}
+	return lines
+}
+
+// DescribeGroups renders findings grouped by category as "• category: N <verb>" lines,
+// categories sorted by name so the text is the same on every run, each followed by up to
+// limit of its examples.
+func DescribeGroups(groups map[string][]string, verb string, limit int) string {
+	names := make([]string, 0, len(groups))
+	for name := range groups {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	description := ""
+	for _, name := range names {
+		examples := groups[name]
+		description += "• " + name + ": " + strconv.Itoa(len(examples)) + " " + verb + "\n"
+		description += ExampleLines(examples, len(examples), limit)
+	}
+	return description
 }
 
 // FormatDuration renders a number of seconds as the largest whole unit that fits.

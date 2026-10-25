@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"sync"
 	"time"
 )
 
@@ -70,27 +69,9 @@ func (p Prober) Sweep(baseUrl string, candidates []Candidate) Analysis {
 	}
 	sort.Ints(analysis.BaselineStatus)
 
-	var mutex sync.Mutex
-	var group sync.WaitGroup
-	slots := make(chan struct{}, max(p.MaxConcurrency, 1))
-
-	for _, candidate := range candidates {
-		group.Add(1)
-		slots <- struct{}{}
-		go func(candidate Candidate) {
-			defer group.Done()
-			defer func() { <-slots }()
-
-			exposure, found := p.probe(client, baseUrl, candidate, base)
-			if !found {
-				return
-			}
-			mutex.Lock()
-			analysis.Exposures = append(analysis.Exposures, exposure)
-			mutex.Unlock()
-		}(candidate)
-	}
-	group.Wait()
+	analysis.Exposures = SiteTests.ProbeAll(candidates, p.MaxConcurrency, func(candidate Candidate) (Exposure, bool) {
+		return p.probe(client, baseUrl, candidate, base)
+	})
 
 	sort.Slice(analysis.Exposures, func(i, j int) bool { return analysis.Exposures[i].Path < analysis.Exposures[j].Path })
 	for _, exposure := range analysis.Exposures {

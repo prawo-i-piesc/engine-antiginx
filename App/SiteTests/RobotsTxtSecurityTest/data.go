@@ -1,9 +1,9 @@
 package RobotsTxtSecurityTest
 
-// extraPatterns extend SitemapSecurityTest.DangerousPatterns with what robots.txt files
-// typically name: they are written to keep crawlers out of exactly these places, so they
-// list login pages, installers, server internals and file types far more often than a
-// sitemap does. An entry here wins over a sitemap entry with the same fragment.
+// extraPatterns extend SensitivePaths.Locations with what robots.txt files typically name:
+// they are written to keep crawlers out of exactly these places, so they list login pages,
+// installers, server internals and file types far more often than a sitemap does. An entry
+// here wins over a shared entry with the same fragment.
 var extraPatterns = map[string]string{
 	// Authentication
 	`/login`:          "Authentication Endpoint",

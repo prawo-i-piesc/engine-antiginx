@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -63,41 +62,33 @@ func (s Scanner) Scan(baseUrl string, probes []Probe) ListingAnalysis {
 	analysis := ListingAnalysis{ProbedPaths: len(probes), Listings: []DirectoryListing{}}
 	client := SSRF.NewClient(s.Timeout)
 
-	var mutex sync.Mutex
-	var group sync.WaitGroup
-	slots := make(chan struct{}, max(s.MaxConcurrency, 1))
+	// A probe is found when the directory was reachable; only some of those are listings
+	reached := SiteTests.ProbeAll(probes, s.MaxConcurrency, func(probe Probe) (*DirectoryListing, bool) {
+		body, reachable := s.fetch(client, baseUrl+probe.Path)
+		if !reachable {
+			return nil, false
+		}
+		server, isListing := s.Detect(body)
+		if !isListing {
+			return nil, true
+		}
+		entries := ExtractEntries(body, probe.Path)
+		return &DirectoryListing{
+			Path:       probe.Path,
+			URL:        baseUrl + probe.Path,
+			Server:     server,
+			Sensitive:  probe.Sensitive,
+			EntryCount: len(entries),
+			Entries:    entries[:min(len(entries), s.MaxSampleEntries)],
+		}, true
+	})
 
-	for _, probe := range probes {
-		group.Add(1)
-		slots <- struct{}{}
-		go func(probe Probe) {
-			defer group.Done()
-			defer func() { <-slots }()
-
-			body, reachable := s.fetch(client, baseUrl+probe.Path)
-			if !reachable {
-				return
-			}
-			server, isListing := s.Detect(body)
-
-			mutex.Lock()
-			defer mutex.Unlock()
-			analysis.ReachablePaths++
-			if !isListing {
-				return
-			}
-			entries := ExtractEntries(body, probe.Path)
-			analysis.Listings = append(analysis.Listings, DirectoryListing{
-				Path:       probe.Path,
-				URL:        baseUrl + probe.Path,
-				Server:     server,
-				Sensitive:  probe.Sensitive,
-				EntryCount: len(entries),
-				Entries:    entries[:min(len(entries), s.MaxSampleEntries)],
-			})
-		}(probe)
+	analysis.ReachablePaths = len(reached)
+	for _, listing := range reached {
+		if listing != nil {
+			analysis.Listings = append(analysis.Listings, *listing)
+		}
 	}
-	group.Wait()
 
 	// Goroutines finish in any order; reports should not
 	sort.Slice(analysis.Listings, func(i, j int) bool { return analysis.Listings[i].Path < analysis.Listings[j].Path })
@@ -224,12 +215,7 @@ func Describe(analysis ListingAnalysis) string {
 			marker = " [sensitive]"
 		}
 		description += fmt.Sprintf("• %s%s (%s, %d entries)\n", listing.Path, marker, listing.Server, listing.EntryCount)
-		for _, entry := range listing.Entries[:min(len(listing.Entries), 3)] {
-			description += fmt.Sprintf("  - %s\n", entry)
-		}
-		if listing.EntryCount > 3 {
-			description += fmt.Sprintf("  ... and %d more\n", listing.EntryCount-3)
-		}
+		description += SiteTests.ExampleLines(listing.Entries, listing.EntryCount, 3)
 	}
 
 	return description

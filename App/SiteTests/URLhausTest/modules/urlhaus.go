@@ -257,12 +257,11 @@ func Describe(metadata URLhausMetadata) string {
 			description += fmt.Sprintf("The domain is also blocklisted (Spamhaus DBL: %s, SURBL: %s).\n",
 				metadata.Blacklists.SpamhausDBL, metadata.Blacklists.SURBL)
 		}
+		examples := make([]string, 0, len(metadata.HostURLs))
 		for _, entry := range metadata.HostURLs {
-			description += fmt.Sprintf("  - [%s] %s: %s\n", entry.Status, entry.Threat, entry.URL)
+			examples = append(examples, fmt.Sprintf("[%s] %s: %s", entry.Status, entry.Threat, entry.URL))
 		}
-		if hidden := metadata.HostURLCount - len(metadata.HostURLs); hidden > 0 {
-			description += fmt.Sprintf("  ... and %d more\n", hidden)
-		}
+		description += SiteTests.ExampleLines(examples, metadata.HostURLCount, len(examples))
 	}
 
 	return description

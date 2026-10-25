@@ -1,9 +1,12 @@
-package SitemapSecurityTest
+package SensitivePaths
 
-// DangerousPatterns are the path fragments whose presence in a sitemap means the site is
-// actively inviting search engines to index something that was never meant to be found.
-// Exported because RobotsTxtSecurityTest builds its own table on top of it.
-var DangerousPatterns = map[string]string{
+// Locations are path fragments naming places that were never meant to be found: admin
+// panels, APIs and their docs, configuration, development and backup areas, private and
+// temporary storage. Unlike Files they are not requested — a fragment such as /admin is
+// only a finding when a site itself points at it, so SitemapSecurityTest and
+// RobotsTxtSecurityTest match the paths a sitemap or robots.txt declares against it.
+// Fragments are lowercase, like the paths they are compared with.
+var Locations = map[string]string{
 	// Administrative Interfaces
 	`/admin`:         "Administrative Interface",
 	`/administrator`: "Administrative Interface",

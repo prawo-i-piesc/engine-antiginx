@@ -5,10 +5,10 @@ package modules
 import (
 	"Engine-AntiGinx/App/SSRF"
 	"Engine-AntiGinx/App/SiteTests"
+	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
 	"bufio"
 	"fmt"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 )
@@ -21,7 +21,7 @@ const (
 
 // Fetcher retrieves a target's robots.txt and reports what it reveals.
 type Fetcher struct {
-	DangerousPatterns map[string]string
+	DangerousPatterns SensitivePaths.Matcher
 	Timeout           time.Duration
 	MaxBodyBytes      int64
 }
@@ -120,7 +120,7 @@ func (f Fetcher) match(rules []rawRule, analysis RobotsAnalysis) RobotsAnalysis 
 
 	disallowedSensitive := []string{}
 	for _, rule := range rules {
-		pattern, category, ok := f.bestPattern(rule.path)
+		pattern, category, ok := f.DangerousPatterns.Best(rule.path)
 		if !ok {
 			continue
 		}
@@ -158,51 +158,6 @@ func (f Fetcher) match(rules []rawRule, analysis RobotsAnalysis) RobotsAnalysis 
 	return analysis
 }
 
-// bestPattern returns the longest dangerous pattern the path contains, so /api-docs is
-// reported as API documentation rather than as an API endpoint. Ties go to the pattern
-// that sorts first, which keeps the result independent of map order.
-func (f Fetcher) bestPattern(path string) (string, string, bool) {
-	lowered := strings.ToLower(path)
-	best := ""
-	for pattern := range f.DangerousPatterns {
-		if !containsPathFragment(lowered, pattern) {
-			continue
-		}
-		if len(pattern) > len(best) || (len(pattern) == len(best) && pattern < best) {
-			best = pattern
-		}
-	}
-	if best == "" {
-		return "", "", false
-	}
-	return best, f.DangerousPatterns[best], true
-}
-
-// containsPathFragment reports whether a fragment occurs in the path and is not followed by
-// a letter, so /test matches /test/, /test.php and /test2 but not /testimonials.
-func containsPathFragment(path string, fragment string) bool {
-	if fragment == "" {
-		return false
-	}
-	offset := 0
-	for {
-		index := strings.Index(path[offset:], fragment)
-		if index < 0 {
-			return false
-		}
-		end := offset + index + len(fragment)
-		if end >= len(path) || !isLetter(path[end]) {
-			return true
-		}
-		offset += index + 1
-	}
-}
-
-// isLetter reports whether a byte is an ASCII letter.
-func isLetter(c byte) bool {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-}
-
 // ruleBase is the literal prefix of a rule path, up to its first wildcard or end anchor.
 func ruleBase(path string) string {
 	if index := strings.IndexAny(path, "*$"); index >= 0 {
@@ -213,9 +168,7 @@ func ruleBase(path string) string {
 
 // Grader turns an analysis into a threat level using the thresholds from config.go.
 type Grader struct {
-	LowMax    int
-	MediumMax int
-	HighMax   int
+	Thresholds SiteTests.CountThresholds
 }
 
 // EvaluateThreat grades on the number of sensitive rules, one level higher when any of
@@ -225,18 +178,7 @@ func (g Grader) EvaluateThreat(analysis RobotsAnalysis) SiteTests.ThreatLevel {
 		return SiteTests.None
 	}
 
-	var level SiteTests.ThreatLevel
-	switch count := analysis.TotalDangerous; {
-	case count <= g.LowMax:
-		level = SiteTests.Low
-	case count <= g.MediumMax:
-		level = SiteTests.Medium
-	case count <= g.HighMax:
-		level = SiteTests.High
-	default:
-		level = SiteTests.Critical
-	}
-
+	level := g.Thresholds.Grade(analysis.TotalDangerous)
 	if analysis.TotalExposed > 0 {
 		level = SiteTests.EscalateThreatLevel(level)
 	}
@@ -255,15 +197,10 @@ func Describe(analysis RobotsAnalysis) string {
 	}
 
 	// Group dangerous rules by category
-	categoryGroups := make(map[string][]RobotsRule)
+	categoryGroups := make(map[string][]string)
 	for _, rule := range analysis.DangerousRules {
-		categoryGroups[rule.Category] = append(categoryGroups[rule.Category], rule)
+		categoryGroups[rule.Category] = append(categoryGroups[rule.Category], rule.Directive+": "+rule.Path)
 	}
-	categories := make([]string, 0, len(categoryGroups))
-	for category := range categoryGroups {
-		categories = append(categories, category)
-	}
-	sort.Strings(categories)
 
 	description := fmt.Sprintf("Robots.txt names %d sensitive paths (out of %d Allow/Disallow rules). The file is public, so a Disallow rule does not protect a path - it tells anyone reading it where to look.\n",
 		analysis.TotalDangerous, analysis.TotalRules)
@@ -273,20 +210,5 @@ func Describe(analysis RobotsAnalysis) string {
 	}
 	description += "\n"
 
-	// Add category breakdown
-	for _, category := range categories {
-		rules := categoryGroups[category]
-		description += fmt.Sprintf("• %s: %d found\n", category, len(rules))
-
-		// Show first 3 examples from each category
-		exampleCount := min(len(rules), 3)
-		for i := 0; i < exampleCount; i++ {
-			description += fmt.Sprintf("  - %s: %s\n", rules[i].Directive, rules[i].Path)
-		}
-		if len(rules) > 3 {
-			description += fmt.Sprintf("  ... and %d more\n", len(rules)-3)
-		}
-	}
-
-	return description
+	return description + SiteTests.DescribeGroups(categoryGroups, "found", 3)
 }

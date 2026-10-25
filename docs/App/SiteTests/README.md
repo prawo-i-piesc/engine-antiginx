@@ -3,13 +3,14 @@
 Every security test the engine runs, plus the framework they plug into. "Site tests" to
 distinguish them from Go unit tests — these examine a target website, not this codebase.
 
-Two Go files sit in this directory and neither is a test: `Types.go` is the framework —
-the types every test reports through — and `helpers.go` is the shared toolbox. Everything
-else is a test, in its own directory, in its own package — with one exception:
-`SensitivePaths/` is a data-only package, not a test. It holds the one list of
-known-sensitive files that both `SitemapSecurityTest` and `SensitiveFilesTest` read, so the
-definition of "sensitive file" lives in a single place. It declares no `New()` and is not
-registered.
+Three Go files sit in this directory and none is a test: `Types.go` is the framework —
+the types every test reports through — and `helpers.go` and `fetch.go` are the shared
+toolbox. Everything else is a test, in its own directory, in its own package — with one
+exception: `SensitivePaths/` is a data-only package, not a test. It holds the one list of
+known-sensitive files that `SitemapSecurityTest`, `RobotsTxtSecurityTest` and
+`SensitiveFilesTest` read, the dangerous-location fragments the sitemap and robots.txt
+tests share, and the `Matcher` both of them match declared paths with — so no test imports
+another. It declares no `New()` and is not registered.
 
 ## Directory layout
 
@@ -17,6 +18,7 @@ registered.
 SiteTests/
 ├── Types.go                    the framework
 ├── helpers.go                  reusable functions for tests
+├── fetch.go                    requests to the target, for tests that probe it themselves
 ├── README.md                   this file
 ├── HSTSTest/
 │   ├── README.md               what the test is for
@@ -76,6 +78,9 @@ own — the point is to stop five slightly different header parsers from existin
 | `EscalateThreatLevel(level)` | Raises a level by one, capped at `Critical` — how a test says several findings together mean more than the worst alone |
 | `FormatDuration(seconds)` | Renders seconds as the largest whole unit that fits |
 | `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered, so two hostnames can be compared as one site |
+| `CountThresholds{LowMax, MediumMax, HighMax}.Grade(count)` | Grades a number of findings: 0 is None, each field the highest count at its level, above `HighMax` Critical |
+| `ExampleLines(examples, total, limit)` | Up to `limit` examples as `  - x` lines, then `  ... and N more` for the rest of `total` |
+| `DescribeGroups(groups, verb, limit)` | Findings grouped by category as `• category: N verb` lines, categories sorted so the text is the same on every run, each followed by `ExampleLines` |
 
 `fetch.go` holds the one way a test talks to the network itself, so no test opens, reads or
 closes a response body on its own:
@@ -85,6 +90,7 @@ closes a response body on its own:
 | `BaseURL(target)` | The target's `scheme://host`, which tests probing fixed paths (`/robots.txt`, `/.env`) append to |
 | `Fetch(client, url, maxBytes)` | GETs a URL and returns a `FetchedPage` (status, headers, at most `maxBytes` of body) with the connection already closed |
 | `FetchRequest(client, request, maxBytes)` | The same for a prepared request — a POST, extra headers, a context. A failed request returns an empty page; a failed body read still returns the status and headers alongside the error |
+| `ProbeAll(items, concurrency, probe)` | Runs `probe` for every item, at most `concurrency` at a time, and returns the results it reported as found in the order of the items |
 
 Pass an `SSRF.NewClient(timeout)` for requests to the scanned target; API lookups (URLhaus,
 RDAP) keep their own client.

@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 )
 
 // FetchedPage is one response with its body already read and its connection closed, so a
@@ -52,4 +53,33 @@ func FetchRequest(client *http.Client, request *http.Request, maxBytes int64) (F
 	}
 	page.Body = body
 	return page, nil
+}
+
+// ProbeAll runs probe for every item, at most concurrency at a time, and returns the results
+// probe reported as found, in the order of the items, so a report does not depend on which
+// request happened to finish first.
+func ProbeAll[T, R any](items []T, concurrency int, probe func(T) (R, bool)) []R {
+	results := make([]R, len(items))
+	found := make([]bool, len(items))
+
+	var group sync.WaitGroup
+	slots := make(chan struct{}, max(concurrency, 1))
+	for index, item := range items {
+		group.Add(1)
+		slots <- struct{}{}
+		go func(index int, item T) {
+			defer group.Done()
+			defer func() { <-slots }()
+			results[index], found[index] = probe(item)
+		}(index, item)
+	}
+	group.Wait()
+
+	kept := make([]R, 0, len(items))
+	for index, result := range results {
+		if found[index] {
+			kept = append(kept, result)
+		}
+	}
+	return kept
 }

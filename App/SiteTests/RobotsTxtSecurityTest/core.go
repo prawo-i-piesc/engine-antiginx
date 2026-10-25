@@ -6,25 +6,24 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/RobotsTxtSecurityTest/modules"
 	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
-	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest"
 )
 
 // fetcher wires the pattern table into the retrieval stage, in rising order of specificity:
 // the shared SensitivePaths files (the same list SitemapSecurityTest and SensitiveFilesTest
-// use), then the sitemap's dangerous-location fragments, then this package's own additions,
+// use), then the shared dangerous-location fragments, then this package's own additions,
 // with the later tables winning on a shared key.
 var fetcher = modules.Fetcher{
-	DangerousPatterns: mergePatterns(SensitivePaths.AsPatterns(), SitemapSecurityTest.DangerousPatterns, extraPatterns),
+	DangerousPatterns: SensitivePaths.Merge(SensitivePaths.AsPatterns(), SensitivePaths.Locations, extraPatterns),
 	Timeout:           FetchTimeout,
 	MaxBodyBytes:      MaxBodyBytes,
 }
 
 // grader carries the thresholds from config.go into the judgement stage.
-var grader = modules.Grader{
+var grader = modules.Grader{Thresholds: SiteTests.CountThresholds{
 	LowMax:    LowMaxRules,
 	MediumMax: MediumMaxRules,
 	HighMax:   HighMaxRules,
-}
+}}
 
 // New creates a new security test that analyzes robots.txt for rules revealing or exposing
 // sensitive application paths.
@@ -47,15 +46,4 @@ func New() *SiteTests.StructureTest {
 			}
 		},
 	}
-}
-
-// mergePatterns copies the tables into one, later tables overriding earlier ones.
-func mergePatterns(tables ...map[string]string) map[string]string {
-	merged := make(map[string]string)
-	for _, table := range tables {
-		for pattern, category := range table {
-			merged[pattern] = category
-		}
-	}
-	return merged
 }
