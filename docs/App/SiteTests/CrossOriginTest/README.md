@@ -52,9 +52,9 @@ go run ./App/main.go test --target example.com --tests cross-origin-x
 |---|---|
 | **None** | All three headers strict and the page cross-origin isolated |
 | **Info** | All three present and either isolated (e.g. CORP `cross-origin`) or all strict (e.g. COOP `same-origin-allow-popups`) |
-| **Low** | Two headers strict |
-| **Medium** | One header strict |
-| **High** | No header strict — absent or present with permissive values such as `unsafe-none` |
+| **Low** | Anything less — two, one or no headers strict, whether absent or present with permissive values such as `unsafe-none` |
+
+Calibrated to OWASP ZAP alert 90004 (Insufficient Site Isolation Against Spectre Vulnerability, Low); see the SiteTests overview for the severity scale.
 
 ## Files
 

@@ -32,12 +32,12 @@ go run ./App/main.go test --target example.com --tests ssl-cert
    chain, and each is reported differently.
    - An expired or not yet valid leaf is rejected before its chain is built, so it is
      verified again at the midpoint of its validity window. Only when the chain validates
-     then is the expiry reported on its own (High); otherwise the untrusted chain is
-     reported (Critical) and the expiry mentioned alongside.
+     then is the expiry reported on its own; otherwise the untrusted chain is reported and
+     the expiry mentioned alongside.
    - Go's verifier refuses MD5 and SHA-1 signatures, but reports that only as a hint inside
      an "unknown authority" error. A failed verification is therefore checked for a
      presented certificate signed with one of those algorithms, and reported as an insecure
-     signature algorithm (Critical) rather than as a generic chain failure.
+     signature algorithm (High) rather than as a generic chain failure.
 4. Check the leaf's key type and key length, and how long it has left.
 
 The checks are ordered by severity and return on the first hit, so a report names the worst
@@ -60,9 +60,13 @@ problem rather than the first one in file order.
 |---|---|
 | **None** | Valid, strong, and not expiring soon |
 | **Info** | Valid but expires within 30 days |
-| **Medium** | Short key |
-| **High** | Expired or not yet valid (with a chain that is otherwise trusted), or hostname mismatch |
-| **Critical** | No TLS connection, no certificate, self-signed, a chain that does not validate, or an MD5/SHA-1 signature |
+| **Medium** | No TLS connection (as exposed as an HTTP-only site); no certificate, self-signed, a chain that does not validate, expired, not yet valid, or hostname mismatch; or a short key |
+| **High** | Signed with MD5 or SHA-1, which browsers reject |
+
+An expired or not yet valid certificate whose chain would not validate inside its validity
+window is reported for the untrusted chain, with the expiry mentioned alongside.
+
+Calibrated to Nessus 51192 "SSL Certificate Cannot Be Trusted" (Medium) and 35291 "SSL Certificate Signed Using Weak Hashing Algorithm" (High), and OWASP ZAP 10106 for a site without HTTPS (Medium); see the [SiteTests overview](../README.md) for the severity scale.
 
 ## Files
 

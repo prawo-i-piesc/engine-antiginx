@@ -112,29 +112,39 @@ func grade(a *CacheAnalysis) (SiteTests.ThreatLevel, string) {
 		return SiteTests.None, "No session cookie or password field found, so Cache-Control is not security relevant for this response."
 	}
 
+	// Levels follow what the weakness exposes (CWE-525), not how many findings there are: the
+	// verdict is the most severe single finding.
 	level := SiteTests.None
 	var issues []string
 
 	if a.SharedCacheable {
-		reason := "Cache-Control: public"
-		level = SiteTests.High
-		if !a.Public {
-			reason = "a max-age/s-maxage lifetime"
-			if a.SharedMaxAge <= 0 {
-				level = SiteTests.Medium
-			}
+		var reason string
+		switch {
+		case a.Public:
+			// Declared storable by any cache: CWE-525, typically CVSS 5-6
+			reason = "Cache-Control: public"
+			level = SiteTests.Medium
+		case a.SharedMaxAge > 0:
+			// s-maxage is a lifetime addressed to shared caches specifically
+			reason = "an s-maxage lifetime for shared caches"
+			level = SiteTests.Medium
+		default:
+			// max-age alone lets a shared cache store it, but is aimed at the browser cache
+			reason = "a max-age lifetime"
+			level = SiteTests.Low
 		}
 		issues = append(issues, "page "+trigger+" and may be stored in a shared cache ("+reason+" without private or no-store)")
 	}
 
 	if a.PragmaOnlyGuard {
 		issues = append(issues, "Pragma: no-cache is the only protection against caching; it is an HTTP/1.0 mechanism and Cache-Control: no-store or private is required")
-		level = SiteTests.HighestThreatLevel(level, SiteTests.Medium)
+		level = SiteTests.HighestThreatLevel(level, SiteTests.Low)
 	}
 
 	if len(issues) == 0 && !a.NoStore && !a.Private {
+		// Heuristic caching only: ZAP 10015 "Re-examine Cache-control Directives" (Informational)
 		issues = append(issues, "page "+trigger+" but sends neither Cache-Control: no-store nor private, so caches may store it heuristically")
-		level = SiteTests.Low
+		level = SiteTests.Info
 	}
 
 	a.Issues = issues

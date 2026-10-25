@@ -22,7 +22,7 @@ func New() *SiteTests.ResponseTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.High,
+					ThreatLevel: SiteTests.Low,
 					Metadata:    nil,
 					Description: "Missing X-Content-Type-Options header - browsers may MIME-sniff content leading to potential XSS vulnerabilities",
 				}
@@ -69,7 +69,7 @@ func evaluateXContentTypeOptionsThreatLevel(metadata map[string]interface{}) Sit
 		return SiteTests.None // Perfect configuration
 	}
 
-	return SiteTests.Medium // Invalid value
+	return SiteTests.Low // Invalid value, ignored like a missing header
 }
 
 // generateXContentTypeOptionsDescription creates a human-readable description

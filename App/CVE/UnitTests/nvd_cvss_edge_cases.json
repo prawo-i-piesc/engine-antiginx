@@ -1,0 +1,269 @@
+{
+ "resultsPerPage": 8,
+ "startIndex": 0,
+ "totalResults": 8,
+ "format": "NVD_CVE",
+ "version": "2.0",
+ "timestamp": "2099-03-01T08:00:00.000",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "id": "CVE-2099-0001",
+    "vulnStatus": "Analyzed",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: the CNA's Critical is listed first, NVD rates it High."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "cna@fixture.test",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "fixture",
+        "baseScore": 9.1,
+        "baseSeverity": "CRITICAL"
+       }
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "fixture",
+        "baseScore": 7.5,
+        "baseSeverity": "HIGH"
+       }
+      }
+     ]
+    },
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0001"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0002",
+    "vulnStatus": "Modified",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: the CNA scored CVSS 4.0, NVD scored CVSS 3.1 only."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV40": [
+      {
+       "source": "cna@fixture.test",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "4.0",
+        "vectorString": "fixture",
+        "baseScore": 9.2,
+        "baseSeverity": "CRITICAL"
+       }
+      }
+     ],
+     "cvssMetricV31": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "fixture",
+        "baseScore": 8.1,
+        "baseSeverity": "HIGH"
+       }
+      }
+     ]
+    },
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0002"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0003",
+    "vulnStatus": "Analyzed",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: legacy vulnerability scored 10.0 under CVSS 2.0, which has no Critical."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "fixture",
+        "baseScore": 10.0
+       },
+       "baseSeverity": "HIGH"
+      }
+     ]
+    },
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0003"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0004",
+    "vulnStatus": "Awaiting Analysis",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: scored by its CNA only, without a severity label."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "cna@fixture.test",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "fixture",
+        "baseScore": 6.5
+       }
+      }
+     ]
+    },
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0004"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0005",
+    "vulnStatus": "Awaiting Analysis",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: published but not scored by anyone yet."
+     }
+    ],
+    "metrics": {},
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0005"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0006",
+    "vulnStatus": "Rejected",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: ** REJECT ** this candidate was withdrawn."
+     }
+    ],
+    "metrics": {},
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0006"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0007",
+    "vulnStatus": "Analyzed",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: a weakness with no impact, scored 0.0."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "fixture",
+        "baseScore": 0.0,
+        "baseSeverity": "NONE"
+       }
+      }
+     ]
+    },
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0007"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0008",
+    "vulnStatus": "Analyzed",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: a label that contradicts its score."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "fixture",
+        "baseScore": 9.8,
+        "baseSeverity": "LOW"
+       }
+      }
+     ]
+    },
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0008"
+     }
+    ]
+   }
+  }
+ ]
+}

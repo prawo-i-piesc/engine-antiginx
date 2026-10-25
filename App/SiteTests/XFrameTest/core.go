@@ -67,11 +67,11 @@ func New() *SiteTests.ResponseTest {
 			case "limited":
 				threatLevel = SiteTests.Low
 			case "weak":
-				threatLevel = SiteTests.Medium
+				threatLevel = SiteTests.Low
 			case "vulnerable":
-				threatLevel = SiteTests.High
+				threatLevel = SiteTests.Medium
 			default:
-				threatLevel = SiteTests.High
+				threatLevel = SiteTests.Medium
 			}
 
 			// Generate description

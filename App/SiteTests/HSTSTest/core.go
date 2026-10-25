@@ -24,7 +24,7 @@ func New() *SiteTests.ResponseTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Medium,
+					ThreatLevel: SiteTests.Low,
 					Metadata:    nil,
 					Description: "Missing HSTS header - site vulnerable to protocol downgrade attacks and man-in-the-middle attacks",
 				}
@@ -119,16 +119,12 @@ func evaluateHSTSThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLe
 
 	// Acceptable configuration
 	if maxAge >= sixMonths {
-		return SiteTests.Low
+		return SiteTests.Info
 	}
 
-	// Weak configuration
-	if maxAge > 0 {
-		return SiteTests.Medium
-	}
-
-	// Invalid or missing max-age
-	return SiteTests.High
+	// Weak, invalid or missing max-age: the header gives little or no protection, a missing
+	// defence-in-depth layer (ZAP 10035)
+	return SiteTests.Low
 }
 
 // generateHSTSDescription creates a human-readable description of the HSTS configuration

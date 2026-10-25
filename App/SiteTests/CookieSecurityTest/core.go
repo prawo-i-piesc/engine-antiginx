@@ -64,34 +64,43 @@ func New() *SiteTests.ResponseTest {
 	}
 }
 
-// evaluateCookieThreatLevel determines threat level based on analysis
+// evaluateCookieThreatLevel grades the response by its most serious single cookie finding;
+// several findings do not add up to a higher level.
 func evaluateCookieThreatLevel(analysis CookieSecurityAnalysis) SiteTests.ThreatLevel {
-	// Critical: Session cookies completely unsecured or high fixation risk with session issues
-	if analysis.InsecureSession && analysis.FixationRisk {
-		return SiteTests.Critical
+	level := SiteTests.None
+	for _, cookie := range analysis.CookieDetails {
+		level = SiteTests.HighestThreatLevel(level, cookieThreatLevel(cookie))
 	}
+	return level
+}
 
-	// High: Multiple critical issues
-	if len(analysis.CriticalIssues) > 0 {
-		return SiteTests.High
-	}
-
-	// Medium: Missing important security flags
-	if analysis.MissingHttpOnly > 0 || analysis.MissingSecure > 0 {
-		return SiteTests.Medium
-	}
-
-	// Low: Minor issues like SameSite or long expiration
-	if analysis.MissingSameSite > 0 || analysis.LongExpiration > 0 {
+// cookieThreatLevel grades one cookie. A cookie whose name marks it as a session identifier or
+// a credential is held to the stricter standard, since its value is the account:
+//   - a guessable value invites session fixation and hijacking (CWE-330, CWE-384): High — only
+//     a heuristic, so not the Critical a confirmed predictable session identifier would be;
+//   - no HttpOnly (CWE-1004, readable by any injected script) or no Secure (CWE-614, sent over
+//     plain HTTP): Medium;
+//   - no SameSite, or SameSite=None (CSRF, CWE-352; browsers default to Lax): Low.
+//
+// Any other cookie missing a flag is Low, as OWASP ZAP rates these alerts (10010, 10011,
+// 10054); an excessive lifetime alone is Info.
+func cookieThreatLevel(cookie CookieSecurityDetail) SiteTests.ThreatLevel {
+	missingSameSite := cookie.SameSite == "" || cookie.SameSite == "None"
+	if cookie.CarriesAuthority {
+		switch {
+		case cookie.PredictableValue:
+			return SiteTests.High
+		case !cookie.HasHttpOnly || !cookie.HasSecure:
+			return SiteTests.Medium
+		case missingSameSite:
+			return SiteTests.Low
+		}
+	} else if !cookie.HasHttpOnly || !cookie.HasSecure || missingSameSite {
 		return SiteTests.Low
 	}
-
-	// Info: Very minor issues
-	if analysis.OverallSecurityScore >= 90 && len(analysis.SecurityIssues) > 0 {
+	if cookie.MaxAge > longLifetimeSeconds {
 		return SiteTests.Info
 	}
-
-	// None: All cookies properly secured
 	return SiteTests.None
 }
 
@@ -99,17 +108,12 @@ func evaluateCookieThreatLevel(analysis CookieSecurityAnalysis) SiteTests.Threat
 func generateCookieDescription(analysis CookieSecurityAnalysis) string {
 	var description strings.Builder
 
-	// Before lint
-	//description.WriteString(fmt.Sprintf("Analyzed %d cookie(s) with overall security score of %d/100. ",
-	//	analysis.TotalCookies, analysis.OverallSecurityScore))
-
-	// After lint
 	_, _ = fmt.Fprintf(&description, "Analyzed %d cookie(s) with overall security score of %d/100. ",
 		analysis.TotalCookies, analysis.OverallSecurityScore)
 
-	// Critical issues first
+	// The most serious issues first
 	if len(analysis.CriticalIssues) > 0 {
-		description.WriteString("CRITICAL: ")
+		description.WriteString("Most serious: ")
 		description.WriteString(strings.Join(analysis.CriticalIssues, "; "))
 		description.WriteString(". ")
 	}

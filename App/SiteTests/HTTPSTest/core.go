@@ -37,7 +37,7 @@ func New() *SiteTests.ResponseTest {
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   detectionCertainty,
-				ThreatLevel: SiteTests.High,
+				ThreatLevel: SiteTests.Medium,
 				Metadata:    nil,
 				Description: insecureConnectionDescription,
 			}

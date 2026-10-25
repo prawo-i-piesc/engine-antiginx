@@ -13,10 +13,10 @@ func TestHSTSFixtures(t *testing.T) {
 		level     SiteTests.ThreatLevel
 		fragments []string
 	}{
-		{"missing_header.http", SiteTests.Medium, []string{"Missing HSTS header"}},
-		{"weak_max_age.http", SiteTests.Medium, []string{"300 seconds max-age", "Weak security configuration"}},
-		{"missing_max_age.http", SiteTests.High, []string{"missing or invalid max-age"}},
-		{"six_months.http", SiteTests.Low, []string{"Acceptable security configuration"}},
+		{"missing_header.http", SiteTests.Low, []string{"Missing HSTS header"}},
+		{"weak_max_age.http", SiteTests.Low, []string{"300 seconds max-age", "Weak security configuration"}},
+		{"missing_max_age.http", SiteTests.Low, []string{"missing or invalid max-age"}},
+		{"six_months.http", SiteTests.Info, []string{"Acceptable security configuration"}},
 		{"one_year_subdomains.http", SiteTests.Info, []string{"1 year max-age", "includeSubDomains", "Good security configuration"}},
 		{"preload_ready.http", SiteTests.None, []string{"2 years max-age", "preload", "Excellent security configuration"}},
 	}

@@ -14,15 +14,15 @@ func TestCSPFixtures(t *testing.T) {
 		level     SiteTests.ThreatLevel
 		fragments []string
 	}{
-		{"missing_header.http", SiteTests.Critical, []string{"Missing Content-Security-Policy header"}},
-		// A critical issue puts the policy in the poor band whatever else it restricts
-		{"unsafe_inline_script.http", SiteTests.High, []string{"poor protection level (strength: 19/100)", "CRITICAL ISSUES: script-src unsafe-inline allows any inline scripts"}},
-		{"unsafe_eval_script.http", SiteTests.High, []string{"poor protection level (strength: 19/100)", "unsafe-eval permits eval() and Function() constructors", "script-src allows unsafe-eval"}},
-		{"wildcard_default_src.http", SiteTests.High, []string{"poor protection level (strength: 5/100)", "default-src wildcard undermines security policy"}},
+		{"missing_header.http", SiteTests.Medium, []string{"Missing Content-Security-Policy header"}},
+		// A value that lets injected script run makes the policy unsafe whatever else it restricts
+		{"unsafe_inline_script.http", SiteTests.Medium, []string{"detected but unsafe (strength: 19/100)", "Unsafe sources: script-src unsafe-inline allows any inline scripts"}},
+		{"unsafe_eval_script.http", SiteTests.Medium, []string{"detected but unsafe (strength: 19/100)", "unsafe-eval permits eval() and Function() constructors", "script-src allows unsafe-eval"}},
+		{"wildcard_default_src.http", SiteTests.Medium, []string{"detected but unsafe (strength: 5/100)", "default-src wildcard undermines security policy"}},
 		// Without script-src, scripts take their sources from default-src
-		{"unsafe_inline_default_fallback.http", SiteTests.High, []string{"poor protection level", "script-src inherits unsafe-inline from default-src", "default-src allows unsafe-inline"}},
-		{"no_fetch_directives.http", SiteTests.High, []string{"poor protection level (strength: 10/100)", "Missing 8 recommended directives"}},
-		{"default_src_only.http", SiteTests.Medium, []string{"weak protection level (strength: 20/100)", "Missing 7 recommended directives: base-uri, form-action, frame-ancestors, img-src, object-src, script-src, style-src."}},
+		{"unsafe_inline_default_fallback.http", SiteTests.Medium, []string{"detected but unsafe", "script-src inherits unsafe-inline from default-src", "default-src allows unsafe-inline"}},
+		{"no_fetch_directives.http", SiteTests.Low, []string{"poor protection level (strength: 10/100)", "Missing 8 recommended directives"}},
+		{"default_src_only.http", SiteTests.Low, []string{"weak protection level (strength: 20/100)", "Missing 7 recommended directives: base-uri, form-action, frame-ancestors, img-src, object-src, script-src, style-src."}},
 		{"partial_policy.http", SiteTests.Low, []string{"acceptable protection level (strength: 40/100)", "Missing 5 recommended directives: base-uri, form-action, frame-ancestors, img-src, style-src."}},
 		{"self_policy.http", SiteTests.Info, []string{"good protection level (strength: 70/100)", "Missing 3 recommended directives: base-uri, form-action, img-src.", "Recommendations: Add base-uri directive"}},
 		// A wildcard outside the critical directives costs points but is not a critical issue
@@ -42,7 +42,7 @@ func TestCSPFixtures(t *testing.T) {
 
 func TestCSPOverriddenDefaultIsNotCritical(t *testing.T) {
 	result := UnitTestKit.RunResponse(t, CSPTest.New(), "default_src_unsafe_inline_overridden.http")
-	if strings.Contains(result.Description, "CRITICAL") {
+	if strings.Contains(result.Description, "unsafe (strength") || strings.Contains(result.Description, "Unsafe sources") {
 		t.Errorf("unsafe default overridden by script-src reported as critical: %s", result.Description)
 	}
 }
@@ -87,8 +87,8 @@ func TestCSPMetadataListsUnsafeValues(t *testing.T) {
 	if missing, _ := metadata["missingDirectives"].([]any); len(missing) != 0 {
 		t.Errorf("complete policy reported missing directives %v", missing)
 	}
-	if metadata["protectionLevel"] != "poor" || metadata["policyStrength"] != float64(19) {
-		t.Errorf("level %v, strength %v, want poor and 19", metadata["protectionLevel"], metadata["policyStrength"])
+	if metadata["protectionLevel"] != "unsafe" || metadata["policyStrength"] != float64(19) {
+		t.Errorf("level %v, strength %v, want unsafe and 19", metadata["protectionLevel"], metadata["policyStrength"])
 	}
 
 	metadata = UnitTestKit.Metadata(t, UnitTestKit.RunResponse(t, CSPTest.New(), "unsafe_inline_default_fallback.http"))

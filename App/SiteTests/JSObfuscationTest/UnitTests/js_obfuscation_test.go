@@ -18,18 +18,21 @@ func TestJSObfuscationFixtures(t *testing.T) {
 		{"clean_inline_script.http", SiteTests.None, []string{"No JavaScript obfuscation detected"}},
 		// A single decoded configuration blob is minimal, below what counts as obfuscation
 		{"base64_config_blob.http", SiteTests.Info, []string{"No JavaScript obfuscation detected"}},
-		{"hex_escape_run.http", SiteTests.Low, []string{"light level (score: 23/100)", "Hex escape sequences"}},
+		{"hex_escape_run.http", SiteTests.Low, []string{"light obfuscation (score: 23/100)", "No malicious indicators", "Hex escape sequences"}},
 		// A score of exactly 20 is where obfuscation starts, for the flag, the level and the grade
-		{"unicode_escape_score_twenty.http", SiteTests.Low, []string{"JavaScript obfuscation detected with light level (score: 20/100)"}},
-		{"unicode_escape_run.http", SiteTests.Low, []string{"light level (score: 25/100)", "Unicode escape sequences", "Base64 encoded strings"}},
+		{"unicode_escape_score_twenty.http", SiteTests.Low, []string{"JavaScript obfuscation detected: light obfuscation (score: 20/100)"}},
+		{"unicode_escape_run.http", SiteTests.Low, []string{"light obfuscation (score: 25/100)", "Unicode escape sequences", "Base64 encoded strings"}},
 		{"string_array_rotation.http", SiteTests.Low, []string{"Hexadecimal number arrays detected"}},
-		// One malicious indicator is Medium whatever the score
+		// Heavy obfuscation without a malicious indicator is still only Low
+		{"heavy_obfuscation_no_indicators.http", SiteTests.Low, []string{"heavy obfuscation (score: 66/100)", "No malicious indicators"}},
+		// Obfuscation alone stays Low however heavy; one malicious indicator is Medium and two or
+		// more independent ones are High, whatever the score
 		{"packed_eval_payload.http", SiteTests.Medium, []string{"MALICIOUS INDICATORS", "Suspicious keyword 'payload'"}},
-		{"xor_self_decrypting_loader.http", SiteTests.Medium, []string{"moderate level (score: 59/100)", "Possible self-decrypting code detected"}},
-		{"document_write_decoded.http", SiteTests.High, []string{"heavy level", "Self-modifying code: document.write with decoded content", "Large character code arrays"}},
-		{"eval_atob_chain.http", SiteTests.Critical, []string{"extreme level (score: 100/100)", "eval() called with encoded/decoded input", "Multiple layers of encoding"}},
+		{"xor_self_decrypting_loader.http", SiteTests.Medium, []string{"moderate obfuscation (score: 59/100)", "Possible self-decrypting code detected"}},
+		{"document_write_decoded.http", SiteTests.High, []string{"MALICIOUS INDICATORS: Self-modifying code: document.write with decoded content; String passed to setTimeout/setInterval", "Large character code arrays"}},
+		{"eval_atob_chain.http", SiteTests.High, []string{"extreme obfuscation (score: 100/100)", "eval() called with encoded/decoded input", "Multiple layers of encoding"}},
 		// A JavaScript file is analysed as one script, without <script> elements around it
-		{"obfuscated_javascript_file.http", SiteTests.Critical, []string{"extreme level (score: 100/100)", "eval() called with encoded/decoded input"}},
+		{"obfuscated_javascript_file.http", SiteTests.High, []string{"extreme obfuscation (score: 100/100)", "eval() called with encoded/decoded input"}},
 	}
 	for _, c := range cases {
 		t.Run(c.fixture, func(t *testing.T) {

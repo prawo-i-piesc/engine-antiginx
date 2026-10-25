@@ -29,11 +29,12 @@ func TestSitemapSites(t *testing.T) {
 		// dev., api., admin. and staging. are hostnames, not paths
 		{"dangerous_hostnames", SiteTests.None, []string{"Sitemap.xml is secure", "among 4 URLs"}},
 		// A repeated <loc> is one URL, and each URL is counted once under its best fragment
-		{"mixed_matches", SiteTests.Medium, []string{"exposes 4 dangerous paths", "out of 5 total URLs", "Version Control: 1 exposed", "API Documentation: 1 exposed"}},
+		{"mixed_matches", SiteTests.Low, []string{"exposes 4 dangerous paths", "out of 5 total URLs", "Version Control: 1 exposed", "API Documentation: 1 exposed"}},
+		// Every dangerous path is the same invitation to index it: Low, whatever the count
 		{"admin_listed", SiteTests.Low, []string{"exposes 1 dangerous paths", "out of 4 total URLs", "Administrative Interface: 1 exposed", "https://shop.example/admin/login"}},
-		{"several_listed", SiteTests.Medium, []string{"exposes 4 dangerous paths", "out of 7 total URLs", "Backup Location: 1 exposed", "https://shop.example/backup/site-2026.zip"}},
-		{"many_listed", SiteTests.High, []string{"exposes 7 dangerous paths", "out of 9 total URLs", "Administrative Interface: 2 exposed", "API Documentation: 1 exposed"}},
-		{"mass_listed", SiteTests.Critical, []string{"exposes 12 dangerous paths", "out of 14 total URLs", "Administrative Interface: 4 exposed", "... and 1 more", "Backup Location: 2 exposed"}},
+		{"several_listed", SiteTests.Low, []string{"exposes 4 dangerous paths", "out of 7 total URLs", "Backup Location: 1 exposed", "https://shop.example/backup/site-2026.zip"}},
+		{"many_listed", SiteTests.Low, []string{"exposes 7 dangerous paths", "out of 9 total URLs", "Administrative Interface: 2 exposed", "API Documentation: 1 exposed"}},
+		{"mass_listed", SiteTests.Low, []string{"exposes 12 dangerous paths", "out of 14 total URLs", "Administrative Interface: 4 exposed", "... and 1 more", "Backup Location: 2 exposed"}},
 	}
 	for _, c := range cases {
 		t.Run(c.site, func(t *testing.T) {

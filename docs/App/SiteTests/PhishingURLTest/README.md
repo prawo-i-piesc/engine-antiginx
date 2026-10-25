@@ -57,6 +57,8 @@ Parameter **names** appear; parameter **values** never do.
 
 ## How the verdict is reached
 
+Grades the evidence that the target is malicious, not a weakness of the site, so independent indicators may raise the level together; see the SiteTests overview for the severity scale.
+
 - Each dimension is judged on its own and the higher classification wins, so a finding in either is never diluted by a clean result in the other.
 - When **both** dimensions reach Medium, the result is escalated by one level: a lookalike hostname that also harvests data describes a complete phishing page rather than an isolated anomaly.
 

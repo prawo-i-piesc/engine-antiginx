@@ -27,7 +27,7 @@ func New() *SiteTests.ResponseTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    nil,
 					Description: "Missing Content-Security-Policy header - site vulnerable to XSS attacks, data injection, and other script-based vulnerabilities. Implement CSP to restrict resource loading and script execution.",
 				}
@@ -259,11 +259,15 @@ func calculatePolicyStrength(analysis *CSPAnalysis) {
 }
 
 // determineCSPProtectionLevel sets overall protection assessment. A critical vulnerability
-// lets injected script run whatever else the policy restricts, so it caps the strength in the
-// poor band and the level reported agrees with the High verdict.
+// lets injected script run whatever else the policy restricts, so the policy is rated unsafe,
+// whatever its coverage, and its strength is capped below the weak band.
 func determineCSPProtectionLevel(analysis *CSPAnalysis) {
-	if len(analysis.CriticalVulns) > 0 && analysis.PolicyStrength > criticalStrengthCap {
-		analysis.PolicyStrength = criticalStrengthCap
+	if len(analysis.CriticalVulns) > 0 {
+		if analysis.PolicyStrength > criticalStrengthCap {
+			analysis.PolicyStrength = criticalStrengthCap
+		}
+		analysis.ProtectionLevel = "unsafe"
+		return
 	}
 	if analysis.PolicyStrength >= 80 {
 		analysis.ProtectionLevel = "excellent"
@@ -280,24 +284,17 @@ func determineCSPProtectionLevel(analysis *CSPAnalysis) {
 
 // evaluateCSPThreatLevel determines the threat level based on CSP analysis
 func evaluateCSPThreatLevel(analysis CSPAnalysis) SiteTests.ThreatLevel {
-	// Critical vulnerabilities present
-	if len(analysis.CriticalVulns) > 0 {
-		return SiteTests.High
-	}
-
+	// A policy that lets injected script run is the same exposure as no policy (ZAP 10055)
 	switch analysis.ProtectionLevel {
+	case "unsafe":
+		return SiteTests.Medium
 	case "excellent":
 		return SiteTests.None
 	case "good":
 		return SiteTests.Info
-	case "acceptable":
-		return SiteTests.Low
-	case "weak":
-		return SiteTests.Medium
-	case "poor":
-		return SiteTests.High
 	default:
-		return SiteTests.High
+		// acceptable, weak and poor: the policy is in place but protects little
+		return SiteTests.Low
 	}
 }
 
@@ -306,12 +303,17 @@ func generateCSPDescription(analysis CSPAnalysis) string {
 	var description strings.Builder
 
 	// Overall assessment
-	_, _ = fmt.Fprintf(&description, "Content Security Policy detected with %s protection level (strength: %d/100). ",
-		analysis.ProtectionLevel, analysis.PolicyStrength)
+	if analysis.ProtectionLevel == "unsafe" {
+		_, _ = fmt.Fprintf(&description, "Content Security Policy detected but unsafe (strength: %d/100) - it does not stop injected script from running. ",
+			analysis.PolicyStrength)
+	} else {
+		_, _ = fmt.Fprintf(&description, "Content Security Policy detected with %s protection level (strength: %d/100). ",
+			analysis.ProtectionLevel, analysis.PolicyStrength)
+	}
 
-	// Critical vulnerabilities
+	// Vulnerabilities that defeat the policy
 	if len(analysis.CriticalVulns) > 0 {
-		description.WriteString("CRITICAL ISSUES: ")
+		description.WriteString("Unsafe sources: ")
 		description.WriteString(strings.Join(analysis.CriticalVulns, "; "))
 		description.WriteString(". ")
 	}

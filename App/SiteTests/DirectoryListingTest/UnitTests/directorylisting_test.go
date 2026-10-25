@@ -52,9 +52,10 @@ func TestDirectoryListingSites(t *testing.T) {
 		{"apache_root", "/", SiteTests.High, []string{"• / (Apache, 2 entries)", "index.php.bak"}},
 		{"python_root", "/", SiteTests.High, []string{"• / (Python http.server, 4 entries)", ".env", "... and 1 more"}},
 
-		// Three listings mean listing is enabled server-wide, raising the verdict a level
-		{"widespread", "/", SiteTests.High, []string{"3 of 36 probed directories", "/css/ (nginx", "/images/ (nginx", "/js/ (nginx"}},
-		{"widespread_sensitive", "/", SiteTests.Critical, []string{"3 of 36 probed directories", "2 of them in directories", "/backup/ [sensitive]", "/logs/ [sensitive]", "access.log"}},
+		// Each listing is rated on its own: three ordinary ones stay Medium, and with the
+		// root and sensitive directories among them the result stays High
+		{"widespread", "/", SiteTests.Medium, []string{"3 of 36 probed directories", "/css/ (nginx", "/images/ (nginx", "/js/ (nginx"}},
+		{"widespread_sensitive", "/", SiteTests.High, []string{"3 of 36 probed directories", "2 of them in directories", "/backup/ [sensitive]", "/logs/ [sensitive]", "access.log"}},
 	}
 	for _, c := range cases {
 		t.Run(c.site, func(t *testing.T) {

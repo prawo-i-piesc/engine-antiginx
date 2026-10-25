@@ -14,12 +14,13 @@ func TestPermissionsPolicyFixtures(t *testing.T) {
 		level     SiteTests.ThreatLevel
 		fragments []string
 	}{
-		{"missing_header.http", SiteTests.High, []string{"Missing Permissions-Policy header"}},
+		{"missing_header.http", SiteTests.Low, []string{"Missing Permissions-Policy header"}},
 		// Feature-Policy syntax is not a Permissions-Policy, so browsers ignore the header
-		{"legacy_feature_policy_syntax.http", SiteTests.High, []string{"contains no valid directives"}},
-		{"three_dangerous_open.http", SiteTests.High, []string{"WARNING: Allows dangerous features: camera, microphone, geolocation", "Uses wildcards for features: camera"}},
-		{"one_dangerous_open.http", SiteTests.Medium, []string{"5 directives", "Properly restricts features: camera, microphone, payment, usb", "Allows dangerous features: geolocation"}},
-		{"wildcard_fullscreen.http", SiteTests.Medium, []string{"Allows suspicious features: fullscreen", "Uses wildcards for features: fullscreen"}},
+		{"legacy_feature_policy_syntax.http", SiteTests.Low, []string{"contains no valid directives"}},
+		// The level follows the most severe finding, not how many features are open
+		{"three_dangerous_open.http", SiteTests.Low, []string{"WARNING: Allows dangerous features: camera, microphone, geolocation", "Uses wildcards for features: camera"}},
+		{"one_dangerous_open.http", SiteTests.Low, []string{"5 directives", "Properly restricts features: camera, microphone, payment, usb", "Allows dangerous features: geolocation"}},
+		{"wildcard_fullscreen.http", SiteTests.Low, []string{"Allows suspicious features: fullscreen", "Uses wildcards for features: fullscreen"}},
 		{"two_suspicious_open.http", SiteTests.Low, []string{"Allows suspicious features: autoplay, fullscreen"}},
 		{"single_directive.http", SiteTests.Low, []string{"1 directives", "Properly restricts features: camera", "Minimal policy"}},
 		{"one_suspicious_open.http", SiteTests.Info, []string{"Allows suspicious features: fullscreen", "Good security configuration"}},

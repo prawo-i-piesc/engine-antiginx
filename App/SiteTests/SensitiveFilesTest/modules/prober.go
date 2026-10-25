@@ -207,12 +207,11 @@ func randomToken() string {
 
 // Grader turns an analysis into a threat level.
 type Grader struct {
-	SeverityFor     func(category string) SiteTests.ThreatLevel
-	EscalationCount int
+	SeverityFor func(category string) SiteTests.ThreatLevel
 }
 
-// EvaluateThreat reports the severity of the most dangerous readable file, raised a level
-// when several files are readable. A file that only exists behind access control is a Low
+// EvaluateThreat reports the severity of the most dangerous readable file. Each file is its
+// own exposure, so how many are readable never raises the level. A file that only exists behind access control is a Low
 // note on its own and does not drive the verdict.
 func (g Grader) EvaluateThreat(analysis Analysis) SiteTests.ThreatLevel {
 	if len(analysis.Exposures) == 0 {
@@ -228,11 +227,7 @@ func (g Grader) EvaluateThreat(analysis Analysis) SiteTests.ThreatLevel {
 		levels = append(levels, g.SeverityFor(exposure.Category))
 	}
 
-	highest := SiteTests.HighestThreatLevel(levels...)
-	if analysis.ReadableCount >= g.EscalationCount {
-		highest = SiteTests.EscalateThreatLevel(highest)
-	}
-	return highest
+	return SiteTests.HighestThreatLevel(levels...)
 }
 
 // Describe creates a human-readable description of the analysis.

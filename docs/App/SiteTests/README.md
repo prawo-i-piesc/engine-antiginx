@@ -119,16 +119,52 @@ skipped, and the report names them.
 
 ## Threat levels
 
-| | Level | Means |
-|---|---|---|
-| 0 | `None` | No issue found; the configuration meets what is expected |
-| 1 | `Info` | Worth knowing, no security impact |
-| 2 | `Low` | Minor issue, low exploitability |
-| 3 | `Medium` | Needs attention |
-| 4 | `High` | Serious, with real impact |
-| 5 | `Critical` | Severe, remediate immediately |
+| | Level | Means | CVSS 3.x/4.0 rating |
+|---|---|---|---|
+| 0 | `None` | No issue found; the configuration meets what is expected | None (0.0) |
+| 1 | `Info` | Worth knowing, no security impact | — (no counterpart) |
+| 2 | `Low` | Minor issue, low exploitability | Low (0.1–3.9) |
+| 3 | `Medium` | Needs attention | Medium (4.0–6.9) |
+| 4 | `High` | Serious, with real impact | High (7.0–8.9) |
+| 5 | `Critical` | Severe, remediate immediately | Critical (9.0–10.0) |
 
 Levels serialise to their names in JSON, not to numbers.
+
+The five levels other than `Info` share their names and order with the CVSS qualitative
+severity ratings, and where a level comes from a CVE it is that CVE's CVSS rating band for
+band — see [`App/CVE`](../CVE/README.md) for how a CVE is rated and why several are never
+added up. `Info` has no CVSS counterpart: it marks a finding with no security impact of its
+own, or a CVE that is known but not yet scored. A level a test assigns to a configuration
+finding (a missing header, a weak cookie) is that test's judgement, documented in its README;
+it is not a CVSS score, since CVSS rates vulnerabilities, not configurations.
+
+### How tests choose a level
+
+Tests answer one of two questions, and grade accordingly.
+
+**Weaknesses of the site** — headers, cookies, caching, TLS, exposed files and listings,
+robots.txt and sitemap, disclosed software. A finding is graded by what the weakness lets an
+attacker do, calibrated to the risk levels of OWASP ZAP's alerts (Nessus for TLS) and to the
+typical CVSS 3.1 band of the vulnerability class it opens:
+
+| Kind of finding | Level | Example |
+|---|---|---|
+| Nothing to report, or a hint with no security impact | None / Info | `Referrer-Policy` absent (browsers default to a safe policy) |
+| Missing defence in depth, nothing directly exploitable | Low | No `X-Content-Type-Options`, no HSTS, an ordinary cookie without `HttpOnly` |
+| Missing protection against a directly exploitable attack class | Medium | No CSP (XSS), no anti-framing (clickjacking), plain HTTP, an untrusted certificate, directory browsing |
+| Direct exposure of confidential data | High | A readable `.env`, `.git` or database dump; a guessable session identifier |
+| A CVE rated Critical by CVSS affecting a disclosed release | Critical | Only the server-header test reaches it |
+
+Like CVSS, which rates each vulnerability on its own, these tests report their most serious
+single finding: ten findings of one level are that level. Counts go to the metadata.
+
+**Evidence that the target is malicious** — phishing URL, URLhaus, DNS reputation, favicon
+origin, JavaScript obfuscation, bot protection. These do not rate a weakness of the site but
+how strongly the evidence says the target is dangerous to visit, so independent indicators
+pointing the same way may raise the level together. A detected bot-protection layer is
+reported for information only.
+
+Each test's README names the alerts or classes its levels are calibrated to.
 
 ## What a test returns
 

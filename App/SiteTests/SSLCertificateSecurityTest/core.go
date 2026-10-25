@@ -17,7 +17,10 @@ import (
 )
 
 // New creates a new StructureTest that analyzes the SSL/TLS certificate of the target website
-// for security best practices.
+// for security best practices. Levels follow Nessus: a certificate that cannot be trusted for
+// any reason (untrusted chain, expiry, hostname) is Medium, as plugin 51192 rates it, and so
+// is a port without TLS, which leaves the site as exposed as an HTTP-only one; an MD5 or
+// SHA-1 signature is High, as plugin 35291 rates it.
 func New() *SiteTests.StructureTest {
 	return &SiteTests.StructureTest{
 		Id:          TestId,
@@ -43,7 +46,7 @@ func New() *SiteTests.StructureTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    nil,
 					Description: "Failed to establish TLS connection: " + err.Error(),
 				}
@@ -62,7 +65,7 @@ func New() *SiteTests.StructureTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    nil,
 					Description: "No SSL certificate presented by the server.",
 				}
@@ -114,7 +117,7 @@ func New() *SiteTests.StructureTest {
 					return SiteTests.TestResult{
 						Name:        TestName,
 						Certainty:   100,
-						ThreatLevel: SiteTests.High,
+						ThreatLevel: SiteTests.Medium,
 						Metadata:    metadata,
 						Description: "Certificate hostname mismatch: " + verifyErr.Error(),
 					}
@@ -138,7 +141,7 @@ func New() *SiteTests.StructureTest {
 						return SiteTests.TestResult{
 							Name:        TestName,
 							Certainty:   100,
-							ThreatLevel: SiteTests.High,
+							ThreatLevel: SiteTests.Medium,
 							Metadata:    metadata,
 							Description: description,
 						}
@@ -153,7 +156,7 @@ func New() *SiteTests.StructureTest {
 					return SiteTests.TestResult{
 						Name:        TestName,
 						Certainty:   100,
-						ThreatLevel: SiteTests.Critical,
+						ThreatLevel: SiteTests.High,
 						Metadata:    metadata,
 						Description: fmt.Sprintf("Certificate uses an insecure signature algorithm (%s) that browsers reject, so the chain cannot be validated.%s", algorithm, expiryNote),
 					}
@@ -163,7 +166,7 @@ func New() *SiteTests.StructureTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    metadata,
 					Description: "Certificate chain validation failed: " + verifyErr.Error() + "." + expiryNote,
 				}
@@ -175,7 +178,7 @@ func New() *SiteTests.StructureTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.High,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    metadata,
 					Description: "Certificate hostname mismatch: " + err.Error(),
 				}
@@ -186,7 +189,7 @@ func New() *SiteTests.StructureTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    metadata,
 					Description: "Certificate is self-signed.",
 				}
@@ -201,7 +204,7 @@ func New() *SiteTests.StructureTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Critical,
+					ThreatLevel: SiteTests.Medium,
 					Metadata:    metadata,
 					Description: "Certificate chain verification failed: " + err.Error(),
 				}

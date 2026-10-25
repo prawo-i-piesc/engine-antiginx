@@ -72,7 +72,7 @@ func TestSiteBehindCDN(t *testing.T) {
 	)
 
 	result := UnitTestKit.RunTarget(t, BotProtectionTest.New(), site.URL+"/behind-cdn/")
-	UnitTestKit.Expect(t, result, SiteTests.Low, "served through a bot protection, CDN or WAF layer (Cloudflare)", "status 200", "Content was returned normally")
+	UnitTestKit.Expect(t, result, SiteTests.Info, "served through a bot protection, CDN or WAF layer (Cloudflare)", "status 200", "Content was returned normally")
 	metadata := probeMetadata(t, result)
 	if metadata.Blocked || !slices.Contains(metadata.Presence, "Cloudflare Ray ID: 8f1a2b3c4d5e6f70-WAW") || !slices.Contains(metadata.Presence, "Cloudflare Server") {
 		t.Errorf("metadata %+v does not describe the CDN", metadata)
@@ -87,7 +87,7 @@ func TestChallengePlatformScriptOnHealthyPage(t *testing.T) {
 	site := UnitTestKit.ServeSite(t, "site")
 
 	result := UnitTestKit.RunTarget(t, BotProtectionTest.New(), site.URL+"/challenge-platform-script/")
-	UnitTestKit.Expect(t, result, SiteTests.Low, "(Cloudflare)", "Content was returned normally")
+	UnitTestKit.Expect(t, result, SiteTests.Info, "(Cloudflare)", "Content was returned normally")
 	metadata := probeMetadata(t, result)
 	if metadata.Blocked || !slices.Equal(metadata.Presence, []string{"Cloudflare Challenge Platform"}) {
 		t.Errorf("metadata %+v does not describe presence only", metadata)
@@ -98,7 +98,7 @@ func TestChallengeServedWith200(t *testing.T) {
 	site := UnitTestKit.ServeSite(t, "site")
 
 	result := UnitTestKit.RunTarget(t, BotProtectionTest.New(), site.URL+"/challenge/")
-	UnitTestKit.Expect(t, result, SiteTests.Low,
+	UnitTestKit.Expect(t, result, SiteTests.Info,
 		"answered the probe with status 200 and served a challenge",
 		"Cloudflare Browser Verification", "Cloudflare Interstitial",
 		"cannot reach the origin")
@@ -112,7 +112,7 @@ func TestBlockPageWithErrorStatus(t *testing.T) {
 	server := serveBlockPage(t, "block.html", http.StatusForbidden, nil)
 
 	result := UnitTestKit.RunTarget(t, BotProtectionTest.New(), server.URL+"/")
-	UnitTestKit.Expect(t, result, SiteTests.Low,
+	UnitTestKit.Expect(t, result, SiteTests.Info,
 		"status 403", "(unidentified vendor)",
 		"Content contains: access denied", "Content contains: suspicious activity", "Content contains: security check")
 	metadata := probeMetadata(t, result)
@@ -128,7 +128,7 @@ func TestMitigationHeaderNamesVendor(t *testing.T) {
 	})
 
 	result := UnitTestKit.RunTarget(t, BotProtectionTest.New(), server.URL+"/")
-	UnitTestKit.Expect(t, result, SiteTests.Low, "status 403", "(Cloudflare)", "Cloudflare Mitigation")
+	UnitTestKit.Expect(t, result, SiteTests.Info, "status 403", "(Cloudflare)", "Cloudflare Mitigation")
 	if metadata := probeMetadata(t, result); !metadata.Blocked {
 		t.Errorf("metadata %+v does not describe a block", metadata)
 	}

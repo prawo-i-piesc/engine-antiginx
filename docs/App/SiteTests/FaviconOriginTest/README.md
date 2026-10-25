@@ -71,6 +71,8 @@ comes from is a signal to weigh next to the other phishing tests (`phishing-url`
 | **Info** | An icon is served by a CDN or site platform, or from an unrelated domain |
 | **Low** | An icon is served from a bare IP address, or from a known brand's domain to a page that brand does not run |
 
+Grades evidence of impersonation, not a weakness of the site; see the SiteTests overview.
+
 An unresolvable declaration (`javascript:`, an unparsable URL) is graded None, since no
 browser loads it, and the description names it as unresolvable rather than counting it among
 the icons loaded from the page's own site.

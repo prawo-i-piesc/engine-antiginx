@@ -17,7 +17,9 @@ func TestCookieFixtures(t *testing.T) {
 		// A session cookie a cross-site form can make the browser send is the CSRF case
 		{"session_without_samesite.http", SiteTests.Low, []string{"1 cookie(s) missing SameSite attribute"}},
 		{"session_samesite_none.http", SiteTests.Low, []string{"1 cookie(s) missing SameSite attribute"}},
-		{"session_unprotected.http", SiteTests.High, []string{"Session cookies without HttpOnly flag", "Session cookies without Secure flag"}},
+		// No HttpOnly (CWE-1004) and no Secure (CWE-614) on a session cookie: Medium each, and
+		// two findings do not add up to more
+		{"session_unprotected.http", SiteTests.Medium, []string{"Session cookies without HttpOnly flag", "Session cookies without Secure flag"}},
 		{"session_hardened.http", SiteTests.None, []string{"security score of 100/100"}},
 		{"auth_token_lax.http", SiteTests.None, []string{"Analyzed 1 cookie(s)"}},
 		// A guessable value is only a fixation risk where the value is the session

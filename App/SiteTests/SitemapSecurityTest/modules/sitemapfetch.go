@@ -109,25 +109,14 @@ func declaredPath(declared string) string {
 	return parsed.EscapedPath()
 }
 
-// EvaluateThreat determines the threat level based on dangerous path exposure.
+// EvaluateThreat grades what the sitemap lets an attacker do: a dangerous path it declares
+// is handed to search engines to index, so anyone can find it with a search. That is Low,
+// however many there are; the count is reported, not graded.
 func EvaluateThreat(analysis SitemapAnalysis) SiteTests.ThreatLevel {
-	// If sitemap is not accessible or doesn't exist, return None
-	if !analysis.SitemapAccessible {
+	if !analysis.SitemapAccessible || analysis.TotalDangerous == 0 {
 		return SiteTests.None
 	}
-
-	switch count := analysis.TotalDangerous; {
-	case count == 0:
-		return SiteTests.None
-	case count <= 2:
-		return SiteTests.Low
-	case count <= 5:
-		return SiteTests.Medium
-	case count <= 10:
-		return SiteTests.High
-	default:
-		return SiteTests.Critical
-	}
+	return SiteTests.Low
 }
 
 // Describe creates a human-readable description of the sitemap analysis.

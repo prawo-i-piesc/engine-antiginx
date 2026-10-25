@@ -81,6 +81,8 @@ its DNS analysis, only with lower confidence. Nothing in this test panics.
 
 ## How the verdict is reached
 
+Grades the evidence that the target is malicious, not a weakness of the site, so independent indicators may raise the level together; see the SiteTests overview for the severity scale.
+
 Each observation becomes an indicator carrying its own severity. The reported level is the
 highest of them, **raised by one when at least two independent indicators reach Medium** —
 because the value of these signals is cumulative. A young domain is common. A young domain

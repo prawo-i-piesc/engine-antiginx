@@ -22,6 +22,9 @@ go run ./App/main.go test --target example.com --tests js-obf
 - Long base64 literals, concatenated string fragments and bracket-notation access to execution entry points.
 - Decoders applied to other decoders, which is layering rather than encoding.
 - Keywords that speak to intent rather than technique — `shell`, `payload`, `exploit`, `backdoor`.
+- Malicious indicators — code that runs decoded content: `eval` of a decoder, decoders applied
+  to decoders, nested `eval`, `document.write` of decoded markup, a string handed to
+  `setTimeout`/`setInterval`, self-decrypting loops, and intent keywords in obfuscated code.
 
 ## How it works
 
@@ -34,8 +37,8 @@ go run ./App/main.go test --target example.com --tests js-obf
 3. Score in `modules/scoring.go`: each technique contributes weighted by its count, and
    combinations score above the sum of their parts. A decoder alone is ordinary; a decoder
    feeding `eval` is not.
-4. Map the score to an obfuscation level, then to a threat level, raised when malicious
-   indicators are present.
+4. Map the score to an obfuscation level. The threat level comes from the malicious
+   indicators; without any, obfuscation of any degree is at most Low.
 
 ## What it reports
 
@@ -57,10 +60,13 @@ go run ./App/main.go test --target example.com --tests js-obf
 |---|---|
 | **None** | Clean, readable JavaScript |
 | **Info** | Minification or ordinary build output (score 10–19, below the threshold, so `hasObfuscation` is false) |
-| **Low** | Score from 20 (`ObfuscationThreshold` in `modules/scoring.go`): some patterns present but likely legitimate, such as a webpack bundle |
-| **Medium** | Several suspicious patterns together |
-| **High** | Heavy obfuscation with clear intent to conceal |
-| **Critical** | Extreme obfuscation alongside malicious indicators |
+| **Low** | Obfuscated — score from 20 (`ObfuscationThreshold` in `modules/scoring.go`), whatever the degree — but no malicious indicator |
+| **Medium** | One malicious indicator |
+| **High** | Two or more independent malicious indicators |
+
+Nothing is Critical: that level is reserved for CVEs rated Critical by CVSS.
+
+Grades evidence that the page itself is malicious, not a weakness of the site: obfuscation on its own is not a vulnerability; see the SiteTests overview for the severity scale.
 
 ## Files
 
@@ -74,7 +80,7 @@ go run ./App/main.go test --target example.com --tests js-obf
 
 ## Notes
 
-Legitimate bundlers produce code that trips several of these detectors, which is why the lower bands exist and why a single detection never reaches a high threat level on its own.
+Legitimate bundlers produce code that trips several of these detectors, which is why obfuscation without a malicious indicator never rises above Low.
 
 ---
 

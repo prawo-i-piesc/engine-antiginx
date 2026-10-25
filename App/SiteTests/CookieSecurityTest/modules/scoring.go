@@ -40,17 +40,10 @@ func calculateIndividualCookieScore(detail CookieSecurityDetail) int {
 		score -= 25
 	}
 
-	//Before lint
-	//if !detail.HasSecure {
-	//	score -= 25
-	//}
-	//if detail.SameSite == "" || detail.SameSite == "None" {
-	//	score -= 20
-	//} else if detail.SameSite == "Lax" {
-	//	score -= 5 // Minor deduction, Strict is better
-	//}
+	if !detail.HasSecure {
+		score -= 25
+	}
 
-	// After lint
 	switch detail.SameSite {
 	case "":
 		score -= 20

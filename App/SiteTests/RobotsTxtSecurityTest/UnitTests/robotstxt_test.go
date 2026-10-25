@@ -26,14 +26,15 @@ func TestRobotsTxtSites(t *testing.T) {
 		// /testimonials and /contest/ contain /test but are not development paths
 		{"clean", SiteTests.None, []string{"Robots.txt is secure", "none of its 5 Allow/Disallow rules"}},
 		// The Allow only narrows the Disallow above it, so it exposes nothing
-		{"wordpress_default", SiteTests.Low, []string{"names 2 sensitive paths (out of 2", "Administrative Interface: 2 found", "Allow: /wp-admin/admin-ajax.php"}},
-		{"admin_disclosed", SiteTests.Low, []string{"names 1 sensitive paths (out of 2", "Disallow: /admin/"}},
-		{"several_disclosed", SiteTests.Medium, []string{"names 4 sensitive paths (out of 5", "Version Control: 1 found", "Backup Location: 1 found"}},
-		{"many_disclosed", SiteTests.High, []string{"names 8 sensitive paths (out of 9", "Database Dump: 1 found", "Disallow: /*.sql$"}},
-		{"mass_disclosed", SiteTests.Critical, []string{"names 12 sensitive paths (out of 13", "Administrative Interface: 3 found", "Server Internals: 1 found"}},
-		// One sensitive rule is Low, but an Allow that invites crawlers in raises it a level
-		{"allow_exposes_admin", SiteTests.Medium, []string{"names 1 sensitive paths", "1 of them are Allow rules that explicitly invite crawlers", "Allow: /admin/"}},
-		{"several_with_exposure", SiteTests.High, []string{"names 5 sensitive paths", "1 of them are Allow rules", "API Documentation: 1 found"}},
+		{"wordpress_default", SiteTests.Info, []string{"names 2 sensitive paths (out of 2", "Administrative Interface: 2 found", "Allow: /wp-admin/admin-ajax.php"}},
+		{"admin_disclosed", SiteTests.Info, []string{"names 1 sensitive paths (out of 2", "Disallow: /admin/"}},
+		// Naming more paths is the same disclosure, so the level does not rise with the count
+		{"several_disclosed", SiteTests.Info, []string{"names 4 sensitive paths (out of 5", "Version Control: 1 found", "Backup Location: 1 found"}},
+		{"many_disclosed", SiteTests.Info, []string{"names 8 sensitive paths (out of 9", "Database Dump: 1 found", "Disallow: /*.sql$"}},
+		{"mass_disclosed", SiteTests.Info, []string{"names 12 sensitive paths (out of 13", "Administrative Interface: 3 found", "Server Internals: 1 found"}},
+		// An Allow that invites crawlers into a sensitive area gets it indexed, which is Low
+		{"allow_exposes_admin", SiteTests.Low, []string{"names 1 sensitive paths", "1 of them are Allow rules that explicitly invite crawlers", "Allow: /admin/"}},
+		{"several_with_exposure", SiteTests.Low, []string{"names 5 sensitive paths", "1 of them are Allow rules", "API Documentation: 1 found"}},
 	}
 	for _, c := range cases {
 		t.Run(c.site, func(t *testing.T) {

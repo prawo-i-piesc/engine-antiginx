@@ -108,13 +108,13 @@ func TestTrustedCertificates(t *testing.T) {
 		{"valid RSA", "valid", nil, SiteTests.None, []string{"valid, strong, and not expiring soon"}},
 		{"valid ECDSA", "valid_ecdsa", nil, SiteTests.None, []string{"valid, strong, and not expiring soon"}},
 		{"intermediate sent", "chained", []string{"intermediate.pem"}, SiteTests.None, []string{"valid, strong, and not expiring soon"}},
-		{"intermediate missing", "chained", nil, SiteTests.Critical, []string{"Certificate chain validation failed", "unknown authority"}},
-		{"hostname mismatch", "hostname_mismatch", nil, SiteTests.High, []string{"Certificate hostname mismatch", "127.0.0.1"}},
-		{"expired", "expired", nil, SiteTests.High, []string{"Certificate has expired."}},
-		{"not yet valid", "not_yet_valid", nil, SiteTests.High, []string{"Certificate is not yet valid."}},
+		{"intermediate missing", "chained", nil, SiteTests.Medium, []string{"Certificate chain validation failed", "unknown authority"}},
+		{"hostname mismatch", "hostname_mismatch", nil, SiteTests.Medium, []string{"Certificate hostname mismatch", "127.0.0.1"}},
+		{"expired", "expired", nil, SiteTests.Medium, []string{"Certificate has expired."}},
+		{"not yet valid", "not_yet_valid", nil, SiteTests.Medium, []string{"Certificate is not yet valid."}},
 		{"short RSA key", "short_rsa_key", nil, SiteTests.Medium, []string{"short RSA key (1024 bits)"}},
 		// Signed by the trusted root, but with SHA-1, which no browser accepts any more
-		{"SHA-1 signature", "sha1_signature", nil, SiteTests.Critical, []string{"insecure signature algorithm (SHA1-RSA) that browsers reject"}},
+		{"SHA-1 signature", "sha1_signature", nil, SiteTests.High, []string{"insecure signature algorithm (SHA1-RSA) that browsers reject"}},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -164,10 +164,10 @@ func TestExpiringSoon(t *testing.T) {
 
 // A certificate signed by its own key is not trusted by any store, so this case holds on
 // every platform.
-func TestSelfSignedIsCritical(t *testing.T) {
+func TestSelfSignedIsMedium(t *testing.T) {
 	target := serveTLS(t, loadPair(t, "self_signed"))
 	result := UnitTestKit.RunTarget(t, SSLCertificateSecurityTest.New(), target)
-	UnitTestKit.Expect(t, result, SiteTests.Critical, "Certificate chain validation failed")
+	UnitTestKit.Expect(t, result, SiteTests.Medium, "Certificate chain validation failed")
 
 	metadata := UnitTestKit.Metadata(t, result)
 	want := map[string]any{
@@ -204,21 +204,21 @@ func TestMetadataDescribesPresentedCertificate(t *testing.T) {
 	}
 }
 
-// An expired certificate nobody trusts is reported for the untrusted chain, the worse of
-// its two problems, with the expiry mentioned alongside.
-func TestExpiredAndUntrustedIsCritical(t *testing.T) {
+// An expired certificate nobody trusts is reported for the untrusted chain, not only for
+// the expiry, which is mentioned alongside.
+func TestExpiredAndUntrustedIsMedium(t *testing.T) {
 	target := serveTLS(t, loadPair(t, "expired_self_signed"))
 	result := UnitTestKit.RunTarget(t, SSLCertificateSecurityTest.New(), target)
-	UnitTestKit.Expect(t, result, SiteTests.Critical, "Certificate chain validation failed", "unknown authority", "Certificate has expired.")
+	UnitTestKit.Expect(t, result, SiteTests.Medium, "Certificate chain validation failed", "unknown authority", "Certificate has expired.")
 }
 
 // A port that speaks plain HTTP never completes a TLS handshake.
-func TestPlainHTTPPortIsCritical(t *testing.T) {
+func TestPlainHTTPPortIsMedium(t *testing.T) {
 	site := UnitTestKit.ServeSite(t, t.TempDir())
 	target := "https://" + site.Listener.Addr().String()
 
 	result := UnitTestKit.RunTarget(t, SSLCertificateSecurityTest.New(), target)
-	UnitTestKit.Expect(t, result, SiteTests.Critical, "Failed to establish TLS connection")
+	UnitTestKit.Expect(t, result, SiteTests.Medium, "Failed to establish TLS connection")
 	if result.Metadata != nil {
 		t.Errorf("failed connection carries metadata %v", result.Metadata)
 	}
@@ -231,5 +231,5 @@ func TestLocalTargetRefusedWithoutOptOut(t *testing.T) {
 	t.Setenv(SSRF.AllowPrivateEnv, "")
 
 	result := UnitTestKit.RunTarget(t, SSLCertificateSecurityTest.New(), target)
-	UnitTestKit.Expect(t, result, SiteTests.Critical, "Failed to establish TLS connection", "not allowed")
+	UnitTestKit.Expect(t, result, SiteTests.Medium, "Failed to establish TLS connection", "not allowed")
 }

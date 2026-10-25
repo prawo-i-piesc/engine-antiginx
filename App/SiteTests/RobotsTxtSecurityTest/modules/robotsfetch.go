@@ -181,36 +181,19 @@ func ruleBase(path string) string {
 	return strings.ToLower(path)
 }
 
-// Grader turns an analysis into a threat level using the thresholds from config.go.
-type Grader struct {
-	LowMax    int
-	MediumMax int
-	HighMax   int
-}
-
-// EvaluateThreat grades on the number of sensitive rules, one level higher when any of
-// them is an Allow that actively exposes a sensitive path.
-func (g Grader) EvaluateThreat(analysis RobotsAnalysis) SiteTests.ThreatLevel {
-	if !analysis.RobotsAccessible || analysis.TotalDangerous == 0 {
+// EvaluateThreat grades what the file lets an attacker do. robots.txt is public by design,
+// so naming sensitive paths in Disallow rules only aids reconnaissance (CWE-200) and is Info;
+// an Allow that invites crawlers into a sensitive area gets it indexed, which is Low. Each
+// rule is a disclosure on its own, so the number of rules never raises the level.
+func EvaluateThreat(analysis RobotsAnalysis) SiteTests.ThreatLevel {
+	switch {
+	case !analysis.RobotsAccessible || analysis.TotalDangerous == 0:
 		return SiteTests.None
-	}
-
-	var level SiteTests.ThreatLevel
-	switch count := analysis.TotalDangerous; {
-	case count <= g.LowMax:
-		level = SiteTests.Low
-	case count <= g.MediumMax:
-		level = SiteTests.Medium
-	case count <= g.HighMax:
-		level = SiteTests.High
+	case analysis.TotalExposed > 0:
+		return SiteTests.Low
 	default:
-		level = SiteTests.Critical
+		return SiteTests.Info
 	}
-
-	if analysis.TotalExposed > 0 {
-		level = SiteTests.EscalateThreatLevel(level)
-	}
-	return level
 }
 
 // Describe creates a human-readable description of the robots.txt analysis.

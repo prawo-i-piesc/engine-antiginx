@@ -80,7 +80,7 @@ func New() *SiteTests.PreResponseTest {
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   botProtectionCertainty,
-				ThreatLevel: SiteTests.Low,
+				ThreatLevel: SiteTests.Info,
 				Metadata:    metadata,
 				Description: buildBotProtectionScanDescription(report),
 			}
@@ -125,7 +125,7 @@ func NewVerdict(protections []string, blockMessage string, httpErrorCode int) Si
 	return SiteTests.TestResult{
 		Name:        TestName,
 		Certainty:   botProtectionCertainty,
-		ThreatLevel: SiteTests.Low,
+		ThreatLevel: SiteTests.Info,
 		Metadata: BotProtectionMetadata{
 			Protections:   protections,
 			BlockMessage:  blockMessage,

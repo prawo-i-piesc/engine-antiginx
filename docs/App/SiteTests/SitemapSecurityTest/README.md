@@ -31,8 +31,7 @@ go run ./App/main.go test --target example.com --tests sitemap
    matches `/test/` and `/test.php` but not `/testimonials`. A URL matching several fragments
    is reported once, under the longest (`/api-docs` is API documentation, not an API endpoint).
    A `<loc>` that is not an absolute URL is matched as written.
-4. Grade on the count of dangerous paths, not on their categories — one exposed admin panel
-   is a finding, thirty exposed paths is a site with no idea what it is publishing.
+4. Grade Low when any dangerous path is declared. How many there are is reported, not graded.
 
 ## What it reports
 
@@ -51,10 +50,12 @@ example URLs per category.
 | Level | When |
 |---|---|
 | **None** | No sitemap, or no dangerous path in it |
-| **Low** | Up to 2 dangerous paths |
-| **Medium** | 3 to 5 |
-| **High** | 6 to 10 |
-| **Critical** | More than 10 |
+| **Low** | The sitemap declares at least one dangerous path, inviting search engines to index it |
+
+The number of dangerous paths never raises the level: each is the same invitation, and the
+count is reported in the description and the metadata.
+
+Calibrated to CWE-200 information disclosure, one band above robots.txt (Info) because the paths are actively submitted for indexing (Low); see the [SiteTests overview](../README.md) for the severity scale.
 
 ## Files
 

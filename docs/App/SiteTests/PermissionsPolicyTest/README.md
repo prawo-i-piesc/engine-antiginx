@@ -51,11 +51,11 @@ good only when it is graded Info.
 
 | Level | When |
 |---|---|
-| **None** | Comprehensive policy with the dangerous features restricted |
-| **Info** | Policy present with minor gaps |
-| **Low** | Basic policy, some features left open |
-| **Medium** | Policy present but dangerous features are unrestricted |
-| **High** | No policy header, a header with no valid directive, or three or more dangerous features unrestricted |
+| **None** | Comprehensive policy (5 or more directives) with nothing left open |
+| **Info** | Policy present with minor gaps, e.g. one tracking feature delegated |
+| **Low** | No policy header, a header with no valid directive, a minimal policy (fewer than 3 directives), dangerous features unrestricted or granted with `*` (however many), or two or more tracking features open |
+
+Calibrated to OWASP ZAP alert 10063 (Permissions Policy header not set, Low); see the SiteTests overview for the severity scale.
 
 ## Files
 

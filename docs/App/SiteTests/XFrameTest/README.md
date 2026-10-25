@@ -47,7 +47,9 @@ whatever else is listed beside them, so they are graded as no protection too. A
 | **None** | `frame-ancestors 'none'` or `X-Frame-Options: DENY` |
 | **Info** | `frame-ancestors 'self'` or `SAMEORIGIN` |
 | **Low** | `frame-ancestors` limited to specific domains |
-| **High** | Neither protection present, invalid values, only `ALLOW-FROM`, or `frame-ancestors` with a broad source (`*`, `https:`, `http:`) |
+| **Medium** | Neither protection present, invalid values, only `ALLOW-FROM`, or `frame-ancestors` with a broad source (`*`, `https:`, `http:`) |
+
+Calibrated to OWASP ZAP alert 10020 (Anti-clickjacking header, Medium); see the SiteTests overview for the severity scale.
 
 ## Files
 

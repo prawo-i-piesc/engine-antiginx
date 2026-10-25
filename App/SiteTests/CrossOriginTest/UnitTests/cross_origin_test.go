@@ -14,15 +14,15 @@ func TestCrossOriginFixtures(t *testing.T) {
 		level     SiteTests.ThreatLevel
 		fragments []string
 	}{
-		{"no_headers.http", SiteTests.High, []string{"No cross-origin security headers found"}},
+		{"no_headers.http", SiteTests.Low, []string{"No cross-origin security headers found"}},
 		// Headers switched off protect no more than absent ones
-		{"all_permissive.http", SiteTests.High, []string{
+		{"all_permissive.http", SiteTests.Low, []string{
 			"present but none is set to a protective value",
 			"isolation is not effective",
 			"COEP header has permissive value",
 			"CORP header allows cross-origin access",
 			"COOP header allows unsafe cross-origin access"}},
-		{"only_coop.http", SiteTests.Medium, []string{"Basic protection level", "Missing headers: Cross-Origin-Embedder-Policy, Cross-Origin-Resource-Policy"}},
+		{"only_coop.http", SiteTests.Low, []string{"Basic protection level", "Missing headers: Cross-Origin-Embedder-Policy, Cross-Origin-Resource-Policy"}},
 		{"coop_and_corp.http", SiteTests.Low, []string{"Moderate protection level", "isolation is not effective", "Missing headers: Cross-Origin-Embedder-Policy."}},
 		{"coop_unsafe_none.http", SiteTests.Low, []string{"Moderate protection level", "isolation is not effective", "COOP header allows unsafe cross-origin access"}},
 		// Popups keep a reference to the page, so it is not isolated

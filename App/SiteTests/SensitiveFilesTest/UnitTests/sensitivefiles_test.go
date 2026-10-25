@@ -71,13 +71,13 @@ func TestSensitiveFilesSites(t *testing.T) {
 			[]string{"/phpinfo.php [Server Information] — readable"}},
 		{"environment file", "exposed_env", nil, SiteTests.High,
 			[]string{"1 " + probed + " were readable", "/.env [Secrets & Configuration] — readable, 134 bytes"}},
-		{"git repository", "exposed_git", nil, SiteTests.Critical,
+		{"git repository", "exposed_git", nil, SiteTests.High,
 			[]string{"2 " + probed + " were readable", "/.git/config [Version Control]", "/.git/HEAD [Version Control]"}},
-		// Three readable files mean exposure is systematic: Low becomes Medium
-		{"several dev artefacts", "dev_artifacts", nil, SiteTests.Medium,
+		// Each file is its own exposure, so three readable files do not raise the level
+		{"several dev artefacts", "dev_artifacts", nil, SiteTests.Low,
 			[]string{"3 " + probed + " were readable", "/Dockerfile", "/composer.json", "/package.json"}},
-		// High for the secrets and the dump, raised a level for three readable files
-		{"secrets, dump and log", "full_leak", nil, SiteTests.Critical,
+		// The most severe file decides: High for the secrets and the dump
+		{"secrets, dump and log", "full_leak", nil, SiteTests.High,
 			[]string{"3 " + probed + " were readable", "/.env [Secrets & Configuration]", "/dump.sql [Database Dump]", "/error.log [Log File]"}},
 		// A file behind access control exists, but is only a Low note
 		{"protected files", "protected",

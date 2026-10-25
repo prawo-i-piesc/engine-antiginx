@@ -228,12 +228,6 @@ func (d Detector) detectBase64Encoding(analysis *JSObfuscationAnalysis, content 
 
 // detectSuspiciousPatterns detects patterns commonly associated with obfuscation
 func (d Detector) detectSuspiciousPatterns(analysis *JSObfuscationAnalysis, content string) {
-	// Self-modifying code
-	if matched, _ := regexp.MatchString(`document\.write\s*\(\s*(?:unescape|atob|String\.fromCharCode)`, content); matched {
-		analysis.SuspiciousPatterns = append(analysis.SuspiciousPatterns,
-			"Self-modifying code: document.write with decoded content")
-	}
-
 	// Excessive string concatenation
 	concatRegex := d.Patterns.StringConcat
 	if matches := concatRegex.FindAllString(content, -1); len(matches) > 20 {
@@ -279,6 +273,18 @@ func (d Detector) detectMaliciousIndicators(analysis *JSObfuscationAnalysis, con
 			"Multiple layers of encoding detected - strong obfuscation")
 	}
 
+	// Self-modifying code: decoded markup written into the page
+	if matched, _ := regexp.MatchString(`document\.write\s*\(\s*(?:unescape|atob|String\.fromCharCode)`, content); matched {
+		analysis.MaliciousIndicators = append(analysis.MaliciousIndicators,
+			"Self-modifying code: document.write with decoded content")
+	}
+
+	// Code handed to a timer as a string, which the browser evaluates like eval()
+	if d.matchesDynamic("setTimeout", content) || d.matchesDynamic("setInterval", content) {
+		analysis.MaliciousIndicators = append(analysis.MaliciousIndicators,
+			"String passed to setTimeout/setInterval - code executed from a string")
+	}
+
 	// eval chains
 	if matched, _ := regexp.MatchString(`eval\s*\([^)]*eval\s*\(`, content); matched {
 		analysis.MaliciousIndicators = append(analysis.MaliciousIndicators,
@@ -301,4 +307,11 @@ func (d Detector) detectMaliciousIndicators(analysis *JSObfuscationAnalysis, con
 				"Possible self-decrypting code detected")
 		}
 	}
+}
+
+// matchesDynamic reports whether the named dynamic-execution pattern matches, false when the
+// pattern set does not define it.
+func (d Detector) matchesDynamic(name string, content string) bool {
+	pattern, defined := d.Patterns.DynamicExecution[name]
+	return defined && pattern.MatchString(content)
 }

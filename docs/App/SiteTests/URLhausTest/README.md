@@ -34,6 +34,8 @@ ANTIGINX_URLHAUS_AUTH_KEY=<key> go run ./App/main.go test --target example.com -
 
 ## How the verdict is reached
 
+Grades the evidence that the target is malicious, not a weakness of the site, so independent indicators may raise the level together; see the SiteTests overview for the severity scale.
+
 | Level | When |
 |---|---|
 | **Critical** | The exact URL is listed and online, or the host has online URLs and is blocklisted as malicious |

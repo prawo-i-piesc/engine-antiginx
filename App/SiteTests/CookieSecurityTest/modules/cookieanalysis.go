@@ -46,6 +46,7 @@ type CookieSecurityDetail struct {
 	SecurityIssues   []string `json:"securityIssues"`
 	SecurityScore    int      `json:"securityScore"` // 0-100
 	PredictableValue bool     `json:"predictableValue"`
+	CarriesAuthority bool     `json:"carriesAuthority"` // Named as a session identifier or credential
 }
 
 // Analyze performs comprehensive analysis of all cookies
@@ -79,9 +80,11 @@ func (a Analyzer) Analyze(cookies []*http.Cookie, headers http.Header) CookieSec
 		}
 		if detail.IsSessionCookie {
 			analysis.SessionCookies++
-			if !detail.HasHttpOnly || !detail.HasSecure {
-				analysis.InsecureSession = true
-			}
+		}
+		// Only a cookie named as a session or credential makes the session insecure; one
+		// that merely has no expiry may be a preference
+		if detail.CarriesAuthority && (!detail.HasHttpOnly || !detail.HasSecure) {
+			analysis.InsecureSession = true
 		}
 		if detail.PredictableValue {
 			analysis.FixationRisk = true
@@ -122,7 +125,8 @@ func (a Analyzer) analyzeSingleCookie(cookie *http.Cookie, setCookieHeaders []st
 
 	// A predictable value only matters where the value is the authority: a preference cookie
 	// such as theme=dark is meant to be guessable
-	detail.PredictableValue = a.carriesAuthority(cookie.Name) && isPredictableValue(cookie.Value)
+	detail.CarriesAuthority = a.carriesAuthority(cookie.Name)
+	detail.PredictableValue = detail.CarriesAuthority && isPredictableValue(cookie.Value)
 
 	// Analyze security issues for this cookie
 	a.analyzeIndividualCookieSecurity(&detail, cookie, setCookieHeaders, index)
@@ -199,7 +203,7 @@ func aggregateSecurityIssues(analysis *CookieSecurityAnalysis) {
 			fmt.Sprintf("%d cookie(s) missing HttpOnly flag", analysis.MissingHttpOnly))
 		if analysis.InsecureSession {
 			analysis.CriticalIssues = append(analysis.CriticalIssues,
-				"Session cookies without HttpOnly flag - high XSS risk")
+				"Session cookies without HttpOnly flag - readable by any injected script")
 		}
 	}
 
@@ -234,7 +238,7 @@ func aggregateSecurityIssues(analysis *CookieSecurityAnalysis) {
 	// Overall insecure session warning
 	if analysis.InsecureSession {
 		analysis.CriticalIssues = append(analysis.CriticalIssues,
-			"Session management cookies lack critical security attributes")
+			"Session cookies lack HttpOnly or Secure")
 	}
 }
 

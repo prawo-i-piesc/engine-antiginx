@@ -19,9 +19,9 @@ func TestHTTPSFixtures(t *testing.T) {
 	}{
 		{"secure_https.http", SiteTests.None, []string{"secured with HTTPS protocol"}},
 		{"https_custom_port.http", SiteTests.None, []string{"secured with HTTPS protocol"}},
-		{"insecure_http.http", SiteTests.High, []string{"insecure HTTP protocol", "plaintext"}},
+		{"insecure_http.http", SiteTests.Medium, []string{"insecure HTTP protocol", "plaintext"}},
 		// Browsers ignore HSTS received over plain HTTP, so the header changes nothing
-		{"http_with_hsts_header.http", SiteTests.High, []string{"insecure HTTP protocol"}},
+		{"http_with_hsts_header.http", SiteTests.Medium, []string{"insecure HTTP protocol"}},
 	}
 	for _, c := range cases {
 		t.Run(c.fixture, func(t *testing.T) {

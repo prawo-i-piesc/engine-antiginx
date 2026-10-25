@@ -17,9 +17,8 @@ var prober = modules.Prober{
 	SoftMatchPercent: softMatchPercent,
 }
 
-// grader wires the category-to-severity map from data.go and the escalation threshold from
-// config.go into the judgement stage.
-var grader = modules.Grader{SeverityFor: severityFor, EscalationCount: escalationCount}
+// grader wires the category-to-severity map from data.go into the judgement stage.
+var grader = modules.Grader{SeverityFor: severityFor}
 
 // candidates is the shared sensitive-files list converted into what the prober requests. It
 // is built once: the list does not change between scans.

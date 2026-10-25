@@ -82,24 +82,19 @@ func New() *SiteTests.ResponseTest {
 	}
 }
 
-// evaluateObfuscationThreat determines threat level
+// evaluateObfuscationThreat grades the evidence that the page itself is malicious. Obfuscation
+// alone is not a vulnerability and never rises above Low; only malicious indicators, which
+// show what the hidden code does, reach Medium (one) or High (two or more independent ones).
+// Nothing is Critical, which is reserved for CVEs rated Critical.
 func evaluateObfuscationThreat(analysis JSObfuscationAnalysis) SiteTests.ThreatLevel {
-	// Critical: Extreme obfuscation with malicious indicators
-	if analysis.ObfuscationScore >= 80 || len(analysis.MaliciousIndicators) >= 3 {
-		return SiteTests.Critical
-	}
-
-	// High: Heavy obfuscation or multiple malicious indicators
-	if analysis.ObfuscationScore >= 60 || len(analysis.MaliciousIndicators) >= 2 {
+	if len(analysis.MaliciousIndicators) >= 2 {
 		return SiteTests.High
 	}
-
-	// Medium: Moderate obfuscation or some malicious indicators
-	if analysis.ObfuscationScore >= 40 || len(analysis.MaliciousIndicators) >= 1 {
+	if len(analysis.MaliciousIndicators) == 1 {
 		return SiteTests.Medium
 	}
 
-	// Low: Light obfuscation, the point from which the page counts as obfuscated
+	// Low: Obfuscated, the point from which the page counts as obfuscated, at any score
 	if analysis.ObfuscationScore >= modules.ObfuscationThreshold {
 		return SiteTests.Low
 	}
@@ -121,14 +116,16 @@ func generateObfuscationDescription(analysis JSObfuscationAnalysis) string {
 
 	var description strings.Builder
 
-	_, _ = fmt.Fprintf(&description, "JavaScript obfuscation detected with %s level (score: %d/100). ",
+	_, _ = fmt.Fprintf(&description, "JavaScript obfuscation detected: %s obfuscation (score: %d/100). ",
 		analysis.ObfuscationLevel, analysis.ObfuscationScore)
 
-	// Malicious indicators first
+	// Malicious indicators first: they, not the amount of obfuscation, decide the grade
 	if len(analysis.MaliciousIndicators) > 0 {
 		description.WriteString("MALICIOUS INDICATORS: ")
 		description.WriteString(strings.Join(analysis.MaliciousIndicators, "; "))
 		description.WriteString(". ")
+	} else {
+		description.WriteString("No malicious indicators: obfuscation alone does not show what the code does. ")
 	}
 
 	// Encoding methods

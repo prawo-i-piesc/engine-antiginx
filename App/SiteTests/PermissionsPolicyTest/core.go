@@ -23,7 +23,7 @@ func New() *SiteTests.ResponseTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.High,
+					ThreatLevel: SiteTests.Low,
 					Metadata:    nil,
 					Description: "Missing Permissions-Policy header - all browser features available to page and embedded content without restrictions",
 				}
@@ -38,7 +38,7 @@ func New() *SiteTests.ResponseTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   90,
-					ThreatLevel: SiteTests.High,
+					ThreatLevel: SiteTests.Low,
 					Metadata:    metadata,
 					Description: "Permissions-Policy header contains no valid directives (expected feature=allowlist pairs such as camera=()) - browsers ignore it, leaving all browser features available to page and embedded content without restrictions",
 				}
@@ -183,18 +183,11 @@ func evaluatePermissionsPolicyThreatLevel(metadata map[string]interface{}) SiteT
 	wildcardFeatures, _ := metadata["wildcard_features"].([]string)
 	totalDirectives, _ := metadata["total_directives"].(int)
 
-	// High threat if many dangerous features are unrestricted
-	if len(dangerousAllowed) >= 3 {
-		return SiteTests.High
-	}
-
-	// Medium threat if some dangerous features allowed or wildcards used
-	if len(dangerousAllowed) > 0 || len(wildcardFeatures) > 0 {
-		return SiteTests.Medium
-	}
-
-	// Low threat if many suspicious features allowed or minimal policy
-	if len(suspiciousAllowed) >= 2 || totalDirectives < minimalPolicyDirectives {
+	// A permissive policy is a missing defence-in-depth layer (ZAP 10063), however many
+	// features it leaves open: dangerous features, wildcards, several tracking features or a
+	// minimal policy are all Low
+	if len(dangerousAllowed) > 0 || len(wildcardFeatures) > 0 ||
+		len(suspiciousAllowed) >= 2 || totalDirectives < minimalPolicyDirectives {
 		return SiteTests.Low
 	}
 

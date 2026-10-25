@@ -22,7 +22,7 @@ func New() *SiteTests.ResponseTest {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   100,
-					ThreatLevel: SiteTests.Medium,
+					ThreatLevel: SiteTests.Info,
 					Metadata:    nil,
 					Description: "Missing Referrer-Policy header - relying on the browser default policy (strict-origin-when-cross-origin in current browsers; older browsers fall back to no-referrer-when-downgrade, which sends the full URL to other sites)",
 				}
@@ -93,22 +93,16 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) map[string]interfa
 func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) SiteTests.ThreatLevel {
 	effectivePolicy, _ := metadata["effective_policy"].(string)
 	hasUnsafe, _ := metadata["has_unsafe"].(bool)
-	policyCount, _ := metadata["policy_count"].(int)
-	invalidPolicies, _ := metadata["invalid_policies"].([]string)
 
-	// If only invalid policies, it's highly vulnerable
-	if policyCount == 0 && len(invalidPolicies) > 0 {
-		return SiteTests.High
-	}
-
-	// If no valid policies at all, treat as missing (should not happen here)
+	// Only unrecognised values: the browser ignores them and applies its default
+	// (strict-origin-when-cross-origin in current browsers), exactly as for a missing header
 	if effectivePolicy == "" {
-		return SiteTests.Medium
+		return SiteTests.Info
 	}
 
 	// Check for unsafe configurations
 	if hasUnsafe && effectivePolicy == "unsafe-url" {
-		return SiteTests.High
+		return SiteTests.Low
 	}
 
 	// Excellent policies - recommended and secure
@@ -133,7 +127,7 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) SiteTest
 
 	// Weak policies or configurations
 	if effectivePolicy == "no-referrer-when-downgrade" {
-		return SiteTests.Medium
+		return SiteTests.Low
 	}
 
 	// Note: Multiple Referrer-Policy directives are allowed for browser fallback and
@@ -141,7 +135,7 @@ func evaluateReferrerPolicyThreatLevel(metadata map[string]interface{}) SiteTest
 	// evaluated effective policy and other concrete risk indicators above.
 
 	// Fallback for unhandled cases
-	return SiteTests.Medium
+	return SiteTests.Low
 }
 
 // generateReferrerPolicyDescription creates a human-readable description of the Referrer-
@@ -206,7 +200,7 @@ func generateReferrerPolicyDescription(metadata map[string]interface{}) string {
 		description.WriteString("weak privacy protection (the default of older browsers). Full referrer URL is sent except when downgrading from HTTPS to HTTP, which still allows significant information leakage in most scenarios.")
 
 	case "unsafe-url":
-		description.WriteString("vulnerable configuration. Full referrer URL is always sent to all destinations including insecure HTTP sites, creating significant privacy and security risks. This policy should be avoided.")
+		description.WriteString("unsafe configuration. The full referrer URL, including path and query string, is sent to every destination including insecure HTTP sites. This policy should be avoided.")
 
 	default:
 		description.WriteString("unrecognized policy configuration.")
@@ -214,7 +208,7 @@ func generateReferrerPolicyDescription(metadata map[string]interface{}) string {
 
 	// Add warnings for specific issues
 	if hasUnsafe {
-		description.WriteString(" WARNING: Contains 'unsafe-url' policy which poses significant privacy and security risks.")
+		description.WriteString(" WARNING: Contains 'unsafe-url' policy, which sends full URLs to every destination.")
 	}
 
 	if policyCount > 2 {

@@ -109,12 +109,12 @@ func TestSweepForbidEverythingServer(t *testing.T) {
 func TestEvaluateThreat(t *testing.T) {
 	severity := func(category string) SiteTests.ThreatLevel {
 		return map[string]SiteTests.ThreatLevel{
-			"Credentials":             SiteTests.Critical,
+			"Credentials":             SiteTests.High,
 			"Secrets & Configuration": SiteTests.High,
 			"Development Artifact":    SiteTests.Low,
 		}[category]
 	}
-	grader := Grader{SeverityFor: severity, EscalationCount: 3}
+	grader := Grader{SeverityFor: severity}
 
 	readable := func(category string) Exposure { return Exposure{Category: category} }
 	protected := Exposure{Category: "Credentials", Protected: true}
@@ -126,9 +126,9 @@ func TestEvaluateThreat(t *testing.T) {
 	}{
 		{"nothing", Analysis{}, SiteTests.None},
 		{"one secret", Analysis{Exposures: []Exposure{readable("Secrets & Configuration")}, ReadableCount: 1}, SiteTests.High},
-		{"one credential", Analysis{Exposures: []Exposure{readable("Credentials")}, ReadableCount: 1}, SiteTests.Critical},
+		{"one credential", Analysis{Exposures: []Exposure{readable("Credentials")}, ReadableCount: 1}, SiteTests.High},
 		{"protected only", Analysis{Exposures: []Exposure{protected}}, SiteTests.Low},
-		{"three dev artefacts escalate", Analysis{Exposures: []Exposure{readable("Development Artifact"), readable("Development Artifact"), readable("Development Artifact")}, ReadableCount: 3}, SiteTests.Medium},
+		{"three dev artefacts stay Low", Analysis{Exposures: []Exposure{readable("Development Artifact"), readable("Development Artifact"), readable("Development Artifact")}, ReadableCount: 3}, SiteTests.Low},
 	}
 	for _, c := range cases {
 		if got := grader.EvaluateThreat(c.a); got != c.want {

@@ -178,12 +178,10 @@ func evaluateCrossOriginThreatLevel(metadata map[string]interface{}) SiteTests.T
 		return SiteTests.None
 	case "Good":
 		return SiteTests.Info
-	case "Moderate":
-		return SiteTests.Low
-	case "Basic":
-		return SiteTests.Medium
 	default:
-		return SiteTests.High
+		// Moderate, Basic and None: isolation is a defence-in-depth layer (ZAP 90004), so
+		// lacking it is Low however many headers are missing
+		return SiteTests.Low
 	}
 }
 
@@ -200,7 +198,7 @@ func generateCrossOriginDescription(metadata map[string]interface{}) string {
 
 	// Status overview
 	if len(configuredHeaders) == 0 {
-		description = "No cross-origin security headers found. Site is vulnerable to cross-origin attacks, resource embedding exploits, and lacks browser-level isolation protection against Spectre-like vulnerabilities. "
+		description = "No cross-origin security headers found. The page is not cross-origin isolated and its resources may be embedded by any origin, so it lacks browser-level protection against Spectre-like side-channel attacks. "
 	} else {
 		if protectionLevel == "None" {
 			description = "Cross-origin security headers are present but none is set to a protective value. "

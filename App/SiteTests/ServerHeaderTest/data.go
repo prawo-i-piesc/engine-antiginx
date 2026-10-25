@@ -52,5 +52,5 @@ var directTechnologyHeaders = map[string]modules.DirectHeader{
 	"x-drupal-cache":      {Technology: "Drupal"},
 	"x-mod-pagespeed":     {Technology: "Google PageSpeed", ValueIsVersion: true},
 	"x-varnish":           {Technology: "Varnish Cache"},
-	"x-runtime":           {Technology: "Dynamic Runtime", ValueIsVersion: true},
+	"x-runtime":           {Technology: "Dynamic Runtime"}, // its value is the request's duration, not a version
 }

@@ -9,5 +9,5 @@ const (
 )
 
 // criticalStrengthCap is the highest strength a policy with a critical vulnerability can
-// score: the top of the poor band.
+// score, below the weak band.
 const criticalStrengthCap = 19

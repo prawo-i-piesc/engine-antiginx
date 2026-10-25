@@ -1,0 +1,50 @@
+{
+ "resultsPerPage": 2,
+ "startIndex": 0,
+ "totalResults": 2,
+ "format": "NVD_CVE",
+ "version": "2.0",
+ "timestamp": "2099-03-01T08:00:00.000",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "id": "CVE-2099-0020",
+    "vulnStatus": "Received",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: just published."
+     }
+    ],
+    "metrics": {},
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0020"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2099-0021",
+    "vulnStatus": "Deferred",
+    "published": "2099-01-10T12:15:07.853",
+    "lastModified": "2099-02-01T09:00:00.000",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Prepared fixture: not prioritised for analysis."
+     }
+    ],
+    "metrics": {},
+    "references": [
+     {
+      "url": "https://fixture.antiginx.test/advisories/0021"
+     }
+    ]
+   }
+  }
+ ]
+}

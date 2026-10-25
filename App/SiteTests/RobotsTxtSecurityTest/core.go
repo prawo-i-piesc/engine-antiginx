@@ -19,13 +19,6 @@ var fetcher = modules.Fetcher{
 	MaxBodyBytes:      MaxBodyBytes,
 }
 
-// grader carries the thresholds from config.go into the judgement stage.
-var grader = modules.Grader{
-	LowMax:    LowMaxRules,
-	MediumMax: MediumMaxRules,
-	HighMax:   HighMaxRules,
-}
-
 // New creates a new security test that analyzes robots.txt for rules revealing or exposing
 // sensitive application paths.
 func New() *SiteTests.StructureTest {
@@ -44,7 +37,7 @@ func New() *SiteTests.StructureTest {
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   Certainty,
-				ThreatLevel: grader.EvaluateThreat(analysis),
+				ThreatLevel: modules.EvaluateThreat(analysis),
 				Metadata:    analysis,
 				Description: modules.Describe(analysis),
 			}

@@ -14,10 +14,10 @@ func TestReferrerPolicyFixtures(t *testing.T) {
 		level     SiteTests.ThreatLevel
 		fragments []string
 	}{
-		{"missing_header.http", SiteTests.Medium, []string{"Missing Referrer-Policy header", "strict-origin-when-cross-origin in current browsers"}},
-		{"invalid_value.http", SiteTests.High, []string{"Invalid Referrer-Policy values detected: bogus-policy.", "No valid Referrer-Policy found", "strict-origin-when-cross-origin in current browsers"}},
-		{"unsafe_url.http", SiteTests.High, []string{"'unsafe-url'", "vulnerable configuration", "WARNING"}},
-		{"no_referrer_when_downgrade.http", SiteTests.Medium, []string{"'no-referrer-when-downgrade'", "weak privacy protection"}},
+		{"missing_header.http", SiteTests.Info, []string{"Missing Referrer-Policy header", "strict-origin-when-cross-origin in current browsers"}},
+		{"invalid_value.http", SiteTests.Info, []string{"Invalid Referrer-Policy values detected: bogus-policy.", "No valid Referrer-Policy found", "strict-origin-when-cross-origin in current browsers"}},
+		{"unsafe_url.http", SiteTests.Low, []string{"'unsafe-url'", "unsafe configuration", "WARNING"}},
+		{"no_referrer_when_downgrade.http", SiteTests.Low, []string{"'no-referrer-when-downgrade'", "weak privacy protection"}},
 		{"origin_when_cross_origin.http", SiteTests.Info, []string{"'origin-when-cross-origin'", "good balance"}},
 		// same-origin sends nothing to other origins at all
 		{"same_origin.http", SiteTests.None, []string{"'same-origin'", "requests to other origins carry no referrer at all"}},

@@ -37,7 +37,9 @@ description, and there is no second fact worth carrying.
 |---|---|
 | **None** | The response arrived over `https` |
 | **Info** | The response carries no request URL, so the scheme cannot be verified |
-| **High** | The response arrived over `http`, so everything on the page travelled in the clear |
+| **Medium** | The response arrived over `http`, so everything on the page travelled in the clear |
+
+Calibrated to OWASP ZAP alert 10106 (HTTP only site, Medium) and CWE-319 cleartext transmission (typically CVSS 3.1 5.9, Medium); see the SiteTests overview for the severity scale.
 
 ## Files
 

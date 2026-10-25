@@ -18,9 +18,6 @@ var scanner = modules.Scanner{
 	MaxSampleEntries: maxSampleEntries,
 }
 
-// grader carries the escalation threshold from config.go into the judgement stage.
-var grader = modules.Grader{EscalationCount: escalationCount}
-
 // New creates a new security test that checks whether the target serves directory listings.
 func New() *SiteTests.StructureTest {
 	return &SiteTests.StructureTest{
@@ -42,7 +39,7 @@ func New() *SiteTests.StructureTest {
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   certainty,
-				ThreatLevel: grader.EvaluateThreat(analysis),
+				ThreatLevel: modules.EvaluateThreat(analysis),
 				Metadata:    analysis,
 				Description: modules.Describe(analysis),
 			}

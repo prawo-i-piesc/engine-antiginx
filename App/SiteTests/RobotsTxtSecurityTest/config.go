@@ -18,13 +18,6 @@ const (
 	MaxBodyBytes = 500 * 1024
 )
 
-// Thresholds on the number of sensitive rules, each the highest count graded at that level.
-const (
-	LowMaxRules    = 2
-	MediumMaxRules = 5
-	HighMaxRules   = 10
-)
-
 // Certainty reported with every result. Matching is by path fragment, so a hit is very
 // likely, but not certain, to point at something sensitive.
 const Certainty = 90

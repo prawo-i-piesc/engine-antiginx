@@ -25,9 +25,9 @@ parameters. Only the first value counts because that is what browsers act on (Fe
 "determine nosniff"), so `nosniff, nosniff` from a duplicating proxy still disables sniffing
 while `sniff, nosniff` does not.
 
-The middle band exists because a header with a wrong value is worse than an absent one in
-one specific way: it looks configured. Someone auditing the site sees the header present
-and moves on, while the browser ignores it and sniffs anyway.
+A header with a wrong value is graded like an absent one, because the browser ignores it
+and sniffs anyway; the description names the value, since it looks configured to someone
+auditing the site.
 
 ## What it reports
 
@@ -39,8 +39,9 @@ it was wrong.
 | Level | When |
 |---|---|
 | **None** | `nosniff` is set (as the first value) |
-| **Medium** | Header present with a value browsers ignore |
-| **High** | Header absent, MIME sniffing left enabled |
+| **Low** | Header absent, or present with a value browsers ignore — MIME sniffing left enabled |
+
+Calibrated to OWASP ZAP alert 10021 (X-Content-Type-Options header missing, Low); see the SiteTests overview for the severity scale.
 
 ## Files
 

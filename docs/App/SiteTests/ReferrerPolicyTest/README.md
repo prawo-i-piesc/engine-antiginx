@@ -27,9 +27,9 @@ go run ./App/main.go test --target example.com --tests referrer-policy
    chain.
 4. Grade that policy by how much of the URL it lets through, and to whom.
 
-A missing header is graded as the browser default (`no-referrer-when-downgrade` in older
-browsers, `strict-origin-when-cross-origin` in current ones), which is why its band sits in
-the middle rather than at the bottom.
+A missing header, or one with only unrecognised values, is graded as the browser default:
+current browsers apply `strict-origin-when-cross-origin`, so nothing leaks and the finding
+is Info (older browsers used `no-referrer-when-downgrade`).
 
 ## What it reports
 
@@ -47,9 +47,10 @@ the middle rather than at the bottom.
 | Level | When |
 |---|---|
 | **None** | `strict-origin-when-cross-origin`, `strict-origin`, `same-origin` (nothing sent to other origins) or `no-referrer` |
-| **Info** | `origin-when-cross-origin` or `origin` |
-| **Medium** | `no-referrer-when-downgrade`, the default of older browsers, which leaks the full URL to other sites; or no header at all |
-| **High** | `unsafe-url`, or only values no browser recognises |
+| **Info** | `origin-when-cross-origin` or `origin`; or no header, or only values no browser recognises — current browsers then apply `strict-origin-when-cross-origin`, so nothing leaks |
+| **Low** | `unsafe-url`, or `no-referrer-when-downgrade`, the default of older browsers; both send the full URL to other sites |
+
+Calibrated to OWASP ZAP passive scan rule 200005-16 (Referrer-Policy, Low); see the SiteTests overview for the severity scale.
 
 ## Files
 

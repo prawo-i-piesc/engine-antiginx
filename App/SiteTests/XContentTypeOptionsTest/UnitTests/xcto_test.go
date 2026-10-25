@@ -13,13 +13,13 @@ func TestXContentTypeOptionsFixtures(t *testing.T) {
 		level     SiteTests.ThreatLevel
 		fragments []string
 	}{
-		{"missing_header.http", SiteTests.High, []string{"Missing X-Content-Type-Options header"}},
-		{"invalid_value.http", SiteTests.Medium, []string{"invalid value 'sniff'", "should be 'nosniff'"}},
+		{"missing_header.http", SiteTests.Low, []string{"Missing X-Content-Type-Options header"}},
+		{"invalid_value.http", SiteTests.Low, []string{"invalid value 'sniff'", "should be 'nosniff'"}},
 		{"nosniff.http", SiteTests.None, []string{"properly configured with 'nosniff'"}},
 		{"nosniff_uppercase.http", SiteTests.None, []string{"properly configured with 'nosniff'"}},
 		// Browsers act on the first comma-separated value only
 		{"duplicated_nosniff.http", SiteTests.None, []string{"properly configured with 'nosniff'"}},
-		{"sniff_then_nosniff.http", SiteTests.Medium, []string{"invalid value 'sniff, nosniff'"}},
+		{"sniff_then_nosniff.http", SiteTests.Low, []string{"invalid value 'sniff, nosniff'"}},
 	}
 	for _, c := range cases {
 		t.Run(c.fixture, func(t *testing.T) {
