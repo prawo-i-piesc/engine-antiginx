@@ -5,6 +5,8 @@ package modules
 import (
 	"Engine-AntiGinx/App/SiteTests"
 	"fmt"
+	"slices"
+	"sort"
 	"strings"
 	"unicode/utf8"
 )
@@ -16,27 +18,38 @@ type DomainAnalyzer struct {
 	Confusables        map[rune]rune
 }
 
-// Analyze performs comprehensive phishing analysis on a given hostname.
-func (a DomainAnalyzer) Analyze(host string) map[string]any {
-	popularDomains := a.Popular
-	legalDomains := make(map[string]string)
+// DomainAnalysis is what the hostname comparison found. Fields are in the alphabetical order
+// of their JSON names, the order the metadata map this replaced was serialized in, so
+// reports keep the same shape.
+type DomainAnalysis struct {
+	DetectedPatterns        []string `json:"detected_patterns"`         // Kinds of resemblance found, without repeats
+	HomographCharCount      int      `json:"homograph_char_count"`      // Confusable characters in the hostname
+	Host                    string   `json:"host"`                      // The hostname analysed
+	IsKnownLegitimate       bool     `json:"is_known_legitimate"`       // Whether it is one of the brands' own domains
+	IsSuspicious            bool     `json:"is_suspicious"`             // Whether it resembles one of them
+	LookalikeExamples       []string `json:"lookalike_examples"`        // "host resembles domain" for the match
+	MatchedBrand            string   `json:"matched_brand"`             // The brand owned or imitated
+	MatchedLegitimateDomain string   `json:"matched_legitimate_domain"` // The domain owned or imitated
+}
 
-	for brand, domains := range popularDomains {
+// Analyze performs comprehensive phishing analysis on a given hostname. Brands are compared
+// in alphabetical order and the first resemblance wins, so a hostname close to two brands
+// is always reported against the same one.
+func (a DomainAnalyzer) Analyze(host string) DomainAnalysis {
+	brands := make([]string, 0, len(a.Popular))
+	legalDomains := make(map[string]string)
+	for brand, domains := range a.Popular {
+		brands = append(brands, brand)
 		for _, d := range domains {
 			legalDomains[d] = brand
 		}
 	}
+	sort.Strings(brands)
 
-	replacements := a.LetterReplacements
-	match := map[string]any{
-		"host":                      host,
-		"is_suspicious":             false,
-		"matched_brand":             "",
-		"matched_legitimate_domain": "",
-		"detected_patterns":         []string{},
-		"lookalike_examples":        []string{},
-		"is_known_legitimate":       false,
-		"homograph_char_count":      0,
+	match := DomainAnalysis{
+		DetectedPatterns:  []string{},
+		Host:              host,
+		LookalikeExamples: []string{},
 	}
 
 	// Without a hostname there is nothing to compare against, so the analysis
@@ -45,15 +58,15 @@ func (a DomainAnalyzer) Analyze(host string) map[string]any {
 		return match
 	}
 
-	if _, ok := legalDomains[host]; ok {
-		match["is_known_legitimate"] = true
-		match["matched_brand"] = legalDomains[host]
-		match["matched_legitimate_domain"] = host
+	if brand, ok := legalDomains[host]; ok {
+		match.IsKnownLegitimate = true
+		match.MatchedBrand = brand
+		match.MatchedLegitimateDomain = host
 		return match
 	}
 
-	for brand, domains := range popularDomains {
-		for _, legit := range domains {
+	for _, brand := range brands {
+		for _, legit := range a.Popular[brand] {
 			patterns := []string{}
 
 			if hasSameSuffix(host, legit) && isSingleEditDistance(host, legit) {
@@ -64,7 +77,7 @@ func (a DomainAnalyzer) Analyze(host string) map[string]any {
 				patterns = append(patterns, "adjacent-letter transposition")
 			}
 
-			if hasSameSuffix(host, legit) && matchesReplacementVariant(host, legit, replacements) {
+			if hasSameSuffix(host, legit) && matchesReplacementVariant(host, legit, a.LetterReplacements) {
 				patterns = append(patterns, "popular letter replacement")
 			}
 
@@ -72,16 +85,16 @@ func (a DomainAnalyzer) Analyze(host string) map[string]any {
 				count := a.countConfusableCharacters(host)
 				if count > 0 {
 					patterns = append(patterns, "homograph/confusable character")
-					match["homograph_char_count"] = count
+					match.HomographCharCount = count
 				}
 			}
 
 			if len(patterns) > 0 {
-				match["is_suspicious"] = true
-				match["matched_brand"] = brand
-				match["matched_legitimate_domain"] = legit
-				match["detected_patterns"] = SiteTests.UniqueStrings(patterns)
-				match["lookalike_examples"] = []string{fmt.Sprintf("%s resembles %s", host, legit)}
+				match.IsSuspicious = true
+				match.MatchedBrand = brand
+				match.MatchedLegitimateDomain = legit
+				match.DetectedPatterns = SiteTests.UniqueStrings(patterns)
+				match.LookalikeExamples = []string{fmt.Sprintf("%s resembles %s", host, legit)}
 				return match
 			}
 		}
@@ -92,14 +105,13 @@ func (a DomainAnalyzer) Analyze(host string) map[string]any {
 
 // EvaluateDomainThreat determines the security threat classification based on the detected
 // phishing patterns and analysis metadata.
-func EvaluateDomainThreat(metadata map[string]any) SiteTests.ThreatLevel {
-	isSuspicious, _ := metadata["is_suspicious"].(bool)
-	if !isSuspicious {
+func EvaluateDomainThreat(analysis DomainAnalysis) SiteTests.ThreatLevel {
+	if !analysis.IsSuspicious {
 		return SiteTests.None
 	}
 
-	patterns, _ := metadata["detected_patterns"].([]string)
-	homographCount, _ := metadata["homograph_char_count"].(int)
+	patterns := analysis.DetectedPatterns
+	homographCount := analysis.HomographCharCount
 
 	// Multiple patterns combined with homograph → Critical
 	if len(patterns) >= 2 && homographCount > 0 {
@@ -112,15 +124,7 @@ func EvaluateDomainThreat(metadata map[string]any) SiteTests.ThreatLevel {
 	}
 
 	// Single homograph pattern with significant character usage → High
-	hasHomograph := false
-	for _, p := range patterns {
-		if p == "homograph/confusable character" {
-			hasHomograph = true
-			break
-		}
-	}
-
-	if hasHomograph && homographCount >= 3 {
+	if slices.Contains(patterns, "homograph/confusable character") && homographCount >= 3 {
 		return SiteTests.High
 	}
 
@@ -129,28 +133,21 @@ func EvaluateDomainThreat(metadata map[string]any) SiteTests.ThreatLevel {
 }
 
 // DescribeDomain creates a human-readable description of the phishing analysis results.
-func DescribeDomain(metadata map[string]any) string {
-	isLegit, _ := metadata["is_known_legitimate"].(bool)
-	if isLegit {
+func DescribeDomain(analysis DomainAnalysis) string {
+	if analysis.IsKnownLegitimate {
 		return "Domain is recognized as a known legitimate domain from the local popularity dataset"
 	}
 
-	isSuspicious, _ := metadata["is_suspicious"].(bool)
-	if !isSuspicious {
+	if !analysis.IsSuspicious {
 		return "No phishing-style typo-squatting or homograph indicators detected against the local popular-domain dataset"
 	}
 
-	host, _ := metadata["host"].(string)
-	brand, _ := metadata["matched_brand"].(string)
-	legit, _ := metadata["matched_legitimate_domain"].(string)
-	patterns, _ := metadata["detected_patterns"].([]string)
-
 	return fmt.Sprintf(
 		"Potential phishing domain detected: %s appears to impersonate %s (%s). Detected patterns: %s",
-		host,
-		brand,
-		legit,
-		strings.Join(patterns, ", "),
+		analysis.Host,
+		analysis.MatchedBrand,
+		analysis.MatchedLegitimateDomain,
+		strings.Join(analysis.DetectedPatterns, ", "),
 	)
 }
 

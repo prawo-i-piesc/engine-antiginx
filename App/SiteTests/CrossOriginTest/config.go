@@ -7,3 +7,6 @@ const (
 	TestDescription = "Analyzes Cross-Origin-Embedder-Policy, Cross-Origin-Resource-Policy, and Cross-Origin-Opener-Policy headers for cross-origin attack protection"
 	TestCategory    = "Headers"
 )
+
+// Certainty reported with every result; the verdict is read straight from the headers.
+const Certainty = 100

@@ -32,6 +32,7 @@ func TestReferrerPolicyGrading(t *testing.T) {
 		{"no-referrer-when-downgrade", SiteTests.Medium, "weak privacy protection"},
 		{"unsafe-url", SiteTests.High, "WARNING: Contains 'unsafe-url'"},
 		{"bogus", SiteTests.High, "Invalid Referrer-Policy values detected: bogus."},
+		{"bogus, Weird", SiteTests.High, "Invalid Referrer-Policy values detected: bogus, Weird."},
 		{"no-referrer, unsafe-url", SiteTests.High, "'unsafe-url' (no-referrer, unsafe-url)"},
 		{"origin, same-origin, strict-origin", SiteTests.None, "Consider simplifying"},
 		{",", SiteTests.Medium, "No valid Referrer-Policy found"},

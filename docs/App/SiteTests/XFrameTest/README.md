@@ -34,8 +34,11 @@ partner.
 
 | Key | Meaning |
 |---|---|
-| `blocked` / `allowed` | Whether framing is refused, and by whom it is permitted |
-| `excellent` … `vulnerable` | The protection band the configuration falls into |
+| `has_x_frame_options` / `x_frame_options` | Whether X-Frame-Options was sent, and its value trimmed and uppercased |
+| `x_frame_valid` | Whether that value is `DENY`, `SAMEORIGIN` or `ALLOW-FROM` |
+| `has_frame_ancestors` / `frame_ancestors` | Whether the CSP names `frame-ancestors`, and its sources as written |
+| `protection_level` | `excellent`, `good`, `limited`, `weak` or `vulnerable` — the band the configuration falls into |
+| `embedding` | `blocked`, `same-origin`, `limited` or `allowed` — who can frame the page |
 
 ## How the verdict is reached
 
@@ -43,8 +46,8 @@ partner.
 |---|---|
 | **None** | `frame-ancestors 'none'` or `X-Frame-Options: DENY` |
 | **Info** | `frame-ancestors 'self'` or `SAMEORIGIN` |
-| **Low** | `ALLOW-FROM`, deprecated and honoured by almost no browser |
-| **Medium** | Only `frame-ancestors` with specific domains — partial protection |
+| **Low** | `frame-ancestors` naming specific domains, or `ALLOW-FROM` — deprecated and honoured by almost no browser |
+| **Medium** | `frame-ancestors` with only broad sources (`*`, `https:`, `http:`), which any site of that scheme satisfies |
 | **High** | Neither protection present, or the values are invalid |
 
 ## Files
@@ -52,7 +55,8 @@ partner.
 | File | Holds |
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core.go` | The test itself: `New()`, the `FrameAnalysis` it reports as metadata, the analysis and the assembled verdict. |
+| `core_test.go` | Unit tests for grading, embedding and the description across both mechanisms. |
 
 ---
 

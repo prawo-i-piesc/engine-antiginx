@@ -58,10 +58,7 @@ func New() *SiteTests.PreResponseTest {
 					Name:        TestName,
 					Certainty:   100,
 					ThreatLevel: SiteTests.Info,
-					Metadata: map[string]any{
-						"url":  "",
-						"host": "",
-					},
+					Metadata:    PhishingAnalysis{DetectedPatterns: []string{}},
 					Description: "Target URL is unavailable, phishing analysis could not be performed",
 				}
 			}
@@ -95,51 +92,51 @@ func combinePhishingThreatLevels(domainThreat SiteTests.ThreatLevel, parameterTh
 }
 
 // evaluatePhishingCertainty determines the confidence reported for the combined result.
-func evaluatePhishingCertainty(domainAnalysis map[string]any, parameterAnalysis map[string]any) int {
-	domainSuspicious, _ := domainAnalysis["is_suspicious"].(bool)
-	parameterSuspicious, _ := parameterAnalysis["is_suspicious"].(bool)
-
-	if !domainSuspicious && !parameterSuspicious {
+func evaluatePhishingCertainty(domainAnalysis modules.DomainAnalysis, parameterAnalysis modules.ParameterAnalysis) int {
+	if !domainAnalysis.IsSuspicious && !parameterAnalysis.IsSuspicious {
 		return 100
 	}
 
-	if parameterSuspicious {
-		embedded, _ := parameterAnalysis["embedded_credentials"].(bool)
-		credentials, _ := parameterAnalysis["credential_parameters"].([]string)
-		if !embedded && len(credentials) == 0 {
-			return 85
-		}
+	if parameterAnalysis.IsSuspicious && !parameterAnalysis.EmbeddedCredentials && len(parameterAnalysis.CredentialParameters) == 0 {
+		return 85
 	}
 
 	return 95
 }
 
-// combinePhishingAnalyses merges the metadata of both analysis dimensions into the single map
-// reported by the test.
-func combinePhishingAnalyses(host string, domainAnalysis map[string]any, parameterAnalysis map[string]any) map[string]any {
-	domainSuspicious, _ := domainAnalysis["is_suspicious"].(bool)
-	parameterSuspicious, _ := parameterAnalysis["is_suspicious"].(bool)
-	domainPatterns, _ := domainAnalysis["detected_patterns"].([]string)
-	parameterPatterns, _ := parameterAnalysis["detected_patterns"].([]string)
+// PhishingAnalysis is the metadata the test reports: both analysis dimensions and what they
+// add up to. Fields are in the alphabetical order of their JSON names, the order the
+// metadata map this replaced was serialized in, so reports keep the same shape.
+type PhishingAnalysis struct {
+	DetectedPatterns  []string                   `json:"detected_patterns"`            // The hostname's findings, then the parameters'
+	DomainAnalysis    *modules.DomainAnalysis    `json:"domain_analysis,omitempty"`    // What the hostname comparison found
+	Host              string                     `json:"host"`                         // The hostname analysed
+	IsSuspicious      bool                       `json:"is_suspicious"`                // Whether either dimension found anything
+	ParameterAnalysis *modules.ParameterAnalysis `json:"parameter_analysis,omitempty"` // What the path, query and userinfo carry
+	URL               string                     `json:"url"`                          // The URL with parameter values redacted
+}
 
-	patterns := make([]string, 0, len(domainPatterns)+len(parameterPatterns))
-	patterns = append(patterns, domainPatterns...)
-	patterns = append(patterns, parameterPatterns...)
+// combinePhishingAnalyses merges the metadata of both analysis dimensions into the single
+// value reported by the test.
+func combinePhishingAnalyses(host string, domainAnalysis modules.DomainAnalysis, parameterAnalysis modules.ParameterAnalysis) PhishingAnalysis {
+	patterns := make([]string, 0, len(domainAnalysis.DetectedPatterns)+len(parameterAnalysis.DetectedPatterns))
+	patterns = append(patterns, domainAnalysis.DetectedPatterns...)
+	patterns = append(patterns, parameterAnalysis.DetectedPatterns...)
 
-	return map[string]any{
-		"url":                parameterAnalysis["url"],
-		"host":               host,
-		"is_suspicious":      domainSuspicious || parameterSuspicious,
-		"detected_patterns":  patterns,
-		"domain_analysis":    domainAnalysis,
-		"parameter_analysis": parameterAnalysis,
+	return PhishingAnalysis{
+		DetectedPatterns:  patterns,
+		DomainAnalysis:    &domainAnalysis,
+		Host:              host,
+		IsSuspicious:      domainAnalysis.IsSuspicious || parameterAnalysis.IsSuspicious,
+		ParameterAnalysis: &parameterAnalysis,
+		URL:               parameterAnalysis.URL,
 	}
 }
 
 // generateCombinedPhishingDescription joins the descriptions of both analysis dimensions into
 // the single human-readable summary reported by the test, so a reader always learns what the
 // hostname and the parameters each contributed.
-func generateCombinedPhishingDescription(domainAnalysis map[string]any, parameterAnalysis map[string]any) string {
+func generateCombinedPhishingDescription(domainAnalysis modules.DomainAnalysis, parameterAnalysis modules.ParameterAnalysis) string {
 	return fmt.Sprintf(
 		"Hostname: %s. URL parameters: %s",
 		modules.DescribeDomain(domainAnalysis),

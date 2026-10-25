@@ -69,7 +69,7 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) ReferrerPolicyAnal
 				hasUnsafe = true
 			}
 		} else {
-			invalidPolicies = append(invalidPolicies, part) // Keep original case for invalid policies
+			invalidPolicies = append(invalidPolicies, strings.TrimSpace(part)) // Keep original case for invalid policies
 		}
 	}
 

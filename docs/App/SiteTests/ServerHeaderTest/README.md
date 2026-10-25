@@ -37,7 +37,7 @@ go run ./App/main.go test --target example.com --tests serv-h-a
 
 | Field | Meaning |
 |---|---|
-| `exposed_headers` | Which of the watched headers disclosed something |
+| `exposed_headers` | Which of the watched headers disclosed something, in the order they are read |
 | `header_details` | Header name to value, as received |
 | `technologies` | Every technology named |
 | `technology_stack` | Technology to disclosed version |
@@ -62,6 +62,7 @@ CVE findings are carried in the description rather than the metadata.
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `core_test.go` | Unit tests for grading, the description and the metadata, with the NVD lookup replaced so they run offline. |
 | `data.go` | The header list and the signature tables that map a header value to a technology. Teaching the engine a new framework is a matter of adding a row here. |
 | `modules/cveseverity.go` | Translates an NVD vulnerability assessment into a threat level. |
 | `modules/technologydetection.go` | Matches header values against the signature tables and extracts version numbers from the formats vendors actually use (`nginx/1.18.0`, `PHP-7.4.3`, `Apache v2.4.41`). |

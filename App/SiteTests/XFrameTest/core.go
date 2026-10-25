@@ -16,73 +16,75 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// Check for both X-Frame-Options and CSP frame-ancestors
-			xframeHeader := params.Response.Header.Get("X-Frame-Options")
-			cspHeader := params.Response.Header.Get("Content-Security-Policy")
-
-			// Analyze frame protection
-			hasXFrame := xframeHeader != ""
-			var xframeDirective string
-			var xframeValid bool
-
-			if hasXFrame {
-				xframeDirective = strings.ToUpper(strings.TrimSpace(xframeHeader))
-				switch xframeDirective {
-				case "DENY", "SAMEORIGIN":
-					xframeValid = true
-				default:
-					if strings.HasPrefix(xframeDirective, "ALLOW-FROM ") {
-						xframeValid = true
-					} else {
-						xframeValid = false
-					}
-				}
-			}
-
-			// Check CSP frame-ancestors
-			var cspFrameValue string
-			hasCSPFrameAncestors := false
-			if cspHeader != "" {
-				cspLower := strings.ToLower(cspHeader)
-				if strings.Contains(cspLower, "frame-ancestors") {
-					hasCSPFrameAncestors = true
-					cspFrameValue = extractFrameAncestorsValue(cspHeader)
-				}
-			}
-
-			// Determine protection level
-			protectionLevel := determineProtectionLevel(xframeDirective, cspFrameValue, xframeValid)
-
-			// Evaluate threat level
-			var threatLevel SiteTests.ThreatLevel
-			switch protectionLevel {
-			case "excellent":
-				threatLevel = SiteTests.None
-			case "good":
-				threatLevel = SiteTests.Info
-			case "limited":
-				threatLevel = SiteTests.Low
-			case "weak":
-				threatLevel = SiteTests.Medium
-			case "vulnerable":
-				threatLevel = SiteTests.High
-			default:
-				threatLevel = SiteTests.High
-			}
-
-			// Generate description
-			canBeEmbedded := assessEmbeddingCapability(xframeDirective, cspFrameValue, xframeValid)
-			description := generateDescription(protectionLevel, hasXFrame, hasCSPFrameAncestors, canBeEmbedded)
+			analysis := analyzeFrameProtection(
+				params.Response.Header.Get("X-Frame-Options"),
+				params.Response.Header.Get("Content-Security-Policy"),
+			)
 
 			return SiteTests.TestResult{
 				Name:        TestName,
-				Certainty:   100,
-				ThreatLevel: threatLevel,
-				Metadata:    nil,
-				Description: description,
+				Certainty:   Certainty,
+				ThreatLevel: evaluateFrameThreatLevel(analysis),
+				Metadata:    analysis,
+				Description: generateDescription(analysis),
 			}
 		},
 	}
+}
+
+// FrameAnalysis is what the two frame-protection mechanisms declare and what they add up to,
+// reported as the result's metadata.
+type FrameAnalysis struct {
+	HasXFrameOptions  bool   `json:"has_x_frame_options"` // Whether X-Frame-Options was sent at all
+	XFrameOptions     string `json:"x_frame_options"`     // Its value, trimmed and uppercased
+	XFrameValid       bool   `json:"x_frame_valid"`       // Whether that value is DENY, SAMEORIGIN or ALLOW-FROM
+	HasFrameAncestors bool   `json:"has_frame_ancestors"` // Whether the CSP names frame-ancestors
+	FrameAncestors    string `json:"frame_ancestors"`     // The frame-ancestors sources as written
+	ProtectionLevel   string `json:"protection_level"`    // excellent, good, limited, weak or vulnerable
+	Embedding         string `json:"embedding"`           // blocked, same-origin, limited or allowed
+}
+
+// analyzeFrameProtection reads X-Frame-Options and the CSP frame-ancestors directive and
+// works out how far the page can be framed.
+func analyzeFrameProtection(xframeHeader, cspHeader string) FrameAnalysis {
+	analysis := FrameAnalysis{HasXFrameOptions: xframeHeader != ""}
+
+	if analysis.HasXFrameOptions {
+		analysis.XFrameOptions = strings.ToUpper(strings.TrimSpace(xframeHeader))
+		switch analysis.XFrameOptions {
+		case "DENY", "SAMEORIGIN":
+			analysis.XFrameValid = true
+		default:
+			analysis.XFrameValid = strings.HasPrefix(analysis.XFrameOptions, "ALLOW-FROM ")
+		}
+	}
+
+	if strings.Contains(strings.ToLower(cspHeader), "frame-ancestors") {
+		analysis.HasFrameAncestors = true
+		analysis.FrameAncestors = extractFrameAncestorsValue(cspHeader)
+	}
+
+	analysis.ProtectionLevel = determineProtectionLevel(analysis.XFrameOptions, analysis.FrameAncestors, analysis.XFrameValid)
+	analysis.Embedding = assessEmbeddingCapability(analysis.XFrameOptions, analysis.FrameAncestors, analysis.XFrameValid)
+	return analysis
+}
+
+// protectionThreat grades each protection level; anything unrecognised is graded as
+// vulnerable.
+var protectionThreat = map[string]SiteTests.ThreatLevel{
+	"excellent":  SiteTests.None,
+	"good":       SiteTests.Info,
+	"limited":    SiteTests.Low,
+	"weak":       SiteTests.Medium,
+	"vulnerable": SiteTests.High,
+}
+
+// evaluateFrameThreatLevel grades the analysis by its protection level.
+func evaluateFrameThreatLevel(analysis FrameAnalysis) SiteTests.ThreatLevel {
+	if level, known := protectionThreat[analysis.ProtectionLevel]; known {
+		return level
+	}
+	return SiteTests.High
 }
 
 // extractFrameAncestorsValue parses the Content-Security-Policy header to extract the frame-
@@ -137,24 +139,13 @@ func assessEmbeddingCapability(xframeDirective, cspFrameValue string, xframeVali
 	// CSP frame-ancestors takes precedence
 	if cspFrameValue != "" {
 		cspLower := SiteTests.NormalizeHeaderValue(cspFrameValue)
-		// Before lint
-		//switch {
-		//case cspLower == "'none'":
-		//	return "blocked"
-		//case cspLower == "'self'":
-		//	return "same-origin"
-		//case cspLower == "*":
-		//	return "allowed"
-		//default:
-		//	return "limited"
-
-		// After lint
-		switch cspLower {
-		case "'none'":
+		switch {
+		case cspLower == "'none'":
 			return "blocked"
-		case "'self'":
+		case cspLower == "'self'":
 			return "same-origin"
-		case "'*'":
+		case hasOnlyBroadSources(cspLower):
+			// *, https: and http: let any site of that scheme frame the page
 			return "allowed"
 		default:
 			return "limited"
@@ -179,7 +170,12 @@ func assessEmbeddingCapability(xframeDirective, cspFrameValue string, xframeVali
 }
 
 // generateDescription creates a description based on protection analysis
-func generateDescription(protectionLevel string, hasXFrame, hasCSP bool, canBeEmbedded string) string {
+func generateDescription(analysis FrameAnalysis) string {
+	protectionLevel := analysis.ProtectionLevel
+	hasXFrame := analysis.HasXFrameOptions
+	hasCSP := analysis.HasFrameAncestors
+	canBeEmbedded := analysis.Embedding
+
 	var description strings.Builder
 
 	// Primary assessment
