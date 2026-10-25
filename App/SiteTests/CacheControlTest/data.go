@@ -2,8 +2,14 @@ package CacheControlTest
 
 import "regexp"
 
-// sessionCookieNames mark a cookie as one that ties the response to a user session.
-var sessionCookieNames = []string{"session", "sessid", "phpsessid", "jsessionid", "aspsessionid", "sid", "auth", "token", "jwt"}
+// sessionCookieNames mark a cookie as one that ties the response to a user session. They are
+// matched case-insensitively anywhere in the name, so "sess" covers PHPSESSID, Drupal's
+// SESS… cookies and every *_session name.
+var sessionCookieNames = []string{
+	"session", "sessid", "sess", "phpsessid", "jsessionid", "aspsessionid", "sid", "cfid", "cftoken",
+	"cakephp", "symfony", ".aspnetcore.cookies", "auth", "token", "jwt", "bearer", "saml",
+	"remember", "logged_in", "identity", "credential",
+}
 
 // passwordInput matches an input element whose type is password, in any attribute order and
 // quoting style.

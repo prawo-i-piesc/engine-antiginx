@@ -8,10 +8,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"net/http"
 	"sort"
-	"sync"
 	"time"
 )
 
@@ -71,27 +69,9 @@ func (p Prober) Sweep(baseUrl string, candidates []Candidate) Analysis {
 	}
 	sort.Ints(analysis.BaselineStatus)
 
-	var mutex sync.Mutex
-	var group sync.WaitGroup
-	slots := make(chan struct{}, max(p.MaxConcurrency, 1))
-
-	for _, candidate := range candidates {
-		group.Add(1)
-		slots <- struct{}{}
-		go func(candidate Candidate) {
-			defer group.Done()
-			defer func() { <-slots }()
-
-			exposure, found := p.probe(client, baseUrl, candidate, base)
-			if !found {
-				return
-			}
-			mutex.Lock()
-			analysis.Exposures = append(analysis.Exposures, exposure)
-			mutex.Unlock()
-		}(candidate)
-	}
-	group.Wait()
+	analysis.Exposures = SiteTests.ProbeAll(candidates, p.MaxConcurrency, func(candidate Candidate) (Exposure, bool) {
+		return p.probe(client, baseUrl, candidate, base)
+	})
 
 	sort.Slice(analysis.Exposures, func(i, j int) bool { return analysis.Exposures[i].Path < analysis.Exposures[j].Path })
 	for _, exposure := range analysis.Exposures {
@@ -161,22 +141,12 @@ func (p Prober) probe(client *http.Client, baseUrl string, candidate Candidate, 
 // fetch requests a URL and returns its status, its content type and the first MaxBodyBytes
 // of its body.
 func (p Prober) fetch(client *http.Client, target string) (int, string, string, bool) {
-	resp, err := client.Get(target)
-	if err != nil {
+	// A body that failed to read still leaves a status worth classifying
+	page, _ := SiteTests.Fetch(client, target, p.MaxBodyBytes)
+	if page.Status == 0 {
 		return 0, "", "", false
 	}
-	defer func() {
-		if cerr := resp.Body.Close(); cerr != nil {
-			fmt.Printf("HttpClient \nWarning: Failed to close response channel: %s", cerr.Error())
-		}
-	}()
-
-	contentType := resp.Header.Get("Content-Type")
-	body, err := io.ReadAll(io.LimitReader(resp.Body, p.MaxBodyBytes))
-	if err != nil {
-		return resp.StatusCode, contentType, "", true
-	}
-	return resp.StatusCode, contentType, string(body), true
+	return page.Status, page.Header.Get("Content-Type"), string(page.Body), true
 }
 
 // similarSize reports whether two body lengths are within percent of each other, which is how

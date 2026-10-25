@@ -23,7 +23,7 @@ var testFetcher = Fetcher{
 	MaxBodyBytes: 1024 * 1024,
 }
 
-var testGrader = Grader{LowMax: 2, MediumMax: 5, HighMax: 10}
+var testGrader = Grader{Thresholds: SiteTests.CountThresholds{LowMax: 2, MediumMax: 5, HighMax: 10}}
 
 func TestParseRobotsReadsOnlyAllowAndDisallow(t *testing.T) {
 	rules := parseRobots(`
@@ -43,24 +43,6 @@ Crawl-delay: 10
 	for i := range want {
 		if rules[i] != want[i] {
 			t.Errorf("rule %d: got %v, want %v", i, rules[i], want[i])
-		}
-	}
-}
-
-func TestContainsPathFragmentRespectsWordBoundary(t *testing.T) {
-	cases := map[string]bool{
-		"/test":          true,
-		"/test/":         true,
-		"/test.php":      true,
-		"/test2":         true,
-		"/en/test-suite": true,
-		"/testimonials":  false,
-		"/contest":       false,
-		"/latest/test":   true,
-	}
-	for path, want := range cases {
-		if got := containsPathFragment(path, "/test"); got != want {
-			t.Errorf("containsPathFragment(%q, /test) = %v, want %v", path, got, want)
 		}
 	}
 }

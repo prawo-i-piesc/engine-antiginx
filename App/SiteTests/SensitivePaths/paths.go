@@ -2,11 +2,15 @@
 // public web server: secrets, credentials, version-control directories, database dumps,
 // backups, server-information endpoints, logs and development artefacts.
 //
-// It is data, not a test: it declares no New() and is not registered. Two tests read it —
-// SitemapSecurityTest flags any of these paths a sitemap declares, and SensitiveFilesTest
-// requests each of them from the server. Keeping the list in one place means a file added
-// here is looked for by both at once. Each entry carries only its path and a category; how
-// severe a match is belongs to the test that found it, so no severity lives here.
+// It is data, not a test: it declares no New() and is not registered. Three tests read it —
+// SitemapSecurityTest and RobotsTxtSecurityTest flag any of these paths a sitemap or
+// robots.txt declares, and SensitiveFilesTest requests each of them from the server. Keeping
+// the list in one place means a file added here is looked for by all of them at once. Each
+// entry carries only its path and a category; how severe a match is belongs to the test that
+// found it, so no severity lives here.
+//
+// Alongside the files it holds Locations, the dangerous path fragments the sitemap and
+// robots.txt tests share, and the Matcher both of them match declared paths with.
 package SensitivePaths
 
 import "strings"

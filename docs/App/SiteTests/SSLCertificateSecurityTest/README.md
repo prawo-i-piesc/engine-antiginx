@@ -60,8 +60,9 @@ problem rather than the first one in file order.
 
 | File | Holds |
 |---|---|
-| `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
-| `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
+| `config.go` | Identity constants, the handshake timeout, the key-size and expiry thresholds and the certainty. |
+| `core.go` | The test itself: `New()`, the TLS handshake, the `CertificateInfo` it reports as metadata, and `assess`, which grades a chain against a trust store at a given moment. |
+| `core_test.go` | Unit tests for every verdict, run against certificates issued by a throwaway CA the test trusts — no network involved. |
 
 ## Notes
 

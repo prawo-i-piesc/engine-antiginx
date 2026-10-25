@@ -8,22 +8,22 @@ import (
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest/modules"
 )
 
-// fetcher wires the pattern table into the retrieval stage: this package's own fragments
-// for dangerous locations, plus every file from the shared SensitivePaths list, so a
-// sensitive file a sitemap declares is flagged by the same definition SensitiveFilesTest
-// probes the server with.
-var fetcher = modules.Fetcher{DangerousPatterns: withSensitiveFiles(DangerousPatterns)}
-
-// withSensitiveFiles returns the dangerous-pattern table extended with the shared sensitive
-// files. A local fragment already present is kept, since this package's wording is more
-// specific than the shared category.
-func withSensitiveFiles(patterns map[string]string) map[string]string {
-	merged := SensitivePaths.AsPatterns()
-	for pattern, category := range patterns {
-		merged[pattern] = category
-	}
-	return merged
+// fetcher wires the pattern table and the limits from config.go into the retrieval stage:
+// every file from the shared SensitivePaths list, so a sensitive file a sitemap declares is
+// flagged by the same definition SensitiveFilesTest probes the server with, then the shared
+// dangerous-location fragments, whose more specific wording wins on a shared key.
+var fetcher = modules.Fetcher{
+	DangerousPatterns: SensitivePaths.Merge(SensitivePaths.AsPatterns(), SensitivePaths.Locations),
+	Timeout:           FetchTimeout,
+	MaxBodyBytes:      MaxBodyBytes,
 }
+
+// grader carries the thresholds from config.go into the judgement stage.
+var grader = modules.Grader{Thresholds: SiteTests.CountThresholds{
+	LowMax:    LowMaxPaths,
+	MediumMax: MediumMaxPaths,
+	HighMax:   HighMaxPaths,
+}}
 
 // New creates a new security test that analyzes sitemap.xml for dangerous path exposure
 // vulnerabilities.
@@ -34,24 +34,15 @@ func New() *SiteTests.StructureTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
-			// Extract base URL from the target
-			baseUrl := params.Target.Scheme + "://" + params.Target.Host
-
 			// Fetch sitemap.xml
-			analysis := fetcher.Analyze(baseUrl)
-
-			// Determine threat level based on dangerous paths found
-			threatLevel := modules.EvaluateThreat(analysis)
-
-			// Generate description
-			description := modules.Describe(analysis)
+			analysis := fetcher.Analyze(SiteTests.BaseURL(params.Target))
 
 			return SiteTests.TestResult{
 				Name:        TestName,
-				Certainty:   90,
-				ThreatLevel: threatLevel,
+				Certainty:   Certainty,
+				ThreatLevel: grader.EvaluateThreat(analysis),
 				Metadata:    analysis,
-				Description: description,
+				Description: modules.Describe(analysis),
 			}
 		},
 	}

@@ -12,6 +12,18 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
+			// The scheme is read from the request that produced the final response, after
+			// redirects; without it there is nothing to judge
+			if params.Response.Request == nil || params.Response.Request.URL == nil {
+				return SiteTests.TestResult{
+					Name:        TestName,
+					Certainty:   detectionCertainty,
+					ThreatLevel: SiteTests.Info,
+					Metadata:    nil,
+					Description: unknownSchemeDescription,
+				}
+			}
+
 			if params.Response.Request.URL.Scheme == secureScheme {
 				return SiteTests.TestResult{
 					Name:        TestName,

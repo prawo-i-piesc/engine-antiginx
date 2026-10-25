@@ -29,10 +29,7 @@ func New() *SiteTests.StructureTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.StructureTestParams) SiteTests.TestResult {
-			// Extract base URL from the target
-			baseUrl := params.Target.Scheme + "://" + params.Target.Host
-
-			analysis := scanner.Scan(baseUrl, probes(params.Target.Path))
+			analysis := scanner.Scan(SiteTests.BaseURL(params.Target), probes(params.Target.Path))
 
 			certainty := noListingCertainty
 			if analysis.TotalListings > 0 {
