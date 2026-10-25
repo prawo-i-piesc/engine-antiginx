@@ -72,6 +72,7 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `phishing-url` | PreResponse | Typo-squatting, homograph and URL parameter analysis | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/PhishingURLTest/README.md) |
 | `bot-protection` | PreResponse | Bot protection / CDN / WAF layer in front of the target | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/BotProtectionTest/README.md) |
 | `dns-reputation` | PreResponse | Domain registration data, DNS configuration and address reputation | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/DNSReputationTest/README.md) |
+| `urlhaus` | PreResponse | Target URL and host looked up in the URLhaus malware URL database (needs `ANTIGINX_URLHAUS_AUTH_KEY`) | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/URLhausTest/README.md) |
 | `ssl-cert` | Structure | SSL/TLS Certificate Security | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SSLCertificateSecurityTest/README.md) |
 | `sitemap` | Structure | Dangerous paths exposed through sitemap.xml | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SitemapSecurityTest/README.md) |
 

@@ -108,6 +108,7 @@ nav:
           - SSL Certificate: App/SiteTests/SSLCertificateSecurityTest/README.md
           - Server Header: App/SiteTests/ServerHeaderTest/README.md
           - Sitemap Security: App/SiteTests/SitemapSecurityTest/README.md
+          - URLhaus Lookup: App/SiteTests/URLhausTest/README.md
           - X-Content-Type-Options: App/SiteTests/XContentTypeOptionsTest/README.md
           - X-Frame-Options: App/SiteTests/XFrameTest/README.md
   - Engined Documentation:

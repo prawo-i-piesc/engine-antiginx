@@ -11,6 +11,7 @@ services:
       - BACK_URL=${BACK_URL}
       - RABBITMQ_URL=${RABBITMQ_URL}
       - ENGINE_ANTIGINX_CALL=${ENGINE_ANTIGINX_CALL}
+      - ANTIGINX_URLHAUS_AUTH_KEY=${ANTIGINX_URLHAUS_AUTH_KEY}
 
     networks:
       - vpn-net
