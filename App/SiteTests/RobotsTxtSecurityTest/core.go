@@ -5,13 +5,16 @@ package RobotsTxtSecurityTest
 import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/RobotsTxtSecurityTest/modules"
+	"Engine-AntiGinx/App/SiteTests/SensitivePaths"
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest"
 )
 
-// fetcher wires the sitemap pattern table, extended by this package's own, into the
-// retrieval stage.
+// fetcher wires the pattern table into the retrieval stage, in rising order of specificity:
+// the shared SensitivePaths files (the same list SitemapSecurityTest and SensitiveFilesTest
+// use), then the sitemap's dangerous-location fragments, then this package's own additions,
+// with the later tables winning on a shared key.
 var fetcher = modules.Fetcher{
-	DangerousPatterns: mergePatterns(SitemapSecurityTest.DangerousPatterns, extraPatterns),
+	DangerousPatterns: mergePatterns(SensitivePaths.AsPatterns(), SitemapSecurityTest.DangerousPatterns, extraPatterns),
 	Timeout:           FetchTimeout,
 	MaxBodyBytes:      MaxBodyBytes,
 }

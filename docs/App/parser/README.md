@@ -29,7 +29,7 @@ Example file/stdin document:
 | Name | Values |
 |---|---|
 | `--target`, `--taskId` | One required, unrestricted value each. |
-| `--tests` | One or more required values from `https`, `hsts`, `serv-h-a`, `csp`, `cookie-sec`, `js-obf`, `xframe`, `permissions-policy`, `x-content-type-options`, `referrer-policy`, `ssl-cert`, `cross-origin-x`, `sitemap`, `robots-txt`, `dir-listing`, `phishing-url`, `bot-protection`, `dns-reputation`, `urlhaus`, `favicon-origin`, `cache-control`. |
+| `--tests` | One or more required values from `https`, `hsts`, `serv-h-a`, `csp`, `cookie-sec`, `js-obf`, `xframe`, `permissions-policy`, `x-content-type-options`, `referrer-policy`, `ssl-cert`, `cross-origin-x`, `sitemap`, `robots-txt`, `dir-listing`, `sensitive-files`, `phishing-url`, `bot-protection`, `dns-reputation`, `urlhaus`, `favicon-origin`, `cache-control`. |
 | `--userAgent` | Optional value when the flag is present; omitting the value uses `Scanner/1.0`. |
 | `--antiBotDetection`, `--all` | Flags with zero arguments. |
 

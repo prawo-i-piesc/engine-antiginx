@@ -20,6 +20,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests/ReferrerPolicyTest"
 	"Engine-AntiGinx/App/SiteTests/RobotsTxtSecurityTest"
 	"Engine-AntiGinx/App/SiteTests/SSLCertificateSecurityTest"
+	"Engine-AntiGinx/App/SiteTests/SensitiveFilesTest"
 	"Engine-AntiGinx/App/SiteTests/ServerHeaderTest"
 	"Engine-AntiGinx/App/SiteTests/SitemapSecurityTest"
 	"Engine-AntiGinx/App/SiteTests/URLhausTest"
@@ -48,6 +49,7 @@ func init() {
 	registerTest(SitemapSecurityTest.New())
 	registerTest(RobotsTxtSecurityTest.New())
 	registerTest(DirectoryListingTest.New())
+	registerTest(SensitiveFilesTest.New())
 	registerTest(PhishingURLTest.New())
 	registerTest(BotProtectionTest.New())
 	registerTest(DNSReputationTest.New())

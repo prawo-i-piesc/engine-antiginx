@@ -17,13 +17,15 @@ go run ./App/main.go test --target example.com --tests sitemap
 - Whether a sitemap exists and is reachable at all.
 - Every URL it declares.
 - Paths matching known-dangerous fragments — administrative interfaces, backups, configuration, development and staging areas, and internal APIs.
+- Paths matching a known sensitive file from the shared [`SensitivePaths`](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SensitivePaths/paths.go) list — the same files the [sensitive-files test](../SensitiveFilesTest/README.md) requests directly from the server.
 - The category of each exposure, so a finding says what kind of thing was exposed.
 
 ## How it works
 
 1. Request `/sitemap.xml` from the target, over its own connection.
 2. Parse the XML and collect every `<loc>` it declares.
-3. Match each URL's path against the fragment table in `data.go`, recording which category
+3. Match each URL's path against the fragment table in `data.go`, extended at startup with
+   the shared `SensitivePaths` list, recording which category
    each match falls into.
 4. Grade on the count of dangerous paths, not on their categories — one exposed admin panel
    is a finding, thirty exposed paths is a site with no idea what it is publishing.

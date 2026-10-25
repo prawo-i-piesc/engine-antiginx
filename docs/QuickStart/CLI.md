@@ -77,6 +77,7 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 | `sitemap` | Structure | Dangerous paths exposed through sitemap.xml | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SitemapSecurityTest/README.md) |
 | `robots-txt` | Structure | Sensitive paths revealed or exposed through robots.txt | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/RobotsTxtSecurityTest/README.md) |
 | `dir-listing` | Structure | Server-generated directory listings in the web root, common and sensitive directories | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/DirectoryListingTest/README.md) |
+| `sensitive-files` | Structure | Known sensitive files (secrets, backups, repositories, dumps) requested directly from the server | [docs](https://github.com/prawo-i-piesc/engine-antiginx/blob/main/App/SiteTests/SensitiveFilesTest/README.md) |
 
 
 <br>
