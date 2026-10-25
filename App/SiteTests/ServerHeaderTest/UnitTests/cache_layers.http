@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+X-Varnish: 32770 3
+X-Cache: HIT
+X-Served-By: cache-waw1234-WAW
+Content-Type: text/html; charset=utf-8
+
+<html><body>Three cache headers disclose the delivery stack</body></html>

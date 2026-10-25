@@ -3,11 +3,13 @@ package CacheControlTest
 import "regexp"
 
 // sessionCookieNames mark a cookie as one that ties the response to a user session. They are
-// matched case-insensitively anywhere in the name, so "sess" covers PHPSESSID, Drupal's
-// SESS… cookies and every *_session name.
+// matched with SiteTests.MatchesNameFragment: fragments of five characters or more anywhere in
+// the name ("session" covers every *_session name, "ssess" Drupal's SSESS… cookies), shorter
+// ones only as a word of their own — "sid" and "auth" match connect.sid and auth_token, not
+// sidebar_state or author_pref, so .ASPXAUTH is listed separately.
 var sessionCookieNames = []string{
-	"session", "sessid", "sess", "phpsessid", "jsessionid", "aspsessionid", "sid", "cfid", "cftoken",
-	"cakephp", "symfony", ".aspnetcore.cookies", "auth", "token", "jwt", "bearer", "saml",
+	"session", "sessid", "sess", "ssess", "phpsessid", "jsessionid", "aspsessionid", "sid", "cfid", "cftoken",
+	"cakephp", "symfony", ".aspnetcore.cookies", "auth", "aspxauth", "token", "jwt", "bearer", "saml",
 	"remember", "logged_in", "identity", "credential",
 }
 

@@ -32,7 +32,9 @@ go run ./App/main.go test --target example.com --tests dir-listing
    Tomcat, Jetty, Python `http.server`, Node `serve` and `http-server`, Express
    `serve-index`, LiteSpeed, Ruby WEBrick, Caddy, Go `http.FileServer`, Deno `file_server`
    and h5ai. Servers that copy Apache's layout are recognised by their footer before the
-   Apache signatures can claim them.
+   Apache signatures can claim them. An IIS listing without a parent link (the web root) is
+   recognised by its `<dir>` entries followed by their links, so a page that only quotes
+   `dir` output in a `<pre>` block is not mistaken for one.
 4. For each listing, extract the entries it links to — leaving out the parent directory,
    Apache's column-sorting links and anything outside the listed directory — and keep up
    to 10 of them as evidence.
@@ -45,8 +47,10 @@ go run ./App/main.go test --target example.com --tests dir-listing
 | **Medium** | Listings only in ordinary directories |
 | **High** | A listing of the web root or of a sensitive directory |
 
-Three or more listings raise the level by one, capped at Critical: a single open
-directory can be an oversight, several mean listing is enabled server-wide.
+Each listing is rated on its own, so the number of listed directories never raises the
+level; it is reported in the description and the metadata.
+
+Calibrated to OWASP ZAP Directory Browsing (Medium); see the [SiteTests overview](../README.md) for the severity scale.
 
 | Certainty | When |
 |---|---|
@@ -68,7 +72,7 @@ directory can be an oversight, several mean listing is enabled server-wide.
 
 | File | Holds |
 |---|---|
-| `config.go` | Identity constants, probe timeout, size and concurrency limits, the escalation count and certainty levels. |
+| `config.go` | Identity constants, probe timeout, size and concurrency limits and certainty levels. |
 | `core.go` | `New()`, building the probe list from the datasets and the target's path, and the assembled verdict. |
 | `data.go` | The common and sensitive directories, and the listing signatures of each server. |
 | `modules/listing.go` | Probing, signature detection, entry extraction, grading and the description. |

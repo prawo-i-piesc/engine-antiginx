@@ -42,15 +42,21 @@ The severity of a readable file follows its category:
 
 | Category | Severity |
 |---|---|
-| Credentials, Version Control | Critical |
-| Secrets & Configuration, Database Dump, Backup | High |
+| Credentials, Version Control, Secrets & Configuration, Database Dump, Backup | High |
 | Server Information, Log File | Medium |
 | Development Artifact | Low |
 
-The result is the most severe readable file found, raised one level (capped at Critical)
-when three or more files are readable — a single stray file is a mistake, several mean the
-document root is full of them. A file that only *exists* behind access control is a Low note
-and does not drive the verdict. Nothing readable, nothing found → **None**.
+The result is the most severe readable file found. Each file is rated on its own, so the
+number of readable files never raises the level; it is reported in the description and the
+metadata. A file that only *exists* behind access control is a Low note and does not drive
+the verdict. Nothing readable, nothing found → **None**.
+
+Calibrated to OWASP ZAP Source Code Disclosure - Git (High) and the CVSS 3.1 band of
+confidential-data exposure (C:H, about 7.5). OWASP ZAP rates a leaked `.env` (40034) and
+`.htaccess` (40032) Medium; this test rates readable secrets and configuration High, because
+the file is served whole and such files typically hold working credentials — the
+confidentiality impact CVSS rates High. See the [SiteTests overview](../README.md) for the
+severity scale.
 
 | Certainty | When |
 |---|---|
@@ -72,7 +78,7 @@ and does not drive the verdict. Nothing readable, nothing found → **None**.
 
 | File | Holds |
 |---|---|
-| `config.go` | Identity constants, probe timeout, size and concurrency limits, the soft-404 window, escalation count and certainty levels. |
+| `config.go` | Identity constants, probe timeout, size and concurrency limits, the soft-404 window and certainty levels. |
 | `core.go` | `New()`, converting the shared list into candidates and wiring the severity map and limits into the sweep. |
 | `data.go` | The category-to-severity map — this test's judgement, kept out of the shared list. |
 | `modules/prober.go` | Baselining, the concurrent sweep, classification, grading and the description. |

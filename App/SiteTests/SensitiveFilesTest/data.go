@@ -7,12 +7,13 @@ import (
 
 // categorySeverity maps each shared category to the severity this test reports when a file
 // in it is openly readable. Severity is this test's judgement and lives here, not in the
-// shared list: a readable credential or repository is as bad as exposure gets, a dumped
-// database or backup archive nearly so, server-information endpoints and logs are serious,
-// and a dependency manifest or editor file is minor on its own.
+// shared list. Readable credentials, repositories, secrets, dumps and backups disclose
+// confidential data (CVSS 3.1 C:H, about 7.5; ZAP rates "Source Code Disclosure - Git" High),
+// server-information endpoints and logs disclose internals (Medium), and a dependency
+// manifest or editor file is minor on its own (Low). Critical is left to CVEs rated Critical.
 var categorySeverity = map[string]SiteTests.ThreatLevel{
-	SensitivePaths.CategoryCredentials:    SiteTests.Critical,
-	SensitivePaths.CategoryVersionControl: SiteTests.Critical,
+	SensitivePaths.CategoryCredentials:    SiteTests.High,
+	SensitivePaths.CategoryVersionControl: SiteTests.High,
 	SensitivePaths.CategorySecrets:        SiteTests.High,
 	SensitivePaths.CategoryDatabaseDump:   SiteTests.High,
 	SensitivePaths.CategoryBackup:         SiteTests.High,

@@ -36,8 +36,10 @@ description, and there is no second fact worth carrying.
 | Level | When |
 |---|---|
 | **None** | The response arrived over `https` |
-| **Info** | The address the response was served from is unavailable, so there is no scheme to judge |
-| **High** | The response arrived over `http`, so everything on the page travelled in the clear |
+| **Info** | The response carries no request URL, so the scheme cannot be verified |
+| **Medium** | The response arrived over `http`, so everything on the page travelled in the clear |
+
+Calibrated to OWASP ZAP alert 10106 (HTTP only site, Medium) and CWE-319 cleartext transmission (typically CVSS 3.1 5.9, Medium); see the SiteTests overview for the severity scale.
 
 ## Files
 

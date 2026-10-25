@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Server: nginx
+Content-Type: text/html; charset=utf-8
+
+<html><body>The banner names nginx but not its release</body></html>

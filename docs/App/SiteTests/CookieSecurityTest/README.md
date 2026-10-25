@@ -36,7 +36,9 @@ and loses points per missing protection, weighted by what the cookie is: the sam
 `HttpOnly` costs a session cookie far more than a preference cookie. The site's overall
 score is the aggregate, and the threat level is derived from it together with the two
 booleans that no score should be able to average away — an unprotected session cookie and a
-fixation risk.
+fixation risk. A predictable value is a fixation risk only on a cookie whose name marks it as
+a session identifier or a credential: a preference cookie such as `theme=dark` is meant to be
+guessable.
 
 ## What it reports
 
@@ -54,14 +56,20 @@ fixation risk.
 
 ## How the verdict is reached
 
+The level is that of the most serious single cookie; several findings do not add up to a
+higher one. A cookie whose name marks it as a session identifier or a credential is held to
+the stricter standard, because its value is the account.
+
 | Level | When |
 |---|---|
 | **None** | Every cookie carries `HttpOnly`, `Secure`, `SameSite` and a reasonable lifetime |
-| **Info** | Minor issues such as long lifetimes, with the critical flags in place |
-| **Low** | Some cookies miss non-critical attributes |
-| **Medium** | Cookies miss `HttpOnly` or `Secure` |
-| **High** | Several issues at once, or session cookies left unprotected |
-| **Critical** | Session cookies entirely unsecured, or a clear fixation risk |
+| **Info** | Only a lifetime longer than a year, with the flags in place — or no cookie at all |
+| **Low** | An ordinary cookie misses `HttpOnly`, `Secure` or `SameSite`; or a session cookie misses only `SameSite` (CSRF, CWE-352 — browsers default to `Lax`) |
+| **Medium** | A session cookie misses `HttpOnly` (CWE-1004) or `Secure` (CWE-614) |
+| **High** | A session cookie's value looks guessable (session fixation, CWE-330/CWE-384). This is a heuristic, which is why it is not the Critical a confirmed predictable session identifier would be |
+
+Calibrated to OWASP ZAP alerts 10010, 10011 and 10054 (Low) for ordinary cookies and to the
+CWE classes named above for session cookies; see the SiteTests overview for the severity scale.
 
 ## Files
 
@@ -69,7 +77,7 @@ fixation risk.
 |---|---|
 | `config.go` | What tunes it: identity constants, thresholds and confidence levels. |
 | `core.go` | The test itself: `New()`, the orchestration and the assembled verdict. |
-| `data.go` | The name fragments that mark a cookie as sensitive or as a session identifier. Matching is by substring, so `sessid` also covers `PHPSESSID`. |
+| `data.go` | The name fragments that mark a cookie as sensitive or as a session identifier, matched with `SiteTests.MatchesNameFragment`: `sessid` covers `PHPSESSID`, while the short `sid` and `auth` count only as a word of their own, so `sidebar_state` and `author_pref` are not sessions. |
 | `modules/cookieanalysis.go` | Reads what each cookie declares and collects the issues. |
 | `modules/scoring.go` | Turns those issues into a per-cookie and site-wide score. |
 

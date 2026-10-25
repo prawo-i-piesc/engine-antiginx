@@ -22,20 +22,20 @@ func TestReferrerPolicyGrading(t *testing.T) {
 		want     SiteTests.ThreatLevel
 		contains string
 	}{
-		{"", SiteTests.Medium, "Missing Referrer-Policy header"},
+		{"", SiteTests.Info, "Missing Referrer-Policy header"},
 		{"no-referrer", SiteTests.None, "excellent privacy protection"},
 		{"strict-origin", SiteTests.None, "strong privacy protection"},
 		{"strict-origin-when-cross-origin", SiteTests.None, "W3C recommended"},
 		{"origin", SiteTests.Info, "basic privacy protection"},
 		{"origin-when-cross-origin", SiteTests.Info, "good balance"},
-		{"same-origin", SiteTests.Low, "limited privacy protection"},
-		{"no-referrer-when-downgrade", SiteTests.Medium, "weak privacy protection"},
-		{"unsafe-url", SiteTests.High, "WARNING: Contains 'unsafe-url'"},
-		{"bogus", SiteTests.High, "Invalid Referrer-Policy values detected: bogus."},
-		{"bogus, Weird", SiteTests.High, "Invalid Referrer-Policy values detected: bogus, Weird."},
-		{"no-referrer, unsafe-url", SiteTests.High, "'unsafe-url' (no-referrer, unsafe-url)"},
+		{"same-origin", SiteTests.None, "strong privacy protection"},
+		{"no-referrer-when-downgrade", SiteTests.Low, "weak privacy protection"},
+		{"unsafe-url", SiteTests.Low, "WARNING: Contains 'unsafe-url'"},
+		{"bogus", SiteTests.Info, "Invalid Referrer-Policy values detected: bogus."},
+		{"bogus, Weird", SiteTests.Info, "Invalid Referrer-Policy values detected: bogus, Weird."},
+		{"no-referrer, unsafe-url", SiteTests.Low, "'unsafe-url' (no-referrer, unsafe-url)"},
 		{"origin, same-origin, strict-origin", SiteTests.None, "Consider simplifying"},
-		{",", SiteTests.Medium, "No valid Referrer-Policy found"},
+		{",", SiteTests.Info, "No valid Referrer-Policy found"},
 	}
 	for _, c := range cases {
 		result := run(c.value)

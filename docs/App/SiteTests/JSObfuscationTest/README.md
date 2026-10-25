@@ -14,17 +14,22 @@ go run ./App/main.go test --target example.com --tests js-obf
 
 ## What it checks
 
-- Script bodies extracted from the page's `<script>` elements.
+- Script bodies extracted from the page's `<script>` elements, or the whole response when it is
+  served as JavaScript (`Content-Type` naming `javascript` or `ecmascript`).
 - String-to-code entry points: `eval`, `Function`, and string arguments to `setTimeout`/`setInterval`.
 - Decoders — `atob`, `unescape`, `String.fromCharCode` — and especially a decoder feeding straight into `eval`.
 - Hex and Unicode escape sequences used in place of readable characters.
 - Long base64 literals, concatenated string fragments and bracket-notation access to execution entry points.
 - Decoders applied to other decoders, which is layering rather than encoding.
 - Keywords that speak to intent rather than technique — `shell`, `payload`, `exploit`, `backdoor`.
+- Malicious indicators — code that runs decoded content: `eval` of a decoder, decoders applied
+  to decoders, nested `eval`, `document.write` of decoded markup, a string handed to
+  `setTimeout`/`setInterval`, self-decrypting loops, and intent keywords in obfuscated code.
 
 ## How it works
 
-1. Extract the body of every `<script>` element from the page.
+1. Extract the body of every `<script>` element from the page. A response served as JavaScript
+   is taken as one script as a whole.
 2. Run each detector in `modules/detectors.go` over the concatenated script source. Every
    detector reports both *whether* its technique appears and *how much*, because volume is
    what separates a bundler from a kit — one `\x41` escape is nothing, four hundred is a
@@ -32,14 +37,14 @@ go run ./App/main.go test --target example.com --tests js-obf
 3. Score in `modules/scoring.go`: each technique contributes weighted by its count, and
    combinations score above the sum of their parts. A decoder alone is ordinary; a decoder
    feeding `eval` is not.
-4. Map the score to an obfuscation level, then to a threat level, raised when malicious
-   indicators are present.
+4. Map the score to an obfuscation level. The threat level comes from the malicious
+   indicators; without any, obfuscation of any degree is at most Low.
 
 ## What it reports
 
 | Field | Meaning |
 |---|---|
-| `hasObfuscation` | Whether anything was detected at all |
+| `hasObfuscation` | Whether the score reaches the obfuscation threshold (20), the same point where the level becomes `light` and the grade Low |
 | `obfuscationScore` | 0–100 |
 | `obfuscationLevel` | `none`, `light`, `moderate`, `heavy` or `extreme` |
 | `obfuscationPatterns` | Techniques found |
@@ -54,11 +59,14 @@ go run ./App/main.go test --target example.com --tests js-obf
 | Level | When |
 |---|---|
 | **None** | Clean, readable JavaScript |
-| **Info** | Minification or ordinary build output |
-| **Low** | Some patterns present but likely legitimate, such as a webpack bundle |
-| **Medium** | Several suspicious patterns together |
-| **High** | Heavy obfuscation with clear intent to conceal |
-| **Critical** | Extreme obfuscation alongside malicious indicators |
+| **Info** | Minification or ordinary build output (score 10–19, below the threshold, so `hasObfuscation` is false) |
+| **Low** | Obfuscated — score from 20 (`ObfuscationThreshold` in `modules/scoring.go`), whatever the degree — but no malicious indicator |
+| **Medium** | One malicious indicator |
+| **High** | Two or more independent malicious indicators |
+
+Nothing is Critical: that level is reserved for CVEs rated Critical by CVSS.
+
+Grades evidence that the page itself is malicious, not a weakness of the site: obfuscation on its own is not a vulnerability; see the SiteTests overview for the severity scale.
 
 ## Files
 
@@ -72,7 +80,7 @@ go run ./App/main.go test --target example.com --tests js-obf
 
 ## Notes
 
-Legitimate bundlers produce code that trips several of these detectors, which is why the lower bands exist and why a single detection never reaches a high threat level on its own.
+Legitimate bundlers produce code that trips several of these detectors, which is why obfuscation without a malicious indicator never rises above Low.
 
 ---
 

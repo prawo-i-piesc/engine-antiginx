@@ -23,8 +23,6 @@ var testFetcher = Fetcher{
 	MaxBodyBytes: 1024 * 1024,
 }
 
-var testGrader = Grader{Thresholds: SiteTests.CountThresholds{LowMax: 2, MediumMax: 5, HighMax: 10}}
-
 func TestMatchUsesPathAndMostSpecificPattern(t *testing.T) {
 	analysis := testFetcher.match([]string{
 		"https://example.com/api-docs/index.html",
@@ -77,14 +75,18 @@ func TestAnalyzeFetchesSitemap(t *testing.T) {
 	}
 }
 
-func TestEvaluateThreatThresholds(t *testing.T) {
-	cases := map[int]SiteTests.ThreatLevel{0: SiteTests.None, 2: SiteTests.Low, 3: SiteTests.Medium, 10: SiteTests.High, 11: SiteTests.Critical}
-	for count, want := range cases {
-		if got := testGrader.EvaluateThreat(SitemapAnalysis{SitemapAccessible: true, TotalDangerous: count}); got != want {
-			t.Errorf("%d dangerous paths graded %v, want %v", count, got, want)
+// A sitemap that declares dangerous paths is Low however many it declares: the count is
+// reported, not graded.
+func TestEvaluateThreatIgnoresCount(t *testing.T) {
+	for _, count := range []int{1, 3, 11} {
+		if got := EvaluateThreat(SitemapAnalysis{SitemapAccessible: true, TotalDangerous: count}); got != SiteTests.Low {
+			t.Errorf("%d dangerous paths graded %v, want Low", count, got)
 		}
 	}
-	if got := testGrader.EvaluateThreat(SitemapAnalysis{TotalDangerous: 20}); got != SiteTests.None {
+	if got := EvaluateThreat(SitemapAnalysis{SitemapAccessible: true}); got != SiteTests.None {
+		t.Errorf("clean sitemap graded %v, want None", got)
+	}
+	if got := EvaluateThreat(SitemapAnalysis{TotalDangerous: 20}); got != SiteTests.None {
 		t.Errorf("inaccessible sitemap graded %v, want None", got)
 	}
 }

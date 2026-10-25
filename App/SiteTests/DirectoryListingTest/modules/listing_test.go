@@ -134,7 +134,6 @@ func TestScanFindsListings(t *testing.T) {
 }
 
 func TestEvaluateThreat(t *testing.T) {
-	grader := Grader{EscalationCount: 3}
 	cases := []struct {
 		name     string
 		analysis ListingAnalysis
@@ -144,11 +143,11 @@ func TestEvaluateThreat(t *testing.T) {
 		{"one ordinary directory", ListingAnalysis{TotalListings: 1}, SiteTests.Medium},
 		{"sensitive directory", ListingAnalysis{TotalListings: 1, SensitiveCount: 1}, SiteTests.High},
 		{"web root", ListingAnalysis{TotalListings: 1, RootListingOpen: true}, SiteTests.High},
-		{"widespread ordinary", ListingAnalysis{TotalListings: 3}, SiteTests.High},
-		{"widespread with sensitive", ListingAnalysis{TotalListings: 4, SensitiveCount: 1}, SiteTests.Critical},
+		{"widespread ordinary", ListingAnalysis{TotalListings: 3}, SiteTests.Medium},
+		{"widespread with sensitive", ListingAnalysis{TotalListings: 4, SensitiveCount: 1}, SiteTests.High},
 	}
 	for _, c := range cases {
-		if got := grader.EvaluateThreat(c.analysis); got != c.want {
+		if got := EvaluateThreat(c.analysis); got != c.want {
 			t.Errorf("%s: graded %v, want %v", c.name, got, c.want)
 		}
 	}

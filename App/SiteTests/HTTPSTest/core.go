@@ -12,15 +12,15 @@ func New() *SiteTests.ResponseTest {
 		Description: TestDescription,
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
-			// The scheme is read from the request that produced the final response, after
-			// redirects; without it there is nothing to judge
-			if params.Response.Request == nil || params.Response.Request.URL == nil {
+			// Without the request the response answered there is no address to read the scheme
+			// from; say so rather than guess
+			if params.Response == nil || params.Response.Request == nil || params.Response.Request.URL == nil {
 				return SiteTests.TestResult{
 					Name:        TestName,
 					Certainty:   detectionCertainty,
 					ThreatLevel: SiteTests.Info,
 					Metadata:    nil,
-					Description: unknownSchemeDescription,
+					Description: unknownAddressDescription,
 				}
 			}
 
@@ -37,7 +37,7 @@ func New() *SiteTests.ResponseTest {
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   detectionCertainty,
-				ThreatLevel: SiteTests.High,
+				ThreatLevel: SiteTests.Medium,
 				Metadata:    nil,
 				Description: insecureConnectionDescription,
 			}

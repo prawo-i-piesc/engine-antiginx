@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://shop.example.com/products/
+
+<!doctype html>
+<html><head><title>Shop</title>
+<link rel="icon" type="image/png" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+</head><body></body></html>

@@ -1,0 +1,13 @@
+{
+  "query_status": "ok",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/host/phishing-host.test/",
+  "host": "phishing-host.test",
+  "firstseen": "2026-09-30 11:02:45 UTC",
+  "url_count": "25",
+  "blacklists": {"spamhaus_dbl": "phishing_domain", "surbl": "listed"},
+  "urls": [
+    {"id": "3100001", "urlhaus_reference": "https://urlhaus.abuse.ch/url/3100001/", "url": "http://phishing-host.test/a.exe", "url_status": "offline", "date_added": "2026-09-30 11:02:45 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": null, "tags": ["exe"]},
+    {"id": "3100002", "urlhaus_reference": "https://urlhaus.abuse.ch/url/3100002/", "url": "http://phishing-host.test/b.exe", "url_status": "online", "date_added": "2026-10-01 09:12:10 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": null, "tags": ["exe", "agenttesla"]},
+    {"id": "3100003", "urlhaus_reference": "https://urlhaus.abuse.ch/url/3100003/", "url": "http://phishing-host.test/c.zip", "url_status": "offline", "date_added": "2026-10-02 14:55:31 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": null, "tags": ["zip"]}
+  ]
+}

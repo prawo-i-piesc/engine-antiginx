@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: s-maxage=300
+
+<!doctype html>
+<html><head><title>Sign in</title></head><body>
+<form method="post" action="/login">
+  <input name="user" type="text">
+  <input name=pass TYPE=Password autocomplete="current-password">
+  <button>Sign in</button>
+</form>
+</body></html>

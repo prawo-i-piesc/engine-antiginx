@@ -12,18 +12,12 @@ const (
 
 // Retrieval limits.
 const (
-	// FetchTimeout bounds the whole sitemap.xml request, redirects included.
+	// FetchTimeout bounds the whole sitemap request, redirects included.
 	FetchTimeout = 30 * time.Second
-	// MaxBodyBytes is how much of the sitemap is read; the protocol caps a sitemap at 50 MiB,
-	// but the paths worth reporting show up long before that.
+	// MaxBodyBytes is how much of the sitemap is read. The sitemap protocol caps a file at
+	// 50 MiB uncompressed, but the URLs that matter sit in the first few, and a bound keeps a
+	// hostile target from streaming an endless body.
 	MaxBodyBytes = 10 * 1024 * 1024
-)
-
-// Thresholds on the number of dangerous paths, each the highest count graded at that level.
-const (
-	LowMaxPaths    = 2
-	MediumMaxPaths = 5
-	HighMaxPaths   = 10
 )
 
 // Certainty reported with every result. Matching is by path fragment, so a hit is very

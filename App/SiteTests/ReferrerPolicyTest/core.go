@@ -11,7 +11,7 @@ import (
 var check = SiteTests.HeaderTest[ReferrerPolicyAnalysis]{
 	Name:               TestName,
 	Header:             "Referrer-Policy",
-	MissingLevel:       SiteTests.Medium,
+	MissingLevel:       SiteTests.Info,
 	MissingDescription: missingDescription,
 	Certainty:          Certainty,
 	Analyze:            analyzeReferrerPolicyHeader,
@@ -88,22 +88,16 @@ func analyzeReferrerPolicyHeader(referrerPolicyHeader string) ReferrerPolicyAnal
 func evaluateReferrerPolicyThreatLevel(metadata ReferrerPolicyAnalysis) SiteTests.ThreatLevel {
 	effectivePolicy := metadata.EffectivePolicy
 	hasUnsafe := metadata.HasUnsafe
-	policyCount := metadata.PolicyCount
-	invalidPolicies := metadata.InvalidPolicies
 
-	// If only invalid policies, it's highly vulnerable
-	if policyCount == 0 && len(invalidPolicies) > 0 {
-		return SiteTests.High
-	}
-
-	// If no valid policies at all, treat as missing (should not happen here)
+	// Only unrecognised values: the browser ignores them and applies its default
+	// (strict-origin-when-cross-origin in current browsers), exactly as for a missing header
 	if effectivePolicy == "" {
-		return SiteTests.Medium
+		return SiteTests.Info
 	}
 
 	// Check for unsafe configurations
 	if hasUnsafe && effectivePolicy == "unsafe-url" {
-		return SiteTests.High
+		return SiteTests.Low
 	}
 
 	// Excellent policies - recommended and secure
@@ -114,6 +108,8 @@ func evaluateReferrerPolicyThreatLevel(metadata ReferrerPolicyAnalysis) SiteTest
 		return SiteTests.None // Strong privacy with origin info
 	case "strict-origin-when-cross-origin":
 		return SiteTests.None // W3C recommended balance
+	case "same-origin":
+		return SiteTests.None // Nothing at all sent to other origins
 	}
 
 	// Good policies - reasonable privacy protection
@@ -124,14 +120,9 @@ func evaluateReferrerPolicyThreatLevel(metadata ReferrerPolicyAnalysis) SiteTest
 		return SiteTests.Info // Good balance for most use cases
 	}
 
-	// Acceptable policies - limited protection
-	if effectivePolicy == "same-origin" {
-		return SiteTests.Low
-	}
-
 	// Weak policies or configurations
 	if effectivePolicy == "no-referrer-when-downgrade" {
-		return SiteTests.Medium
+		return SiteTests.Low
 	}
 
 	// Note: Multiple Referrer-Policy directives are allowed for browser fallback and
@@ -139,7 +130,7 @@ func evaluateReferrerPolicyThreatLevel(metadata ReferrerPolicyAnalysis) SiteTest
 	// evaluated effective policy and other concrete risk indicators above.
 
 	// Fallback for unhandled cases
-	return SiteTests.Medium
+	return SiteTests.Low
 }
 
 // generateReferrerPolicyDescription creates a human-readable description of the Referrer-
@@ -162,7 +153,7 @@ func generateReferrerPolicyDescription(metadata ReferrerPolicyAnalysis) string {
 
 	// Handle no valid policies
 	if effectivePolicy == "" {
-		description.WriteString("No valid Referrer-Policy found. Browser will use default behavior (typically no-referrer-when-downgrade) which may leak referrer information.")
+		description.WriteString("No valid Referrer-Policy found. Browser will use its default policy (strict-origin-when-cross-origin in current browsers; older browsers fall back to no-referrer-when-downgrade, which sends the full URL to other sites).")
 		return description.String()
 	}
 
@@ -198,13 +189,13 @@ func generateReferrerPolicyDescription(metadata ReferrerPolicyAnalysis) string {
 		description.WriteString("good balance between privacy and functionality. Full URL is sent for same-origin requests, but only origin for cross-origin requests, though still vulnerable to protocol downgrade attacks.")
 
 	case "same-origin":
-		description.WriteString("limited privacy protection. Full referrer URL is sent only for same-origin requests, providing some privacy for cross-origin requests but no protection against information leakage within the same origin.")
+		description.WriteString("strong privacy protection. The full referrer URL is sent only with same-origin requests; requests to other origins carry no referrer at all, so nothing leaks to third parties.")
 
 	case "no-referrer-when-downgrade":
-		description.WriteString("weak privacy protection (browser default). Full referrer URL is sent except when downgrading from HTTPS to HTTP, which still allows significant information leakage in most scenarios.")
+		description.WriteString("weak privacy protection (the default of older browsers). Full referrer URL is sent except when downgrading from HTTPS to HTTP, which still allows significant information leakage in most scenarios.")
 
 	case "unsafe-url":
-		description.WriteString("vulnerable configuration. Full referrer URL is always sent to all destinations including insecure HTTP sites, creating significant privacy and security risks. This policy should be avoided.")
+		description.WriteString("unsafe configuration. The full referrer URL, including path and query string, is sent to every destination including insecure HTTP sites. This policy should be avoided.")
 
 	default:
 		description.WriteString("unrecognized policy configuration.")
@@ -212,7 +203,7 @@ func generateReferrerPolicyDescription(metadata ReferrerPolicyAnalysis) string {
 
 	// Add warnings for specific issues
 	if hasUnsafe {
-		description.WriteString(" WARNING: Contains 'unsafe-url' policy which poses significant privacy and security risks.")
+		description.WriteString(" WARNING: Contains 'unsafe-url' policy, which sends full URLs to every destination.")
 	}
 
 	if policyCount > 2 {

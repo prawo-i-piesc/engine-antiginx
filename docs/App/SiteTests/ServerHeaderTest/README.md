@@ -26,12 +26,19 @@ go run ./App/main.go test --target example.com --tests serv-h-a
    (`modules/technologydetection.go`) to name the technology, and extract the version from
    whichever format the vendor used — `nginx/1.18.0`, `PHP-7.4.3`, `Apache v2.4.41` and
    bare `IIS 10.0` all parse.
-3. For every technology-and-version pair, query the NIST NVD API for known CVEs and collect
-   the severity distribution and the highest CVSS score.
-4. Grade the disclosure by how much was revealed, then raise it by what the CVE assessment
-   says (`modules/cveseverity.go`). A version disclosed with no known vulnerabilities is a
-   minor finding; the same disclosure with a high-severity CVE against it is a direct route
-   in.
+3. For every disclosed release of a technology with a verified CPE product, ask NVD for the
+   CVEs it records as affecting that release ([`App/CVE`](../../CVE/README.md)): a lookup by
+   CPE, so version ranges decide, not a keyword search. A technology disclosed without a
+   release number, or without a CPE product, gets no CVEs — the CVEs filed against nginx
+   over the years say nothing about the nginx a site runs — and costs no NVD request.
+4. Grade the response by the worse of two things (`modules/cveseverity.go`):
+   - **Disclosure** (information exposure, CWE-200): Info for one or two exposing headers,
+     Low from three, Medium from five; a disclosed release number is at least Low, since it
+     is what an attacker looks up.
+   - **Known vulnerabilities**: the CVSS rating of the most severe CVE affecting a disclosed
+     release, band for band — CVSS Critical is Critical, High is High, and so on. A CVE NVD
+     has not scored yet is Info. The number of CVEs does not raise the level: CVSS rates
+     each vulnerability on its own and defines no way to add several up.
 
 ## What it reports
 
@@ -42,19 +49,26 @@ go run ./App/main.go test --target example.com --tests serv-h-a
 | `technologies` | Every technology named |
 | `technology_stack` | Technology to disclosed version |
 | `total_exposures` | How many headers disclosed |
+| `vulnerabilities[]` | Per looked-up release: `technology`, `version`, `cpe`, `cve_count`, `total_results`, `unscored`, `max_severity` and `max_score` of the most severe CVE, `risk_level`, the `most_severe` CVEs (up to 5, each with `severity`, `score`, `cvss_version`, `scored_by`), and `lookup_error` when NVD could not be asked |
+| `unattributed` | Technologies disclosed without a release number or CPE product, to which no CVE is attributed |
 
-CVE findings are carried in the description rather than the metadata.
+The description names, per release, how many CVEs NVD records, the rating and score of the
+most severe and their IDs.
 
 ## How the verdict is reached
 
 | Level | When |
 |---|---|
 | **None** | Nothing about the stack is disclosed |
-| **Info** | Minimal disclosure, no known vulnerabilities |
-| **Low** | A few headers disclose, with only low-severity CVEs |
-| **Medium** | Several disclosures, or CVEs of moderate severity |
-| **High** | A widely-attacked server is named, or several medium CVEs apply |
-| **Critical** | A high-severity CVE applies to a disclosed version, or debug output is exposed |
+| **Info** | One or two headers disclose a technology but no release, or the only CVEs against a disclosed release are unscored |
+| **Low** | Three or more exposing headers, a disclosed release number, or a CVE rated CVSS Low |
+| **Medium** | Five or more exposing headers, or a CVE rated CVSS Medium |
+| **High** | A CVE rated CVSS High affects a disclosed release |
+| **Critical** | A CVE rated CVSS Critical affects a disclosed release |
+
+Naming a server without its release (`Server: nginx`) is not graded higher for the server's
+reputation, and an unreachable NVD leaves the disclosure grade standing while the
+description says the CVEs could not be checked.
 
 ## Files
 

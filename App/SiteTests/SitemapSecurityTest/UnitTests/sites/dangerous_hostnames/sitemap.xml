@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hostnames that contain dangerous fragments; only the paths are matched -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://dev.shop.example/</loc></url>
+  <url><loc>https://api.shop.example/products</loc></url>
+  <url><loc>https://admin.shop.example/about</loc></url>
+  <url><loc>https://staging.shop.example/contact</loc></url>
+</urlset>

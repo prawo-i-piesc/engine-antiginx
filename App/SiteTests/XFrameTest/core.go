@@ -39,7 +39,8 @@ type FrameAnalysis struct {
 	XFrameOptions     string `json:"x_frame_options"`     // Its value, trimmed and uppercased
 	XFrameValid       bool   `json:"x_frame_valid"`       // Whether that value is DENY, SAMEORIGIN or ALLOW-FROM
 	HasFrameAncestors bool   `json:"has_frame_ancestors"` // Whether the CSP names frame-ancestors
-	FrameAncestors    string `json:"frame_ancestors"`     // The frame-ancestors sources as written
+	FrameAncestors    string `json:"frame_ancestors"`     // The frame-ancestors sources as written, 'none' for an empty list
+	AllowFromIgnored  bool   `json:"allow_from_ignored"`  // ALLOW-FROM is the only protection, and browsers ignore it
 	ProtectionLevel   string `json:"protection_level"`    // excellent, good, limited, weak or vulnerable
 	Embedding         string `json:"embedding"`           // blocked, same-origin, limited or allowed
 }
@@ -59,24 +60,33 @@ func analyzeFrameProtection(xframeHeader, cspHeader string) FrameAnalysis {
 		}
 	}
 
-	if strings.Contains(strings.ToLower(cspHeader), "frame-ancestors") {
-		analysis.HasFrameAncestors = true
-		analysis.FrameAncestors = extractFrameAncestorsValue(cspHeader)
+	// A directive present with no sources is an empty source list, which matches no ancestor
+	// at all and so blocks framing like 'none'
+	if cspHeader != "" {
+		analysis.FrameAncestors, analysis.HasFrameAncestors = SiteTests.DirectiveValue(cspHeader, "frame-ancestors")
+		if analysis.HasFrameAncestors && strings.TrimSpace(analysis.FrameAncestors) == "" {
+			analysis.FrameAncestors = "'none'"
+		}
 	}
+
+	// ALLOW-FROM is the only protection when frame-ancestors does not take over, and current
+	// browsers ignore it
+	analysis.AllowFromIgnored = !analysis.HasFrameAncestors && isAllowFrom(analysis.XFrameOptions)
 
 	analysis.ProtectionLevel = determineProtectionLevel(analysis.XFrameOptions, analysis.FrameAncestors, analysis.XFrameValid)
 	analysis.Embedding = assessEmbeddingCapability(analysis.XFrameOptions, analysis.FrameAncestors, analysis.XFrameValid)
 	return analysis
 }
 
-// protectionThreat grades each protection level; anything unrecognised is graded as
-// vulnerable.
+// protectionThreat grades each protection level. A page anyone can frame is open to
+// clickjacking, which OWASP ZAP rates Medium (alert 10020); anything unrecognised is graded
+// the same.
 var protectionThreat = map[string]SiteTests.ThreatLevel{
 	"excellent":  SiteTests.None,
 	"good":       SiteTests.Info,
 	"limited":    SiteTests.Low,
-	"weak":       SiteTests.Medium,
-	"vulnerable": SiteTests.High,
+	"weak":       SiteTests.Low,
+	"vulnerable": SiteTests.Medium,
 }
 
 // evaluateFrameThreatLevel grades the analysis by its protection level.
@@ -84,14 +94,7 @@ func evaluateFrameThreatLevel(analysis FrameAnalysis) SiteTests.ThreatLevel {
 	if level, known := protectionThreat[analysis.ProtectionLevel]; known {
 		return level
 	}
-	return SiteTests.High
-}
-
-// extractFrameAncestorsValue parses the Content-Security-Policy header to extract the frame-
-// ancestors directive value.
-func extractFrameAncestorsValue(cspHeader string) string {
-	value, _ := SiteTests.DirectiveValue(cspHeader, "frame-ancestors")
-	return value
+	return SiteTests.Medium
 }
 
 // determineProtectionLevel assesses the overall frame protection strength based on configured
@@ -105,9 +108,10 @@ func determineProtectionLevel(xframeDirective, cspFrameValue string, xframeValid
 			return "excellent"
 		case cspLower == "'self'":
 			return "good"
-		case hasOnlyBroadSources(cspLower):
-			// Values like "https:" or "http:" alone allow all sources with that scheme - weak protection
-			return "weak"
+		case hasBroadSource(cspLower):
+			// "*", "https:" or "http:" admit every site (with that scheme) as an ancestor, so
+			// whatever else is listed, any such site can frame the page
+			return "vulnerable"
 		case strings.Contains(cspLower, "'self'") || hasSpecificDomains(cspLower):
 			// 'self' with specific domains, or specific domains only - limited protection
 			return "limited"
@@ -116,17 +120,14 @@ func determineProtectionLevel(xframeDirective, cspFrameValue string, xframeValid
 		}
 	}
 
-	// Fall back to X-Frame-Options analysis
+	// Fall back to X-Frame-Options analysis. ALLOW-FROM is ignored by current browsers, so
+	// it protects nothing.
 	if xframeValid {
 		switch strings.ToUpper(xframeDirective) {
 		case "DENY":
 			return "excellent"
 		case "SAMEORIGIN":
 			return "good"
-		default:
-			if strings.HasPrefix(strings.ToUpper(xframeDirective), "ALLOW-FROM ") {
-				return "limited"
-			}
 		}
 	}
 
@@ -144,25 +145,20 @@ func assessEmbeddingCapability(xframeDirective, cspFrameValue string, xframeVali
 			return "blocked"
 		case cspLower == "'self'":
 			return "same-origin"
-		case hasOnlyBroadSources(cspLower):
-			// *, https: and http: let any site of that scheme frame the page
+		case hasBroadSource(cspLower):
 			return "allowed"
 		default:
 			return "limited"
 		}
 	}
 
-	// Fall back to X-Frame-Options
+	// Fall back to X-Frame-Options; ALLOW-FROM is ignored, so it leaves framing allowed
 	if xframeValid {
 		switch strings.ToUpper(xframeDirective) {
 		case "DENY":
 			return "blocked"
 		case "SAMEORIGIN":
 			return "same-origin"
-		default:
-			if strings.HasPrefix(strings.ToUpper(xframeDirective), "ALLOW-FROM ") {
-				return "limited"
-			}
 		}
 	}
 
@@ -175,6 +171,7 @@ func generateDescription(analysis FrameAnalysis) string {
 	hasXFrame := analysis.HasXFrameOptions
 	hasCSP := analysis.HasFrameAncestors
 	canBeEmbedded := analysis.Embedding
+	allowFromIgnored := analysis.AllowFromIgnored
 
 	var description strings.Builder
 
@@ -201,6 +198,8 @@ func generateDescription(analysis FrameAnalysis) string {
 		description.WriteString("Both X-Frame-Options and CSP frame-ancestors headers are present")
 	} else if hasCSP {
 		description.WriteString("Content-Security-Policy frame-ancestors directive is configured")
+	} else if allowFromIgnored {
+		description.WriteString("X-Frame-Options uses ALLOW-FROM, which current browsers ignore")
 	} else if hasXFrame {
 		description.WriteString("X-Frame-Options header is present")
 	} else {
@@ -236,20 +235,20 @@ var cspKeywords = map[string]bool{
 	"'none'": true,
 }
 
-// hasOnlyBroadSources checks if the CSP frame-ancestors value contains only broad scheme
-// sources (https:, http:, *) without specific domains.
-func hasOnlyBroadSources(cspLower string) bool {
-	parts := strings.Fields(cspLower)
-	if len(parts) == 0 {
-		return false
-	}
-
-	for _, part := range parts {
-		if !cspBroadSources[part] {
-			return false
+// hasBroadSource checks if the CSP frame-ancestors value contains a broad source (https:,
+// http:, *) that admits every site rather than a specific one.
+func hasBroadSource(cspLower string) bool {
+	for _, part := range strings.Fields(cspLower) {
+		if cspBroadSources[part] {
+			return true
 		}
 	}
-	return true
+	return false
+}
+
+// isAllowFrom reports whether an X-Frame-Options value uses the obsolete ALLOW-FROM form.
+func isAllowFrom(xframeDirective string) bool {
+	return strings.HasPrefix(strings.ToUpper(xframeDirective), "ALLOW-FROM ")
 }
 
 // hasSpecificDomains checks if the CSP frame-ancestors value contains specific domain

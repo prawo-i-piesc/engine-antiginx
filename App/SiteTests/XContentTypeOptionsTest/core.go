@@ -4,13 +4,14 @@ package XContentTypeOptionsTest
 
 import (
 	"Engine-AntiGinx/App/SiteTests"
+	"strings"
 )
 
 // check wires this test's analysis stages into the shared single-header test shape.
 var check = SiteTests.HeaderTest[XContentTypeOptionsAnalysis]{
 	Name:               TestName,
 	Header:             "X-Content-Type-Options",
-	MissingLevel:       SiteTests.High,
+	MissingLevel:       SiteTests.Low,
 	MissingDescription: missingDescription,
 	Certainty:          Certainty,
 	Analyze:            analyzeXContentTypeOptionsHeader,
@@ -35,13 +36,15 @@ func New() *SiteTests.ResponseTest {
 // replaced was serialized in, so reports keep the same shape.
 type XContentTypeOptionsAnalysis struct {
 	IsNosniff   bool   `json:"is_nosniff"`   // Whether the value is exactly nosniff
-	ParsedValue string `json:"parsed_value"` // The value trimmed and lowercased
+	ParsedValue string `json:"parsed_value"` // The first value, trimmed and lowercased
 	RawHeader   string `json:"raw_header"`   // The value as sent
 }
 
-// analyzeXContentTypeOptionsHeader parses the X-Content-Type-Options header value
+// analyzeXContentTypeOptionsHeader parses the X-Content-Type-Options header value. Browsers
+// split the header on commas and act on the first value only (Fetch, "determine nosniff"),
+// so a value repeated by a proxy or a second header line still counts.
 func analyzeXContentTypeOptionsHeader(xContentTypeHeader string) XContentTypeOptionsAnalysis {
-	headerValue := SiteTests.NormalizeHeaderValue(xContentTypeHeader)
+	headerValue := SiteTests.NormalizeHeaderValue(strings.Split(xContentTypeHeader, ",")[0])
 
 	return XContentTypeOptionsAnalysis{
 		IsNosniff:   headerValue == "nosniff",
@@ -56,7 +59,7 @@ func evaluateXContentTypeOptionsThreatLevel(metadata XContentTypeOptionsAnalysis
 		return SiteTests.None // Perfect configuration
 	}
 
-	return SiteTests.Medium // Invalid value
+	return SiteTests.Low // Invalid value, ignored like a missing header
 }
 
 // generateXContentTypeOptionsDescription creates a human-readable description

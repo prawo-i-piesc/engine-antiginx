@@ -8,6 +8,13 @@ const (
 	TestCategory    = "Headers"
 )
 
+// A policy naming fewer than minimalPolicyDirectives directives is graded as minimal, and one
+// naming at least comprehensivePolicyDirectives, with nothing left open, as comprehensive.
+const (
+	minimalPolicyDirectives       = 3
+	comprehensivePolicyDirectives = 5
+)
+
 // missingDescription explains the verdict when the response carries no Permissions-Policy header.
 const missingDescription = "Missing Permissions-Policy header - all browser features available to page and embedded content without restrictions"
 

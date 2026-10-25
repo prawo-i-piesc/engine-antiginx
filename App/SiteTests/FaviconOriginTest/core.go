@@ -68,7 +68,7 @@ func New() *SiteTests.ResponseTest {
 			page := response.Request.URL
 			analysis := FaviconOriginAnalysis{
 				PageURL:            page.String(),
-				PageDomain:         SiteTests.RegistrableDomain(page.Hostname()),
+				PageDomain:         SiteTests.SiteDomain(page.Hostname()),
 				Icons:              []IconReference{},
 				ImpersonatedBrands: []string{},
 			}
@@ -126,7 +126,12 @@ func buildFaviconDescription(analysis FaviconOriginAnalysis) string {
 	}
 
 	hostsByOrigin := map[string][]string{}
+	unresolvable := []string{}
 	for _, icon := range analysis.Icons {
+		if icon.Origin == modules.OriginUnresolvable {
+			unresolvable = append(unresolvable, fmt.Sprintf("%q", shortenHref(icon.Href)))
+			continue
+		}
 		label := icon.Host
 		if icon.Provider != "" && icon.Origin != modules.OriginBrand {
 			label += " (" + icon.Provider + ")"
@@ -156,8 +161,31 @@ func buildFaviconDescription(analysis FaviconOriginAnalysis) string {
 			strings.Join(hosts, ", ")))
 	}
 
-	if len(sentences) == 0 {
-		return fmt.Sprintf("All %d declared icon(s) are loaded from the page's own site or embedded in the page.", len(analysis.Icons))
+	resolved := len(analysis.Icons) - len(unresolvable)
+	if len(sentences) == 0 && resolved > 0 {
+		if len(unresolvable) == 0 {
+			sentences = append(sentences, fmt.Sprintf("All %d declared icon(s) are loaded from the page's own site or embedded in the page.", resolved))
+		} else {
+			sentences = append(sentences, fmt.Sprintf("%d declared icon(s) are loaded from the page's own site or embedded in the page.", resolved))
+		}
+	}
+	if len(unresolvable) > 0 {
+		sentences = append(sentences, fmt.Sprintf(
+			"%d icon declaration(s) (%s) do not resolve to an http or https address, so no browser loads them as an icon.",
+			len(unresolvable), strings.Join(SiteTests.UniqueStrings(unresolvable), ", ")))
 	}
 	return strings.Join(sentences, " ")
+}
+
+// maxDescribedHref caps how much of an unresolvable href is quoted in the description, since
+// it is page-controlled text of any length.
+const maxDescribedHref = 60
+
+// shortenHref truncates an href for the description.
+func shortenHref(href string) string {
+	runes := []rune(href)
+	if len(runes) <= maxDescribedHref {
+		return href
+	}
+	return string(runes[:maxDescribedHref]) + "..."
 }

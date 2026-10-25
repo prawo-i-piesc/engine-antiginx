@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Permissions-Policy: camera 'none'; microphone 'none'
+
+<html><body>Feature-Policy syntax sent in a Permissions-Policy header</body></html>

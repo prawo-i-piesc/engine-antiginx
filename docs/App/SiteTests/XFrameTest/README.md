@@ -26,9 +26,12 @@ go run ./App/main.go test --target example.com --tests xframe
 3. `frame-ancestors` wins where the two disagree, because that is what modern browsers do:
    when the directive is present they ignore `X-Frame-Options` entirely.
 
-`ALLOW-FROM` is graded low rather than as protection because no current browser implements
-it — a site relying on it is unprotected while believing it has restricted framing to one
-partner.
+`ALLOW-FROM` is graded as no protection because no current browser implements it — a site
+relying on it is unprotected while believing it has restricted framing to one partner. The
+report says so. Broad sources (`*`, `https:`, `http:`) in `frame-ancestors` admit every site
+whatever else is listed beside them, so they are graded as no protection too. A
+`frame-ancestors` directive with no sources is an empty list and blocks framing like
+`'none'`.
 
 ## What it reports
 
@@ -46,9 +49,10 @@ partner.
 |---|---|
 | **None** | `frame-ancestors 'none'` or `X-Frame-Options: DENY` |
 | **Info** | `frame-ancestors 'self'` or `SAMEORIGIN` |
-| **Low** | `frame-ancestors` naming specific domains, or `ALLOW-FROM` — deprecated and honoured by almost no browser |
-| **Medium** | `frame-ancestors` with only broad sources (`*`, `https:`, `http:`), which any site of that scheme satisfies |
-| **High** | Neither protection present, or the values are invalid |
+| **Low** | `frame-ancestors` limited to specific domains |
+| **Medium** | Neither protection present, invalid values, only `ALLOW-FROM`, or `frame-ancestors` with a broad source (`*`, `https:`, `http:`) |
+
+Calibrated to OWASP ZAP alert 10020 (Anti-clickjacking header, Medium); see the SiteTests overview for the severity scale.
 
 ## Files
 

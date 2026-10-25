@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!doctype html>
+<html><head><title>Shop</title>
+<script>
+var _0x9a1f=[0x10,0x21,0x32,0x43,0x54,0x65,0x76,0x87,0x98,0xa9,0xba];
+var _0x2b7c="\x48\x65\x6c\x6c\x6f\x20\x76\x69\x73\x69\x74\x6f\x72";
+var _0x5e1d="\u0057\u0065\u006c\u0063\u006f\u006d\u0065\u0020\u0062\u0061\u0063\u006b";
+var _0x7f30=String.fromCharCode(84, 104, 97, 110, 107, 115, 32, 102, 111, 114, 32, 115, 116, 111, 112, 112, 105, 110, 103, 32, 98, 121, 44, 32, 101, 110, 106, 111, 121, 32, 116, 104, 101, 32, 115, 104, 111, 112);
+var _0x11aa="QWxwaGFCcmF2b0NoYXJsaWVEZWx0YUVjaG9Gb3h0cm90R29sZg==";
+var _0x22bb="SG90ZWxJbmRpYUp1bGlldEtpbG9MaW1hTWlrZU5vdmVtYmVy";
+console.log(_0x2b7c, _0x5e1d, _0x7f30, _0x9a1f.length, _0x11aa.length + _0x22bb.length);
+</script>
+</head><body></body></html>

@@ -156,7 +156,7 @@ var directTechnologyHeaders = map[string]modules.DirectHeader{
 	"x-sourcefiles":                   {Technology: "IIS Express"},
 	"x-powered-by-plesk":              {Technology: "Plesk"},
 	"x-application-context":           {Technology: "Spring Boot"},
-	"x-runtime":                       {Technology: "Dynamic Runtime", ValueIsVersion: true},
+	"x-runtime":                       {Technology: "Dynamic Runtime"}, // its value is the request's duration, not a version
 	"x-drupal-cache":                  {Technology: "Drupal"},
 	"x-drupal-dynamic-cache":          {Technology: "Drupal"},
 	"x-pingback":                      {Technology: "WordPress"},

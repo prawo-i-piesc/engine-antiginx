@@ -1,0 +1,3 @@
+# Fixture certificates and keys, generated for these tests only; the repository-wide
+# rule against committing *.pem does not apply to them.
+!*.pem

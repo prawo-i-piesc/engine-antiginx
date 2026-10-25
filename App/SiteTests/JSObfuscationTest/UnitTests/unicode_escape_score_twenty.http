@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!doctype html>
+<html><head><title>Promo</title>
+<script>
+  var label = "\u0057\u0065\u006c\u0063\u006f\u006d\u0065\u0020\u0062\u0061\u0063\u006b";
+  var token = "QWxwaGFCcmF2b0NoYXJsaWVEZWx0YUVjaG9Gb3h0cm90R29sZg==";
+  console.log(label, token.length);
+</script>
+</head><body></body></html>

@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://example.com/
+
+<!doctype html>
+<html><head><title>Portal</title>
+<link rel="icon" href="http://203.0.113.7/favicon.ico">
+</head><body></body></html>

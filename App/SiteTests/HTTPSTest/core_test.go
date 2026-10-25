@@ -25,7 +25,7 @@ func run(t *testing.T, address string) SiteTests.TestResult {
 func TestHTTPSGrading(t *testing.T) {
 	cases := map[string]SiteTests.ThreatLevel{
 		"https://example.com/": SiteTests.None,
-		"http://example.com/":  SiteTests.High,
+		"http://example.com/":  SiteTests.Medium,
 		"":                     SiteTests.Info,
 	}
 	for address, want := range cases {

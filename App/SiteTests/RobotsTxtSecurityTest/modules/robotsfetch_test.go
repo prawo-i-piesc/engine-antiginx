@@ -23,8 +23,6 @@ var testFetcher = Fetcher{
 	MaxBodyBytes: 1024 * 1024,
 }
 
-var testGrader = Grader{Thresholds: SiteTests.CountThresholds{LowMax: 2, MediumMax: 5, HighMax: 10}}
-
 func TestParseRobotsReadsOnlyAllowAndDisallow(t *testing.T) {
 	rules := parseRobots(`
 # comment line
@@ -72,31 +70,38 @@ func TestAllowCarveOutIsNotExposure(t *testing.T) {
 	if analysis.TotalDangerous != 2 || analysis.TotalExposed != 0 {
 		t.Fatalf("got %d dangerous / %d exposed, want 2 / 0", analysis.TotalDangerous, analysis.TotalExposed)
 	}
-	if got := testGrader.EvaluateThreat(analysis); got != SiteTests.Low {
-		t.Errorf("WordPress default robots.txt graded %v, want Low", got)
+	if got := EvaluateThreat(analysis); got != SiteTests.Info {
+		t.Errorf("WordPress default robots.txt graded %v, want Info", got)
 	}
 }
 
-func TestAllowOfSensitivePathEscalates(t *testing.T) {
+func TestAllowOfSensitivePathIsLow(t *testing.T) {
 	analysis := testFetcher.match(parseRobots("Disallow: /\nAllow: /admin/"), RobotsAnalysis{RobotsAccessible: true})
 	if analysis.TotalExposed != 1 {
 		t.Fatalf("got %d exposed, want 1", analysis.TotalExposed)
 	}
-	if got := testGrader.EvaluateThreat(analysis); got != SiteTests.Medium {
-		t.Errorf("exposed admin graded %v, want Medium", got)
+	if got := EvaluateThreat(analysis); got != SiteTests.Low {
+		t.Errorf("exposed admin graded %v, want Low", got)
 	}
 }
 
-func TestEvaluateThreatThresholds(t *testing.T) {
-	cases := map[int]SiteTests.ThreatLevel{0: SiteTests.None, 1: SiteTests.Low, 2: SiteTests.Low, 3: SiteTests.Medium, 6: SiteTests.High, 11: SiteTests.Critical}
-	for count, want := range cases {
-		analysis := RobotsAnalysis{RobotsAccessible: true, TotalDangerous: count}
-		if got := testGrader.EvaluateThreat(analysis); got != want {
-			t.Errorf("%d dangerous rules graded %v, want %v", count, got, want)
-		}
+// The level follows the kind of finding, never how many rules there are.
+func TestEvaluateThreatIgnoresCount(t *testing.T) {
+	cases := []struct {
+		analysis RobotsAnalysis
+		want     SiteTests.ThreatLevel
+	}{
+		{RobotsAnalysis{RobotsAccessible: true}, SiteTests.None},
+		{RobotsAnalysis{RobotsAccessible: true, TotalDangerous: 1}, SiteTests.Info},
+		{RobotsAnalysis{RobotsAccessible: true, TotalDangerous: 50}, SiteTests.Info},
+		{RobotsAnalysis{RobotsAccessible: true, TotalDangerous: 1, TotalExposed: 1}, SiteTests.Low},
+		{RobotsAnalysis{RobotsAccessible: true, TotalDangerous: 50, TotalExposed: 20}, SiteTests.Low},
+		{RobotsAnalysis{TotalDangerous: 20, TotalExposed: 5}, SiteTests.None},
 	}
-	if got := testGrader.EvaluateThreat(RobotsAnalysis{TotalDangerous: 20}); got != SiteTests.None {
-		t.Errorf("inaccessible robots.txt graded %v, want None", got)
+	for _, c := range cases {
+		if got := EvaluateThreat(c.analysis); got != c.want {
+			t.Errorf("%+v graded %v, want %v", c.analysis, got, c.want)
+		}
 	}
 }
 
@@ -126,7 +131,7 @@ func TestAnalyzeMissingRobotsTxt(t *testing.T) {
 	if analysis.RobotsAccessible {
 		t.Fatal("404 robots.txt reported as accessible")
 	}
-	if got := testGrader.EvaluateThreat(analysis); got != SiteTests.None {
+	if got := EvaluateThreat(analysis); got != SiteTests.None {
 		t.Errorf("missing robots.txt graded %v, want None", got)
 	}
 }

@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Strict-Transport-Security: max-age=300
+
+<html><body>HSTS set for five minutes only</body></html>

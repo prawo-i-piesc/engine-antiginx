@@ -12,7 +12,7 @@ import (
 var check = SiteTests.HeaderTest[HSTSAnalysis]{
 	Name:               TestName,
 	Header:             "Strict-Transport-Security",
-	MissingLevel:       SiteTests.Medium,
+	MissingLevel:       SiteTests.Low,
 	MissingDescription: missingDescription,
 	Certainty:          Certainty,
 	Analyze:            analyzeHSTSHeader,
@@ -107,16 +107,12 @@ func evaluateHSTSThreatLevel(metadata HSTSAnalysis) SiteTests.ThreatLevel {
 
 	// Acceptable configuration
 	if maxAge >= sixMonths {
-		return SiteTests.Low
+		return SiteTests.Info
 	}
 
-	// Weak configuration
-	if maxAge > 0 {
-		return SiteTests.Medium
-	}
-
-	// Invalid or missing max-age
-	return SiteTests.High
+	// Weak, invalid or missing max-age: the header gives little or no protection, a missing
+	// defence-in-depth layer (ZAP 10035)
+	return SiteTests.Low
 }
 
 // generateHSTSDescription creates a human-readable description of the HSTS configuration

@@ -24,12 +24,12 @@ func TestCSPGrading(t *testing.T) {
 		want     SiteTests.ThreatLevel
 		contains string
 	}{
-		{"", SiteTests.Critical, "Missing Content-Security-Policy header"},
+		{"", SiteTests.Medium, "Missing Content-Security-Policy header"},
 		{"default-src 'none'; script-src 'self' 'nonce-abc'; object-src 'none'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'", SiteTests.None, "excellent protection level"},
-		{"default-src 'self'", SiteTests.Medium, "weak protection level"},
-		{"default-src *", SiteTests.High, "default-src wildcard undermines security policy"},
-		{"script-src 'unsafe-eval'", SiteTests.High, "unsafe-eval permits eval()"},
-		{"script-src 'unsafe-inline' *; object-src 'none'", SiteTests.High, "script-src unsafe-inline allows any inline scripts"},
+		{"default-src 'self'", SiteTests.Low, "weak protection level"},
+		{"default-src *", SiteTests.Medium, "default-src wildcard undermines security policy"},
+		{"script-src 'unsafe-eval'", SiteTests.Medium, "unsafe-eval permits eval()"},
+		{"script-src 'unsafe-inline' *; object-src 'none'", SiteTests.Medium, "script-src unsafe-inline allows any inline scripts"},
 	}
 	for _, c := range cases {
 		result := run(c.value)

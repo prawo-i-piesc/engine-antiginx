@@ -15,7 +15,7 @@ import (
 var check = SiteTests.HeaderTest[CSPAnalysis]{
 	Name:               TestName,
 	Header:             "Content-Security-Policy",
-	MissingLevel:       SiteTests.Critical,
+	MissingLevel:       SiteTests.Medium,
 	MissingDescription: missingDescription,
 	Certainty:          Certainty,
 	Analyze:            analyzeCSPHeader,
@@ -70,13 +70,31 @@ func analyzeCSPHeader(cspHeader string) CSPAnalysis {
 	calculatePolicyStrength(&analysis)
 	determineCSPProtectionLevel(&analysis)
 
+	sort.Strings(analysis.SecurityIssues)
+	sort.Strings(analysis.UnsafeDirectives)
+	sort.Strings(analysis.CriticalVulns)
+	sort.Strings(analysis.MissingDirectives)
+	sort.Strings(analysis.RecommendedActions)
+
 	return analysis
 }
 
 // analyzeDirectiveSecurity checks each directive for security issues
 func analyzeDirectiveSecurity(analysis *CSPAnalysis) {
+	names := make([]string, 0, len(analysis.Directives))
+	for directiveName := range analysis.Directives {
+		names = append(names, directiveName)
+	}
+	sort.Strings(names)
 
-	for directiveName, values := range analysis.Directives {
+	for _, directiveName := range names {
+		values := analysis.Directives[directiveName]
+		// The critical directives a policy leaves out take their sources from default-src, so
+		// an unsafe value there weakens each of them as if it had been written there.
+		governs := []string{directiveName}
+		if directiveName == "default-src" {
+			governs = inheritingDirectives(analysis.Directives)
+		}
 		// Check for unsafe values
 		for _, value := range values {
 			valueLower := strings.ToLower(value)
@@ -88,15 +106,17 @@ func analyzeDirectiveSecurity(analysis *CSPAnalysis) {
 					case "'unsafe-inline'":
 						analysis.SecurityIssues = append(analysis.SecurityIssues, fmt.Sprintf("%s allows unsafe-inline, negating XSS protection", directiveName))
 						if directiveName == "script-src" {
-							analysis.CriticalVulns = append(analysis.CriticalVulns, "script-src unsafe-inline allows any inline scripts")
+							addCriticalVuln(analysis, "script-src unsafe-inline allows any inline scripts")
+						} else if helpers.StringInSlice(governs, "script-src") {
+							addCriticalVuln(analysis, "script-src inherits unsafe-inline from default-src, allowing any inline scripts")
 						}
 					case "'unsafe-eval'":
 						analysis.SecurityIssues = append(analysis.SecurityIssues, fmt.Sprintf("%s allows unsafe-eval, enabling code injection", directiveName))
-						analysis.CriticalVulns = append(analysis.CriticalVulns, "unsafe-eval permits eval() and Function() constructors")
+						addCriticalVuln(analysis, "unsafe-eval permits eval() and Function() constructors")
 					case "*":
 						analysis.SecurityIssues = append(analysis.SecurityIssues, fmt.Sprintf("%s allows wildcard (*), permitting any source", directiveName))
 						if helpers.StringInSlice(criticalDirectives, directiveName) {
-							analysis.CriticalVulns = append(analysis.CriticalVulns, fmt.Sprintf("%s wildcard undermines security policy", directiveName))
+							addCriticalVuln(analysis, fmt.Sprintf("%s wildcard undermines security policy", directiveName))
 						}
 					}
 				}
@@ -105,6 +125,25 @@ func analyzeDirectiveSecurity(analysis *CSPAnalysis) {
 
 		// Evaluate directive compliance
 		evaluateDirectiveCompliance(analysis, directiveName, values)
+	}
+}
+
+// inheritingDirectives returns default-src followed by the critical fetch directives the
+// policy leaves out, which browsers resolve from default-src instead.
+func inheritingDirectives(directives map[string][]string) []string {
+	governs := []string{"default-src"}
+	for _, directive := range defaultSrcFallbacks {
+		if _, exists := directives[directive]; !exists {
+			governs = append(governs, directive)
+		}
+	}
+	return governs
+}
+
+// addCriticalVuln records a critical vulnerability once, however many directives show it.
+func addCriticalVuln(analysis *CSPAnalysis, vuln string) {
+	if !helpers.StringInSlice(analysis.CriticalVulns, vuln) {
+		analysis.CriticalVulns = append(analysis.CriticalVulns, vuln)
 	}
 }
 
@@ -207,8 +246,17 @@ func calculatePolicyStrength(analysis *CSPAnalysis) {
 	analysis.PolicyStrength = score
 }
 
-// determineCSPProtectionLevel sets overall protection assessment
+// determineCSPProtectionLevel sets overall protection assessment. A critical vulnerability
+// lets injected script run whatever else the policy restricts, so the policy is rated unsafe,
+// whatever its coverage, and its strength is capped below the weak band.
 func determineCSPProtectionLevel(analysis *CSPAnalysis) {
+	if len(analysis.CriticalVulns) > 0 {
+		if analysis.PolicyStrength > criticalStrengthCap {
+			analysis.PolicyStrength = criticalStrengthCap
+		}
+		analysis.ProtectionLevel = "unsafe"
+		return
+	}
 	if analysis.PolicyStrength >= 80 {
 		analysis.ProtectionLevel = "excellent"
 	} else if analysis.PolicyStrength >= 60 {
@@ -224,24 +272,17 @@ func determineCSPProtectionLevel(analysis *CSPAnalysis) {
 
 // evaluateCSPThreatLevel determines the threat level based on CSP analysis
 func evaluateCSPThreatLevel(analysis CSPAnalysis) SiteTests.ThreatLevel {
-	// Critical vulnerabilities present
-	if len(analysis.CriticalVulns) > 0 {
-		return SiteTests.High
-	}
-
+	// A policy that lets injected script run is the same exposure as no policy (ZAP 10055)
 	switch analysis.ProtectionLevel {
+	case "unsafe":
+		return SiteTests.Medium
 	case "excellent":
 		return SiteTests.None
 	case "good":
 		return SiteTests.Info
-	case "acceptable":
-		return SiteTests.Low
-	case "weak":
-		return SiteTests.Medium
-	case "poor":
-		return SiteTests.High
 	default:
-		return SiteTests.High
+		// acceptable, weak and poor: the policy is in place but protects little
+		return SiteTests.Low
 	}
 }
 
@@ -250,12 +291,17 @@ func generateCSPDescription(analysis CSPAnalysis) string {
 	var description strings.Builder
 
 	// Overall assessment
-	_, _ = fmt.Fprintf(&description, "Content Security Policy detected with %s protection level (strength: %d/100). ",
-		analysis.ProtectionLevel, analysis.PolicyStrength)
+	if analysis.ProtectionLevel == "unsafe" {
+		_, _ = fmt.Fprintf(&description, "Content Security Policy detected but unsafe (strength: %d/100) - it does not stop injected script from running. ",
+			analysis.PolicyStrength)
+	} else {
+		_, _ = fmt.Fprintf(&description, "Content Security Policy detected with %s protection level (strength: %d/100). ",
+			analysis.ProtectionLevel, analysis.PolicyStrength)
+	}
 
-	// Critical vulnerabilities
+	// Vulnerabilities that defeat the policy
 	if len(analysis.CriticalVulns) > 0 {
-		description.WriteString("CRITICAL ISSUES: ")
+		description.WriteString("Unsafe sources: ")
 		description.WriteString(strings.Join(analysis.CriticalVulns, "; "))
 		description.WriteString(". ")
 	}

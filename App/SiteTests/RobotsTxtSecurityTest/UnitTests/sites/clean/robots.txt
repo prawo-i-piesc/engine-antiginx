@@ -1,0 +1,11 @@
+# Crawl rules for the example shop
+User-agent: *
+Disallow: /search
+Disallow: /cart
+Disallow: /checkout
+# Fragments that only look like sensitive ones
+Disallow: /testimonials
+Disallow: /contest/
+Disallow:
+
+Sitemap: https://shop.example/sitemap.xml

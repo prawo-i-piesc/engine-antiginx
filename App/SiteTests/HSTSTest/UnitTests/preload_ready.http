@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+<html><body>HSTS ready for the browser preload list</body></html>

@@ -29,6 +29,10 @@ The two dimensions run independently, one per file in `modules/`.
 - homograph detection: characters are normalised through the confusable map and re-compared,
   so a Cyrillic `а` in `pаypal.com` is caught even though the two strings differ in every byte
 
+Brands are compared in alphabetical order and the first lookalike match wins, so a hostname
+that resembles domains of two brands (`mea.com` is one edit from both `me.com` and `ea.com`)
+is always attributed to the same brand, here `apple`.
+
 **Parameters** (`urlparameters.go`) walks the query string, the userinfo and the path,
 matching parameter names against four databases and their values against the dangerous
 scheme list. Base64-looking values are decoded and re-examined, which is what catches a
@@ -52,6 +56,8 @@ Two nested objects plus the fields needed for a quick verdict:
 Parameter **names** appear; parameter **values** never do.
 
 ## How the verdict is reached
+
+Grades the evidence that the target is malicious, not a weakness of the site, so independent indicators may raise the level together; see the SiteTests overview for the severity scale.
 
 - Each dimension is judged on its own and the higher classification wins, so a finding in either is never diluted by a clean result in the other.
 - When **both** dimensions reach Medium, the result is escalated by one level: a lookalike hostname that also harvests data describes a complete phishing page rather than an isolated anomaly.

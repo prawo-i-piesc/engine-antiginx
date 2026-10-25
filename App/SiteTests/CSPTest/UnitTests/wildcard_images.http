@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Security-Policy: default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self'; img-src *; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+<html><body>Good policy that loads images from any host</body></html>

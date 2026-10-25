@@ -8,6 +8,10 @@ const (
 	TestCategory    = "Headers"
 )
 
+// criticalStrengthCap is the highest strength a policy with a critical vulnerability can
+// score, below the weak band.
+const criticalStrengthCap = 19
+
 // missingDescription explains the verdict when the response carries no Content-Security-Policy header.
 const missingDescription = "Missing Content-Security-Policy header - site vulnerable to XSS attacks, data injection, and other script-based vulnerabilities. Implement CSP to restrict resource loading and script execution."
 

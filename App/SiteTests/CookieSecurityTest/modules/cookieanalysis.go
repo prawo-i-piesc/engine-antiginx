@@ -46,6 +46,7 @@ type CookieSecurityDetail struct {
 	SecurityIssues   []string `json:"securityIssues"`
 	SecurityScore    int      `json:"securityScore"` // 0-100
 	PredictableValue bool     `json:"predictableValue"`
+	CarriesAuthority bool     `json:"carriesAuthority"` // Named as a session identifier or credential
 }
 
 // Analyze performs comprehensive analysis of all cookies
@@ -79,9 +80,11 @@ func (a Analyzer) Analyze(cookies []*http.Cookie, headers http.Header) CookieSec
 		}
 		if detail.IsSessionCookie {
 			analysis.SessionCookies++
-			if !detail.HasHttpOnly || !detail.HasSecure {
-				analysis.InsecureSession = true
-			}
+		}
+		// Only a cookie named as a session or credential makes the session insecure; one
+		// that merely has no expiry may be a preference
+		if detail.CarriesAuthority && (!detail.HasHttpOnly || !detail.HasSecure) {
+			analysis.InsecureSession = true
 		}
 		if detail.PredictableValue {
 			analysis.FixationRisk = true
@@ -120,8 +123,10 @@ func (a Analyzer) analyzeSingleCookie(cookie *http.Cookie, setCookieHeaders []st
 		}
 	}
 
-	// Check for predictable values
-	detail.PredictableValue = isPredictableValue(cookie.Value)
+	// A predictable value only matters where the value is the authority: a preference cookie
+	// such as theme=dark is meant to be guessable
+	detail.CarriesAuthority = a.carriesAuthority(cookie.Name)
+	detail.PredictableValue = detail.CarriesAuthority && isPredictableValue(cookie.Value)
 
 	// Analyze security issues for this cookie
 	a.analyzeIndividualCookieSecurity(&detail, cookie, setCookieHeaders, index)
@@ -184,16 +189,9 @@ func (a Analyzer) analyzeIndividualCookieSecurity(detail *CookieSecurityDetail, 
 	}
 
 	// Check sensitive cookie names
-	sensitiveNames := a.SensitiveNames
-	nameLower := strings.ToLower(detail.Name)
-	for _, sensitive := range sensitiveNames {
-		if strings.Contains(nameLower, sensitive) {
-			if !detail.HasHttpOnly || !detail.HasSecure {
-				detail.SecurityIssues = append(detail.SecurityIssues,
-					fmt.Sprintf("Sensitive cookie '%s' lacks proper security flags", detail.Name))
-			}
-			break
-		}
+	if SiteTests.MatchesNameFragment(detail.Name, a.SensitiveNames) && (!detail.HasHttpOnly || !detail.HasSecure) {
+		detail.SecurityIssues = append(detail.SecurityIssues,
+			fmt.Sprintf("Sensitive cookie '%s' lacks proper security flags", detail.Name))
 	}
 }
 
@@ -205,7 +203,7 @@ func aggregateSecurityIssues(analysis *CookieSecurityAnalysis) {
 			fmt.Sprintf("%d cookie(s) missing HttpOnly flag", analysis.MissingHttpOnly))
 		if analysis.InsecureSession {
 			analysis.CriticalIssues = append(analysis.CriticalIssues,
-				"Session cookies without HttpOnly flag - high XSS risk")
+				"Session cookies without HttpOnly flag - readable by any injected script")
 		}
 	}
 
@@ -240,7 +238,7 @@ func aggregateSecurityIssues(analysis *CookieSecurityAnalysis) {
 	// Overall insecure session warning
 	if analysis.InsecureSession {
 		analysis.CriticalIssues = append(analysis.CriticalIssues,
-			"Session management cookies lack critical security attributes")
+			"Session cookies lack HttpOnly or Secure")
 	}
 }
 
@@ -263,13 +261,18 @@ func getSameSiteString(sameSite http.SameSite) string {
 // isSessionCookie determines if a cookie is likely a session cookie
 func (a Analyzer) isSessionCookie(cookie *http.Cookie) bool {
 	// Session cookies have no Max-Age and no Expires, or have common session names
-	nameLower := strings.ToLower(cookie.Name)
-	if SiteTests.ContainsAnyFold(nameLower, a.SessionNames) {
+	if SiteTests.MatchesNameFragment(cookie.Name, a.SessionNames) {
 		return true
 	}
 
 	// Also consider cookies with short expiration as session-like
 	return cookie.MaxAge == 0 && cookie.Expires.IsZero()
+}
+
+// carriesAuthority reports whether a cookie's name marks it as a session identifier or a
+// credential, whose value grants access.
+func (a Analyzer) carriesAuthority(name string) bool {
+	return SiteTests.MatchesNameFragment(name, a.SessionNames) || SiteTests.MatchesNameFragment(name, a.SensitiveNames)
 }
 
 // isPredictableValue checks if cookie value appears predictable

@@ -22,7 +22,8 @@ ANTIGINX_URLHAUS_AUTH_KEY=<key> go run ./App/main.go test --target example.com -
 
 ## How it works
 
-1. Strip credentials and the fragment from the target URL — they never leave the engine.
+1. Strip credentials and the fragment from the target URL — they never leave the engine —
+   and lowercase its scheme and host the way URLhaus stores them; the path keeps its case.
 2. `POST /v1/url/` with the URL, then `POST /v1/host/` with the hostname, both carrying the
    `Auth-Key` header.
 3. Treat `query_status` `ok` as listed and `no_results` as not listed. Any other status, a
@@ -32,6 +33,8 @@ ANTIGINX_URLHAUS_AUTH_KEY=<key> go run ./App/main.go test --target example.com -
    metadata.
 
 ## How the verdict is reached
+
+Grades the evidence that the target is malicious, not a weakness of the site, so independent indicators may raise the level together; see the SiteTests overview for the severity scale.
 
 | Level | When |
 |---|---|

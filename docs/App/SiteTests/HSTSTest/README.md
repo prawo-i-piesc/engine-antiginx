@@ -23,8 +23,8 @@ go run ./App/main.go test --target example.com --tests hsts
 
 1. Read `Strict-Transport-Security` from the response.
 2. Split it on `;` into directives and normalise each one.
-3. Parse `max-age`. A header whose `max-age` is absent or unparseable is treated as worse
-   than a missing header, because browsers discard it entirely while the site's operators
+3. Parse `max-age`. A header whose `max-age` is absent or unparseable is graded like a
+   missing header, because browsers discard it entirely while the site's operators
    believe it is in force.
 4. Note whether `includeSubDomains` and `preload` are present.
 5. Grade `max-age` against two thresholds — one year and six months — and raise the grade
@@ -47,10 +47,10 @@ require, so anything shorter cannot be preloaded even if the directive is presen
 | Level | When |
 |---|---|
 | **None** | `max-age` ≥ 1 year, `includeSubDomains` and `preload` |
-| **Info** | `max-age` ≥ 1 year with `includeSubDomains` |
-| **Low** | `max-age` ≥ 6 months |
-| **Medium** | `max-age` shorter than 6 months, or no header at all |
-| **High** | Header present but its `max-age` is missing or unparseable, which browsers ignore entirely |
+| **Info** | `max-age` ≥ 1 year with `includeSubDomains`, or `max-age` ≥ 6 months |
+| **Low** | No header, `max-age` missing or unparseable (browsers ignore the header), or `max-age` shorter than 6 months |
+
+Calibrated to OWASP ZAP alert 10035 (Strict-Transport-Security header, Low); see the SiteTests overview for the severity scale.
 
 ## Files
 

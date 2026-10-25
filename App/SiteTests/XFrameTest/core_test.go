@@ -26,11 +26,11 @@ func TestFrameGrading(t *testing.T) {
 		want        SiteTests.ThreatLevel
 		embedding   string
 	}{
-		{"", "", SiteTests.High, "allowed"},
+		{"", "", SiteTests.Medium, "allowed"},
 		{"DENY", "", SiteTests.None, "blocked"},
 		{"sameorigin", "", SiteTests.Info, "same-origin"},
-		{"ALLOW-FROM https://a.com", "", SiteTests.Low, "limited"},
-		{"bogus", "", SiteTests.High, "allowed"},
+		{"ALLOW-FROM https://a.com", "", SiteTests.Medium, "allowed"}, // ignored by current browsers,
+		{"bogus", "", SiteTests.Medium, "allowed"},
 		{"", "frame-ancestors 'none'", SiteTests.None, "blocked"},
 		{"", "frame-ancestors 'self'", SiteTests.Info, "same-origin"},
 		{"", "frame-ancestors 'self' https://a.com", SiteTests.Low, "limited"},
@@ -38,7 +38,7 @@ func TestFrameGrading(t *testing.T) {
 		{"", "frame-ancestors *", SiteTests.Medium, "allowed"},
 		// frame-ancestors overrides X-Frame-Options in every current browser
 		{"DENY", "frame-ancestors *", SiteTests.Medium, "allowed"},
-		{"", "default-src 'self'", SiteTests.High, "allowed"},
+		{"", "default-src 'self'", SiteTests.Medium, "allowed"},
 	}
 	for _, c := range cases {
 		result := run(c.xframe, c.csp)

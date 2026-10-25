@@ -1,0 +1,11 @@
+{
+  "query_status": "ok",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/host/cleaned-host.test/",
+  "host": "cleaned-host.test",
+  "firstseen": "2024-05-14 12:00:00 UTC",
+  "url_count": "1",
+  "blacklists": {"spamhaus_dbl": "not listed", "surbl": "not listed"},
+  "urls": [
+    {"id": "2800000", "urlhaus_reference": "https://urlhaus.abuse.ch/url/2800000/", "url": "http://cleaned-host.test/old.exe", "url_status": "offline", "date_added": "2024-05-14 12:00:00 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "true", "takedown_time_seconds": 3600, "tags": []}
+  ]
+}

@@ -12,7 +12,7 @@ import (
 var check = SiteTests.HeaderTest[PermissionsPolicyAnalysis]{
 	Name:               TestName,
 	Header:             "Permissions-Policy",
-	MissingLevel:       SiteTests.High,
+	MissingLevel:       SiteTests.Low,
 	MissingDescription: missingDescription,
 	Certainty:          Certainty,
 	Analyze:            analyzePermissionsPolicyHeader,
@@ -70,7 +70,7 @@ type PermissionsPolicyAnalysis struct {
 	RawHeader          string   `json:"raw_header"`          // The value as sent
 	RestrictedFeatures []string `json:"restricted_features"` // Dangerous or suspicious features limited to none or self
 	SuspiciousAllowed  []string `json:"suspicious_allowed"`  // Suspicious features left unrestricted
-	TotalDirectives    int      `json:"total_directives"`    // Comma-separated entries in the header, malformed ones included
+	TotalDirectives    int      `json:"total_directives"`    // Well-formed feature=allowlist directives; malformed entries are not counted
 	WildcardFeatures   []string `json:"wildcard_features"`   // Features whose allowlist contains *
 }
 
@@ -85,6 +85,7 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) PermissionsP
 	var wildcardFeatures []string
 	var dangerousAllowed []string
 	var suspiciousAllowed []string
+	validDirectives := 0
 
 	for _, directive := range directives {
 		directive = strings.TrimSpace(directive)
@@ -92,7 +93,7 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) PermissionsP
 			continue
 		}
 
-		// Parse feature=allowlist format
+		// Parse feature=allowlist format; anything else is not a directive and is not counted
 		parts := strings.Split(directive, "=")
 		if len(parts) != 2 {
 			continue
@@ -100,6 +101,10 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) PermissionsP
 
 		feature := strings.TrimSpace(parts[0])
 		allowlist := strings.TrimSpace(parts[1])
+		if feature == "" {
+			continue
+		}
+		validDirectives++
 
 		// Check if feature uses wildcards
 		if strings.Contains(allowlist, "*") {
@@ -148,7 +153,7 @@ func analyzePermissionsPolicyHeader(permissionsPolicyHeader string) PermissionsP
 		RawHeader:          permissionsPolicyHeader,
 		RestrictedFeatures: restrictedFeatures,
 		SuspiciousAllowed:  suspiciousAllowed,
-		TotalDirectives:    len(directives),
+		TotalDirectives:    validDirectives,
 		WildcardFeatures:   wildcardFeatures,
 	}
 }
@@ -161,18 +166,11 @@ func evaluatePermissionsPolicyThreatLevel(metadata PermissionsPolicyAnalysis) Si
 	wildcardFeatures := metadata.WildcardFeatures
 	totalDirectives := metadata.TotalDirectives
 
-	// High threat if many dangerous features are unrestricted
-	if len(dangerousAllowed) >= 3 {
-		return SiteTests.High
-	}
-
-	// Medium threat if some dangerous features allowed or wildcards used
-	if len(dangerousAllowed) > 0 || len(wildcardFeatures) > 0 {
-		return SiteTests.Medium
-	}
-
-	// Low threat if many suspicious features allowed or minimal policy
-	if len(suspiciousAllowed) >= 2 || totalDirectives < 3 {
+	// A permissive policy is a missing defence-in-depth layer (ZAP 10063), however many
+	// features it leaves open: dangerous features, wildcards, several tracking features or a
+	// minimal policy are all Low
+	if len(dangerousAllowed) > 0 || len(wildcardFeatures) > 0 ||
+		len(suspiciousAllowed) >= 2 || totalDirectives < minimalPolicyDirectives {
 		return SiteTests.Low
 	}
 
@@ -182,7 +180,7 @@ func evaluatePermissionsPolicyThreatLevel(metadata PermissionsPolicyAnalysis) Si
 	}
 
 	// Good configuration with comprehensive restrictions
-	if totalDirectives >= 5 {
+	if totalDirectives >= comprehensivePolicyDirectives {
 		return SiteTests.None
 	}
 
@@ -197,6 +195,13 @@ func generatePermissionsPolicyDescription(metadata PermissionsPolicyAnalysis) st
 	wildcardFeatures := metadata.WildcardFeatures
 	restrictedFeatures := metadata.RestrictedFeatures
 	totalDirectives := metadata.TotalDirectives
+	threatLevel := evaluatePermissionsPolicyThreatLevel(metadata)
+
+	// A header the browser cannot parse into a single directive restricts nothing, exactly
+	// like a missing one
+	if totalDirectives == 0 {
+		return "Permissions-Policy header contains no valid directives (expected feature=allowlist pairs such as camera=()) - browsers ignore it, leaving all browser features available to page and embedded content without restrictions"
+	}
 
 	var description strings.Builder
 
@@ -224,11 +229,15 @@ func generatePermissionsPolicyDescription(metadata PermissionsPolicyAnalysis) st
 		description.WriteString(strings.Join(wildcardFeatures, ", "))
 	}
 
-	if len(dangerousAllowed) == 0 && len(wildcardFeatures) == 0 && len(restrictedFeatures) > 0 {
-		if len(suspiciousAllowed) == 0 {
-			description.WriteString(". Excellent security configuration")
-		} else {
-			description.WriteString(". Good security configuration")
+	// The closing verdict follows the grade, so a policy graded Low is never called excellent
+	switch threatLevel {
+	case SiteTests.None:
+		description.WriteString(". Excellent security configuration")
+	case SiteTests.Info:
+		description.WriteString(". Good security configuration")
+	case SiteTests.Low:
+		if totalDirectives < minimalPolicyDirectives {
+			description.WriteString(". Minimal policy - most browser features are left unrestricted")
 		}
 	}
 

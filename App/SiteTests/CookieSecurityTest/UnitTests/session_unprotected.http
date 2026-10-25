@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: JSESSIONID=45c48cce2e2d7fbdea1afc51c7c6ad26; Path=/
+
+<html><body>No HttpOnly, no Secure, no SameSite on the session cookie</body></html>

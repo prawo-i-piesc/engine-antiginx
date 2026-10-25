@@ -51,8 +51,24 @@ type JSObfuscationAnalysis struct {
 	Certainty           int      `json:"certainty"`        // 0-100
 }
 
-// Analyze performs comprehensive JavaScript obfuscation analysis
+// Analyze performs comprehensive JavaScript obfuscation analysis of the <script> elements of an
+// HTML page
 func (d Detector) Analyze(content string) JSObfuscationAnalysis {
+	return d.analyzeScripts(d.extractScriptContent(content))
+}
+
+// AnalyzeScript performs the same analysis on a response that is JavaScript source as a
+// whole, such as a file served as application/javascript, where there are no <script>
+// elements to extract.
+func (d Detector) AnalyzeScript(source string) JSObfuscationAnalysis {
+	if strings.TrimSpace(source) == "" {
+		return d.analyzeScripts(nil)
+	}
+	return d.analyzeScripts([]string{source})
+}
+
+// analyzeScripts runs every detector over the given script sources.
+func (d Detector) analyzeScripts(scripts []string) JSObfuscationAnalysis {
 	analysis := JSObfuscationAnalysis{
 		ObfuscationPatterns: []string{},
 		SuspiciousPatterns:  []string{},
@@ -61,8 +77,6 @@ func (d Detector) Analyze(content string) JSObfuscationAnalysis {
 		Certainty:           95,
 	}
 
-	// Extract script content
-	scripts := d.extractScriptContent(content)
 	if len(scripts) == 0 {
 		analysis.Certainty = 100
 		return analysis
@@ -86,7 +100,7 @@ func (d Detector) Analyze(content string) JSObfuscationAnalysis {
 	determineObfuscationLevel(&analysis)
 
 	// Check if obfuscation detected
-	analysis.HasObfuscation = analysis.ObfuscationScore > 20
+	analysis.HasObfuscation = analysis.ObfuscationScore >= ObfuscationThreshold
 
 	return analysis
 }
@@ -214,12 +228,6 @@ func (d Detector) detectBase64Encoding(analysis *JSObfuscationAnalysis, content 
 
 // detectSuspiciousPatterns detects patterns commonly associated with obfuscation
 func (d Detector) detectSuspiciousPatterns(analysis *JSObfuscationAnalysis, content string) {
-	// Self-modifying code
-	if matched, _ := regexp.MatchString(`document\.write\s*\(\s*(?:unescape|atob|String\.fromCharCode)`, content); matched {
-		analysis.SuspiciousPatterns = append(analysis.SuspiciousPatterns,
-			"Self-modifying code: document.write with decoded content")
-	}
-
 	// Excessive string concatenation
 	concatRegex := d.Patterns.StringConcat
 	if matches := concatRegex.FindAllString(content, -1); len(matches) > 20 {
@@ -265,6 +273,18 @@ func (d Detector) detectMaliciousIndicators(analysis *JSObfuscationAnalysis, con
 			"Multiple layers of encoding detected - strong obfuscation")
 	}
 
+	// Self-modifying code: decoded markup written into the page
+	if matched, _ := regexp.MatchString(`document\.write\s*\(\s*(?:unescape|atob|String\.fromCharCode)`, content); matched {
+		analysis.MaliciousIndicators = append(analysis.MaliciousIndicators,
+			"Self-modifying code: document.write with decoded content")
+	}
+
+	// Code handed to a timer as a string, which the browser evaluates like eval()
+	if d.matchesDynamic("setTimeout", content) || d.matchesDynamic("setInterval", content) {
+		analysis.MaliciousIndicators = append(analysis.MaliciousIndicators,
+			"String passed to setTimeout/setInterval - code executed from a string")
+	}
+
 	// eval chains
 	if matched, _ := regexp.MatchString(`eval\s*\([^)]*eval\s*\(`, content); matched {
 		analysis.MaliciousIndicators = append(analysis.MaliciousIndicators,
@@ -287,4 +307,11 @@ func (d Detector) detectMaliciousIndicators(analysis *JSObfuscationAnalysis, con
 				"Possible self-decrypting code detected")
 		}
 	}
+}
+
+// matchesDynamic reports whether the named dynamic-execution pattern matches, false when the
+// pattern set does not define it.
+func (d Detector) matchesDynamic(name string, content string) bool {
+	pattern, defined := d.Patterns.DynamicExecution[name]
+	return defined && pattern.MatchString(content)
 }

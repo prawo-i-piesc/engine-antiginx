@@ -18,13 +18,6 @@ var fetcher = modules.Fetcher{
 	MaxBodyBytes:      MaxBodyBytes,
 }
 
-// grader carries the thresholds from config.go into the judgement stage.
-var grader = modules.Grader{Thresholds: SiteTests.CountThresholds{
-	LowMax:    LowMaxPaths,
-	MediumMax: MediumMaxPaths,
-	HighMax:   HighMaxPaths,
-}}
-
 // New creates a new security test that analyzes sitemap.xml for dangerous path exposure
 // vulnerabilities.
 func New() *SiteTests.StructureTest {
@@ -40,7 +33,7 @@ func New() *SiteTests.StructureTest {
 			return SiteTests.TestResult{
 				Name:        TestName,
 				Certainty:   Certainty,
-				ThreatLevel: grader.EvaluateThreat(analysis),
+				ThreatLevel: modules.EvaluateThreat(analysis),
 				Metadata:    analysis,
 				Description: modules.Describe(analysis),
 			}

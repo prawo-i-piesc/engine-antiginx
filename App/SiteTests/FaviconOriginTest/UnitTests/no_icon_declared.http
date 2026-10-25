@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://shop.example.com/
+
+<!doctype html>
+<html><head><title>Shop</title><link rel="stylesheet" href="/style.css"></head><body></body></html>

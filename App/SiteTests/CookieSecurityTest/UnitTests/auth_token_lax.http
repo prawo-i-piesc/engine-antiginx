@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: auth_token=6512bd43d9caa6e02c990b0a82652dca; Path=/; Max-Age=3600; Secure; HttpOnly; SameSite=Lax
+
+<html><body>An authentication cookie limited to an hour with SameSite=Lax</body></html>

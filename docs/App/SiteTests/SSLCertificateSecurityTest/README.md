@@ -17,7 +17,7 @@ go run ./App/main.go test --target example.com --tests ssl-cert
 - Chain validation against the system trust store, including intermediates the server sent.
 - Hostname match between the certificate and the target.
 - Validity window: expired, not yet valid, or expiring soon.
-- Signature algorithm, rejecting MD5 and SHA-1.
+- Signature algorithm: a chain signed with MD5 or SHA-1 is rejected, as browsers reject it.
 - Key strength: RSA below 2048 bits and ECDSA below 256 bits.
 - Self-signed certificates and incomplete chains.
 
@@ -30,7 +30,15 @@ go run ./App/main.go test --target example.com --tests ssl-cert
 3. Verify explicitly against the retrieved chain and the system trust store, matching the
    hostname. The error type distinguishes a hostname mismatch from an expiry from a broken
    chain, and each is reported differently.
-4. Check the leaf's signature algorithm, key type and key length, and how long it has left.
+   - An expired or not yet valid leaf is rejected before its chain is built, so it is
+     verified again at the midpoint of its validity window. Only when the chain validates
+     then is the expiry reported on its own; otherwise the untrusted chain is reported and
+     the expiry mentioned alongside.
+   - Go's verifier refuses MD5 and SHA-1 signatures, but reports that only as a hint inside
+     an "unknown authority" error. A failed verification is therefore checked for a
+     presented certificate signed with one of those algorithms, and reported as an insecure
+     signature algorithm (High) rather than as a generic chain failure.
+4. Check the leaf's key type and key length, and how long it has left.
 
 The checks are ordered by severity and return on the first hit, so a report names the worst
 problem rather than the first one in file order.
@@ -52,9 +60,13 @@ problem rather than the first one in file order.
 |---|---|
 | **None** | Valid, strong, and not expiring soon |
 | **Info** | Valid but expires within 30 days |
-| **Medium** | Weak signature algorithm or short key |
-| **High** | Expired, not yet valid, or hostname mismatch |
-| **Critical** | No certificate, self-signed, or a chain that does not validate |
+| **Medium** | No TLS connection (as exposed as an HTTP-only site); no certificate, self-signed, a chain that does not validate, expired, not yet valid, or hostname mismatch; or a short key |
+| **High** | Signed with MD5 or SHA-1, which browsers reject |
+
+An expired or not yet valid certificate whose chain would not validate inside its validity
+window is reported for the untrusted chain, with the expiry mentioned alongside.
+
+Calibrated to Nessus 51192 "SSL Certificate Cannot Be Trusted" (Medium) and 35291 "SSL Certificate Signed Using Weak Hashing Algorithm" (High), and OWASP ZAP 10106 for a site without HTTPS (Medium); see the [SiteTests overview](../README.md) for the severity scale.
 
 ## Files
 

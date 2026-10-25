@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Frame-Options: DENY
+Content-Security-Policy: frame-ancestors 'self'
+
+<html><body>X-Frame-Options DENY overridden by frame-ancestors self</body></html>

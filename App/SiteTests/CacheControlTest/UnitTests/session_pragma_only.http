@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Pragma: no-cache
+Set-Cookie: JSESSIONID=4D1E0F; Path=/; Secure; HttpOnly
+
+<!doctype html>
+<html><head><title>Profile</title></head><body><p>Edit your profile</p></body></html>

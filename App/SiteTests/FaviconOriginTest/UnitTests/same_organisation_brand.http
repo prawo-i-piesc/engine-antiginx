@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://www.youtube.com/watch
+
+<!doctype html>
+<html><head><title>Video</title>
+<link rel="icon" href="https://www.gstatic.com/youtube/img/favicon_144.png">
+</head><body></body></html>

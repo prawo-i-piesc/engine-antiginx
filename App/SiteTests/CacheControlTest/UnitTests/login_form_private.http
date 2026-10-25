@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: private, max-age=60
+
+<!doctype html>
+<html><head><title>Sign in</title></head><body>
+<form method="post" action="/login"><input type="email" name="email"><input type="password" name="pw"></form>
+</body></html>

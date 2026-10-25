@@ -16,14 +16,16 @@ import (
 // ThreatLevel represents the security threat classification for test results.
 type ThreatLevel int
 
-// ThreatLevel enumeration constants representing increasing levels of security concern.
+// ThreatLevel enumeration constants representing increasing levels of security concern. Apart
+// from Info, they share their names and order with the CVSS qualitative severity ratings, and a
+// level derived from a CVE is that CVE's CVSS rating band for band.
 const (
-	None     ThreatLevel = iota // 0 - No security issues
-	Info                        // 1 - Informational findings
-	Low                         // 2 - Low severity issues
-	Medium                      // 3 - Medium severity issues
-	High                        // 4 - High severity vulnerabilities
-	Critical                    // 5 - Critical vulnerabilities
+	None     ThreatLevel = iota // 0 - No security issues (CVSS None, 0.0)
+	Info                        // 1 - Informational findings, no CVSS counterpart
+	Low                         // 2 - Low severity issues (CVSS Low, 0.1–3.9)
+	Medium                      // 3 - Medium severity issues (CVSS Medium, 4.0–6.9)
+	High                        // 4 - High severity vulnerabilities (CVSS High, 7.0–8.9)
+	Critical                    // 5 - Critical vulnerabilities (CVSS Critical, 9.0–10.0)
 )
 
 // TestResult represents the comprehensive output of a security test execution.

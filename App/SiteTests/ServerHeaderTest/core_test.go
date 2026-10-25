@@ -1,6 +1,7 @@
 package ServerHeaderTest
 
 import (
+	"Engine-AntiGinx/App/CVE"
 	"Engine-AntiGinx/App/SiteTests"
 	"encoding/json"
 	"net/http"
@@ -9,12 +10,22 @@ import (
 	"testing"
 )
 
-// offline replaces the NVD lookup for the duration of a test with a fixed grade per
-// technology, so no test reaches the network.
-func offline(t *testing.T, grades map[string]SiteTests.ThreatLevel) {
-	original := cveThreat
-	cveThreat = func(technology string) SiteTests.ThreatLevel { return grades[technology] }
-	t.Cleanup(func() { cveThreat = original })
+// offline replaces the NVD lookup for the duration of a test with a fixed CVSS rating of the
+// most severe CVE per technology, so no test reaches the network. A technology without a
+// rating has no CVE on record.
+func offline(t *testing.T, ratings map[string]string) {
+	original := lookupRelease
+	lookupRelease = func(technology string, version string) (*CVE.VulnerabilityAssessment, error) {
+		assessment := &CVE.VulnerabilityAssessment{Technology: technology, Version: version, RiskLevel: CVE.SeverityNone}
+		if rating, rated := ratings[technology]; rated {
+			assessment.CVECount = 1
+			assessment.MaxSeverity = rating
+			assessment.RiskLevel = rating
+			assessment.CVEs = []CVE.CVEResult{{ID: "CVE-2099-0001", Severity: rating}}
+		}
+		return assessment, nil
+	}
+	t.Cleanup(func() { lookupRelease = original })
 }
 
 // run grades a response carrying the given headers.
@@ -51,15 +62,20 @@ func TestBaseLevelFollowsExposureCount(t *testing.T) {
 	}
 }
 
-func TestCommonServersAreHigh(t *testing.T) {
+// Naming a widely used server is not graded for its reputation: without a CVE affecting the
+// disclosed release, a release number is a Low disclosure and a bare name only Info.
+func TestServerNameIsNotGradedByReputation(t *testing.T) {
 	offline(t, nil)
-	if got := run(map[string]string{"Server": "nginx/1.18.0"}).ThreatLevel; got != SiteTests.High {
-		t.Errorf("nginx disclosure graded %v, want High", got)
+	if got := run(map[string]string{"Server": "nginx/1.18.0"}).ThreatLevel; got != SiteTests.Low {
+		t.Errorf("nginx release disclosure graded %v, want Low", got)
+	}
+	if got := run(map[string]string{"Server": "nginx"}).ThreatLevel; got != SiteTests.Info {
+		t.Errorf("bare nginx name graded %v, want Info", got)
 	}
 }
 
 func TestCVEGradeRaisesLevel(t *testing.T) {
-	offline(t, map[string]SiteTests.ThreatLevel{"PHP": SiteTests.Critical})
+	offline(t, map[string]string{"PHP": CVE.SeverityCritical})
 	if got := run(map[string]string{"X-Powered-By": "PHP/7.2.1"}).ThreatLevel; got != SiteTests.Critical {
 		t.Errorf("PHP with critical CVEs graded %v, want Critical", got)
 	}

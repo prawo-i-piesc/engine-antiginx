@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://secure-account-verify.com/login
+
+<!doctype html>
+<html><head><title>Log in to your PayPal account</title>
+<link rel="shortcut icon" href="https://www.paypalobjects.com/webstatic/icon/pp favicon.ico">
+<link rel="apple-touch-icon" href="https://www.paypalobjects.com/webstatic/icon/pp196.png">
+<link rel="icon" href="https://www.bakery-original.de/favicon.ico">
+</head><body><form><input type="password"></form></body></html>

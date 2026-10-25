@@ -66,7 +66,7 @@ func (c Classifier) Classify(page *url.URL, base *url.URL, declaration IconDecla
 	switch {
 	case iconHost == pageHost:
 		reference.Origin = OriginSameHost
-	case SiteTests.RegistrableDomain(iconHost) == SiteTests.RegistrableDomain(pageHost):
+	case SiteTests.SiteDomain(iconHost) == SiteTests.SiteDomain(pageHost):
 		reference.Origin = OriginSameSite
 	case net.ParseIP(iconHost) != nil:
 		reference.Origin = OriginIPAddress

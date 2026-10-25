@@ -70,6 +70,32 @@ func FindAllFold(haystack string, needles []string) []string {
 	return found
 }
 
+// minSubstringFragment is the length from which a name fragment is distinctive enough to match
+// anywhere inside a name; shorter ones occur inside unrelated words ("sid" in "sidebar").
+const minSubstringFragment = 5
+
+// MatchesNameFragment reports whether a name, such as a cookie's, contains any of the
+// fragments, ignoring case. Fragments of five characters or more match anywhere, so
+// "session" covers laravel_session; shorter ones must stand alone between non-alphanumerics,
+// so "sid" covers connect.sid but not sidebar_state.
+func MatchesNameFragment(name string, fragments []string) bool {
+	lowered := strings.ToLower(name)
+	for _, fragment := range fragments {
+		fragment = strings.ToLower(fragment)
+		if fragment == "" {
+			continue
+		}
+		if len(fragment) >= minSubstringFragment {
+			if strings.Contains(lowered, fragment) {
+				return true
+			}
+		} else if ContainsStandaloneToken(lowered, fragment) {
+			return true
+		}
+	}
+	return false
+}
+
 // ContainsStandaloneToken reports whether a token appears in the haystack delimited by
 // non-alphanumeric characters, so "google" does not match inside "googleapis".
 func ContainsStandaloneToken(haystack string, token string) bool {
@@ -135,30 +161,6 @@ func EscalateThreatLevel(level ThreatLevel) ThreatLevel {
 		return Critical
 	}
 	return level + 1
-}
-
-// CountThresholds grades a number of findings. Each field is the highest count graded at
-// that level; anything above HighMax is Critical, and no findings at all is None.
-type CountThresholds struct {
-	LowMax    int
-	MediumMax int
-	HighMax   int
-}
-
-// Grade returns the threat level a number of findings falls into.
-func (t CountThresholds) Grade(count int) ThreatLevel {
-	switch {
-	case count <= 0:
-		return None
-	case count <= t.LowMax:
-		return Low
-	case count <= t.MediumMax:
-		return Medium
-	case count <= t.HighMax:
-		return High
-	default:
-		return Critical
-	}
 }
 
 // ExampleLines renders up to limit examples as indented list lines, followed by how many of
@@ -241,6 +243,19 @@ func RegistrableDomain(host string) string {
 	return lastTwo
 }
 
+// SiteDomain reduces a hostname to the site it belongs to, which is its registrable domain
+// unless it sits on a hosting platform that gives each customer a subdomain: there the
+// customer's subdomain is the site, so alice.github.io and bob.github.io are different sites.
+// Use RegistrableDomain instead where the domain somebody registered with a registry matters.
+func SiteDomain(host string) string {
+	host = strings.ToLower(strings.Trim(strings.TrimSpace(host), "."))
+	labels := strings.Split(host, ".")
+	if len(labels) >= 3 && privateSuffixes[strings.Join(labels[len(labels)-2:], ".")] {
+		return strings.Join(labels[len(labels)-3:], ".")
+	}
+	return RegistrableDomain(host)
+}
+
 // multiLabelPublicSuffixes are the public suffixes made of more than one label that the engine
 // recognises locally, so that a hostname under one of them is reduced to the domain somebody
 // actually registered rather than to the suffix itself.
@@ -258,4 +273,19 @@ var multiLabelPublicSuffixes = map[string]bool{
 	"co.il": true, "co.id": true, "com.sa": true, "com.eg": true, "com.ng": true, "com.pk": true,
 	"co.th": true, "in.th": true, "com.es": true, "com.pt": true, "com.gr": true, "com.ro": true,
 	"com.ru": true, "org.ru": true, "net.ru": true, "com.de": true, "com.it": true,
+}
+
+// privateSuffixes are hosting platforms that hand each customer a subdomain of their own, the
+// private section of the Public Suffix List: two sites under one of them belong to different
+// people even though the platform registered the domain.
+var privateSuffixes = map[string]bool{
+	"github.io": true, "gitlab.io": true, "bitbucket.io": true, "codeberg.page": true,
+	"vercel.app": true, "netlify.app": true, "pages.dev": true, "workers.dev": true,
+	"herokuapp.com": true, "onrender.com": true, "fly.dev": true, "railway.app": true,
+	"web.app": true, "firebaseapp.com": true, "appspot.com": true, "run.app": true,
+	"azurewebsites.net": true, "azurestaticapps.net": true, "amplifyapp.com": true,
+	"glitch.me": true, "repl.co": true, "replit.app": true, "surge.sh": true,
+	"blogspot.com": true, "wordpress.com": true, "wixsite.com": true, "weebly.com": true,
+	"webflow.io": true, "myshopify.com": true, "ngrok.io": true, "ngrok-free.app": true,
+	"trycloudflare.com": true, "r2.dev": true,
 }

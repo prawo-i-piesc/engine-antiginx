@@ -116,9 +116,9 @@ func TestAssess(t *testing.T) {
 	}{
 		{"valid", ca.issue(t, leaf{host: "example.com"}), "example.com", SiteTests.None, "valid, strong, and not expiring soon"},
 		{"expiring soon", ca.issue(t, leaf{host: "example.com", notAfter: now.AddDate(0, 0, 10)}), "example.com", SiteTests.Info, "expire in less than 30 days"},
-		{"expired", ca.issue(t, leaf{host: "example.com", notBefore: now.AddDate(-2, 0, 0), notAfter: now.AddDate(0, 0, -1)}), "example.com", SiteTests.High, "has expired"},
-		{"not yet valid", ca.issue(t, leaf{host: "example.com", notBefore: now.AddDate(0, 0, 1)}), "example.com", SiteTests.High, "not yet valid"},
-		{"hostname mismatch", ca.issue(t, leaf{host: "other.com"}), "example.com", SiteTests.High, "hostname mismatch"},
+		{"expired", ca.issue(t, leaf{host: "example.com", notBefore: now.AddDate(-2, 0, 0), notAfter: now.AddDate(0, 0, -1)}), "example.com", SiteTests.Medium, "has expired"},
+		{"not yet valid", ca.issue(t, leaf{host: "example.com", notBefore: now.AddDate(0, 0, 1)}), "example.com", SiteTests.Medium, "not yet valid"},
+		{"hostname mismatch", ca.issue(t, leaf{host: "other.com"}), "example.com", SiteTests.Medium, "hostname mismatch"},
 		{"short RSA key", ca.issue(t, leaf{host: "example.com", key: shortRSA}), "example.com", SiteTests.Medium, "short RSA key (1024 bits)"},
 		{"short ECDSA key", ca.issue(t, leaf{host: "example.com", key: shortECDSA}), "example.com", SiteTests.Medium, "short ECDSA key (224 bits)"},
 	}
@@ -136,8 +136,8 @@ func TestAssessUntrustedChain(t *testing.T) {
 
 	// The issuing CA is not in this trust store, as with a self-signed or private CA
 	level, description := assess([]*x509.Certificate{cert}, "example.com", x509.NewCertPool(), now)
-	if level != SiteTests.Critical || !strings.Contains(description, "chain validation failed") {
-		t.Errorf("untrusted chain gave %v %q, want Critical", level, description)
+	if level != SiteTests.Medium || !strings.Contains(description, "chain validation failed") {
+		t.Errorf("untrusted chain gave %v %q, want Medium", level, description)
 	}
 }
 

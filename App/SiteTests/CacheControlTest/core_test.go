@@ -29,14 +29,14 @@ func TestCacheControl(t *testing.T) {
 		body    string
 		want    SiteTests.ThreatLevel
 	}{
-		{"public session", map[string]string{"Cache-Control": "public, max-age=600"}, "PHPSESSID", "", SiteTests.High},
-		{"s-maxage password", map[string]string{"Cache-Control": "s-maxage=60"}, "", login, SiteTests.High},
-		{"max-age only", map[string]string{"Cache-Control": "max-age=3600"}, "sessionid", "", SiteTests.Medium},
-		{"pragma only", map[string]string{"Pragma": "no-cache"}, "", login, SiteTests.Medium},
+		{"public session", map[string]string{"Cache-Control": "public, max-age=600"}, "PHPSESSID", "", SiteTests.Medium},
+		{"s-maxage password", map[string]string{"Cache-Control": "s-maxage=60"}, "", login, SiteTests.Medium},
+		{"max-age only", map[string]string{"Cache-Control": "max-age=3600"}, "sessionid", "", SiteTests.Low},
+		{"pragma only", map[string]string{"Pragma": "no-cache"}, "", login, SiteTests.Low},
 		{"no-store", map[string]string{"Cache-Control": "no-store", "Pragma": "no-cache"}, "sid", login, SiteTests.None},
 		{"private max-age", map[string]string{"Cache-Control": "private, max-age=60"}, "sid", "", SiteTests.None},
 		{"not sensitive", map[string]string{"Cache-Control": "public, max-age=600"}, "theme", "<p>hi</p>", SiteTests.None},
-		{"no headers", nil, "sid", "", SiteTests.Low},
+		{"no headers", nil, "sid", "", SiteTests.Info},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

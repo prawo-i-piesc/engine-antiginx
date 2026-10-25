@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
@@ -42,12 +43,10 @@ var locPattern = regexp.MustCompile(`(?s)<loc>(.*?)</loc>`)
 
 // Analyze fetches and analyzes the sitemap.xml file for dangerous path exposures.
 func (f Fetcher) Analyze(baseUrl string) SitemapAnalysis {
-	sitemapUrl := baseUrl + "/sitemap.xml"
-
 	analysis := SitemapAnalysis{DangerousPaths: []SitemapPath{}}
 
 	// Fetch sitemap.xml
-	page, err := SiteTests.Fetch(SSRF.NewClient(f.Timeout), sitemapUrl, f.MaxBodyBytes)
+	page, err := SiteTests.Fetch(SSRF.NewClient(f.Timeout), baseUrl+"/sitemap.xml", f.MaxBodyBytes)
 
 	// If sitemap doesn't exist or is inaccessible, return safe result
 	if err != nil || page.Status != http.StatusOK {
@@ -80,7 +79,6 @@ func (f Fetcher) match(urls []string, analysis SitemapAnalysis) SitemapAnalysis 
 			Category: category,
 		})
 	}
-
 	analysis.TotalDangerous = len(analysis.DangerousPaths)
 	return analysis
 }
@@ -95,34 +93,31 @@ func urlPath(declared string) string {
 	return parsed.EscapedPath()
 }
 
-// extractUrlsFromSitemap extracts URL entries from sitemap XML content.
+// extractUrlsFromSitemap extracts the distinct URL entries from sitemap XML content, in the
+// order they are declared.
 func extractUrlsFromSitemap(content string) []string {
 	urls := []string{}
+	seen := map[string]bool{}
 
 	for _, match := range locPattern.FindAllStringSubmatch(content, -1) {
-		if len(match) > 1 {
-			locValue := strings.TrimSpace(match[1])
-			if locValue != "" {
-				urls = append(urls, locValue)
-			}
+		locValue := strings.TrimSpace(match[1])
+		if locValue != "" && !seen[locValue] {
+			seen[locValue] = true
+			urls = append(urls, locValue)
 		}
 	}
 
 	return urls
 }
 
-// Grader turns an analysis into a threat level using the thresholds from config.go.
-type Grader struct {
-	Thresholds SiteTests.CountThresholds
-}
-
-// EvaluateThreat grades on the number of dangerous paths the sitemap declares.
-func (g Grader) EvaluateThreat(analysis SitemapAnalysis) SiteTests.ThreatLevel {
-	// If sitemap is not accessible or doesn't exist, return None
-	if !analysis.SitemapAccessible {
+// EvaluateThreat grades what the sitemap lets an attacker do: a dangerous path it declares
+// is handed to search engines to index, so anyone can find it with a search. That is Low,
+// however many there are; the count is reported, not graded.
+func EvaluateThreat(analysis SitemapAnalysis) SiteTests.ThreatLevel {
+	if !analysis.SitemapAccessible || analysis.TotalDangerous == 0 {
 		return SiteTests.None
 	}
-	return g.Thresholds.Grade(analysis.TotalDangerous)
+	return SiteTests.Low
 }
 
 // Describe creates a human-readable description of the sitemap analysis.
@@ -136,11 +131,16 @@ func Describe(analysis SitemapAnalysis) string {
 			analysis.TotalURLs)
 	}
 
-	// Group dangerous paths by category
+	// Group dangerous paths by category, keeping the sitemap's order within each
 	categoryGroups := make(map[string][]string)
 	for _, path := range analysis.DangerousPaths {
 		categoryGroups[path.Category] = append(categoryGroups[path.Category], path.URL)
 	}
+	categories := make([]string, 0, len(categoryGroups))
+	for category := range categoryGroups {
+		categories = append(categories, category)
+	}
+	sort.Strings(categories)
 
 	description := fmt.Sprintf("Sitemap.xml exposes %d dangerous paths that should not be indexed by search engines (out of %d total URLs):\n\n",
 		analysis.TotalDangerous, analysis.TotalURLs)

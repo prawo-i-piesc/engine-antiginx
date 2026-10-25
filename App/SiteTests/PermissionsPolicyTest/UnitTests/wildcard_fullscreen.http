@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Permissions-Policy: fullscreen=*, camera=(), microphone=(), geolocation=(), payment=()
+
+<html><body>Fullscreen granted to every origin</body></html>

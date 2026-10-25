@@ -74,16 +74,6 @@ func TestProbeAllKeepsInputOrderAndBoundsConcurrency(t *testing.T) {
 	}
 }
 
-func TestCountThresholdsGrade(t *testing.T) {
-	thresholds := CountThresholds{LowMax: 2, MediumMax: 5, HighMax: 10}
-	cases := map[int]ThreatLevel{0: None, 1: Low, 2: Low, 3: Medium, 5: Medium, 6: High, 10: High, 11: Critical}
-	for count, want := range cases {
-		if got := thresholds.Grade(count); got != want {
-			t.Errorf("Grade(%d) = %v, want %v", count, got, want)
-		}
-	}
-}
-
 func TestExampleLines(t *testing.T) {
 	if got := ExampleLines([]string{"a", "b", "c", "d"}, 9, 2); got != "  - a\n  - b\n  ... and 7 more\n" {
 		t.Errorf("sampled list rendered as %q", got)

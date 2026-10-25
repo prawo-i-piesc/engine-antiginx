@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cross-Origin-Embedder-Policy: unsafe-none
+Cross-Origin-Resource-Policy: cross-origin
+Cross-Origin-Opener-Policy: unsafe-none
+
+<html><body>All three headers present but switched off</body></html>

@@ -1,0 +1,16 @@
+{
+  "query_status": "ok",
+  "id": "2988710",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/url/2988710/",
+  "url": "http://old-malware.test/payload.exe",
+  "url_status": "offline",
+  "host": "old-malware.test",
+  "date_added": "2025-03-02 17:40:11 UTC",
+  "threat": "malware_download",
+  "blacklists": {"spamhaus_dbl": "not listed", "surbl": "not listed"},
+  "reporter": "abuse_ch",
+  "larted": "true",
+  "takedown_time_seconds": 86400,
+  "tags": [],
+  "payloads": []
+}

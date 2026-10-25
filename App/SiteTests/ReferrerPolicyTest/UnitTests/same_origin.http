@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Referrer-Policy: same-origin
+
+<html><body>Referrer sent only to the own origin</body></html>

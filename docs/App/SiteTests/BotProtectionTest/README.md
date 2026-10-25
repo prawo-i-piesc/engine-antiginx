@@ -46,10 +46,11 @@ completed assessment.
 
 ## How the verdict is reached
 
+A protection layer is reported for information only: it is not a threat and not a weakness of the site, so it never raises the level; see the SiteTests overview for the severity scale.
+
 | Level | When |
 |---|---|
-| **Info** | Target unreachable, or no protection layer identified |
-| **Low** | A protection layer was identified, whether or not it challenged the probe |
+| **Info** | Always: target unreachable, no protection layer identified, or a protection layer identified, whether or not it challenged the probe. The same applies to the verdict `NewVerdict()` builds when a protection layer stopped the scan. |
 
 ## Files
 
@@ -61,7 +62,7 @@ completed assessment.
 
 ## Notes
 
-A protection layer is reported at Low rather than as a vulnerability because it is weak evidence about legitimacy, not a misconfiguration: a commercial protection product has to be set up by whoever controls the domain, which throwaway phishing infrastructure rarely bothers with. The package also exports `NewVerdict()`, which the scheduler calls when a protection layer stopped the main request — the block itself is then the only evidence available, and it is worth reporting rather than discarding.
+A protection layer is reported at Info rather than as a finding because it is weak evidence about legitimacy, not a misconfiguration: a commercial protection product has to be set up by whoever controls the domain, which throwaway phishing infrastructure rarely bothers with. The package also exports `NewVerdict()`, which the scheduler calls when a protection layer stopped the main request — the block itself is then the only evidence available, and it is worth reporting rather than discarding.
 
 ---
 

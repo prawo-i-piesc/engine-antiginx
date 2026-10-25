@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Security-Policy: frame-ancestors 'self' https://partner.example
+
+<html><body>CSP frame-ancestors allowing the own origin and one partner</body></html>

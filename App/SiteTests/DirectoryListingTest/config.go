@@ -18,10 +18,6 @@ const (
 	maxSampleEntries = 10               // Listed entries copied into the metadata per directory
 )
 
-// escalationCount is how many listings it takes for the verdict to be raised a level: one
-// open directory can be an oversight, several mean listing is enabled server-wide.
-const escalationCount = 3
-
 // Certainty reported with every result.
 const (
 	listingFoundCertainty = 95 // A server signature matched; only a page mimicking one fools it

@@ -1,0 +1,47 @@
+[
+  {"name": "known legitimate domain", "url": "https://paypal.com/", "level": "None", "fragments": ["recognized as a known legitimate domain", "carries no query parameters"]},
+  {"name": "clean unknown domain", "url": "https://example.com/about", "level": "None", "fragments": ["No phishing-style typo-squatting or homograph indicators", "carries no query parameters"]},
+  {"name": "harmless parameters", "url": "https://example.com/search?q=shoes&page=2", "level": "None", "fragments": ["No phishing indicators detected in the 2 URL parameter(s)"]},
+  {"name": "same-site redirect", "url": "https://example.com/login?next=https://shop.example.com/cart", "level": "None", "fragments": ["No phishing indicators detected in the 1 URL parameter(s)"]},
+
+  {"name": "single-character typo", "url": "https://paypall.com/", "level": "Medium", "fragments": ["paypall.com appears to impersonate paypal (paypal.com)", "single-character typo"]},
+  {"name": "typo of two brands goes to the first in sorted order", "url": "https://mea.com/", "level": "Medium", "fragments": ["mea.com appears to impersonate apple (me.com)", "single-character typo"]},
+  {"name": "adjacent-letter transposition", "url": "https://googel.com/", "level": "Medium", "fragments": ["impersonate google (google.com)", "adjacent-letter transposition"]},
+  {"name": "letter replacement rn for m", "url": "https://rnicrosoft.com/", "level": "Medium", "fragments": ["impersonate microsoft (microsoft.com)", "popular letter replacement"]},
+  {"name": "letter replacement 0 for o", "url": "https://g00gle.com/", "level": "Medium", "fragments": ["impersonate google (google.com)", "popular letter replacement"]},
+  {"name": "typo that is also a letter replacement", "url": "https://paypa1.com/", "level": "High", "fragments": ["impersonate paypal (paypal.com)", "single-character typo", "popular letter replacement"]},
+  {"name": "homograph with two confusables", "url": "https://gооgle.com/", "level": "Medium", "fragments": ["impersonate google (google.com)", "homograph/confusable character"]},
+  {"name": "homograph with three confusables", "url": "https://аррle.com/", "level": "High", "fragments": ["impersonate apple (apple.com)", "homograph/confusable character"]},
+
+  {"name": "credential parameter with a value", "url": "https://example.com/login?password=hunter2", "level": "Critical", "fragments": ["credential parameter(s): password", "password=[REDACTED]"]},
+  {"name": "credential parameter without a value", "url": "https://example.com/login?password=", "level": "High", "fragments": ["credential parameter(s): password"]},
+  {"name": "composed credential parameter name", "url": "https://example.com/api?client_secret=s3cr3t", "level": "Critical", "fragments": ["credential parameter(s): client_secret", "client_secret=[REDACTED]"]},
+  {"name": "sensitive parameter", "url": "https://example.com/callback?access_token=abc123", "level": "High", "fragments": ["sensitive data parameter(s): access_token", "access_token=[REDACTED]"]},
+  {"name": "three sensitive parameters", "url": "https://example.com/?otp=123456&sessionid=abc&token=xyz", "level": "Critical", "fragments": ["sensitive data parameter(s): otp, sessionid, token"]},
+  {"name": "victim identity parameter", "url": "https://example.com/welcome?email=victim@example.org", "level": "Medium", "fragments": ["victim identity parameter(s): email"]},
+  {"name": "external redirect", "url": "https://example.com/login?next=https://evil.test/collect", "level": "High", "fragments": ["external redirect parameter(s): next"]},
+  {"name": "protocol-relative external redirect", "url": "https://example.com/out?goto=//evil.test/", "level": "High", "fragments": ["external redirect parameter(s): goto"]},
+  {"name": "javascript scheme", "url": "https://example.com/?next=javascript:alert(1)", "level": "Critical", "fragments": ["parameter(s) with a dangerous scheme: next"]},
+  {"name": "data scheme", "url": "https://example.com/view?file=data:text/html,%3Cscript%3Ealert(1)%3C/script%3E", "level": "Critical", "fragments": ["parameter(s) with a dangerous scheme: file"]},
+  {"name": "base64 encoded URL", "url": "https://example.com/r?data=aHR0cHM6Ly9ldmlsLnRlc3QvbG9naW4=", "level": "High", "fragments": ["parameter(s) hiding encoded data: data"]},
+  {"name": "base64 encoded e-mail address", "url": "https://example.com/r?ref=dmljdGltQGV4YW1wbGUub3Jn", "level": "High", "fragments": ["parameter(s) hiding encoded data: ref"]},
+
+  {"name": "userinfo with password", "url": "https://admin:hunter2@example.com/", "level": "Critical", "fragments": ["credentials are embedded directly in the URL", "https://[REDACTED]@example.com/"]},
+  {"name": "userinfo without password", "url": "https://paypal.com@example.com/", "level": "High", "fragments": ["credentials are embedded directly in the URL"]},
+
+  {"name": "IPv4 literal host", "url": "http://192.0.2.10/", "level": "Medium", "fragments": ["IP literal used instead of a hostname"]},
+  {"name": "IPv6 literal host", "url": "http://[2001:db8::1]/", "level": "Medium", "fragments": ["IP literal used instead of a hostname"]},
+  {"name": "IP literal with victim identity", "url": "http://192.0.2.10/?email=victim@example.org", "level": "High", "fragments": ["IP literal used instead of a hostname", "victim identity parameter(s): email"]},
+
+  {"name": "brand keyword in the path", "url": "https://example.com/paypal/", "level": "Medium", "fragments": ["brand keyword(s) used outside the hostname: paypal"]},
+  {"name": "brand keyword in the query", "url": "https://example.com/?site=netflix", "level": "Medium", "fragments": ["brand keyword(s) used outside the hostname: netflix"]},
+  {"name": "brand keyword with a phishing path", "url": "https://example.com/paypal/verify", "level": "High", "fragments": ["brand keyword(s) used outside the hostname: paypal", "phishing-style path keyword(s): verify"]},
+  {"name": "brand keyword on its own host", "url": "https://www.paypal.example.com/paypal/", "level": "None", "fragments": ["carries no query parameters"]},
+  {"name": "brand keyword inside a longer word", "url": "https://example.com/googleapis/", "level": "None", "fragments": ["carries no query parameters"]},
+  {"name": "phishing path keyword alone", "url": "https://example.com/account/verify", "level": "Low", "fragments": ["phishing-style path keyword(s): verify"]},
+  {"name": "too many query parameters", "url": "https://example.com/?a=1&b=2&c=3&d=4&e=5&f=6&g=7&h=8&i=9&j=10&k=11&l=12&m=13", "level": "Low", "fragments": ["unusually many query parameters (13)"]},
+
+  {"name": "medium lookalike with medium parameters escalates", "url": "https://paypall.com/welcome?email=victim@example.org", "level": "High", "fragments": ["single-character typo", "victim identity parameter(s): email"]},
+  {"name": "high lookalike with high parameters escalates", "url": "https://paypa1.com/signin?token=abc123", "level": "Critical", "fragments": ["popular letter replacement", "sensitive data parameter(s): token"]},
+  {"name": "lookalike with low parameters does not escalate", "url": "https://paypall.com/account/verify", "level": "Medium", "fragments": ["single-character typo", "phishing-style path keyword(s): verify"]}
+]

@@ -7,5 +7,5 @@ const (
 	insecureConnectionDescription = "Connection uses insecure HTTP protocol - data is transmitted in plaintext " +
 		"and vulnerable to interception"
 
-	unknownSchemeDescription = "The address the page was served from is unavailable, so its protocol could not be verified"
+	unknownAddressDescription = "Unable to verify HTTPS - the address the page was served from is unavailable"
 )

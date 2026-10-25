@@ -1,0 +1,3 @@
+# Fixture .env files with obviously fake values; the repository-wide rule against
+# committing .env does not apply to them.
+!.env

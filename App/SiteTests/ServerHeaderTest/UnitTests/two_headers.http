@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Server: nginx/1.18.0
+X-Powered-By: PHP/7.4.3
+Content-Type: text/html; charset=utf-8
+
+<html><body>Both the server and the language release are disclosed</body></html>

@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Permissions-Policy: camera=(), microphone=(), geolocation=(), autoplay=(self "https://ads.example"), fullscreen=("https://video.example")
+
+<html><body>Autoplay and fullscreen delegated to third parties</body></html>

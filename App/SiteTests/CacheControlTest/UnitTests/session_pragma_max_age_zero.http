@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Cache-Control: max-age=0
+Pragma: no-cache
+Set-Cookie: ASPSESSIONIDQA=KJHGF; Path=/; Secure; HttpOnly
+
+<!doctype html>
+<html><head><title>Basket</title></head><body><p>2 items in your basket</p></body></html>

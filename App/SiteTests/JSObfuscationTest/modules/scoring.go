@@ -1,5 +1,10 @@
 package modules
 
+// ObfuscationThreshold is the score from which a page counts as obfuscated. It is the one
+// boundary behind hasObfuscation, the "light" obfuscation level and the Low threat level, so
+// the three never disagree about the same score.
+const ObfuscationThreshold = 20
+
 // calculateObfuscationScore calculates overall obfuscation score (0-100)
 func calculateObfuscationScore(analysis *JSObfuscationAnalysis) {
 	score := 0
@@ -51,7 +56,7 @@ func determineObfuscationLevel(analysis *JSObfuscationAnalysis) {
 		analysis.ObfuscationLevel = "heavy"
 	} else if score >= 40 {
 		analysis.ObfuscationLevel = "moderate"
-	} else if score >= 20 {
+	} else if score >= ObfuscationThreshold {
 		analysis.ObfuscationLevel = "light"
 	} else {
 		analysis.ObfuscationLevel = "none"

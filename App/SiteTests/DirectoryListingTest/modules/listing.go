@@ -173,26 +173,18 @@ func ExtractEntries(body string, directory string) []string {
 	return entries
 }
 
-// Grader turns an analysis into a threat level.
-type Grader struct {
-	EscalationCount int
-}
-
 // EvaluateThreat grades a listing of the web root or of a sensitive directory as High and any
-// other listing as Medium, one level higher when listings are widespread.
-func (g Grader) EvaluateThreat(analysis ListingAnalysis) SiteTests.ThreatLevel {
-	if analysis.TotalListings == 0 {
+// other listing as Medium, as OWASP ZAP rates Directory Browsing. Each listing is rated on its
+// own, so how many directories are listed never raises the level.
+func EvaluateThreat(analysis ListingAnalysis) SiteTests.ThreatLevel {
+	switch {
+	case analysis.TotalListings == 0:
 		return SiteTests.None
+	case analysis.RootListingOpen || analysis.SensitiveCount > 0:
+		return SiteTests.High
+	default:
+		return SiteTests.Medium
 	}
-
-	level := SiteTests.Medium
-	if analysis.RootListingOpen || analysis.SensitiveCount > 0 {
-		level = SiteTests.High
-	}
-	if analysis.TotalListings >= g.EscalationCount {
-		level = SiteTests.EscalateThreatLevel(level)
-	}
-	return level
 }
 
 // Describe creates a human-readable description of the analysis.

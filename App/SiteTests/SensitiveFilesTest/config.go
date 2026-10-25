@@ -18,9 +18,6 @@ const (
 	softMatchPercent = 5                // Body-length window, in %, within which a 200 is treated as a soft 404
 )
 
-// escalationCount is how many exposed files it takes to raise the verdict a level.
-const escalationCount = 3
-
 // Certainty reported with every result.
 const (
 	exposureFoundCertainty = 95 // A file answered as itself, not as the soft-404 page

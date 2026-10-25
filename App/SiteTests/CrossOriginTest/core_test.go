@@ -29,11 +29,11 @@ func TestCrossOriginGrading(t *testing.T) {
 		want             SiteTests.ThreatLevel
 		level            string
 	}{
-		{"", "", "", SiteTests.High, "None"},
+		{"", "", "", SiteTests.Low, "None"},
 		{"require-corp", "same-origin", "same-origin", SiteTests.None, "Excellent"},
-		{"credentialless", "same-site", "same-origin-allow-popups", SiteTests.None, "Excellent"},
-		{"unsafe-none", "cross-origin", "unsafe-none", SiteTests.Low, "Good"},
-		{"require-corp", "", "", SiteTests.Medium, "Basic"},
+		{"credentialless", "same-site", "same-origin-allow-popups", SiteTests.Info, "Good"},
+		{"unsafe-none", "cross-origin", "unsafe-none", SiteTests.Low, "None"},
+		{"require-corp", "", "", SiteTests.Low, "Basic"},
 		{"", "same-origin", "same-origin", SiteTests.Low, "Moderate"},
 		{"Require-Corp", "SAME-ORIGIN", "", SiteTests.Low, "Moderate"},
 	}

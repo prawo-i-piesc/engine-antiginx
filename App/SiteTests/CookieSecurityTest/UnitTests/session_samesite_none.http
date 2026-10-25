@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: sessionid=c9f0f895fb98ab9159f51fd0297e236d; Path=/; Secure; HttpOnly; SameSite=None
+
+<html><body>SameSite=None explicitly allows cross-site requests to carry the session</body></html>

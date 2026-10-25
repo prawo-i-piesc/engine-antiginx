@@ -22,11 +22,12 @@ func TestXContentTypeOptionsGrading(t *testing.T) {
 		want     SiteTests.ThreatLevel
 		contains string
 	}{
-		{"", SiteTests.High, "Missing X-Content-Type-Options header"},
+		{"", SiteTests.Low, "Missing X-Content-Type-Options header"},
 		{"nosniff", SiteTests.None, "properly configured with 'nosniff'"},
 		{" NoSniff ", SiteTests.None, "properly configured"},
-		{"sniff", SiteTests.Medium, "invalid value 'sniff'"},
-		{"nosniff, nosniff", SiteTests.Medium, "invalid value 'nosniff, nosniff'"},
+		{"sniff", SiteTests.Low, "invalid value 'sniff'"},
+		// Browsers act on the first value only
+		{"nosniff, nosniff", SiteTests.None, "properly configured with 'nosniff'"},
 	}
 	for _, c := range cases {
 		result := run(c.value)

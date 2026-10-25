@@ -21,11 +21,16 @@ SiteTests/
 ├── fetch.go                    requests to the target, for tests that probe it themselves
 ├── headertest.go               the shape of a test that grades one response header
 ├── README.md                   this file
+├── UnitTestKit/                runs tests against prepared data
 ├── HSTSTest/
 │   ├── README.md               what the test is for
 │   ├── core.go                 the test itself
 │   ├── config.go               what tunes it
-│   └── data.go                 what it knows
+│   ├── data.go                 what it knows
+│   └── UnitTests/              prepared data and the tests that use it
+│       ├── weak_max_age.http
+│       ├── …
+│       └── hsts_test.go
 └── PhishingURLTest/
     ├── README.md
     ├── core.go
@@ -74,12 +79,13 @@ own — the point is to stop five slightly different header parsers from existin
 | `ContainsAnyFold(haystack, needles)` | Whether any needle appears, ignoring case |
 | `FindAllFold(haystack, needles)` | Which needles appear, ignoring case, in the order given |
 | `ContainsStandaloneToken(haystack, token)` | Whether a token appears delimited by non-alphanumerics, so `google` does not match inside `googleapis` |
+| `MatchesNameFragment(name, fragments)` | Whether a name (a cookie's) contains a fragment, ignoring case. Fragments of five characters or more match anywhere (`session` in `laravel_session`); shorter ones only as a word of their own (`sid` in `connect.sid`, not in `sidebar_state`) |
 | `UniqueStrings(values)` | Deduplicates, preserving first-seen order |
 | `HighestThreatLevel(levels...)` | The most severe level given |
 | `EscalateThreatLevel(level)` | Raises a level by one, capped at `Critical` — how a test says several findings together mean more than the worst alone |
 | `FormatDuration(seconds)` | Renders seconds as the largest whole unit that fits |
-| `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered, so two hostnames can be compared as one site |
-| `CountThresholds{LowMax, MediumMax, HighMax}.Grade(count)` | Grades a number of findings: 0 is None, each field the highest count at its level, above `HighMax` Critical |
+| `RegistrableDomain(host)` | Reduces a hostname to the domain somebody registered with a registry — what RDAP knows about |
+| `SiteDomain(host)` | Reduces a hostname to the site it belongs to: the registrable domain, except on hosting platforms that give each customer a subdomain (`github.io`, `vercel.app`…), where `alice.github.io` and `bob.github.io` are different sites |
 | `ExampleLines(examples, total, limit)` | Up to `limit` examples as `  - x` lines, then `  ... and N more` for the rest of `total` |
 | `DescribeGroups(groups, verb, limit)` | Findings grouped by category as `• category: N verb` lines, categories sorted so the text is the same on every run, each followed by `ExampleLines` |
 
@@ -143,16 +149,52 @@ skipped, and the report names them.
 
 ## Threat levels
 
-| | Level | Means |
-|---|---|---|
-| 0 | `None` | No issue found; the configuration meets what is expected |
-| 1 | `Info` | Worth knowing, no security impact |
-| 2 | `Low` | Minor issue, low exploitability |
-| 3 | `Medium` | Needs attention |
-| 4 | `High` | Serious, with real impact |
-| 5 | `Critical` | Severe, remediate immediately |
+| | Level | Means | CVSS 3.x/4.0 rating |
+|---|---|---|---|
+| 0 | `None` | No issue found; the configuration meets what is expected | None (0.0) |
+| 1 | `Info` | Worth knowing, no security impact | — (no counterpart) |
+| 2 | `Low` | Minor issue, low exploitability | Low (0.1–3.9) |
+| 3 | `Medium` | Needs attention | Medium (4.0–6.9) |
+| 4 | `High` | Serious, with real impact | High (7.0–8.9) |
+| 5 | `Critical` | Severe, remediate immediately | Critical (9.0–10.0) |
 
 Levels serialise to their names in JSON, not to numbers.
+
+The five levels other than `Info` share their names and order with the CVSS qualitative
+severity ratings, and where a level comes from a CVE it is that CVE's CVSS rating band for
+band — see [`App/CVE`](../CVE/README.md) for how a CVE is rated and why several are never
+added up. `Info` has no CVSS counterpart: it marks a finding with no security impact of its
+own, or a CVE that is known but not yet scored. A level a test assigns to a configuration
+finding (a missing header, a weak cookie) is that test's judgement, documented in its README;
+it is not a CVSS score, since CVSS rates vulnerabilities, not configurations.
+
+### How tests choose a level
+
+Tests answer one of two questions, and grade accordingly.
+
+**Weaknesses of the site** — headers, cookies, caching, TLS, exposed files and listings,
+robots.txt and sitemap, disclosed software. A finding is graded by what the weakness lets an
+attacker do, calibrated to the risk levels of OWASP ZAP's alerts (Nessus for TLS) and to the
+typical CVSS 3.1 band of the vulnerability class it opens:
+
+| Kind of finding | Level | Example |
+|---|---|---|
+| Nothing to report, or a hint with no security impact | None / Info | `Referrer-Policy` absent (browsers default to a safe policy) |
+| Missing defence in depth, nothing directly exploitable | Low | No `X-Content-Type-Options`, no HSTS, an ordinary cookie without `HttpOnly` |
+| Missing protection against a directly exploitable attack class | Medium | No CSP (XSS), no anti-framing (clickjacking), plain HTTP, an untrusted certificate, directory browsing |
+| Direct exposure of confidential data | High | A readable `.env`, `.git` or database dump; a guessable session identifier |
+| A CVE rated Critical by CVSS affecting a disclosed release | Critical | Only the server-header test reaches it |
+
+Like CVSS, which rates each vulnerability on its own, these tests report their most serious
+single finding: ten findings of one level are that level. Counts go to the metadata.
+
+**Evidence that the target is malicious** — phishing URL, URLhaus, DNS reputation, favicon
+origin, JavaScript obfuscation, bot protection. These do not rate a weakness of the site but
+how strongly the evidence says the target is dangerous to visit, so independent indicators
+pointing the same way may raise the level together. A detected bot-protection layer is
+reported for information only.
+
+Each test's README names the alerts or classes its levels are calibrated to.
 
 ## What a test returns
 
@@ -170,10 +212,41 @@ type TestResult struct {
 reports 100 whatever it found; a heuristic reports lower, and a test whose sources were
 unreachable reports lower still.
 
+## Unit tests
+
+Every test keeps prepared data specific to it in its own `UnitTests/` directory, next to Go
+tests that run it through its public `New()` — the same `Run` the scheduler calls during a
+scan — and check the verdict, the description and the metadata. They need no network: sites
+are served locally and external services are replaced by stand-ins.
+
+| Kind of test | Prepared data | Run with |
+|---|---|---|
+| `Response` | `.http` files: a raw HTTP response as it travels on the wire — status line, headers, blank line, body. An optional `X-Fixture-URL:` pseudo-header names the address it was served from. | `UnitTestKit.RunResponse(t, X.New(), "weak_max_age.http")` |
+| `Structure` | A directory per scenario laid out as a website (`sites/exposed_env/.env`, `sites/apache_uploads/uploads/index.html`) | `UnitTestKit.ServeSite(t, dir, options...)`, then `UnitTestKit.RunTarget(t, X.New(), server.URL)` |
+| `PreResponse` | Target URLs, and prepared answers of the external service the test consults (RDAP, URLhaus) | `UnitTestKit.RunTarget(t, X.New(), address)` against a local stand-in named through the test's environment variable |
+
+`UnitTestKit` also provides `Expect(t, result, level, fragments...)`, `Metadata(t, result)` —
+the metadata as the JSON a report carries — and `ServeNVD`, a stand-in for the NVD API used by
+the server-header and CVE tests. `ServeSite` lifts the SSRF protection for the duration of the
+test only.
+
+A fixture is named after what it represents (`missing_header.http`, `soft_not_found/`) and
+carries a line of body text saying so. Fixtures that look like what a scanner hunts for are obviously fake
+(`DB_PASSWORD=fixture-not-a-real-password`, `CVE-2099-…`). Where the repository's `.gitignore`
+would drop a fixture (`*.pem`, `.env`), a `.gitignore` next to it re-includes it; a `.git`
+directory cannot be committed at all, so that site stores it as `dot-git/` and the test copies
+it under its real name before serving. Tests assert what the test *should* report: a
+behaviour that is a bug is left out and reported, never written down as expected.
+
+```bash
+go test ./App/...
+```
+
 ## Adding a test
 
 1. Create `SiteTests/<Name>Test/`.
-2. Write `README.md`, `core.go`, `config.go` and — if it has data — `data.go`.
+2. Write `README.md`, `core.go`, `config.go` and — if it has data — `data.go`, and prepared
+   data with its tests in `UnitTests/`.
 3. Register the package's `New()` in [`App/Registry`](../Registry/README.md).
 4. Add the identifier to the `--tests` whitelist in [`App/parser`](../parser/README.md).
 5. Add the test to the table in [CLI guide](../../QuickStart/CLI.md) and

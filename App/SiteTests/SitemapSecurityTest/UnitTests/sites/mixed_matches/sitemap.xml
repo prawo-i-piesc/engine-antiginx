@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Each dangerous URL matches several fragments; it is reported once, under the longest -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://shop.example/</loc></url>
+  <url><loc>https://shop.example/.git/config</loc></url>
+  <url><loc>https://shop.example/admin/login</loc></url>
+  <url><loc>https://shop.example/api-docs/v1</loc></url>
+  <url><loc>
+    https://shop.example/admin/login
+  </loc></url>
+  <url><loc>/backups/2026-01-01.tar.gz</loc></url>
+</urlset>

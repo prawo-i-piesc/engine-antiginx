@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Server: Microsoft-HTTPAPI/2.0
+X-Powered-By: PHP/7.4.3
+Content-Type: text/html; charset=utf-8
+
+<html><body>The PHP release is disclosed by X-Powered-By</body></html>

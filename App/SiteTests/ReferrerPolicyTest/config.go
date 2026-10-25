@@ -9,7 +9,7 @@ const (
 )
 
 // missingDescription explains the verdict when the response carries no Referrer-Policy header.
-const missingDescription = "Missing Referrer-Policy header - using browser default policy (typically no-referrer-when-downgrade) which may leak referrer information on HTTPS to HTTP transitions"
+const missingDescription = "Missing Referrer-Policy header - relying on the browser default policy (strict-origin-when-cross-origin in current browsers; older browsers fall back to no-referrer-when-downgrade, which sends the full URL to other sites)"
 
 // Certainty reported when the header is present; an absent header is always reported with
 // full certainty.

@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /backup/
+Disallow: /.git/
+Disallow: /api/
+Disallow: /cart

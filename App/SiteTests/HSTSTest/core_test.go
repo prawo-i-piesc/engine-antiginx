@@ -22,13 +22,13 @@ func TestHSTSGrading(t *testing.T) {
 		want     SiteTests.ThreatLevel
 		contains string
 	}{
-		{"", SiteTests.Medium, "Missing HSTS header"},
+		{"", SiteTests.Low, "Missing HSTS header"},
 		{"max-age=31536000; includeSubDomains; preload", SiteTests.None, "1 year max-age and includes: includeSubDomains, preload - Excellent"},
 		{"max-age=31536000; includeSubDomains", SiteTests.Info, "Good security configuration"},
-		{"max-age=20000000", SiteTests.Low, "7 months max-age - Acceptable"},
-		{"max-age=60", SiteTests.Medium, "60 seconds max-age - Weak"},
-		{"includeSubDomains", SiteTests.High, "missing or invalid max-age"},
-		{"max-age=abc; preload", SiteTests.High, "missing or invalid max-age"},
+		{"max-age=20000000", SiteTests.Info, "7 months max-age - Acceptable"},
+		{"max-age=60", SiteTests.Low, "60 seconds max-age - Weak"},
+		{"includeSubDomains", SiteTests.Low, "missing or invalid max-age"},
+		{"max-age=abc; preload", SiteTests.Low, "missing or invalid max-age"},
 		{"MAX-AGE=63072000; INCLUDESUBDOMAINS", SiteTests.Info, "2 years max-age"},
 	}
 	for _, c := range cases {

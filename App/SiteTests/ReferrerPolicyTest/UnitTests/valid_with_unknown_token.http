@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Referrer-Policy: no-referrer, bogus-policy
+
+<html><body>A valid policy followed by an unknown token</body></html>

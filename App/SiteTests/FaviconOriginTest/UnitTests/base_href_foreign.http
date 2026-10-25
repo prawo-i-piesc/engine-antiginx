@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+X-Fixture-URL: https://example.com/
+
+<!doctype html>
+<html><head><title>Mirror</title>
+<base href="https://original-site.org/assets/">
+<link rel="icon" href="favicon.png">
+</head><body></body></html>

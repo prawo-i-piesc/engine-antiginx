@@ -1,0 +1,11 @@
+{
+  "query_status": "ok",
+  "urlhaus_reference": "https://urlhaus.abuse.ch/host/infected-host.test/",
+  "host": "infected-host.test",
+  "firstseen": "2026-10-10 06:30:00 UTC",
+  "url_count": 1,
+  "blacklists": {"spamhaus_dbl": "not listed", "surbl": "not listed"},
+  "urls": [
+    {"id": "3105000", "urlhaus_reference": "https://urlhaus.abuse.ch/url/3105000/", "url": "http://infected-host.test/wp-content/x.sh", "url_status": "online", "date_added": "2026-10-10 06:30:00 UTC", "threat": "malware_download", "reporter": "abuse_ch", "larted": "false", "takedown_time_seconds": null, "tags": ["sh"]}
+  ]
+}
