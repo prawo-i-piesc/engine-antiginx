@@ -14,14 +14,14 @@ go run ./App/main.go test --target example.com --tests serv-h-a
 
 ## What it checks
 
-- Twelve headers that commonly name the stack, from `Server` and `X-Powered-By` to `X-Generator` and `X-Drupal-Cache`.
+- Thirty-five headers that name the stack, from `Server` and `X-Powered-By` to CMS, build-server, cache and gateway headers such as `X-Drupal-Cache`, `X-Jenkins`, `X-Litespeed-Cache` and `X-Envoy-Upstream-Service-Time`. Request identifiers and generic proxy headers are left out, since every watched header counts towards the grade.
 - Which technology each header names, and the version it publishes alongside it.
 - Known CVEs for every technology and version pair, retrieved from the NIST NVD API.
 - Debug and diagnostic headers, which say more than a version number does.
 
 ## How it works
 
-1. Read the twelve headers listed in `data.go` from the response.
+1. Read the headers listed in `data.go` from the response.
 2. For each non-empty one, match its value against the signature table
    (`modules/technologydetection.go`) to name the technology, and extract the version from
    whichever format the vendor used — `nginx/1.18.0`, `PHP-7.4.3`, `Apache v2.4.41` and

@@ -37,7 +37,7 @@ go run ./App/main.go test --target example.com --tests permissions-policy
 | `total_directives` | How many features the policy names |
 | `restricted_features` | Features whose allowlist actually restricts |
 | `allowed_features` | Features left reachable |
-| `dangerous_allowed` | Of those, the ones reaching hardware or location |
+| `dangerous_allowed` | Of those, the ones reaching hardware, location, the screen, credentials or local data |
 | `suspicious_allowed` | Of those, the ones used for tracking and fingerprinting |
 | `wildcard_features` | Features granted to everything with `*` |
 
