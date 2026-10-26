@@ -10,7 +10,7 @@ import (
 
 func main() {
 	_ = godotenv.Load()
-	_, f := os.LookupEnv("BACK_URL")
+	_, f := os.LookupEnv("PIPE_COMMUNICATION")
 	errorHandler := GlobalHandler.InitializeErrorHandler(!f)
 	errorHandler.RunSafe()
 }

@@ -10,6 +10,7 @@ type CommandParameter struct {
 type TestJson struct {
 	Target     string              `json:"Target"`
 	Parameters []*CommandParameter `json:"Parameters"`
+	TaskId     string              `json:"TaskId"`
 }
 
 // Parameter defines validation rules for a command-line option.

@@ -1,27 +1,17 @@
 package Runner
 
 import (
+	"Engine-AntiGinx/App/Metrics"
+	"Engine-AntiGinx/App/Reporter/types"
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
 	"os"
 	"testing"
 )
 
-// Will be used when a factory pattern appears in project
-//type MockReporter struct {
-//}
-//
-//func (r *MockReporter) StartListening() <-chan int {
-//	done := make(chan int)
-//	done <- 0
-//	return done
-//}
-
-// For now tests only cover cases with CliReporter
-// Add more cases after implementation of factory pattern
 func TestJobRunner_Orchestrate(t *testing.T) {
-	if _, isSet := os.LookupEnv("BACK_URL"); isSet {
-		_ = os.Unsetenv("BACK_URL")
+	if _, isSet := os.LookupEnv("PIPE_COMMUNICATION"); isSet {
+		_ = os.Unsetenv("PIPE_COMMUNICATION")
 	}
 	// Given
 	mockContext := map[string]strategy.TestContext{
@@ -96,8 +86,12 @@ func TestJobRunner_Orchestrate(t *testing.T) {
 
 			// Then
 			runner := CreateJobRunner()
-			runner.Orchestrate(val.plan, &MockResolver{})
+
+			// Tworzymy buforowane kanały na potrzeby zaktualizowanej sygnatury Orchestrate
+			logChan := make(chan types.LogEvent, 10)
+			metricsChan := make(chan Metrics.MetricsEvent, 10)
+
+			runner.Orchestrate(val.plan, &MockResolver{}, logChan, metricsChan)
 		})
 	}
-
 }
