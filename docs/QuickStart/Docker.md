@@ -1,94 +1,49 @@
 # 🐳 Quick Start — Docker
-Run Engine-AntiGinx in a container without a local Go installation.
 
+The image contains the `App` scanner CLI, not the daemon. It runs a command and exits; deploy the daemon from its separate repository.
 
-<br>
+## Requirements
 
+- Docker
+- Network access to pull the image and reach scan targets
 
-## ✅ Requirements
-- Docker 24+
-- Internet access (to pull image / scan targets)
-- RabbitMQ (if running `Engined`)
+## Pre-built image
 
-
-<br>
-
-
-## Option A: Pre-built Image from GHCR 
-
-### Pull the Latest Image
 ```bash
 docker pull ghcr.io/prawo-i-piesc/engine-antiginx:latest
 ```
 
-### Scan from Container (CLI `App`)
+Running the image without arguments prints CLI help:
+
 ```bash
-docker run --rm \
-	ghcr.io/prawo-i-piesc/engine-antiginx:latest \
-	/engine-antiginx/App test --target example.com --tests https hsts serv-h-a
+docker run --rm ghcr.io/prawo-i-piesc/engine-antiginx:latest
 ```
 
-### JSON File Mode
+Run a scan by passing a CLI command after the image name:
+
 ```bash
-docker run --rm \
-	-v "$PWD":/work \
-	-w /work \
-	ghcr.io/prawo-i-piesc/engine-antiginx:latest \
-	/engine-antiginx/App json ./scan.json
+docker run --rm ghcr.io/prawo-i-piesc/engine-antiginx:latest \
+  test --target example.com --tests https hsts serv-h-a
 ```
 
-### Raw JSON Mode (stdin)
+For JSON input from a file, mount the file's directory and use its container path:
+
 ```bash
-cat scan.json | docker run --rm -i \
-	ghcr.io/prawo-i-piesc/engine-antiginx:latest \
-	/engine-antiginx/App rawjson
+docker run --rm -v "$PWD":/work:ro \
+  ghcr.io/prawo-i-piesc/engine-antiginx:latest json /work/scan.json
 ```
 
+For raw JSON via stdin, keep stdin open with `-i`:
 
-<br>
+```bash
+docker run --rm -i ghcr.io/prawo-i-piesc/engine-antiginx:latest rawjson < scan.json
+```
 
+## Build locally
 
-## Option B: Build Image Locally
-
-### Build the Image
 ```bash
 docker build -t engine-antiginx:local .
+docker run --rm engine-antiginx:local test --target example.com --tests https
 ```
 
-### Scan from Container (CLI `App`)
-```bash
-docker run --rm engine-antiginx:local /engine-antiginx/App test --target example.com --tests https
-```
-
-
-<br>
-
-
-## 🔄 Run Engined (RabbitMQ Worker)
-Start the worker that listens for scan tasks on RabbitMQ:
-```bash
-docker run --rm \
-	-e RABBITMQ_URL="amqp://guest:guest@host.docker.internal:5672/" \
-	-e BACK_URL="http://host.docker.internal:3000/api/results" \
-	ghcr.io/prawo-i-piesc/engine-antiginx:latest \
-	/engine-antiginx/Engined
-```
-
-`Engined` listens for messages on the `scan_queue` and runs `App` in `rawjson` mode for each one.
-
-
-<br>
-
-
-## 🛠️ Notes
-- The image contains both `App` and `Engined` binaries built in a multi-stage Dockerfile.
-- `App` is used for CLI scanning, while `Engined` is the background worker that processes RabbitMQ tasks.
-
-
-<br>
-
-
-## 🔧 Troubleshooting
-- **`RABBITMQ_URL environment variable is not set`** → Add `-e RABBITMQ_URL=...`.
-- **Cannot connect to RabbitMQ** → Check host, port, credentials, and container network.
-- **Target scan fails** → Verify the domain is reachable from the container.
+This CLI does not listen on a port and does not need a published port or a long-running deployment. To build and run it with Compose, see the [Docker Compose guide](./DockerCompose.md).

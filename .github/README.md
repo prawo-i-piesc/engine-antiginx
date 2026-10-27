@@ -1,6 +1,6 @@
 # ⚙️ Engine-AntiGinx
 A lightweight, fast, and scalable **Security testing engine** built with Go. Designed to identify vulnerabilities, security misconfigurations, and compliance issues across web applications with surgical precision.
-**Two deployment modes**: Standalone CLI for quick scans, or distributed worker for high-volume enterprise scanning via RabbitMQ message queue.
+This repository contains the standalone CLI scanner. The queue-driven daemon is maintained in a separate repository.
 
 
 <br>
@@ -18,7 +18,7 @@ A lightweight, fast, and scalable **Security testing engine** built with Go. Des
 **Core architecture:**
 
 - **App** — Fast CLI scanner for manual scans and test orchestration
-- **Engined** — Background daemon for high-throughput, queue-driven scanning
+- **Daemon** — Maintained separately for queue-driven scanning
 
 
 <br>
@@ -27,10 +27,9 @@ A lightweight, fast, and scalable **Security testing engine** built with Go. Des
 ## 💻 Technologies
 | Technology | Purpose | Details |
 |---|---|---|
-| 🎯 **Go 1.25** | Core language | Concurrent, compiled, production-ready |
+| 🎯 **Go 1.26.8** | Core language | Concurrent, compiled, production-ready |
 | 🐰 **RabbitMQ** | Task queue | Scale scanning to multiple workers |
 | 🐳 **Docker** | Containers | Multi-arch builds (amd64/arm64) |
-| 🐙 **Docker Compose** | Orchestration | One-command deployment with full stack |
 | 🔄 **GitHub Actions** | CI/CD | Automated builds, tests, releases |
 | 📦 **GHCR** | Registry | Pre-built images, always fresh |
 | 📚 **MkDocs** | Docs | Material theme, fast search, GitHub Pages |
@@ -44,7 +43,7 @@ A lightweight, fast, and scalable **Security testing engine** built with Go. Des
 - **⏱ High Performance** — Concurrent test execution with goroutines, minimal resource footprint
 - **🔗 Queue-Driven Architecture** — RabbitMQ integration for distributed, high-throughput scanning
 - **🎯 Structured Results** — CVSS severity levels, CVE identification, JSON output for integrations
-- **🚀 Easy Deployment** — Standalone CLI or containerized with Docker/Docker Compose
+- **🚀 Easy Deployment** — Standalone CLI or containerized with Docker
 - **📊 Enterprise-Ready** — Support for custom User-Agents, anti-bot detection, task tracking
 
 
@@ -66,14 +65,11 @@ Engine-AntiGinx/
 │   ├── Runner/               # Job orchestrator
 │   ├── execution/            # Execution plan & formatter system
 │   └── Tests/                # Security test implementations (12 tests)
-├── Engined/                  # Background Daemon
-│   ├── main.go               # RabbitMQ consumer entry point
-│   └── queueconfig.go        # Queue configuration
 ├── docs/                     # MkDocs documentation
 │   ├── EngineAntiginx/       # Project overview
 │   └── QuickStart/           # Installation & usage guides
-├── docker-compose.yml        # Container orchestration
 ├── Dockerfile                # Multi-stage Docker build
+├── docker-compose.yml        # One-off local CLI scans
 ├── mkdocs.yml                # Documentation configuration
 ├── go.mod                    # Go module dependencies
 ├── go.sum                    # Dependency lock
@@ -108,9 +104,8 @@ Engine-AntiGinx/
 ## 📋 Prerequisites
 | Component | Version | Purpose |
 |---|---|---|
-| Go | 1.25+ | Build & run locally |
+| Go | 1.26.8+ | Build & run locally |
 | Docker | 24+ | Containerization |
-| Docker Compose | 2.0+ | Orchestration |
 | RabbitMQ | 3.8+ | Task queue (optional) |
 
 
@@ -121,11 +116,10 @@ Engine-AntiGinx/
 Our documentation is comprehensive and organized into logical sections:
 
 - **[Engine-AntiGinx Documentation](https://prawo-i-piesc.github.io/engine-antiginx/)** - full documentation with detailed guides, API references, and architecture overviews.
-- **[Quick Start](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/QuickStart/)** — step-by-step guides for local CLI, Docker, and Docker Compose setups.
+- **[Quick Start](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/QuickStart/)** — step-by-step guides for local CLI, Docker, and Docker Compose.
     - [CLI Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/CLI/) — usage instructions for the standalone CLI scanner
     - [Docker Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/Docker/) — instructions for running the scanner in a Docker container
-    - [Docker Compose Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/) — full stack deployment with RabbitMQ and multiple workers
-
+    - [Docker Compose Guide](https://prawo-i-piesc.github.io/engine-antiginx/QuickStart/DockerCompose/) — local build and one-off scans
 
 <br>
 

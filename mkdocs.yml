@@ -76,7 +76,7 @@ nav:
       - Quick Start: QuickStart/QuickStart.md
       - CLI: QuickStart/CLI.md
       - Docker: QuickStart/Docker.md
-      - Docker-Compose (Archived): QuickStart/DockerCompose.md
+      - Docker Compose: QuickStart/DockerCompose.md
   - CLI Documentation:
       - App: App/README.md
       - CVE: App/CVE/README.md
