@@ -140,7 +140,7 @@ func TestPipeReporter_StartListening(t *testing.T) {
 
 	assert.Equal(t, 1, failedUploads)
 
-	w.Close()
+	assert.NoError(t, w.Close())
 	var buf bytes.Buffer
 	_, _ = io.Copy(&buf, r)
 	output := buf.String()
