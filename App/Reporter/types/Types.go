@@ -22,11 +22,11 @@ type EngineEventWrapper struct {
 	Event     json.RawMessage
 }
 
-type ResultType string
+type ResultType int
 
 const (
-	Message ResultType = "Message"
-	Success ResultType = "Success"
+	Message ResultType = iota
+	Success
 )
 
 // TestResultWrapper is the JSON payload sent to the backend.
@@ -41,7 +41,7 @@ type TestResultWrapper struct {
 
 func (r TestResultWrapper) String() string {
 	return fmt.Sprintf(
-		"TestResultWrapper{Target:%q, TestId:%q, Result:%+v, EndFlag:%t, ResultType:%q, ProcessInfo:%+v}",
+		"TestResultWrapper{Target:%q, TestId:%q, Result:%+v, EndFlag:%t, ResultType:%d, ProcessInfo:%+v}",
 		r.Target,
 		r.TestId,
 		r.Result,
