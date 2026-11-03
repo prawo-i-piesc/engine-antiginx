@@ -78,8 +78,11 @@ func (p *PipeReporter) StartListening() <-chan int {
 			}
 		}
 
+		if eventWrapper := p.prepareEndMessage(); eventWrapper != nil {
+			_ = encoder.Encode(eventWrapper)
+		}
+
 		done <- failedUploads
-		close(done)
 
 		for p.logChan != nil || p.metricsChan != nil {
 			var eventWrapper *types.EngineEventWrapper
@@ -103,9 +106,7 @@ func (p *PipeReporter) StartListening() <-chan int {
 			}
 		}
 
-		if eventWrapper := p.prepareEndMessage(); eventWrapper != nil {
-			_ = encoder.Encode(eventWrapper)
-		}
+		close(done)
 	}()
 
 	return done
