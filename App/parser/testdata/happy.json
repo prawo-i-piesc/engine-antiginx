@@ -1,5 +1,6 @@
 {
   "Target": "Target",
+  "TaskId": "test-taskId-123",
   "Parameters": [
     {
       "Name": "--tests",
