@@ -10,6 +10,7 @@ import (
 	"Engine-AntiGinx/App/execution/strategy"
 	"log/slog"
 	"sync"
+	"time"
 )
 
 // jobRunner coordinates strategy execution and reporting.
@@ -21,7 +22,7 @@ func CreateJobRunner() *jobRunner {
 }
 
 // Orchestrate runs the plan and waits for reporting to finish.
-func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.Resolver, logChannel chan types.LogEvent, metricsChannel chan Metrics.MetricsEvent) {
+func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.Resolver, logChannel chan types.LogEvent, metricsChannel chan Metrics.MetricsEvent, startTime time.Time) {
 	target := execPlan.Target
 	contexts := execPlan.Contexts
 	flag := execPlan.AntiBotFlag
@@ -68,11 +69,14 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.R
 	slog.Debug("Waiting for test goroutines to finish")
 	// Wait for all test goroutines to finish producing results.
 	wg.Wait()
+
 	close(channel)
 
 	slog.Info("All strategies completed, waiting for reporter to flush and shutdown")
 	// Block until the reporter processes all remaining items and shuts down.
 	failedUploads := <-doneChannel
+
+	Metrics.ObserveScanDurationTime(time.Since(startTime).Seconds())
 
 	if failedUploads > 0 {
 		Metrics.IncTotalScans("incomplete")
@@ -81,5 +85,7 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.R
 		Metrics.IncTotalScans("complete")
 		slog.Info("Orchestration completed successfully")
 	}
+
+	close(metricsChannel)
 	close(logChannel)
 }

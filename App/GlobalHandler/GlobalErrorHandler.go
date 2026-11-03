@@ -67,10 +67,7 @@ func (e *ErrorHandler) RunSafe() {
 	metricsChannel := make(chan Metrics.MetricsEvent, metricsChannelSize)
 	Metrics.SetChannel(metricsChannel)
 	start := time.Now()
-	defer func() {
-		Metrics.ObserveScanDurationTime(time.Since(start).Seconds())
-		close(metricsChannel)
-	}()
+
 	args := os.Args
 	resolver := parameterparser.CreateResolver()
 	parser, formatter := resolver.Resolve(args)
@@ -83,7 +80,7 @@ func (e *ErrorHandler) RunSafe() {
 
 	runner := Runner.CreateJobRunner()
 	repResolver := Reporter.NewResolver()
-	runner.Orchestrate(execPlan, repResolver, logChannel, metricsChannel)
+	runner.Orchestrate(execPlan, repResolver, logChannel, metricsChannel, start)
 }
 
 func (e *ErrorHandler) setupHandler(log chan<- types.LogEvent, taskId string) {

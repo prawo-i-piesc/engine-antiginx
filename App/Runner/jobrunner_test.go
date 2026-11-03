@@ -7,6 +7,7 @@ import (
 	"Engine-AntiGinx/App/execution/strategy"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestJobRunner_Orchestrate(t *testing.T) {
@@ -87,11 +88,10 @@ func TestJobRunner_Orchestrate(t *testing.T) {
 			// Then
 			runner := CreateJobRunner()
 
-			// Tworzymy buforowane kanały na potrzeby zaktualizowanej sygnatury Orchestrate
 			logChan := make(chan types.LogEvent, 10)
 			metricsChan := make(chan Metrics.MetricsEvent, 10)
-
-			runner.Orchestrate(val.plan, &MockResolver{}, logChan, metricsChan)
+			start := time.Now()
+			runner.Orchestrate(val.plan, &MockResolver{}, logChan, metricsChan, start)
 		})
 	}
 }

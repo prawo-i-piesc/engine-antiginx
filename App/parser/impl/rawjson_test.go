@@ -19,6 +19,7 @@ func TestRawJsonParser_Parse(t *testing.T) {
 			WantErrCode: 0,
 			Want: []*types2.CommandParameter{
 				{Name: "--target", Arguments: []string{"Target"}},
+				{Name: "--taskId", Arguments: []string{"test-taskId-123"}},
 				{Name: "--tests", Arguments: []string{"https", "csp"}},
 				{Name: "--antiBotDetection", Arguments: []string{""}},
 			},

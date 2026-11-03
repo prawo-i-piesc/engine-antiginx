@@ -35,7 +35,7 @@ func (p *PipeReporter) StartListening() <-chan int {
 		failedUploads := 0
 		encoder := json.NewEncoder(os.Stdout)
 
-		for p.resultChannel != nil || p.logChan != nil || p.metricsChan != nil {
+		for p.resultChannel != nil {
 			var eventWrapper *types.EngineEventWrapper
 			select {
 			case result, ok := <-p.resultChannel:
@@ -43,67 +43,69 @@ func (p *PipeReporter) StartListening() <-chan int {
 					p.resultChannel = nil
 					continue
 				}
-
 				resultWrapper := p.prepareResult(result, p.target, p.testId)
-
 				if resultWrapper == nil {
-					slog.Warn("Invalid event (skipped)",
-						slog.Any("Event", result))
+					slog.Warn("Invalid event (skipped)")
 					failedUploads++
 					continue
 				}
-
 				rawJson, err := json.Marshal(resultWrapper)
 				if err != nil {
-					slog.Warn("Cannot serialize result event (skipped)",
-						slog.Any("Event", resultWrapper),
-						slog.String("Error", err.Error()))
 					failedUploads++
 					continue
 				}
-
-				eventWrapper = &types.EngineEventWrapper{
-					EventType: types.Result,
-					Event:     rawJson,
-				}
+				eventWrapper = &types.EngineEventWrapper{EventType: types.Result, Event: rawJson}
 
 			case log, ok := <-p.logChan:
 				if !ok {
 					p.logChan = nil
 					continue
 				}
-
 				eventWrapper = p.prepareLogEvent(log)
-				if eventWrapper == nil {
-					failedUploads++
-					continue
-				}
 
 			case metric, ok := <-p.metricsChan:
 				if !ok {
 					p.metricsChan = nil
 					continue
 				}
-
 				eventWrapper = p.prepareMetricEvent(metric)
-				if eventWrapper == nil {
-					failedUploads++
-					continue
-				}
 			}
-			if err := encoder.Encode(eventWrapper); err != nil {
-				failedUploads++
-			}
-		}
 
-		if eventWrapper := p.prepareEndMessage(); eventWrapper != nil {
-			if err := encoder.Encode(eventWrapper); err != nil {
-				failedUploads++
+			if eventWrapper != nil {
+				if err := encoder.Encode(eventWrapper); err != nil {
+					failedUploads++
+				}
 			}
 		}
 
 		done <- failedUploads
 		close(done)
+
+		for p.logChan != nil || p.metricsChan != nil {
+			var eventWrapper *types.EngineEventWrapper
+			select {
+			case log, ok := <-p.logChan:
+				if !ok {
+					p.logChan = nil
+					continue
+				}
+				eventWrapper = p.prepareLogEvent(log)
+			case metric, ok := <-p.metricsChan:
+				if !ok {
+					p.metricsChan = nil
+					continue
+				}
+				eventWrapper = p.prepareMetricEvent(metric)
+			}
+
+			if eventWrapper != nil {
+				_ = encoder.Encode(eventWrapper)
+			}
+		}
+
+		if eventWrapper := p.prepareEndMessage(); eventWrapper != nil {
+			_ = encoder.Encode(eventWrapper)
+		}
 	}()
 
 	return done
