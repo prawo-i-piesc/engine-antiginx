@@ -104,6 +104,8 @@ func (p *PipeReporter) StartListening() <-chan int {
 			if eventWrapper != nil {
 				_ = encoder.Encode(eventWrapper)
 			}
+
+			_ = os.Stdout.Sync()
 		}
 
 		close(done)
