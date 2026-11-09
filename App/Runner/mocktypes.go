@@ -13,15 +13,15 @@ type MockReporter struct {
 	Ch chan strategy.ResultWrapper
 }
 
-func (mr *MockReporter) StartListening() <-chan int {
+func (m *MockReporter) StartListening() <-chan int {
+	done := make(chan int)
+
 	go func() {
-		for range mr.Ch {
-			//	Consume all data passed
-		}
+		done <- 0
+		close(done)
 	}()
-	mockChan := make(chan int, 1)
-	mockChan <- 0
-	return mockChan
+
+	return done
 }
 
 type MockResolver struct{}

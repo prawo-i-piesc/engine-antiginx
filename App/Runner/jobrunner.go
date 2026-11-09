@@ -88,4 +88,6 @@ func (j *jobRunner) Orchestrate(execPlan *execution.Plan, repResolver Reporter.R
 
 	close(metricsChannel)
 	close(logChannel)
+
+	<-doneChannel
 }

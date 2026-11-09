@@ -131,14 +131,15 @@ func TestPipeReporter_StartListening(t *testing.T) {
 	metChan <- Metrics.MetricsEvent{Name: "metric_test"}
 
 	resChan <- strategy.WrapStrategyResult(nil, nil, nil)
-
 	close(resChan)
+
+	failedUploads := <-done
+	assert.Equal(t, 1, failedUploads)
+
 	close(logChan)
 	close(metChan)
 
-	failedUploads := <-done
-
-	assert.Equal(t, 1, failedUploads)
+	<-done
 
 	assert.NoError(t, w.Close())
 	var buf bytes.Buffer
