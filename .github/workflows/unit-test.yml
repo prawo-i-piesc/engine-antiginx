@@ -1,4 +1,4 @@
-name: Unit Verification
+name: Unit Test Verification
 run-name: >-
   ${{
       github.event_name == 'pull_request'
@@ -7,6 +7,7 @@ run-name: >-
       github.event_name == 'push'
       && format('Unit Test Verification for CI: Merge -> {0}', github.event.head_commit.message)
   }}
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -17,12 +18,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('{0}-pr-{1}', github.workflow, github.event.pull_request.number) || format('{0}-ref-{1}', github.workflow, github.ref) }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   unit-ci-test:
-    name: Testing
+    name: Go Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

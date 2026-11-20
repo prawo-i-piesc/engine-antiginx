@@ -1,21 +1,7 @@
 services:
   engine-antiginx:
-    image: ghcr.io/prawo-i-piesc/engine-antiginx:latest
-    container_name: engine-antiginx
-    restart: unless-stopped
-
-    ports:
-      - "${ENGINE_PORT}:5000"
-
+    build: .
+    image: engine-antiginx:local
     environment:
-      - BACK_URL=${BACK_URL}
-      - RABBITMQ_URL=${RABBITMQ_URL}
-      - ENGINE_ANTIGINX_CALL=${ENGINE_ANTIGINX_CALL}
-      - ANTIGINX_URLHAUS_AUTH_KEY=${ANTIGINX_URLHAUS_AUTH_KEY}
-
-    networks:
-      - vpn-net
-
-networks:
-  vpn-net:
-    external: true
+      - ANTIGINX_NVD_API_KEY
+      - ANTIGINX_URLHAUS_AUTH_KEY

@@ -11,17 +11,16 @@ This section guides you from zero to your first scan in just a few minutes.
 |---|---|---|
 | Quick scan from terminal | [CLI](./CLI.md) | Developers, Pentesters |
 | Scan via pre-built image | [Docker](./Docker.md) | DevOps, CI/CD |
-| Worker with RabbitMQ | [Docker Compose](./DockerCompose.md) | Backend / Queues |
+| Scan with a locally built image | [Docker Compose](./DockerCompose.md) | Local development |
+
 
 
 <br>
 
 
 ## ✅ Requirements
-- **Go 1.25+** (for local CLI mode)
-- **Docker** (for containers)
-- **Docker Compose** (for orchestration)
-- **RabbitMQ** (if running `Engined`)
+- **Go 1.26.8+** (for local CLI mode)
+- **Docker** (for running the CLI image or Docker Compose)
 
 
 <br>
@@ -29,8 +28,8 @@ This section guides you from zero to your first scan in just a few minutes.
 
 **🔧 Versions & Compatibility:**
 
-- `go.mod` specifies `go 1.25`.
-- Project image is built in multi-stage fashion and runs both `App` and `Engined` binaries.
+- `go.mod` specifies `go 1.26.8`.
+- The multi-stage image contains the `App` CLI binary only; the daemon is maintained in a separate repository.
 
 
 <br>
@@ -70,4 +69,4 @@ go run ./App/main.go test --target example.com --tests https hsts serv-h-a
 ## 🎯 What's Next?
 - Want full parameter docs and all available tests? → [CLI Guide](./CLI.md)
 - Want to run via container image? → [Docker Guide](./Docker.md)
-- Want a worker + queue setup? → [Docker Compose Guide](./DockerCompose.md)
+- Want to build and run locally with Compose? → [Docker Compose Guide](./DockerCompose.md)

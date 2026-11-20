@@ -118,14 +118,14 @@ func (p Prober) probe(client *http.Client, baseUrl string, candidate Candidate, 
 		ContentType: contentType,
 	}
 
-	switch {
-	case status == http.StatusOK:
+	switch status {
+	case http.StatusOK:
 		// On a soft-404 server a 200 only counts when the body is clearly not the catch-all page.
 		if base.soft200 && similarSize(len(body), base.soft200Size, p.SoftMatchPercent) {
 			return Exposure{}, false
 		}
 		return exposure, true
-	case status == http.StatusUnauthorized || status == http.StatusForbidden:
+	case http.StatusUnauthorized, http.StatusForbidden:
 		// The file exists but is access-controlled — only a signal if the server does not
 		// answer this way for everything.
 		if base.statuses[status] {

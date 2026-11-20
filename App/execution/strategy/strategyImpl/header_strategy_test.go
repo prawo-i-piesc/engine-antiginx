@@ -217,3 +217,15 @@ func TestHeaderTestHelp_Execute(t *testing.T) {
 		})
 	}
 }
+
+func TestHeaderTestStrategy_Metadata(t *testing.T) {
+	strat := InitializeHeaderStrategy(nil, nil, nil, nil)
+
+	if strat.GetName() != "--tests" {
+		t.Errorf("Expected GetName() to return '--tests', got '%s'", strat.GetName())
+	}
+
+	if strat.GetPreferredReporterType() != strategy.CLIReporter {
+		t.Errorf("Expected CLIReporter, got %v", strat.GetPreferredReporterType())
+	}
+}

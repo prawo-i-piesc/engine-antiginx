@@ -37,9 +37,11 @@ func (rj *RawJsonParser) Parse(userParameters []string) []*types.CommandParamete
 
 	parameters := commands.Parameters
 	target := commands.Target
-	if target == "" || parameters == nil || len(parameters) == 0 {
+	taskId := commands.TaskId
+	if target == "" || parameters == nil || len(parameters) == 0 || taskId == "" {
 		message := `Raw Json parser error occurred. This could be due to:
 				- empty target
+				- empty taskId
 				- not given or empty parameters`
 		panic(Errors.Error{
 			Code:        101,
@@ -53,7 +55,12 @@ func (rj *RawJsonParser) Parse(userParameters []string) []*types.CommandParamete
 		{
 			Name:      "--target",
 			Arguments: []string{target},
-		}}, parameters...)
+		},
+		{
+			Name:      "--taskId",
+			Arguments: []string{taskId},
+		},
+	}, parameters...)
 	err3 := helpers.CheckParameters(finalList)
 	if err3 != nil {
 		panic(err3)

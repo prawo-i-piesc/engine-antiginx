@@ -1,3 +1,4 @@
+// Package formatterImpl provides implementations of the execution formatter.
 package formatterImpl
 
 import (
@@ -5,6 +6,7 @@ import (
 	"Engine-AntiGinx/App/execution"
 	"Engine-AntiGinx/App/execution/strategy"
 	"Engine-AntiGinx/App/parser/config/types"
+	"log/slog"
 	"os"
 )
 
@@ -21,30 +23,40 @@ func InitializeFormatter(getStrategy func(name string) (strategy.TestStrategy, b
 
 // FormatParameters transforms a slice of CommandParameters into a cohesive Plan.
 func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *execution.Plan {
+	slog.Info("Starting to format parsed parameters into execution plan")
+
 	target := params[0].Arguments[0]
 
 	// Check for global flags
 	antiBotParam := findParam(params, "--antiBotDetection")
 	useAntiBotDetection := antiBotParam != -1
 
+	if useAntiBotDetection {
+		slog.Debug("Anti-bot detection flag enabled")
+	}
+
 	// Map parameters to executable strategies and their specific contexts
+	slog.Debug("Mapping strategies and contexts from parameters")
 	mappedStrategies, mappedContexts := f.mapStrategies(params, target)
+
 	var taskId string
-	if _, exists := os.LookupEnv("BACK_URL"); exists {
+	if _, exists := os.LookupEnv("PIPE_COMMUNICATION"); exists {
+		slog.Debug("PIPE_COMMUNICATION mode detected, extracting TaskId")
 		taskIdParam := findParam(params, "--taskId")
 		if taskIdParam == -1 {
+			slog.Error("Missing --taskId parameter in PIPE_COMMUNICATION mode")
 			panic(error.Error{
-				Code: 101,
-				Message: `Runner error occurred. This could be due to:
-					- Misconfiguration of testId param`,
+				Code:        101,
+				Message:     `Runner error occurred. This could be due to: - Misconfiguration of testId param`,
 				Source:      "Runner",
 				IsRetryable: false,
 			})
 		}
 		taskId = params[taskIdParam].Arguments[0]
+		slog.Debug("TaskId extracted successfully", slog.String("taskId", taskId))
 	}
 
-	return &execution.Plan{
+	plan := &execution.Plan{
 		Target:      target,
 		AntiBotFlag: useAntiBotDetection,
 		Strategies:  mappedStrategies,
@@ -52,6 +64,10 @@ func (f *ScanFormatter) FormatParameters(params []*types.CommandParameter) *exec
 		TaskId:      taskId,
 		IsHelp:      false,
 	}
+
+	plan.LogPlan()
+	slog.Info("Successfully formatted execution plan")
+	return plan
 }
 
 // mapStrategies iterates through provided parameters to find matching implementations in the strategy registry.
@@ -68,7 +84,10 @@ func (f *ScanFormatter) mapStrategies(params []*types.CommandParameter, target s
 	for i := 1; i < len(params); i++ {
 		s, ok := f.getStrategy(params[i].Name)
 		if ok {
+			slog.Debug("Found matching strategy for parameter", slog.String("strategy", s.GetName()))
+
 			if s.GetName() == "--all" {
+				slog.Debug("Strategy is '--all', applying shortcut")
 				allStrategy := append(make([]strategy.TestStrategy, 0, 1), s)
 				allStrategyContext := make(map[string]strategy.TestContext)
 				allStrategyContext[s.GetName()] = strategy.TestContext{
@@ -77,6 +96,7 @@ func (f *ScanFormatter) mapStrategies(params []*types.CommandParameter, target s
 				}
 				return allStrategy, allStrategyContext
 			}
+
 			mappedStrategies = append(mappedStrategies, s)
 			mappedContexts[s.GetName()] = strategy.TestContext{
 				Target: target,

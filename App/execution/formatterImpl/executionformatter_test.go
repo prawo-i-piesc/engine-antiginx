@@ -16,7 +16,7 @@ type scanFormatterTest struct {
 	input         []*types.CommandParameter
 	output        *execution.Plan
 	getStrategies func(name string) (strategy.TestStrategy, bool)
-	backEnvSet    bool
+	pipeEnvSet    bool
 }
 
 func TestScanFormatter_FormatParameters(t *testing.T) {
@@ -57,7 +57,7 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 			getStrategies: func(name string) (strategy.TestStrategy, bool) {
 				return mockStrategy, true
 			},
-			backEnvSet: false,
+			pipeEnvSet: false,
 		},
 		{
 			Name:    "TaskId param not set",
@@ -67,7 +67,7 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 			getStrategies: func(name string) (strategy.TestStrategy, bool) {
 				return mockStrategy, true
 			},
-			backEnvSet: true,
+			pipeEnvSet: true,
 		},
 		{
 			Name:    "Formatting with configured taskId",
@@ -80,7 +80,7 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 				}
 				return mockStrategy, true
 			},
-			backEnvSet: true,
+			pipeEnvSet: true,
 		},
 		{
 			Name:    "Formatting with --all param",
@@ -109,14 +109,14 @@ func TestScanFormatter_FormatParameters(t *testing.T) {
 				}
 				return mockStrategy, true
 			},
-			backEnvSet: false,
+			pipeEnvSet: false,
 		},
 	}
 
 	for _, val := range tests {
 		t.Run(val.Name, func(t *testing.T) {
-			if val.backEnvSet {
-				t.Setenv("BACK_URL", "test")
+			if val.pipeEnvSet {
+				t.Setenv("PIPE_COMMUNICATION", "true")
 			}
 			if val.wantErr {
 				assert.Panics(t, func() {

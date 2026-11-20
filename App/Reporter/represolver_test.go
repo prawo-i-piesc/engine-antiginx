@@ -2,6 +2,8 @@ package Reporter
 
 import (
 	"Engine-AntiGinx/App/Errors"
+	"Engine-AntiGinx/App/Metrics" // <-- Dodany import z racji przeniesienia metryk
+	"Engine-AntiGinx/App/Reporter/types"
 	"Engine-AntiGinx/App/execution/strategy"
 	"reflect"
 	"sync"
@@ -62,12 +64,12 @@ func TestResolver_Resolve(t *testing.T) {
 			wantReporterType: reflect.TypeOf(&helpReporter{}),
 		},
 		{
-			Name: "Resolve Backend Reporter",
+			Name: "Resolve Pipe Reporter", // <-- Zmiana na Pipe Reporter
 			strategies: []strategy.TestStrategy{
 				MockCliPrefStrategy{},
 			},
 			wantErr:          false,
-			wantReporterType: reflect.TypeOf(&backendReporter{}),
+			wantReporterType: reflect.TypeOf(&PipeReporter{}), // <-- Zmiana w oczekiwanym typie
 			setEnv:           true,
 		},
 		{
@@ -90,7 +92,7 @@ func TestResolver_Resolve(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
 			if tt.setEnv {
-				t.Setenv("BACK_URL", "test")
+				t.Setenv("PIPE_COMMUNICATION", "true") // <-- Zmiana flagi środowiskowej
 			}
 			defer func() {
 				r := recover()
@@ -110,11 +112,19 @@ func TestResolver_Resolve(t *testing.T) {
 					}
 				}
 			}()
+
 			resolver := NewResolver()
-			reporter := resolver.Resolve(make(chan strategy.ResultWrapper), "test", "test", 0, 0, tt.strategies)
-			of := reflect.TypeOf(reporter)
-			if !assert.Equal(t, tt.wantReporterType, of) {
-				t.Errorf("Expected reporter with type %T but got %T", tt.wantReporterType, of)
+
+			var dummyLogChan chan types.LogEvent
+			var dummyMetricsChan chan Metrics.MetricsEvent
+
+			reporter := resolver.Resolve(make(chan strategy.ResultWrapper), "testTaskId", "target", tt.strategies, dummyLogChan, dummyMetricsChan)
+
+			if !tt.wantErr {
+				of := reflect.TypeOf(reporter)
+				if !assert.Equal(t, tt.wantReporterType, of) {
+					t.Errorf("Expected reporter with type %T but got %T", tt.wantReporterType, of)
+				}
 			}
 		})
 	}

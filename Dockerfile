@@ -1,6 +1,4 @@
 # Variables
-ARG ENGINE_BINARY_APP_NAME=cli-app
-ARG ENGINE_BINARY_DAEMON_NAME=daemon
 ARG TARGETARCH
 
 ARG USERNAME=antiginx_user
@@ -35,8 +33,6 @@ RUN if [ -f go.mod ] && [ -f go.sum ]; then          \
 # STAGE: Build the application
 FROM base AS build
 
-ARG ENGINE_BINARY_APP_NAME
-ARG ENGINE_BINARY_DAEMON_NAME
 ARG TARGETARCH
 
 WORKDIR /app
@@ -48,17 +44,12 @@ COPY --from=deps /go/pkg/mod /go/pkg/mod
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o ./${ENGINE_BINARY_APP_NAME} ./App
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o ./${ENGINE_BINARY_DAEMON_NAME} ./Engined
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /app/cli-app ./App
 # ---
 
 
 # STAGE: Final image to run the application
 FROM run AS runner
-
-ARG ENGINE_BINARY_APP_NAME
-ARG ENGINE_BINARY_DAEMON_NAME
-ENV ENGINE_BINARY_DAEMON_NAME=${ENGINE_BINARY_DAEMON_NAME}
 
 ARG USERNAME
 ARG GROUPNAME
@@ -73,12 +64,10 @@ RUN apk --no-cache upgrade &&          \
 RUN addgroup -g ${USER_GID} -S ${GROUPNAME}
 RUN adduser -u ${USER_UID} -S ${USERNAME} -G ${GROUPNAME}
 
-COPY --from=build --chown=${USERNAME}:${GROUPNAME} /app/${ENGINE_BINARY_APP_NAME} ./${ENGINE_BINARY_APP_NAME}
-COPY --from=build --chown=${USERNAME}:${GROUPNAME} /app/${ENGINE_BINARY_DAEMON_NAME} ./${ENGINE_BINARY_DAEMON_NAME}
+COPY --from=build --chown=${USERNAME}:${GROUPNAME} /app/cli-app /app/cli-app
 
 USER ${USERNAME}
 
-EXPOSE 5000
-
-CMD ["/app/daemon"]
+ENTRYPOINT ["/app/cli-app"]
+CMD ["help"]
 # ---

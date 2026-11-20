@@ -2,6 +2,7 @@ package strategy
 
 import (
 	"Engine-AntiGinx/App/SiteTests"
+	"fmt"
 )
 
 // RequestInfo describes the outcome of loading the target's content.
@@ -16,6 +17,12 @@ type ResultWrapper struct {
 	testResult  *SiteTests.TestResult
 	reqInfo     *RequestInfo
 	helpMessage *HelpStrategyResult
+}
+
+// String returns a printable representation of the wrapped strategy result.
+func (w ResultWrapper) String() string {
+	return fmt.Sprintf("ResultWrapper{testResult: %+v, reqInfo: %+v, helpMessage: %+v}",
+		w.testResult, w.reqInfo, w.helpMessage)
 }
 
 // HelpStrategyResult represents the structured content of a help command output.
