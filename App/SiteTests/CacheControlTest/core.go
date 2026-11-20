@@ -106,7 +106,7 @@ func grade(a *CacheAnalysis) (SiteTests.ThreatLevel, string) {
 		return SiteTests.None, "No session cookie or password field found, so Cache-Control is not security relevant for this response."
 	}
 
-	// Levels follow what the weakness exposes (CWE-525), not how many findings there are: the
+	// Levels follow what the weakness exposes (CWE-524), not how many findings there are: the
 	// verdict is the most severe single finding.
 	level := SiteTests.None
 	var issues []string
@@ -115,7 +115,7 @@ func grade(a *CacheAnalysis) (SiteTests.ThreatLevel, string) {
 		var reason string
 		switch {
 		case a.Public:
-			// Declared storable by any cache: CWE-525, typically CVSS 5-6
+			// Declared storable by any cache: CWE-524, typically CVSS 5-6
 			reason = "Cache-Control: public"
 			level = SiteTests.Medium
 		case a.SharedMaxAge > 0:
