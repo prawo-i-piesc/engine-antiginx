@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -50,7 +49,7 @@ type CookieSecurityDetail struct {
 }
 
 // Analyze performs comprehensive analysis of all cookies
-func (a Analyzer) Analyze(cookies []*http.Cookie, headers http.Header) CookieSecurityAnalysis {
+func (a Analyzer) Analyze(cookies []*http.Cookie) CookieSecurityAnalysis {
 	analysis := CookieSecurityAnalysis{
 		TotalCookies:   len(cookies),
 		CookieDetails:  []CookieSecurityDetail{},
@@ -58,11 +57,8 @@ func (a Analyzer) Analyze(cookies []*http.Cookie, headers http.Header) CookieSec
 		CriticalIssues: []string{},
 	}
 
-	// Get raw Set-Cookie headers for additional analysis
-	setCookieHeaders := headers.Values("Set-Cookie")
-
-	for i, cookie := range cookies {
-		detail := a.analyzeSingleCookie(cookie, setCookieHeaders, i)
+	for _, cookie := range cookies {
+		detail := a.analyzeSingleCookie(cookie)
 		analysis.CookieDetails = append(analysis.CookieDetails, detail)
 
 		// Track security issues
@@ -101,7 +97,7 @@ func (a Analyzer) Analyze(cookies []*http.Cookie, headers http.Header) CookieSec
 }
 
 // analyzeSingleCookie performs detailed security analysis of a single cookie
-func (a Analyzer) analyzeSingleCookie(cookie *http.Cookie, setCookieHeaders []string, index int) CookieSecurityDetail {
+func (a Analyzer) analyzeSingleCookie(cookie *http.Cookie) CookieSecurityDetail {
 	detail := CookieSecurityDetail{
 		Name:            cookie.Name,
 		HasHttpOnly:     cookie.HttpOnly,
@@ -129,7 +125,7 @@ func (a Analyzer) analyzeSingleCookie(cookie *http.Cookie, setCookieHeaders []st
 	detail.PredictableValue = detail.CarriesAuthority && isPredictableValue(cookie.Value)
 
 	// Analyze security issues for this cookie
-	a.analyzeIndividualCookieSecurity(&detail, cookie, setCookieHeaders, index)
+	a.analyzeIndividualCookieSecurity(&detail)
 
 	// Calculate individual cookie security score
 	detail.SecurityScore = calculateIndividualCookieScore(detail)
@@ -138,7 +134,7 @@ func (a Analyzer) analyzeSingleCookie(cookie *http.Cookie, setCookieHeaders []st
 }
 
 // analyzeIndividualCookieSecurity identifies specific security issues
-func (a Analyzer) analyzeIndividualCookieSecurity(detail *CookieSecurityDetail, cookie *http.Cookie, headers []string, index int) {
+func (a Analyzer) analyzeIndividualCookieSecurity(detail *CookieSecurityDetail) {
 	// Check HttpOnly
 	if !detail.HasHttpOnly {
 		detail.SecurityIssues = append(detail.SecurityIssues, "Missing HttpOnly flag - vulnerable to XSS attacks")
@@ -154,8 +150,10 @@ func (a Analyzer) analyzeIndividualCookieSecurity(detail *CookieSecurityDetail, 
 		detail.SecurityIssues = append(detail.SecurityIssues, "Missing or inadequate SameSite attribute - vulnerable to CSRF")
 	}
 
-	// Check session cookie security
-	if detail.IsSessionCookie {
+	// Check session cookie security. Keyed on the cookie's name, not on IsSessionCookie: a
+	// cookie without an expiry date is a "session cookie" only in the browser's sense, and a
+	// preference such as theme=dark does not need the flags a session identifier does.
+	if detail.CarriesAuthority {
 		sessionIssues := []string{}
 		if !detail.HasHttpOnly {
 			sessionIssues = append(sessionIssues, "HttpOnly")
@@ -168,7 +166,7 @@ func (a Analyzer) analyzeIndividualCookieSecurity(detail *CookieSecurityDetail, 
 		}
 		if len(sessionIssues) > 0 {
 			detail.SecurityIssues = append(detail.SecurityIssues,
-				fmt.Sprintf("Session cookie missing critical flags: %s", strings.Join(sessionIssues, ", ")))
+				fmt.Sprintf("Session or credential cookie missing critical flags: %s", strings.Join(sessionIssues, ", ")))
 		}
 	}
 
@@ -291,22 +289,9 @@ func isPredictableValue(value string) bool {
 		return true
 	}
 
-	// Check if value is too short to be cryptographically secure (less than 16 chars)
-	if len(value) < 16 {
-		return true
-	}
-
-	// Check for timestamp-like values
-	if matched, _ := regexp.MatchString(`^\d{10,13}$`, value); matched {
-		if timestamp, err := strconv.ParseInt(value, 10, 64); err == nil {
-			// Check if it's a reasonable Unix timestamp
-			if timestamp > 1000000000 && timestamp < 9999999999 {
-				return true
-			}
-		}
-	}
-
-	return false
+	// Check if value is too short to be cryptographically secure (less than 16 chars).
+	// Timestamps need no check of their own: they are all digits, caught above.
+	return len(value) < 16
 }
 
 // formatDuration formats a duration in human-readable format

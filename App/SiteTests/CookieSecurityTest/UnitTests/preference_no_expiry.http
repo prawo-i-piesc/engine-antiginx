@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Set-Cookie: theme=dark; Path=/; Secure; SameSite=Lax
+
+<html><body>A preference cookie that lives only until the browser closes</body></html>

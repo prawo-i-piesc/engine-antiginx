@@ -65,8 +65,10 @@ func calculateIndividualCookieScore(detail CookieSecurityDetail) int {
 		score -= 15
 	}
 
-	// Extra penalty for insecure session cookies
-	if detail.IsSessionCookie && (!detail.HasHttpOnly || !detail.HasSecure) {
+	// Extra penalty for a session identifier or credential without its protections. Keyed on
+	// the name, not on IsSessionCookie: a preference cookie without an expiry date is a session
+	// cookie only in the browser's sense.
+	if detail.CarriesAuthority && (!detail.HasHttpOnly || !detail.HasSecure) {
 		score -= 10
 	}
 

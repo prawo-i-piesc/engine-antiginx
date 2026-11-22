@@ -26,19 +26,18 @@ The test runs in two stages, one per file in `modules/`.
 
 **Inspection** (`cookieanalysis.go`) walks every cookie the response sets. For each one it
 records the flags it declares, resolves its lifetime, and decides whether it is a session
-cookie and whether its name marks it as carrying authority. Because Go's cookie parser
-discards some attributes, the raw `Set-Cookie` headers are re-read alongside the parsed
-cookies. Individual issues are then aggregated into site-wide ones, so a report can say
-"three cookies lack HttpOnly" rather than repeating the same finding three times.
+cookie and whether its name marks it as carrying authority. Individual issues are then
+aggregated into site-wide ones, so a report can say "three cookies lack HttpOnly" rather than
+repeating the same finding three times.
 
 **Scoring** (`scoring.go`) turns those observations into numbers. Each cookie starts at 100
-and loses points per missing protection, weighted by what the cookie is: the same missing
-`HttpOnly` costs a session cookie far more than a preference cookie. The site's overall
-score is the aggregate, and the threat level is derived from it together with the two
-booleans that no score should be able to average away — an unprotected session cookie and a
-fixation risk. A predictable value is a fixation risk only on a cookie whose name marks it as
-a session identifier or a credential: a preference cookie such as `theme=dark` is meant to be
-guessable.
+and loses points per missing protection; a cookie whose name marks it as a session identifier
+or a credential loses 10 more when it lacks `HttpOnly` or `Secure`. The site's overall score
+is their average, lowered further by the two findings no average should be able to hide — an
+unprotected session cookie and a fixation risk. The score is reported for context only; the
+threat level is graded per cookie, as described below. A predictable value is a fixation risk
+only on a cookie whose name marks it as a session identifier or a credential: a preference
+cookie such as `theme=dark` is meant to be guessable.
 
 ## What it reports
 
@@ -70,6 +69,9 @@ the stricter standard, because its value is the account.
 
 Calibrated to OWASP ZAP alerts 10010, 10011 and 10054 (Low) for ordinary cookies and to the
 CWE classes named above for session cookies; see the SiteTests overview for the severity scale.
+
+Certainty is 100% when the verdict rests on flags and lifetimes read straight from `Set-Cookie`,
+and 85% when a predictable value is present, since that is inferred from the value's shape.
 
 ## Files
 

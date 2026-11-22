@@ -4,6 +4,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/CookieSecurityTest"
 	"Engine-AntiGinx/App/SiteTests/UnitTestKit"
+	"strings"
 	"testing"
 )
 
@@ -77,6 +78,39 @@ func TestPreferenceCookiesAreNotSessions(t *testing.T) {
 		cookie := detail.(map[string]any)
 		if cookie["name"] == "sidebar_state" && cookie["isSessionCookie"] == true {
 			t.Error("sidebar_state recognised as a session cookie")
+		}
+	}
+}
+
+// A cookie without an expiry date is a "session cookie" only in the browser's sense: theme=dark
+// missing HttpOnly is an ordinary Low finding, not a session identifier missing its flags.
+func TestNoExpiryPreferenceIsNotReportedAsSession(t *testing.T) {
+	result := UnitTestKit.RunResponse(t, CookieSecurityTest.New(), "preference_no_expiry.http")
+	// 100 - 25 (HttpOnly) - 5 (Lax), without the extra penalty for an unprotected session
+	UnitTestKit.Expect(t, result, SiteTests.Low, "1 cookie(s) missing HttpOnly flag", "security score of 70/100")
+	metadata := UnitTestKit.Metadata(t, result)
+	details, _ := metadata["cookieDetails"].([]any)
+	if len(details) != 1 {
+		t.Fatalf("cookie details %v", metadata["cookieDetails"])
+	}
+	for _, issue := range details[0].(map[string]any)["securityIssues"].([]any) {
+		if s, _ := issue.(string); strings.Contains(s, "cookie missing critical flags") {
+			t.Errorf("theme=dark reported as a session cookie: %q", s)
+		}
+	}
+}
+
+// A High verdict from the predictable-value heuristic is less certain than one read from flags.
+func TestCertaintyReflectsHeuristic(t *testing.T) {
+	cases := map[string]int{
+		"predictable_session.http": 85,
+		"session_unprotected.http": 100,
+		"session_hardened.http":    100,
+		"no_cookies.http":          100,
+	}
+	for fixture, want := range cases {
+		if got := UnitTestKit.RunResponse(t, CookieSecurityTest.New(), fixture).Certainty; got != want {
+			t.Errorf("%s: certainty %d, want %d", fixture, got, want)
 		}
 	}
 }

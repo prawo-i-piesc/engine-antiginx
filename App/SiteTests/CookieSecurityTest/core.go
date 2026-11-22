@@ -37,7 +37,7 @@ func New() *SiteTests.ResponseTest {
 			if len(cookies) == 0 {
 				return SiteTests.TestResult{
 					Name:        TestName,
-					Certainty:   100,
+					Certainty:   cookieFactCertainty,
 					ThreatLevel: SiteTests.Info,
 					Metadata:    nil,
 					Description: "No cookies set by the server - no cookie security concerns for this response.",
@@ -45,7 +45,7 @@ func New() *SiteTests.ResponseTest {
 			}
 
 			// Analyze all cookies
-			analysis := analyzer.Analyze(cookies, params.Response.Header)
+			analysis := analyzer.Analyze(cookies)
 
 			// Determine threat level
 			threatLevel := evaluateCookieThreatLevel(analysis)
@@ -53,9 +53,16 @@ func New() *SiteTests.ResponseTest {
 			// Generate description
 			description := generateCookieDescription(analysis)
 
+			// A predictable value is the only source of High, so when it is present the
+			// verdict rests on that heuristic
+			certainty := cookieFactCertainty
+			if analysis.FixationRisk {
+				certainty = cookiePredictableCertainty
+			}
+
 			return SiteTests.TestResult{
 				Name:        TestName,
-				Certainty:   100,
+				Certainty:   certainty,
 				ThreatLevel: threatLevel,
 				Metadata:    analysis,
 				Description: description,
