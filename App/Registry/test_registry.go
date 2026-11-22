@@ -8,6 +8,7 @@ import (
 	"Engine-AntiGinx/App/SiteTests/CSPTest"
 	"Engine-AntiGinx/App/SiteTests/CacheControlTest"
 	"Engine-AntiGinx/App/SiteTests/CookieSecurityTest"
+	"Engine-AntiGinx/App/SiteTests/CredentialFormTest"
 	"Engine-AntiGinx/App/SiteTests/CrossOriginTest"
 	"Engine-AntiGinx/App/SiteTests/DNSReputationTest"
 	"Engine-AntiGinx/App/SiteTests/DirectoryListingTest"
@@ -56,6 +57,7 @@ func init() {
 	registerTest(URLhausTest.New())
 	registerTest(FaviconOriginTest.New())
 	registerTest(CacheControlTest.New())
+	registerTest(CredentialFormTest.New())
 }
 
 // registerTest panics on duplicate test IDs.
