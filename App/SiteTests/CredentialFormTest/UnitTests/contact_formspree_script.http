@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form id="c"><input name="email"><textarea name="message"></textarea></form><script>fetch("https://formspree.io/f/abc", {method: "POST", body: new FormData(document.getElementById("c"))});</script></body></html>

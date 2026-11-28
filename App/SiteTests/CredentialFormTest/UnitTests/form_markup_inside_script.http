@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><script>var template = '<form action="https://formspree.io/f/abc"><input type="password" name="password"></form>';</script><p>Rendered later.</p></body></html>

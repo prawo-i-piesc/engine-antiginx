@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><input type="password" name="password"><script type="application/ld+json">{"@context":"https://schema.org","url":"https://api.telegram.org/bot1:A","potentialAction":"fetch("}</script></body></html>

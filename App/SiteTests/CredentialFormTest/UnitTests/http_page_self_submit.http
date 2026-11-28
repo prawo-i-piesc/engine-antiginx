@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+X-Fixture-URL: http://example.com/login
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="/login" method="post"><input type="password" name="password"></form></body></html>

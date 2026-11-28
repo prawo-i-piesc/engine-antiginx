@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="javascript:void(0)"><input type="password" name="password"></form></body></html>

